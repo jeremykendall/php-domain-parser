@@ -24,6 +24,7 @@ class DomainParser
         }
 
         $psl = include $dir . '/public_suffix_list.php';
+
         return $psl;
     }
 
