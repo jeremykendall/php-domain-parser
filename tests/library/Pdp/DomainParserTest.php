@@ -40,6 +40,9 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
             array('a.b.c.cy', 'c.cy'),
             array('a.b.example.uk.com', 'uk.com'),
             array('test.k12.ak.us', 'k12.ak.us'),
+            array('test.nic.ar', 'nic.ar'),
+            array('a.b.test.om', 'test.om'),
+            array('politics.news.omanpost.om', 'omanpost.om'),
         );
     }
 }
