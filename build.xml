@@ -7,7 +7,7 @@
         <exec
             passthru="${passthru}"
             dir="${project.basedir}"
-			command="phpunit" />
+			command="./vendor/bin/phpunit" />
     </target>
 
     <target name="php-cs-fixer" description="PHP Codings Standards fixer">
