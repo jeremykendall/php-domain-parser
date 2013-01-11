@@ -41,31 +41,4 @@ class DomainParser
         return $etld;
     }
 
-    public function getDomainSuffixFromArray(array $domainParts, array $publicSuffixList)
-    {
-        $sub = array_pop($domainParts);
-
-        $result = null;
-
-        if (isset($publicSuffixList['!'])) {
-            return '#';
-        }
-
-        if (is_array($publicSuffixList) && array_key_exists($sub, $publicSuffixList)) {
-            $result = $this->getDomainSuffixFromArray($domainParts, $publicSuffixList[$sub]);
-        } elseif (is_array($publicSuffixList) && array_key_exists('*', $publicSuffixList)) {
-            $result = $this->getDomainSuffixFromArray($domainParts, $publicSuffixList['*']);
-        } else {
-            return $sub;
-        }
-
-        // this is a hack 'cause PHP interpretes '' as null
-        if ($result == '#') {
-            return $sub;
-        } elseif (strlen($result) > 0) {
-            return $result.'.'.$sub;
-        }
-
-        return null;
-    }
 }
