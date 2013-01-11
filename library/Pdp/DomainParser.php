@@ -4,33 +4,17 @@ namespace Pdp;
 
 class DomainParser
 {
-    public function parsePublicSuffixList()
+
+    protected $publicSuffixList;
+
+    public function __construct(PublicSuffixList $publicSuffixList)
     {
-        $dir = __DIR__ . '/../../tests/_files';
-
-        if (!file_exists($dir . '/public_suffix_list.php')) {
-            $data = file(
-                $dir . '/public_suffix_list.txt',
-                FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
-            );
-
-            $publicSuffixList = array_filter($data, function($line) {
-                return strstr($line, '//') === false;
-            });
-
-            $psl = '<?php' . PHP_EOL . 'return ' . var_export($publicSuffixList, true) . ';';
-
-            file_put_contents($dir . '/public_suffix_list.php', $psl);
-        }
-
-        $psl = include $dir . '/public_suffix_list.php';
-
-        return $psl;
+        $this->publicSuffixList = $publicSuffixList;
     }
 
     public function getDomainSuffix($domain)
     {
-        $publicSuffixList = $this->parsePublicSuffixList();
+        $publicSuffixList = $this->publicSuffixList;
         $components = array_reverse(explode('.', $domain));
 
         $d = '';
@@ -42,22 +26,13 @@ class DomainParser
             $A = trim($a, '.');
             $D = trim($d, '.');
 
-            /*
-            d($domain);
-            d($a);
-            d($d);
-            d($A);
-            d($D);
-            d('------------------------------');
-             */
-
-            if (in_array("!{$D}", $publicSuffixList)) {
+            if ($this->publicSuffixList->search("!{$D}") !== false) {
                 $E = $D;
                 $E = trim($E, '.');
                 break;
-            } elseif (in_array($D, $publicSuffixList)) {
+            } elseif ($this->publicSuffixList->search($D) !== false) {
                 $E = $D;
-            } elseif (in_array($A, $publicSuffixList)) {
+            } elseif ($this->publicSuffixList->search($A) !== false) {
                 $E = $D;
             }
         }

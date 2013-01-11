@@ -6,32 +6,18 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
 {
     protected $parser;
 
-    protected $publicSuffixFile;
-
     protected function setUp()
     {
-        $this->parser = new DomainParser();
-        $this->publicSuffixFile = PDP_TEST_ROOT . '/_files/public_suffix_list.txt';
-        $this->assertFileExists($this->publicSuffixFile);
+		$publicSuffixListManager = new PublicSuffixListManager(PDP_TEST_ROOT . '/_files');
+		$publicSuffixList = new PublicSuffixList($publicSuffixListManager->getList());
+        $this->parser = new DomainParser($publicSuffixList);
     }
 
     protected function tearDown()
     {
         $this->parser = null;
     }
-    
-    /**
-     * @group parse
-     */
-    public function testParsePublicSuffixList()
-    {
-        $publicSuffixList = $this->parser->parsePublicSuffixList($this->publicSuffixFile);
-        $this->assertInternalType('array', $publicSuffixList);
-        $this->assertGreaterThanOrEqual(6000, count($publicSuffixList));
-        $this->assertTrue(array_search('stuff-4-sale.org', $publicSuffixList) !== false);
-        $this->assertTrue(array_search('net.ac', $publicSuffixList) !== false);
-    }
-
+	
     /**
      * @group wtf
      * @dataProvider domainSuffixDataProvider
@@ -39,18 +25,6 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
     public function testGetDomainSuffix($domain, $suffix)
     {
         $this->assertEquals($suffix, $this->parser->getDomainSuffix($domain));
-    }
-
-    /**
-     * @group faster
-     * @dataProvider domainSuffixDataProvider
-     */
-    public function testGetDomainSuffixFromArray($domain, $suffix)
-    {
-        $list = include PDP_TEST_ROOT . '/_files/publicSuffixList.php';
-        $components = explode('.', $domain);
-        
-        $this->assertEquals($suffix, $this->parser->getDomainSuffixFromArray($components, $list));
     }
 
     public function domainSuffixDataProvider() 
