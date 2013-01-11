@@ -14,7 +14,6 @@ class DomainParser
 
     public function getDomainSuffix($domain)
     {
-        $publicSuffixList = $this->publicSuffixList;
         $components = array_reverse(explode('.', $domain));
 
         $d = '';
