@@ -1,0 +1,8 @@
+{
+    "autoload": {
+        "psr-0": 
+        {
+            "Pdp": "library/"
+        }
+    }
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PHP Domain Parser" default="build">
+
+    <property file="build.properties" />
+
+    <target name="phpunit" description="Running unit tests">
+        <exec
+            passthru="${passthru}"
+            dir="${project.basedir}"
+			command="phpunit" />
+    </target>
+
+    <target name="php-cs-fixer" description="PHP Codings Standards fixer">
+        <exec
+            passthru="${passthru}"
+            command="php-cs-fixer --verbose fix library/" />
+    </target>
+
+    <target name="phpdoc" description="Generate API documentation">
+        <exec
+            passthru="${passthru}"
+            command="phpdoc
+                -d ${project.basedir}/library
+                -t ${project.basedir}/docs
+                --title='PHP Domain Parser'
+                --force" />
+    </target>
+    
+    <target name="build" description="Build app">
+        <phingCall target="php-cs-fixer" />
+        <phingCall target="phpunit" />
+        <phingCall target="phpdoc" />
+    </target>
+</project>
