@@ -1,8 +1,22 @@
 {
-    "autoload": {
-        "psr-0": 
-        {
-            "Pdp": "library/"
-        }
-    }
+	"require-dev": {
+		"mikey179/vfsStream": "1.1.*",
+		"jeremykendall/phpctagger": "dev-master",
+		"phpunit/phpunit": "3.7.*",
+		"phing/phing": "dev-master"
+	},
+	"autoload": {
+		"psr-0": 
+			{
+			"Pdp": "library/"
+		}
+	},
+	"scripts": {
+		"post-install-cmd": [
+			"PhpCtagger\\Composer\\Script\\Ctagger::ctag"
+		],
+		"post-update-cmd": [
+			"PhpCtagger\\Composer\\Script\\Ctagger::ctag"
+		]
+	}
 }
