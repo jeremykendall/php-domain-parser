@@ -26,6 +26,7 @@ class DomainParser
     /**
      * Public constructor
      *
+     * @codeCoverageIgnore
      * @param PublicSuffixList $publicSuffixList Instance of PublicSuffixList
      */
     public function __construct(PublicSuffixList $publicSuffixList)
@@ -43,11 +44,17 @@ class DomainParser
     {
         $parts = array();
 
-        $parts['url'] = strtolower(trim($url, '/'));
+        $parts['url'] = $url;
 
         preg_match('/^(\w.*):\/{2,3}/i', $parts['url'], $schemeMatches);
-        $parts['scheme'] = $schemeMatches[1];
-        $host = str_replace($schemeMatches[0], '', $parts['url']);
+
+        if (empty($schemeMatches)) {
+            $parts['scheme'] = null;
+            $host = $url;
+        } else {
+            $parts['scheme'] = $schemeMatches[1];
+            $host = str_replace($schemeMatches[0], '', $parts['url']);
+        }
 
         if (strpos($host, '/') !== false) {
             $parts['path'] = substr($host, strpos($host, '/'));
@@ -57,13 +64,17 @@ class DomainParser
             $parts['path'] = null;
         }
 
+        if (strlen($parts['path']) <= 1) {
+            $parts['path'] = null;
+        }
+
         $parts['registerableDomain'] = $this->getRegisterableDomain($host);
         $parts['publicSuffix'] = $this->getPublicSuffix($host);
-        $parts['subdomain'] = substr(
-            $host,
-            0,
-            strlen($host) - strlen($parts['registerableDomain']) - 1
-        );
+
+        $registerableDomainParts = explode('.', $parts['registerableDomain']);
+        $hostParts = explode('.', $host);
+        $subdomainParts = array_diff($hostParts, $registerableDomainParts);
+        $parts['subdomain'] = implode('.', $subdomainParts);
 
         return new Domain($parts);
     }
@@ -82,8 +93,7 @@ class DomainParser
     public function getRegisterableDomain($domain)
     {
         $domainParts = explode('.', strtolower($domain));
-        $publicSuffixList = $this->publicSuffixList->getList();
-        $registerableDomain = $this->breakdown($domainParts, $publicSuffixList);
+        $registerableDomain = $this->breakdown($domainParts, $this->publicSuffixList);
 
         return $registerableDomain;
     }
@@ -127,7 +137,7 @@ class DomainParser
      * List
      * @return string Public suffix
      */
-    public function breakdown(array $domainParts, array &$publicSuffixList)
+    public function breakdown(array $domainParts, $publicSuffixList)
     {
         $part = array_pop($domainParts);
         $result = null;
