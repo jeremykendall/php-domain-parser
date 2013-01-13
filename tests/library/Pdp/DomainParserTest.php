@@ -8,23 +8,43 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-		$publicSuffixListManager = new PublicSuffixListManager(PDP_TEST_ROOT . '/_files');
-		$publicSuffixList = new PublicSuffixList($publicSuffixListManager->getList());
-        $this->parser = new DomainParser($publicSuffixList);
+        parent::setUp();
+        $publicSuffixListArray = include PDP_TEST_ROOT . '/_files/public_suffix_list.php';
+        $this->parser = new DomainParser(
+            new PublicSuffixList($publicSuffixListArray)
+        );
     }
 
     protected function tearDown()
     {
         $this->parser = null;
+        parent::tearDown();
+    }
+
+    /**
+     * @covers \Pdp\DomainParser::parse()
+     */
+    public function testParse()
+    {
+        $url = 'http://www.waxaudio.com.au/audio/albums/the_mashening';
+        $domain = $this->parser->parse($url);
+
+        $this->assertInstanceOf('\Pdp\Domain', $domain);
+        $this->assertEquals($url, $domain->getUrl());
+        $this->assertEquals('http', $domain->getScheme());
+        $this->assertEquals('com.au', $domain->getPublicSuffix());
+        $this->assertEquals('waxaudio.com.au', $domain->getRegisterableDomain());
+        $this->assertEquals('www', $domain->getSubdomain());
+        $this->assertEquals('/audio/albums/the_mashening', $domain->getPath());
     }
 	
     /**
-     * @group wtf
+     * @covers \Pdp\DomainParser::getPublicSuffix()
      * @dataProvider domainSuffixDataProvider
      */
     public function testGetDomainSuffix($domain, $suffix)
     {
-        $this->assertEquals($suffix, $this->parser->getDomainSuffix($domain));
+        $this->assertEquals($suffix, $this->parser->getPublicSuffix($domain));
     }
 
     public function domainSuffixDataProvider() 
@@ -42,7 +62,9 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
             array('test.k12.ak.us', 'k12.ak.us'),
             array('test.nic.ar', 'nic.ar'),
             array('a.b.test.om', 'test.om'),
+            array('baez.songfest.om', 'songfest.om'),
             array('politics.news.omanpost.om', 'omanpost.om'),
+            array('com', null),
         );
     }
 }
