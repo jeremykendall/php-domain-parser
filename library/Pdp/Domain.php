@@ -29,7 +29,7 @@ class Domain
      * @var string Subdomain
      */
     private $subdomain;
-    
+
     /**
      * @var string Registerable domain
      */
@@ -89,5 +89,5 @@ class Domain
     {
         return $this->path;
     }
-    
+
 }
