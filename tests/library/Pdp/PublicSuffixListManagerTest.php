@@ -108,7 +108,7 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
             $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
 		$this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
 		$publicSuffixList = $this->listManager->getList();
-        $this->assertInternalType('array', $publicSuffixList);
+        $this->assertInstanceOf('\Pdp\PublicSuffixList', $publicSuffixList);
         $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);

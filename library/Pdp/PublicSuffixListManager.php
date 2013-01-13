@@ -33,7 +33,7 @@ class PublicSuffixListManager
     protected $cacheDir = '../../../data';
 
     /**
-     * @var string Public suffix list
+     * @var PublicSuffixList Public suffix list
      */
     protected $list;
 
@@ -148,14 +148,15 @@ class PublicSuffixListManager
     }
 
     /**
-     * Gets array representation of the Public Suffix List
+     * Gets Public Suffix List
      *
-     * @return array Array representation of the Public Suffix List
+     * @return PublicSuffixList Instance of Public Suffix List
      */
     public function getList()
     {
         if ($this->list == null) {
-            $this->list = include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
+            $list = include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
+            $this->list = new PublicSuffixList($list);
         }
 
         return $this->list;
