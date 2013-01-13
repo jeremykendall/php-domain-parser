@@ -60,31 +60,61 @@ class Domain
         $this->path = @$parts['path'];
     }
 
+    /**
+     * Gets url
+     *
+     * @return string Url
+     */
     public function getUrl()
     {
         return $this->url;
     }
 
+    /**
+     * Gets scheme
+     *
+     * @return string Scheme
+     */
     public function getScheme()
     {
         return $this->scheme;
     }
 
+    /**
+     * Gets subdomain
+     *
+     * @return string Subdomain
+     */
     public function getSubdomain()
     {
         return $this->subdomain;
     }
 
+    /**
+     * Gets registerable domain
+     *
+     * @return string Registerable domain
+     */
     public function getRegisterableDomain()
     {
         return $this->registerableDomain;
     }
 
+    /**
+     * Gets public suffix
+     *
+     * @return string Public suffix
+     */
     public function getPublicSuffix()
     {
         return $this->publicSuffix;
     }
 
+    /**
+     * Gets path
+     *
+     * @return string Path
+     */
     public function getPath()
     {
         return $this->path;
