@@ -20,6 +20,8 @@ use Pdp\HttpAdapter\HttpAdapterInterface;
  */
 class PublicSuffixListManager
 {
+    const PDP_PSL_TEXT_FILE = 'public-suffix-list.txt';
+    const PDP_PSL_PHP_FILE = 'public-suffix-list.php';
     /**
      * @var string Public Suffix List URL
      */
@@ -28,7 +30,7 @@ class PublicSuffixListManager
     /**
      * @var string Directory where text and php versions of list will be cached
      */
-    protected $cacheDir;
+    protected $cacheDir = '../../../data';
 
     /**
      * @var string Public suffix list
@@ -36,32 +38,29 @@ class PublicSuffixListManager
     protected $list;
 
     /**
-     * @var Pdp\HttpAdapter\HttpAdapterInterface Http adaper interface
-     */
-    protected $httpAdapter;
-
-    /**
      * Public constructor
      *
-     * @param string               $cacheDir    Cache directory
-     * @param HttpAdapterInterface $httpAdapter Http adapter interface
+     * @param string $cacheDir Optional cache dir. Will use default cache dir if
+     * not provided
      */
-    public function __construct($cacheDir, HttpAdapterInterface $httpAdapter)
+    public function __construct($cacheDir = null)
     {
-        $this->cacheDir = $cacheDir;
-        $this->httpAdapter = $httpAdapter;
+        if ($cacheDir !== null) {
+            $this->cacheDir = $cacheDir;
+        }
     }
 
     /**
-     * Obtain public suffix list text from its online source
+     * Obtain public suffix list from its online source and write to cache dir
      *
-     * @return string Public suffix list
+     * @param  HttpAdapterInterface $httpAdapter Http adapter
+     * @return string               Public suffix list
      */
-    public function fetchListFromSource()
+    public function fetchListFromSource(HttpAdapterInterface $httpAdapter)
     {
-        $publicSuffixList = $this->httpAdapter->getContent($this->publicSuffixListUrl);
+        $publicSuffixList = $httpAdapter->getContent($this->publicSuffixListUrl);
 
-        return $publicSuffixList;
+        return $this->write(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
     }
 
     /**
@@ -145,7 +144,7 @@ class PublicSuffixListManager
     {
         $data = '<?php' . PHP_EOL . 'return ' . var_export($publicSuffixList, true) . ';';
 
-        return $this->write('public_suffix_list.php', $data);
+        return $this->write(self::PDP_PSL_PHP_FILE, $data);
     }
 
     /**
@@ -156,7 +155,7 @@ class PublicSuffixListManager
     public function getList()
     {
         if ($this->list == null) {
-            $this->list = include $this->cacheDir . '/public_suffix_list.php';
+            $this->list = include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
         }
 
         return $this->list;
