@@ -23,6 +23,7 @@
                 -d ${project.basedir}/library
                 -t ${project.basedir}/docs
                 --title='PHP Domain Parser'
+                --defaultpackagename='Pdp'
                 --force" />
     </target>
     
