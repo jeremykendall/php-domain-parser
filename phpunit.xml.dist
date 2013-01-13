@@ -12,6 +12,9 @@
     <filter>
         <whitelist>
             <directory suffix=".php">./library</directory>
+            <exclude>
+                <file>./library/Pdp/Domain.php</file>
+            </exclude>
         </whitelist>
     </filter>
 
