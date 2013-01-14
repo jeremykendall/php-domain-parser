@@ -56,9 +56,26 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
 	}
 
-    /**
-     * @group interwebs
-     */
+    public function testRefreshPublicSuffixList()
+    {
+        $content = file_get_contents(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE);
+        
+        $httpAdapter = $this->getMock('\Pdp\HttpAdapter\HttpAdapterInterface');
+        $httpAdapter->expects($this->once())
+            ->method('getContent')
+            ->with($this->publicSuffixListUrl)
+            ->will($this->returnValue($content));
+
+        $this->assertFalse(file_exists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE));
+        $this->assertFalse(file_exists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
+
+        $this->listManager->refreshPublicSuffixList($httpAdapter);
+
+        $this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE);
+        $this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
+    }
+        
+
 	public function testFetchListFromSource()
 	{
         $content = file_get_contents(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE);

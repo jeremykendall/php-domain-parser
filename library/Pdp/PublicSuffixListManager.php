@@ -51,10 +51,23 @@ class PublicSuffixListManager
     }
 
     /**
+     * Downloads Public Suffix List and writes text cache and PHP cache. If these files
+     * already exist, they will be overwritten
+     *
+     * @param HttpAdapterInterface $httpAdapter Http adapter
+     */
+    public function refreshPublicSuffixList(HttpAdapterInterface $httpAdapter)
+    {
+        $this->fetchListFromSource($httpAdapter);
+        $publicSuffixListArray = $this->parseListToArray($this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE);
+        $this->writePhpCache($publicSuffixListArray);
+    }
+
+    /**
      * Obtain public suffix list from its online source and write to cache dir
      *
      * @param  HttpAdapterInterface $httpAdapter Http adapter
-     * @return string               Public suffix list
+     * @return int                  Number of bytes that were written to the file
      */
     public function fetchListFromSource(HttpAdapterInterface $httpAdapter)
     {
@@ -137,8 +150,7 @@ class PublicSuffixListManager
      * Writes php array representation of the Public Suffix List to disk
      *
      * @param array Array representation of the Public Suffix List
-     * @return int|false Number of bytes that were written to the file, or
-     * FALSE on failure
+     * @return int Number of bytes that were written to the file
      */
     public function writePhpCache(array $publicSuffixList)
     {
@@ -165,13 +177,19 @@ class PublicSuffixListManager
     /**
      * Writes to file
      *
-     * @param  string    $filename Filename in cache dir where data will be written
-     * @param  mixed     $data     Data to write
-     * @return int|false Number of bytes that were written to the file, or
-     * FALSE on failure
+     * @param  string     $filename Filename in cache dir where data will be written
+     * @param  mixed      $data     Data to write
+     * @return int        Number of bytes that were written to the file
+     * @throws \Exception Throws \Exception if unable to write file
      */
     private function write($filename, $data)
     {
-        return file_put_contents($this->cacheDir . '/' . $filename, $data);
+        $result = file_put_contents($this->cacheDir . '/' . $filename, $data);
+
+        if ($result === false) {
+            throw new \Exception("Cannot write '$filename'.");
+        }
+
+        return $result;
     }
 }
