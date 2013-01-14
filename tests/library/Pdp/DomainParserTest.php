@@ -73,12 +73,13 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
     }
 	
     /**
+     * @todo Add test cases to data provider
+     *
      * @covers \Pdp\DomainParser::getPublicSuffix()
      * @dataProvider domainSuffixDataProvider
      */
     public function testGetPublicSuffixSpecialCases($input, $expected)
     {
-        $this->markTestIncomplete('Test edge cases/errors here');
         $this->assertEquals($expected, $this->parser->getPublicSuffix($input));
     }
 
