@@ -43,12 +43,8 @@ class PublicSuffixListManager
      * @param string $cacheDir Optional cache dir. Will use default cache dir if
      * not provided
      */
-    public function __construct($cacheDir = null)
+    public function __construct($cacheDir)
     {
-        if ($cacheDir === null) {
-            $cacheDir = realpath(__DIR__ . '/../../data');
-        }
-
         $this->cacheDir = $cacheDir;
     }
 

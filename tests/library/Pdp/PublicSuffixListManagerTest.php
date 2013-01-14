@@ -132,15 +132,5 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
 	}
 
-    /**
-     * Tests that the location of the default cache dir is accurate
-     */
-    public function testGetCacheDir()
-    {
-        $defaultCacheDir = realpath(PDP_TEST_ROOT . '/../data');
-        $manager = new PublicSuffixListManager();
-        $this->assertEquals($defaultCacheDir, $manager->getCacheDir());
-    }
-
 }
 
