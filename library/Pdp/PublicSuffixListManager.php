@@ -38,6 +38,11 @@ class PublicSuffixListManager
     protected $list;
 
     /**
+     * @var \Pdp\HttpAdapter\HttpAdapterInterface Http adapter
+     */
+    protected $httpAdapter;
+
+    /**
      * Public constructor
      *
      * @param string $cacheDir Optional cache dir. Will use default cache dir if
@@ -51,12 +56,10 @@ class PublicSuffixListManager
     /**
      * Downloads Public Suffix List and writes text cache and PHP cache. If these files
      * already exist, they will be overwritten
-     *
-     * @param HttpAdapterInterface $httpAdapter Http adapter
      */
-    public function refreshPublicSuffixList(HttpAdapterInterface $httpAdapter)
+    public function refreshPublicSuffixList()
     {
-        $this->fetchListFromSource($httpAdapter);
+        $this->fetchListFromSource();
         $publicSuffixListArray = $this->parseListToArray($this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE);
         $this->writePhpCache($publicSuffixListArray);
     }
@@ -64,12 +67,11 @@ class PublicSuffixListManager
     /**
      * Obtain public suffix list from its online source and write to cache dir
      *
-     * @param  HttpAdapterInterface $httpAdapter Http adapter
-     * @return int                  Number of bytes that were written to the file
+     * @return int Number of bytes that were written to the file
      */
-    public function fetchListFromSource(HttpAdapterInterface $httpAdapter)
+    public function fetchListFromSource()
     {
-        $publicSuffixList = $httpAdapter->getContent($this->publicSuffixListUrl);
+        $publicSuffixList = $this->getHttpAdapter()->getContent($this->publicSuffixListUrl);
 
         return $this->write(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
     }
@@ -199,5 +201,29 @@ class PublicSuffixListManager
     public function getCacheDir()
     {
         return $this->cacheDir;
+    }
+
+    /**
+     * Returns http adapter. Returns default http adapter if one is not set.
+     *
+     * @return \Pdp\HttpAdapter\HttpAdapterInterface Http adapter
+     */
+    public function getHttpAdapter()
+    {
+        if ($this->httpAdapter === null) {
+            $this->httpAdapter = new HttpAdapter\CurlHttpAdapter();
+        }
+
+        return $this->httpAdapter;
+    }
+
+    /**
+     * Sets http adapter
+     *
+     * @param \Pdp\HttpAdapter\HttpAdapterInterface
+     */
+    public function setHttpAdapter(HttpAdapter\HttpAdapterInterface $httpAdapter)
+    {
+        $this->httpAdapter = $httpAdapter;
     }
 }

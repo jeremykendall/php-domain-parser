@@ -9,17 +9,17 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
     /**
      * @var PublicSuffixListManager List manager
      */
-	protected $listManager;
+    protected $listManager;
 
-	/**
-	 * @var  vfsStreamDirectory
-	 */
-	protected $root;
+    /**
+     * @var  vfsStreamDirectory
+     */
+    protected $root;
 
     /**
      * @var string Cache directory
      */
-	protected $cacheDir;
+    protected $cacheDir;
 
     /**
      * @var string Source file name
@@ -36,32 +36,40 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
      */
     protected $publicSuffixListUrl = 'http://mxr.mozilla.org/mozilla-central/source/netwerk/dns/effective_tld_names.dat?raw=1';
 
-	protected function setUp()
-	{
+    /**
+     * @var \Pdp\HttpAdapter\HttpAdapterInterface Http adapter
+     */
+    protected $httpAdapter;
+
+    protected function setUp()
+    {
         parent::setUp();
 
-		$this->root = vfsStream::setup('pdp');
-		vfsStream::create(array('cache' => array()), $this->root);
-		$this->cacheDir = vfsStream::url('pdp/cache');
-        
-        $this->listManager = new PublicSuffixListManager($this->cacheDir);
-	}
+        $this->root = vfsStream::setup('pdp');
+        vfsStream::create(array('cache' => array()), $this->root);
+        $this->cacheDir = vfsStream::url('pdp/cache');
 
-	protected function tearDown()
-	{
-		$this->cacheDir = null;
-		$this->root = null;
-		$this->listManager = null;
+        $this->listManager = new PublicSuffixListManager($this->cacheDir);
+
+        $this->httpAdapter = $this->getMock('\Pdp\HttpAdapter\HttpAdapterInterface');
+        $this->listManager->setHttpAdapter($this->httpAdapter);
+    }
+
+    protected function tearDown()
+    {
+        $this->cacheDir = null;
+        $this->root = null;
+        $this->httpAdapter = null;
+        $this->listManager = null;
 
         parent::tearDown();
-	}
+    }
 
     public function testRefreshPublicSuffixList()
     {
         $content = file_get_contents(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE);
-        
-        $httpAdapter = $this->getMock('\Pdp\HttpAdapter\HttpAdapterInterface');
-        $httpAdapter->expects($this->once())
+
+        $this->httpAdapter->expects($this->once())
             ->method('getContent')
             ->with($this->publicSuffixListUrl)
             ->will($this->returnValue($content));
@@ -69,41 +77,45 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(file_exists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE));
         $this->assertFalse(file_exists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
 
-        $this->listManager->refreshPublicSuffixList($httpAdapter);
+        $this->listManager->refreshPublicSuffixList();
 
         $this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE);
         $this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
     }
-        
 
-	public function testFetchListFromSource()
-	{
+    public function testFetchListFromSource()
+    {
         $content = file_get_contents(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE);
-        
-        $httpAdapter = $this->getMock('\Pdp\HttpAdapter\HttpAdapterInterface');
-        $httpAdapter->expects($this->once())
+
+        $this->httpAdapter->expects($this->once())
             ->method('getContent')
             ->with($this->publicSuffixListUrl)
             ->will($this->returnValue($content));
 
-        $publicSuffixList = $this->listManager->fetchListFromSource($httpAdapter);
+        $publicSuffixList = $this->listManager->fetchListFromSource();
         $this->assertGreaterThanOrEqual(100000, $publicSuffixList);
-	}
+    }
 
-	public function testWritePhpCache()
-	{
-		$this->assertFalse(file_exists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
+    public function testGetHttpAdapterReturnsDefaultCurlAdapterIfAdapterNotSet()
+    {
+        $listManager = new PublicSuffixListManager($this->cacheDir);
+        $this->assertInstanceOf('\Pdp\HttpAdapter\CurlHttpAdapter', $listManager->getHttpAdapter());
+    }
+
+    public function testWritePhpCache()
+    {
+        $this->assertFalse(file_exists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
         $array = $this->listManager->parseListToArray(
             PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
         );
         $this->assertGreaterThanOrEqual(230000, $this->listManager->writePhpCache($array));
-		$this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
-		$publicSuffixList = include $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
+        $this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
+        $publicSuffixList = include $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
         $this->assertInternalType('array', $publicSuffixList);
         $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
-	}
+    }
 
     public function testWriteThrowsExceptionIfCanNotWrite()
     {
@@ -120,17 +132,16 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $publicSuffixList);
     }
 
-	public function testGetList()
-	{
-        copy(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE, 
+    public function testGetList()
+    {
+        copy(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE,
             $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
-		$this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
-		$publicSuffixList = $this->listManager->getList();
+        $this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
+        $publicSuffixList = $this->listManager->getList();
         $this->assertInstanceOf('\Pdp\PublicSuffixList', $publicSuffixList);
         $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
-	}
+    }
 
 }
-
