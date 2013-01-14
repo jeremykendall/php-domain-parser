@@ -4,5 +4,7 @@ php:
   - 5.3
   - 5.4
 
+script: phpunit -c phpunit.xml.dist
+
 before_script:
   - composer install --dev
