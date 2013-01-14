@@ -74,7 +74,12 @@ class DomainParser
         $registerableDomainParts = explode('.', $parts['registerableDomain']);
         $hostParts = explode('.', $host);
         $subdomainParts = array_diff($hostParts, $registerableDomainParts);
-        $parts['subdomain'] = implode('.', $subdomainParts);
+
+        if (empty($subdomainParts)) {
+            $parts['subdomain'] = null;
+        } else {
+            $parts['subdomain'] = implode('.', $subdomainParts);
+        }
 
         return new Domain($parts);
     }
