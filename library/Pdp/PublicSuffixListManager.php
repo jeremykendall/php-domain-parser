@@ -189,7 +189,7 @@ class PublicSuffixListManager
         $result = @file_put_contents($this->cacheDir . '/' . $filename, $data);
 
         if ($result === false) {
-            throw new \Exception("Cannot write '$filename'");
+            throw new \Exception("Cannot write '" . $this->cacheDir . '/' . "$filename'");
         }
 
         return $result;
