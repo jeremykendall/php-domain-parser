@@ -56,12 +56,12 @@ class DomainParser
             $host = str_replace($schemeMatches[0], '', $parts['url']);
         }
 
+        $parts['path'] = null;
+
         if (strpos($host, '/') !== false) {
             $parts['path'] = substr($host, strpos($host, '/'));
             $split = explode('/', $host);
             $host = $split[0];
-        } else {
-            $parts['path'] = null;
         }
 
         if (strlen($parts['path']) <= 1) {
