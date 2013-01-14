@@ -30,7 +30,7 @@ class PublicSuffixListManager
     /**
      * @var string Directory where text and php versions of list will be cached
      */
-    protected $cacheDir = '../../../data';
+    protected $cacheDir;
 
     /**
      * @var PublicSuffixList Public suffix list
@@ -45,9 +45,11 @@ class PublicSuffixListManager
      */
     public function __construct($cacheDir = null)
     {
-        if ($cacheDir !== null) {
-            $this->cacheDir = $cacheDir;
+        if ($cacheDir === null) {
+            $cacheDir = realpath(__DIR__ . '/../../data');
         }
+
+        $this->cacheDir = $cacheDir;
     }
 
     /**
@@ -106,7 +108,7 @@ class PublicSuffixListManager
             $this->buildArray($publicSuffixListArray, $parts);
         }
 
-       return $publicSuffixListArray;
+        return $publicSuffixListArray;
     }
 
     /**
@@ -182,14 +184,24 @@ class PublicSuffixListManager
      * @return int        Number of bytes that were written to the file
      * @throws \Exception Throws \Exception if unable to write file
      */
-    private function write($filename, $data)
+    protected function write($filename, $data)
     {
-        $result = file_put_contents($this->cacheDir . '/' . $filename, $data);
+        $result = @file_put_contents($this->cacheDir . '/' . $filename, $data);
 
         if ($result === false) {
-            throw new \Exception("Cannot write '$filename'.");
+            throw new \Exception("Cannot write '$filename'");
         }
 
         return $result;
+    }
+
+    /**
+     * Returns cache directory
+     *
+     * @return string Cache directory
+     */
+    public function getCacheDir()
+    {
+        return $this->cacheDir;
     }
 }

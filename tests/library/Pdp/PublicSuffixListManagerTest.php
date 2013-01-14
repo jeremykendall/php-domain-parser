@@ -90,9 +90,6 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThanOrEqual(100000, $publicSuffixList);
 	}
 
-    /**
-     * @group write-cache
-     */
 	public function testWritePhpCache()
 	{
 		$this->assertFalse(file_exists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
@@ -108,9 +105,13 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
 	}
 
-    /**
-     * @group parse-to-array
-     */
+    public function testWriteThrowsExceptionIfCanNotWrite()
+    {
+        $this->setExpectedException('\Exception', "Cannot write 'public-suffix-list.php'");
+        $manager = new PublicSuffixListManager('/does/not/exist');
+        $manager->writePhpCache(array());
+    }
+
     public function testParseListToArray()
     {
         $publicSuffixList = $this->listManager->parseListToArray(
@@ -130,6 +131,16 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
 	}
+
+    /**
+     * Tests that the location of the default cache dir is accurate
+     */
+    public function testGetCacheDir()
+    {
+        $defaultCacheDir = realpath(PDP_TEST_ROOT . '/../data');
+        $manager = new PublicSuffixListManager();
+        $this->assertEquals($defaultCacheDir, $manager->getCacheDir());
+    }
 
 }
 
