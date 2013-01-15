@@ -9,6 +9,7 @@
             "role": "Developer"
         }
     ],
+    "bin": ["bin/pdp-psl"],
     "keywords": ["Public Suffix List", "domain parsing", "url parsing"],
     "require": {
         "php": ">=5.3.0",

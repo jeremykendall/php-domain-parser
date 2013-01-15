@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+
+ini_set('html_errors', 'off');
+
+if (is_dir($vendor = __DIR__.'/../vendor')) {
+    require($vendor.'/autoload.php');
+} elseif (is_dir($vendor = __DIR__.'/../../../../vendor')) {
+    require($vendor.'/autoload.php');
+} else {
+    die(
+        'You must set up the project dependencies, run the following commands:'.PHP_EOL.
+        'curl -s http://getcomposer.org/installer | php'.PHP_EOL.
+        'php composer.phar install'.PHP_EOL
+    );
+}
+
+if (!array_key_exists(1, $argv)) {
+    die('You must provide a directory as the only argument' . PHP_EOL);
+}
+
+try {
+    $manager = new \Pdp\PublicSuffixListManager($argv[1]);
+    $manager->refreshPublicSuffixList();
+} catch (\Exception $e) {
+    die($e->getMessage() . PHP_EOL);
+}
