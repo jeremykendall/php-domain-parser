@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-ini_set('html_errors', 'off');
-
 if (is_dir($vendor = __DIR__.'/../vendor')) {
     require($vendor.'/autoload.php');
 } elseif (is_dir($vendor = __DIR__.'/../../../../vendor')) {
@@ -15,8 +13,8 @@ if (is_dir($vendor = __DIR__.'/../vendor')) {
     );
 }
 
-if (!array_key_exists(1, $argv)) {
-    die('You must provide a directory as the only argument' . PHP_EOL);
+if ($argc != 2) {
+    die('Usage: pdp-psl <directory>' . PHP_EOL);
 }
 
 try {
