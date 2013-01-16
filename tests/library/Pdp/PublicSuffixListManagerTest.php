@@ -134,8 +134,10 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetList()
     {
-        copy(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE,
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
+        copy(
+            PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE,
+            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+        );
         $this->assertFileExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
         $publicSuffixList = $this->listManager->getList();
         $this->assertInstanceOf('\Pdp\PublicSuffixList', $publicSuffixList);

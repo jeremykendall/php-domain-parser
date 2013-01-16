@@ -16,7 +16,7 @@ use Pdp\HttpAdapter\HttpAdapterInterface;
  * Public Suffix List Manager
  *
  * This class obtains, writes, caches, and returns text and PHP representations
- * of the public suffix list
+ * of the Public Suffix List
  */
 class PublicSuffixListManager
 {
@@ -33,7 +33,7 @@ class PublicSuffixListManager
     protected $cacheDir;
 
     /**
-     * @var PublicSuffixList Public suffix list
+     * @var PublicSuffixList Public Suffix List
      */
     protected $list;
 
@@ -45,8 +45,7 @@ class PublicSuffixListManager
     /**
      * Public constructor
      *
-     * @param string $cacheDir Optional cache dir. Will use default cache dir if
-     * not provided
+     * @param string $cacheDir Cache directory
      */
     public function __construct($cacheDir)
     {
@@ -65,7 +64,7 @@ class PublicSuffixListManager
     }
 
     /**
-     * Obtain public suffix list from its online source and write to cache dir
+     * Obtain Public Suffix List from its online source and write to cache dir
      *
      * @return int Number of bytes that were written to the file
      */
@@ -84,7 +83,7 @@ class PublicSuffixListManager
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
-     * @param  string $textFile Public suffix list text filename
+     * @param  string $textFile Public Suffix List text filename
      * @return array  Associative, multidimensional array representation of the
      * public suffx list
      */
@@ -102,47 +101,47 @@ class PublicSuffixListManager
         $publicSuffixListArray = array();
 
         foreach ($data as $line) {
-            $parts = explode('.', $line);
-            $this->buildArray($publicSuffixListArray, $parts);
+            $ruleParts = explode('.', $line);
+            $this->buildArray($publicSuffixListArray, $ruleParts);
         }
 
         return $publicSuffixListArray;
     }
 
     /**
-     * Recursive method to build the multidimensional portions of the array
-     * representation of the public suffix list
+     * Recursive method to build the array representation of the Public Suffix List
      *
      * This method is based heavily on the code found in generateEffectiveTLDs.php
      * @link https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
-     * @param array $node Remaining portion of one dimensional public suffix
-     * list array
-     * @param array $parts Remaining portion of array of domain parts
+     * @param array $publicSuffixListArray Initially an empty array, this eventually
+     * becomes the array representation of the Public Suffix List
+     * @param array $ruleParts One line (rule) from the Public Suffix List
+     * exploded on '.', or the remaining portion of that array during recursion
      */
-    public function buildArray(&$node, $parts)
+    public function buildArray(array &$publicSuffixListArray, array $ruleParts)
     {
         $isDomain = true;
 
-        $part = array_pop($parts);
+        $part = array_pop($ruleParts);
 
         if (strpos($part, '!') === 0) {
             $part = substr($part, 1);
             $isDomain = false;
         }
 
-        if (!array_key_exists($part, $node)) {
+        if (!array_key_exists($part, $publicSuffixListArray)) {
             if ($isDomain) {
-                $node[$part] = array();
+                $publicSuffixListArray[$part] = array();
             } else {
-                $node[$part] = array('!' => '');
+                $publicSuffixListArray[$part] = array('!' => '');
             }
         }
 
-        if ($isDomain && count($parts) > 0) {
-            $this->buildArray($node[$part], $parts);
+        if ($isDomain && count($ruleParts) > 0) {
+            $this->buildArray($publicSuffixListArray[$part], $ruleParts);
         }
     }
 
@@ -191,16 +190,6 @@ class PublicSuffixListManager
         }
 
         return $result;
-    }
-
-    /**
-     * Returns cache directory
-     *
-     * @return string Cache directory
-     */
-    public function getCacheDir()
-    {
-        return $this->cacheDir;
     }
 
     /**
