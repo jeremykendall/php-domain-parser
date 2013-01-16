@@ -44,32 +44,24 @@ class DomainParser
     {
         $parts = array();
 
+        preg_match('/^(\w.*):\/{2,3}/i', $url, $schemeMatches);
+
+        $host = $url;
         $parts['url'] = $url;
-
-        preg_match('/^(\w.*):\/{2,3}/i', $parts['url'], $schemeMatches);
-
-        if (empty($schemeMatches)) {
-            $parts['scheme'] = null;
-            $host = $url;
-        } else {
-            $parts['scheme'] = $schemeMatches[1];
-            $host = str_replace($schemeMatches[0], '', $parts['url']);
-        }
-
         $parts['path'] = null;
+
+        if ($schemeMatches) {
+            $parts['scheme'] = $schemeMatches[1];
+            $host = str_replace($schemeMatches[0], '', $url);
+        }
 
         if (strpos($host, '/') !== false) {
             $parts['path'] = substr($host, strpos($host, '/'));
-            $split = explode('/', $host);
-            $host = $split[0];
-        }
-
-        if (strlen($parts['path']) <= 1) {
-            $parts['path'] = null;
+            $host = str_replace($parts['path'], '', $host);
         }
 
         $parts['registerableDomain'] = $this->getRegisterableDomain($host);
-        $parts['publicSuffix'] = $this->getPublicSuffix($host);
+        $parts['publicSuffix'] = substr($parts['registerableDomain'], strpos($parts['registerableDomain'], '.') + 1);
 
         $registerableDomainParts = explode('.', $parts['registerableDomain']);
         $hostParts = explode('.', $host);
@@ -100,30 +92,6 @@ class DomainParser
         $registerableDomain = $this->breakdown($domainParts, $this->publicSuffixList);
 
         return $registerableDomain;
-    }
-
-    /**
-     * Gets public suffix for provided domain
-     *
-     * This method is based heavily on the code found in regDomain.inc.php
-     * @link https://github.com/usrflo/registered-domain-libs/blob/master/PHP/regDomain.inc.php
-     * A copy of the Apache License, Version 2.0, is provided with this
-     * distribution
-     *
-     * @param  string $domain Domain
-     * @return string Public suffix
-     */
-    public function getPublicSuffix($domain)
-    {
-        $registerableDomain = $this->getRegisterableDomain($domain);
-        $registerableDomainParts = explode(
-            '.',
-            strtolower($registerableDomain)
-        );
-        array_shift($registerableDomainParts);
-        $publicSuffix = implode('.', $registerableDomainParts);
-
-        return $publicSuffix;
     }
 
     /**
