@@ -16,16 +16,6 @@ namespace Pdp;
 class Domain
 {
     /**
-     * @var string Url
-     */
-    private $url;
-
-    /**
-     * @var string Url scheme
-     */
-    private $scheme;
-
-    /**
      * @var string Subdomain
      */
     private $subdomain;
@@ -41,43 +31,15 @@ class Domain
     private $publicSuffix;
 
     /**
-     * @var string Url path
-     */
-    private $path;
-
-    /**
      * Public constructor
      *
      * @param array $parts Url parts
      */
     public function __construct(array $parts)
     {
-        $this->url = @$parts['url'];
-        $this->scheme = @$parts['scheme'];
         $this->subdomain = @$parts['subdomain'];
         $this->registerableDomain = @$parts['registerableDomain'];
         $this->publicSuffix = @$parts['publicSuffix'];
-        $this->path = @$parts['path'];
-    }
-
-    /**
-     * Gets url
-     *
-     * @return string Url
-     */
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
-    /**
-     * Gets scheme
-     *
-     * @return string Scheme
-     */
-    public function getScheme()
-    {
-        return $this->scheme;
     }
 
     /**
@@ -108,16 +70,6 @@ class Domain
     public function getPublicSuffix()
     {
         return $this->publicSuffix;
-    }
-
-    /**
-     * Gets path
-     *
-     * @return string Path
-     */
-    public function getPath()
-    {
-        return $this->path;
     }
 
 }
