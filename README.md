@@ -6,6 +6,21 @@ domain parser implemented in PHP.
 
 [![Build Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=master)](https://travis-ci.org/jeremykendall/php-domain-parser)
 
+Motivation
+----------
+
+While there are plenty of excellent URL parsers and builders available, there
+are very few projects that can accurately parse a domain into its component
+subomain, registerable domain, and public suffix parts.
+
+Consider the domain www.pref.okinawa.jp.  In this domain, the
+_public suffix_ portion is *okinawa.jp*, the _registerable domain_ is
+*pref.okinawa.jp*, and the _subdomain_ is *www*. You can't regex that.
+
+With that in mind, this library is intended to parse domains into their
+component parts and to do nothing more.  This library might then be used in
+concert with other URL tools, and not be in direct competition with them.
+
 Installation
 ------------
 
@@ -17,7 +32,7 @@ Create a `composer.json` file in the root of your project:
 ``` json
 {
     "require": {
-        "jeremykendall/php-domain-parser": "*"
+        "jeremykendall/php-domain-parser": "0.0.*"
     }
 }
 ```
@@ -39,10 +54,11 @@ Usage
 
 ### Obtain a local copy of the Public Suffix List ###
 
-First, you need a copy of the Public Suffix List:
+First, you need to get a copy of the Public Suffix List and cache it as an array. 
+Use the provided command line command `pdp-psl` to do so.
 
 ``` bash
-$ vendor/bin/pdp-psl <web-readable-directory>
+$ ./vendor/bin/pdp-psl <web-readable-directory>
 ```
 
 This will dowload a copy of the raw [Public Suffix
@@ -74,36 +90,24 @@ The above will output:
 
 ```
 object(Pdp\Domain)[4]
-  private 'url' => string 'https://github.com/jeremykendall/php-domain-parser' (length=50)
-  private 'scheme' => string 'https' (length=5)
   private 'subdomain' => null
   private 'registerableDomain' => string 'github.com' (length=10)
   private 'publicSuffix' => string 'com' (length=3)
-  private 'path' => string '/jeremykendall/php-domain-parser' (length=32)
 
 object(Pdp\Domain)[4]
-  private 'url' => string 'waxaudio.com.au' (length=15)
-  private 'scheme' => null
   private 'subdomain' => null
   private 'registerableDomain' => string 'waxaudio.com.au' (length=15)
   private 'publicSuffix' => string 'com.au' (length=6)
-  private 'path' => null
 
 object(Pdp\Domain)[4]
-  private 'url' => string 'http://www.scottwills.co.uk' (length=27)
-  private 'scheme' => string 'http' (length=4)
   private 'subdomain' => string 'www' (length=3)
   private 'registerableDomain' => string 'scottwills.co.uk' (length=16)
   private 'publicSuffix' => string 'co.uk' (length=5)
-  private 'path' => null
 
 object(Pdp\Domain)[4]
-  private 'url' => string 'http://www.pref.okinawa.jp' (length=26)
-  private 'scheme' => string 'http' (length=4)
   private 'subdomain' => string 'www' (length=3)
   private 'registerableDomain' => string 'pref.okinawa.jp' (length=15)
   private 'publicSuffix' => string 'okinawa.jp' (length=10)
-  private 'path' => null
 ```
 
 Getters are provided for the above private properties.  Obtaining the
