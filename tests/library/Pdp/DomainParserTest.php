@@ -53,10 +53,10 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
             array('www.scottwills.co.uk', 'co.uk', 'scottwills.co.uk', 'www'),
             array('b.ide.kyoto.jp', 'ide.kyoto.jp', 'b.ide.kyoto.jp', null),
             array('a.b.example.uk.com', 'uk.com', 'example.uk.com', 'a.b'),
-            array('test.nic.ar', 'nic.ar', 'test.nic.ar', null),
+            array('test.nic.ar', 'ar', 'nic.ar', 'test'),
             array('a.b.test.om', 'test.om', 'b.test.om', 'a', null),
-            array('baez.songfest.om', 'songfest.om', 'baez.songfest.om', null),
-            array('politics.news.omanpost.om', 'omanpost.om', 'news.omanpost.om', 'politics'),
+            array('baez.songfest.om', 'om', 'songfest.om', 'baez'),
+            array('politics.news.omanpost.om', 'om', 'omanpost.om', 'politics.news'),
         );
     }
 	
