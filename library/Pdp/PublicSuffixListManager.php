@@ -45,10 +45,14 @@ class PublicSuffixListManager
     /**
      * Public constructor
      *
-     * @param string $cacheDir Cache directory
+     * @param string $cacheDir Optional cache directory
      */
-    public function __construct($cacheDir)
+    public function __construct($cacheDir = null)
     {
+        if (is_null($cacheDir)) {
+            $cacheDir = realpath(dirname(__DIR__) . '/../psl');
+        }
+
         $this->cacheDir = $cacheDir;
     }
 
