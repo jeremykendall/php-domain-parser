@@ -11,11 +11,11 @@ Motivation
 
 While there are plenty of excellent URL parsers and builders available, there
 are very few projects that can accurately parse a domain into its component
-subomain, registerable domain, and public suffix parts.
+subdomain, registerable domain, and public suffix parts.
 
 Consider the domain www.pref.okinawa.jp.  In this domain, the
-_public suffix_ portion is *okinawa.jp*, the _registerable domain_ is
-*pref.okinawa.jp*, and the _subdomain_ is *www*. You can't regex that.
+**public suffix** portion is *okinawa.jp*, the **registerable domain** is
+*pref.okinawa.jp*, and the **subdomain** is *www*. You can't regex that.
 
 With that in mind, this library is intended to parse domains into their
 component parts and to do nothing more.  This library might then be used in
@@ -52,33 +52,17 @@ You're now ready to begin using the PHP Domain Parser.
 Usage
 -----
 
-### Obtain a local copy of the Public Suffix List ###
-
-First, you need to get a copy of the Public Suffix List and cache it as an array. 
-Use the provided command line command `pdp-psl` to do so.
-
-``` bash
-$ ./vendor/bin/pdp-psl <web-readable-directory>
-```
-
-This will dowload a copy of the raw [Public Suffix
-List](http://mxr.mozilla.org/mozilla-central/source/netwerk/dns/effective_tld_names.dat?raw=1) 
-and save it to `<web-readable-directory>/public-suffix-list.txt`.
-
-It will then parse `public-suffix-list.txt` into a PHP array and write that to
-`<web-readable-directory>/public-suffix-list.php`.
-
 ### Parsing ###
 
-Using the `public-suffix-list.php` you created in the previous step, create an
-instance of `\Pdp\PublicSuffixList`, pass that to `\Pdp\DomainParser`, and parse
-to your heart's content.
+Parsing domains is as simple as the example you see below.
 
 ``` php
 <?php
 
-$list = new \Pdp\PublicSuffixList('/path/to/public-suffix-list.php');
-$parser = new \Pdp\DomainParser($list);
+require_once '../vendor/autoload.php';
+
+$listManager = new \Pdp\PublicSuffixListManager();
+$parser = new \Pdp\DomainParser($listManager->getList());
 
 var_dump($parser->parse('https://github.com/jeremykendall/php-domain-parser'));
 var_dump($parser->parse('waxaudio.com.au'));
@@ -89,22 +73,19 @@ var_dump($parser->parse('http://www.pref.okinawa.jp'));
 The above will output:
 
 ```
-object(Pdp\Domain)[4]
+object(Pdp\Domain)[5]
   private 'subdomain' => null
   private 'registerableDomain' => string 'github.com' (length=10)
   private 'publicSuffix' => string 'com' (length=3)
-
-object(Pdp\Domain)[4]
+object(Pdp\Domain)[5]
   private 'subdomain' => null
   private 'registerableDomain' => string 'waxaudio.com.au' (length=15)
   private 'publicSuffix' => string 'com.au' (length=6)
-
-object(Pdp\Domain)[4]
+object(Pdp\Domain)[5]
   private 'subdomain' => string 'www' (length=3)
   private 'registerableDomain' => string 'scottwills.co.uk' (length=16)
   private 'publicSuffix' => string 'co.uk' (length=5)
-
-object(Pdp\Domain)[4]
+object(Pdp\Domain)[5]
   private 'subdomain' => string 'www' (length=3)
   private 'registerableDomain' => string 'pref.okinawa.jp' (length=15)
   private 'publicSuffix' => string 'okinawa.jp' (length=10)
@@ -121,6 +102,27 @@ $publicSuffix = $domain->getPublicSuffix();
 
 // $publicSuffix = 'com.au'
 ```
+
+### Refreshing the Public Suffix List ###
+
+While a cached PHP copy of the Public Suffix List is provided for you in the
+`psl` directory, that copy may or may not be up to date (Mozilla provides an
+[Atom change
+feed](http://hg.mozilla.org/mozilla-central/atom-log/default/netwerk/dns/effective_tld_names.dat) to keep
+up with changes to the list). Please use the provided vendor binary to refresh
+your cached copy of the Public Suffix List.
+
+From the root of your project, simply call:
+
+```
+$ ./vendor/bin/pdp-psl
+```
+
+You may verify the update by checking the timestamp on the files located in the
+`psl` directory.
+
+**Important**: The vendor binary `pdp-psl` depends on an internet connection to
+update the cached Public Suffix List.
 
 Attribution
 -----------

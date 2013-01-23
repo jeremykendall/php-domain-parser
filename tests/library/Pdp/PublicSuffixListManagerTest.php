@@ -146,4 +146,14 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
     }
 
+    public function testGetProvidedListFromDefaultCacheDir()
+    {
+        // By not providing cache I'm forcing use of default cache dir
+        $listManager = new PublicSuffixListManager();
+        $publicSuffixList = $listManager->getList();
+        $this->assertInstanceOf('\Pdp\PublicSuffixList', $publicSuffixList);
+        $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
+        $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
+        $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
+    }
 }

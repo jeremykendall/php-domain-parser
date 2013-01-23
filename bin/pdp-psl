@@ -13,12 +13,14 @@ if (is_dir($vendor = __DIR__.'/../vendor')) {
     );
 }
 
-if ($argc != 2) {
-    die('Usage: pdp-psl <directory>' . PHP_EOL);
+$cacheDir = null;
+
+if ($argc == 2 && is_dir($argv[1])) {
+    $cacheDir = $argv[1];
 }
 
 try {
-    $manager = new \Pdp\PublicSuffixListManager($argv[1]);
+    $manager = new \Pdp\PublicSuffixListManager($cacheDir);
     $manager->refreshPublicSuffixList();
 } catch (\Exception $e) {
     die($e->getMessage() . PHP_EOL);
