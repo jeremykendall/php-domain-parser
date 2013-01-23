@@ -37,9 +37,9 @@ class Domain
      */
     public function __construct(array $parts)
     {
-        $this->subdomain = @$parts['subdomain'];
-        $this->registerableDomain = @$parts['registerableDomain'];
-        $this->publicSuffix = @$parts['publicSuffix'];
+        $this->subdomain = isset($parts['subdomain']) ? $parts['subdomain'] : null;
+        $this->registerableDomain = isset($parts['registerableDomain']) ? $parts['registerableDomain'] : null;
+        $this->publicSuffix = isset($parts['publicSuffix']) ? $parts['publicSuffix'] : null;
     }
 
     /**
