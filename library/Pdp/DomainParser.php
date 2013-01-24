@@ -45,10 +45,10 @@ class DomainParser
         preg_match('#^https?://#i', $url, $schemeMatches);
 
         if (empty($schemeMatches)) {
-			$url = 'http://' . $url;
+            $url = 'http://' . $url;
         }
 
-		$parts = parse_url($url);
+        $parts = parse_url($url);
 
         $parts['registerableDomain'] = $this->getRegisterableDomain($parts['host']);
         $parts['publicSuffix'] = substr($parts['registerableDomain'], strpos($parts['registerableDomain'], '.') + 1);
