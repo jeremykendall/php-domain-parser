@@ -33,9 +33,7 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Pdp\Domain', $domain);
         
-        // This assertion ensures null subdomains actually are null 
-        $this->assertTrue($subdomain === $domain->getSubdomain());
-        
+        $this->assertSame($subdomain, $domain->getSubdomain());
         $this->assertEquals($publicSuffix, $domain->getPublicSuffix());
         $this->assertEquals($registerableDomain, $domain->getRegisterableDomain());
     }
