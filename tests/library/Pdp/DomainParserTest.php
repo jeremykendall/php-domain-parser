@@ -50,8 +50,6 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
 			$url = 'http://' . $url;
 		}
 
-		var_dump(parse_url($url));
-
 		$this->assertEquals($expected, parse_url($url, PHP_URL_HOST));
 	}
 
