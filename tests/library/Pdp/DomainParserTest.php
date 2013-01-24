@@ -38,6 +38,23 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($registerableDomain, $domain->getRegisterableDomain());
     }
 
+	/**
+     * @dataProvider parseDataProvider
+	 */
+	public function testPHPparse_urlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain)
+	{
+		$parts = array_filter(array($subdomain, $registerableDomain), 'strlen');
+		$expected = implode('.', $parts);
+		
+		if (strpos($url, 'http') !== 0) {
+			$url = 'http://' . $url;
+		}
+
+		var_dump(parse_url($url));
+
+		$this->assertEquals($expected, parse_url($url, PHP_URL_HOST));
+	}
+
     public function parseDataProvider()
     {
         return array(
