@@ -58,7 +58,7 @@ class DomainParser
         $subdomainParts = array_diff($hostParts, $registerableDomainParts);
         $parts['subdomain'] = implode('.', $subdomainParts);
 
-        if (empty($parts['subdomain']) && !is_null($parts['subdomain'])) {
+        if (empty($parts['subdomain'])) {
             $parts['subdomain'] = null;
         }
 
