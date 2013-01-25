@@ -42,33 +42,23 @@ class DomainParser
      */
     public function parse($url)
     {
-        $parts = array();
+        preg_match('#^https?://#i', $url, $schemeMatches);
 
-        preg_match('/^(\w.*):\/{2,3}/i', $url, $schemeMatches);
-
-        $host = $url;
-        $parts['url'] = $url;
-        $parts['path'] = null;
-
-        if ($schemeMatches) {
-            $parts['scheme'] = $schemeMatches[1];
-            $host = str_replace($schemeMatches[0], '', $url);
+        if (empty($schemeMatches)) {
+            $url = 'http://' . $url;
         }
 
-        if (strpos($host, '/') !== false) {
-            $parts['path'] = substr($host, strpos($host, '/'));
-            $host = str_replace($parts['path'], '', $host);
-        }
+        $parts = parse_url($url);
 
-        $parts['registerableDomain'] = $this->getRegisterableDomain($host);
+        $parts['registerableDomain'] = $this->getRegisterableDomain($parts['host']);
         $parts['publicSuffix'] = substr($parts['registerableDomain'], strpos($parts['registerableDomain'], '.') + 1);
 
         $registerableDomainParts = explode('.', $parts['registerableDomain']);
-        $hostParts = explode('.', $host);
+        $hostParts = explode('.', $parts['host']);
         $subdomainParts = array_diff($hostParts, $registerableDomainParts);
         $parts['subdomain'] = implode('.', $subdomainParts);
 
-        if (empty($parts['subdomain']) && !is_null($parts['subdomain'])) {
+        if (empty($parts['subdomain'])) {
             $parts['subdomain'] = null;
         }
 

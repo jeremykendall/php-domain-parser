@@ -33,12 +33,25 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Pdp\Domain', $domain);
         
-        // This assertion ensures null subdomains actually are null 
-        $this->assertTrue($subdomain === $domain->getSubdomain());
-        
+        $this->assertSame($subdomain, $domain->getSubdomain());
         $this->assertEquals($publicSuffix, $domain->getPublicSuffix());
         $this->assertEquals($registerableDomain, $domain->getRegisterableDomain());
     }
+
+	/**
+     * @dataProvider parseDataProvider
+	 */
+	public function testPHPparse_urlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain)
+	{
+		$parts = array_filter(array($subdomain, $registerableDomain), 'strlen');
+		$expected = implode('.', $parts);
+		
+		if (strpos($url, 'http') !== 0) {
+			$url = 'http://' . $url;
+		}
+
+		$this->assertEquals($expected, parse_url($url, PHP_URL_HOST));
+	}
 
     public function parseDataProvider()
     {
