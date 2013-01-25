@@ -51,7 +51,10 @@ class DomainParser
         $parts = parse_url($url);
 
         $parts['registerableDomain'] = $this->getRegisterableDomain($parts['host']);
-        $parts['publicSuffix'] = substr($parts['registerableDomain'], strpos($parts['registerableDomain'], '.') + 1);
+        $parts['publicSuffix'] = substr(
+            $parts['registerableDomain'],
+            strpos($parts['registerableDomain'], '.') + 1
+        );
 
         $registerableDomainParts = explode('.', $parts['registerableDomain']);
         $hostParts = explode('.', $parts['host']);
