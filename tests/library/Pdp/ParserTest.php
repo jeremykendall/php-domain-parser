@@ -2,7 +2,7 @@
 
 namespace Pdp;
 
-class DomainParserTest extends \PHPUnit_Framework_TestCase
+class ParserTest extends \PHPUnit_Framework_TestCase
 {
     protected $parser;
 
@@ -10,7 +10,7 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
         $publicSuffixListArray = include PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
-        $this->parser = new DomainParser(
+        $this->parser = new Parser(
             new PublicSuffixList($publicSuffixListArray)
         );
     }
@@ -22,7 +22,7 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\DomainParser::parse()
+     * @covers Pdp\Parser::parse()
      * @dataProvider parseDataProvider
      */
     public function testParse($url, $publicSuffix, $registerableDomain, $subdomain, $host)
@@ -37,7 +37,7 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\DomainParser::getPublicSuffix()
+     * @covers Pdp\Parser::getPublicSuffix()
      * @dataProvider parseDataProvider
      */
     public function testGetPublicSuffix($url, $publicSuffix, $registerableDomain, $subdomain, $host)
@@ -46,7 +46,7 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\DomainParser::getRegisterableDomain()
+     * @covers Pdp\Parser::getRegisterableDomain()
      * @dataProvider parseDataProvider
      */
     public function testGetRegisterableDomain($url, $publicSuffix, $registerableDomain, $subdomain, $host)
@@ -55,7 +55,7 @@ class DomainParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\DomainParser::getSubdomain()
+     * @covers Pdp\Parser::getSubdomain()
      * @dataProvider parseDataProvider
      */
     public function testGetSubdomain($url, $publicSuffix, $registerableDomain, $subdomain, $host)

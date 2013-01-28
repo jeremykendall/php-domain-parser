@@ -11,11 +11,11 @@
 namespace Pdp;
 
 /**
- * Domain Parser
+ * Parser
  *
- * This class is reponsible for domain parsing
+ * This class is reponsible for Public Suffix List based url parsing
  */
-class DomainParser
+class Parser
 {
 
     /**
