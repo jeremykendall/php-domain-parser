@@ -24,8 +24,8 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
 
     public function testPublicSuffixSpec()
     {
-        // Any copyright is dedicated to the Public Domain.
-        // http://creativecommons.org/publicdomain/zero/1.0/
+        // Test data from Rob Stradling at Comodo
+        // http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1
 
         // null input.
         $this->checkPublicSuffix(null, null);
@@ -39,15 +39,11 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
         $this->checkPublicSuffix('.example.com', null);
         $this->checkPublicSuffix('.example.example', null);
         // Unlisted TLD.
-        //$this->checkPublicSuffix('example', null);
-        //$this->checkPublicSuffix('example.example', 'example.example');
-        //$this->checkPublicSuffix('b.example.example', 'example.example');
-        //$this->checkPublicSuffix('a.b.example.example', 'example.example');
-        // Listed, but non-Internet, TLD.
-        //$this->checkPublicSuffix('local', null);
-        //$this->checkPublicSuffix('example.local', null);
-        //$this->checkPublicSuffix('b.example.local', null);
-        //$this->checkPublicSuffix('a.b.example.local', null);
+        // Addresses algorithm rule #2: If no rules match, the prevailing rule is "*".
+        $this->checkPublicSuffix('example', null);
+        $this->checkPublicSuffix('example.example', 'example.example');
+        $this->checkPublicSuffix('b.example.example', 'example.example');
+        $this->checkPublicSuffix('a.b.example.example', 'example.example');
         // TLD with only 1 rule.
         $this->checkPublicSuffix('biz', null);
         $this->checkPublicSuffix('domain.biz', 'domain.biz');
@@ -114,7 +110,7 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
      *
      * @link http://publicsuffix.org/list/
      *
-     * @param string $input Doman and public suffix
+     * @param string $input Domain and public suffix
      * @param string $expected Expected result
      */
     public function checkPublicSuffix($input, $expected)

@@ -49,23 +49,55 @@ class DomainParser
         }
 
         $parts = parse_url($url);
-
+        $parts['publicSuffix'] = $this->getPublicSuffix($parts['host']);
         $parts['registerableDomain'] = $this->getRegisterableDomain($parts['host']);
-        $parts['publicSuffix'] = substr(
-            $parts['registerableDomain'],
-            strpos($parts['registerableDomain'], '.') + 1
-        );
-
-        $registerableDomainParts = explode('.', $parts['registerableDomain']);
-        $hostParts = explode('.', $parts['host']);
-        $subdomainParts = array_diff($hostParts, $registerableDomainParts);
-        $parts['subdomain'] = implode('.', $subdomainParts);
-
-        if (empty($parts['subdomain'])) {
-            $parts['subdomain'] = null;
-        }
+        $parts['subdomain'] = $this->getSubdomain($parts['host']);
 
         return new Domain($parts);
+    }
+
+    /**
+     * Returns the public suffix portion of provided domain
+     *
+     * @param  string $domain domain
+     * @return string public suffix
+     */
+    public function getPublicSuffix($domain)
+    {
+        if (strpos($domain, '.') === 0) {
+            return null;
+        }
+
+        $domain = strtolower($domain);
+        $parts = array_reverse(explode('.', $domain));
+        $publicSuffix = array();
+        $publicSuffixList = $this->publicSuffixList;
+
+        foreach ($parts as $part) {
+            if (array_key_exists($part, $publicSuffixList)
+                && array_key_exists('!', $publicSuffixList[$part])) {
+                break;
+            }
+
+            if (array_key_exists($part, $publicSuffixList)) {
+                array_unshift($publicSuffix, $part);
+                $publicSuffixList = $publicSuffixList[$part];
+                continue;
+            }
+
+            if (array_key_exists('*', $publicSuffixList)) {
+                array_unshift($publicSuffix, $part);
+                $publicSuffixList = $publicSuffixList['*'];
+                continue;
+            }
+        }
+
+        // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
+        if (empty($publicSuffix)) {
+            $publicSuffix[0] = $parts[0];
+        }
+
+        return implode('.', array_filter($publicSuffix, 'strlen'));
     }
 
     /**
@@ -75,75 +107,49 @@ class DomainParser
      * (http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1),
      * this method should return null if the domain provided is a public suffix.
      *
-     * This method is based heavily on the code found in regDomain.inc.php
-     * @link https://github.com/usrflo/registered-domain-libs/blob/master/PHP/regDomain.inc.php
-     * A copy of the Apache License, Version 2.0, is provided with this
-     * distribution
-     *
-     * @param  string $domain Domain
-     * @return string Registerable domain
+     * @param  string $domain domain
+     * @return string registerable domain
      */
     public function getRegisterableDomain($domain)
     {
-        if (strpos($domain, '.') === 0) {
+        if (strpos($domain, '.') === false) {
             return null;
         }
 
-        $publicSuffix = array();
+        $domain = strtolower($domain);
+        $publicSuffix = $this->getPublicSuffix($domain);
 
-        $domainParts = explode('.', strtolower($domain));
-        $registerableDomain = $this->breakdown($domainParts, $this->publicSuffixList, $publicSuffix);
-
-        // Remove null values
-        $publicSuffix = array_filter($publicSuffix, 'strlen');
-
-        if ($registerableDomain == implode('.', $publicSuffix)) {
+        if ($publicSuffix === null || $domain == $publicSuffix) {
             return null;
         }
 
-        return $registerableDomain;
+        $publicSuffixParts = array_reverse(explode('.', $publicSuffix));
+        $domainParts = array_reverse(explode('.', $domain));
+        $registerableDomainParts = array_slice($domainParts, 0, count($publicSuffixParts) + 1);
+
+        return implode('.', array_reverse($registerableDomainParts));
     }
 
     /**
-     * Compares domain parts to the Public Suffix List
+     * Returns the subdomain portion of provided domain
      *
-     * This method is based heavily on the code found in regDomain.inc.php.
-     *
-     * A copy of the Apache License, Version 2.0, is provided with this
-     * distribution
-     *
-     * @link https://github.com/usrflo/registered-domain-libs/blob/master/PHP/regDomain.inc.php regDomain.inc.php
-     *
-     * @param array $domainParts      Domain parts as array
-     * @param array $publicSuffixList Array representation of the Public Suffix
-     * List
-     * @param  array  $publicSuffix Builds the public suffix during recursion
-     * @return string Public suffix
+     * @param  string $domain domain
+     * @return string subdomain
      */
-    public function breakdown(array $domainParts, $publicSuffixList, &$publicSuffix)
+    public function getSubdomain($domain)
     {
-        $part = array_pop($domainParts);
-        $result = null;
+        $domain = strtolower($domain);
+        $registerableDomain = $this->getRegisterableDomain($domain);
 
-        if (array_key_exists($part, $publicSuffixList) && array_key_exists('!', $publicSuffixList[$part])) {
-            return $part;
+        if ($registerableDomain === null || $domain == $registerableDomain) {
+            return null;
         }
 
-        if (array_key_exists($part, $publicSuffixList)) {
-            array_unshift($publicSuffix, $part);
-            $result = $this->breakdown($domainParts, $publicSuffixList[$part], $publicSuffix);
-        }
+        $registerableDomainParts = array_reverse(explode('.', $registerableDomain));
+        $domainParts = array_reverse(explode('.', $domain));
+        $subdomainParts = array_slice($domainParts, count($registerableDomainParts));
 
-        if (array_key_exists('*', $publicSuffixList)) {
-            array_unshift($publicSuffix, $part);
-            $result = $this->breakdown($domainParts, $publicSuffixList['*'], $publicSuffix);
-        }
-
-        if ($result === null) {
-            return $part;
-        }
-
-        return $result . '.' . $part;
+        return implode('.', array_reverse($subdomainParts));
     }
 
 }
