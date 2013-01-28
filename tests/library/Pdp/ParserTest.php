@@ -25,50 +25,50 @@ class ParserTest extends \PHPUnit_Framework_TestCase
      * @covers Pdp\Parser::parse()
      * @dataProvider parseDataProvider
      */
-    public function testParse($url, $publicSuffix, $registerableDomain, $subdomain, $host)
+    public function testParse($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
-        $domain = $this->parser->parse($url);
+        $host = $this->parser->parse($url);
 
-        $this->assertInstanceOf('\Pdp\Domain', $domain);
+        $this->assertInstanceOf('\Pdp\Host', $host);
         
-        $this->assertSame($subdomain, $domain->getSubdomain());
-        $this->assertEquals($publicSuffix, $domain->getPublicSuffix());
-        $this->assertEquals($registerableDomain, $domain->getRegisterableDomain());
+        $this->assertSame($subdomain, $host->getSubdomain());
+        $this->assertEquals($publicSuffix, $host->getPublicSuffix());
+        $this->assertEquals($registerableDomain, $host->getRegisterableDomain());
     }
 
     /**
      * @covers Pdp\Parser::getPublicSuffix()
      * @dataProvider parseDataProvider
      */
-    public function testGetPublicSuffix($url, $publicSuffix, $registerableDomain, $subdomain, $host)
+    public function testGetPublicSuffix($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
-        $this->assertSame($publicSuffix, $this->parser->getPublicSuffix($host));
+        $this->assertSame($publicSuffix, $this->parser->getPublicSuffix($hostPart));
     }
 
     /**
      * @covers Pdp\Parser::getRegisterableDomain()
      * @dataProvider parseDataProvider
      */
-    public function testGetRegisterableDomain($url, $publicSuffix, $registerableDomain, $subdomain, $host)
+    public function testGetRegisterableDomain($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
-        $this->assertSame($registerableDomain, $this->parser->getRegisterableDomain($host));
+        $this->assertSame($registerableDomain, $this->parser->getRegisterableDomain($hostPart));
     }
 
     /**
      * @covers Pdp\Parser::getSubdomain()
      * @dataProvider parseDataProvider
      */
-    public function testGetSubdomain($url, $publicSuffix, $registerableDomain, $subdomain, $host)
+    public function testGetSubdomain($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
-        $this->assertSame($subdomain, $this->parser->getSubdomain($host));
+        $this->assertSame($subdomain, $this->parser->getSubdomain($hostPart));
     }
     
 	/**
      * @dataProvider parseDataProvider
 	 */
-	public function testPHPparse_urlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain, $host)
+	public function testPHPparse_urlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
 	{
-		$this->assertEquals($host, parse_url('http://' . $host, PHP_URL_HOST));
+		$this->assertEquals($hostPart, parse_url('http://' . $hostPart, PHP_URL_HOST));
 	}
 
     public function parseDataProvider()

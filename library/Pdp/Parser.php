@@ -53,7 +53,7 @@ class Parser
         $parts['registerableDomain'] = $this->getRegisterableDomain($parts['host']);
         $parts['subdomain'] = $this->getSubdomain($parts['host']);
 
-        return new Domain($parts);
+        return new Host($parts);
     }
 
     /**

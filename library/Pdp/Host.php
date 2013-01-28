@@ -11,9 +11,9 @@
 namespace Pdp;
 
 /**
- * Represents a domain
+ * Represents the host portion of a Url
  */
-class Domain
+class Host
 {
     /**
      * @var string Subdomain
