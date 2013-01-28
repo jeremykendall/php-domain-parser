@@ -7,21 +7,21 @@ class PublicSuffixListTest extends \PHPUnit_Framework_TestCase
 	public function testLoadFromArray()
 	{
 		$array = include PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
-		$list = new PublicSuffixList($array);
-		$this->listAssertions($list);
+		$psl = new PublicSuffixList($array);
+		$this->listAssertions($psl);
 	}
 
 	public function testLoadFromFile()
 	{
-		$list = new PublicSuffixList(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
-		$this->listAssertions($list);
+		$psl = new PublicSuffixList(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
+		$this->listAssertions($psl);
 	}
 
-	public function listAssertions(PublicSuffixList $list)
+	public function listAssertions(PublicSuffixList $psl)
 	{
-		$this->assertArrayHasKey('com', $list);
-		$this->assertArrayHasKey('*', $list['uk']);
-		$this->assertGreaterThanOrEqual(300, count($list));
+		$this->assertArrayHasKey('com', $psl);
+		$this->assertArrayHasKey('*', $psl['uk']);
+		$this->assertGreaterThanOrEqual(300, count($psl));
 	}
 
 }
