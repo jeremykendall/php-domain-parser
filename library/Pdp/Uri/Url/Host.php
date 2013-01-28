@@ -8,7 +8,7 @@
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
 
-namespace Pdp;
+namespace Pdp\Uri\Url;
 
 /**
  * Represents the host portion of a Url

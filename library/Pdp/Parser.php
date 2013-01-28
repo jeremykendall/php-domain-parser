@@ -10,6 +10,8 @@
 
 namespace Pdp;
 
+use Pdp\Uri\Url\Host;
+
 /**
  * Parser
  *

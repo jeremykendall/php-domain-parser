@@ -29,7 +29,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     {
         $host = $this->parser->parse($url);
 
-        $this->assertInstanceOf('\Pdp\Host', $host);
+        $this->assertInstanceOf('\Pdp\Uri\Url\Host', $host);
         
         $this->assertSame($subdomain, $host->getSubdomain());
         $this->assertEquals($publicSuffix, $host->getPublicSuffix());
