@@ -9,9 +9,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-        $publicSuffixListArray = include PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
+        $file = realpath(dirname(__DIR__) . '/../../data/public-suffix-list.php');
         $this->parser = new Parser(
-            new PublicSuffixList($publicSuffixListArray)
+            new PublicSuffixList($file)
         );
     }
 

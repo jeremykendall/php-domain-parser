@@ -8,8 +8,6 @@ date_default_timezone_set('America/Chicago');
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-define('PDP_TEST_ROOT', __DIR__);
-
 function d($expression)
 {
     var_dump($expression);

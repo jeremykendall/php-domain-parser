@@ -6,14 +6,15 @@ class PublicSuffixListTest extends \PHPUnit_Framework_TestCase
 {
 	public function testLoadFromArray()
 	{
-		$array = include PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
-		$psl = new PublicSuffixList($array);
+        $file = realpath(dirname(__DIR__) . '/../../data/public-suffix-list.php');
+		$psl = new PublicSuffixList(include $file);
 		$this->listAssertions($psl);
 	}
 
 	public function testLoadFromFile()
 	{
-		$psl = new PublicSuffixList(PDP_TEST_ROOT . '/_files/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
+        $file = realpath(dirname(__DIR__) . '/../../data/public-suffix-list.php');
+		$psl = new PublicSuffixList($file);
 		$this->listAssertions($psl);
 	}
 

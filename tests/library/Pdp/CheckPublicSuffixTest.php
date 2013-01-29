@@ -14,7 +14,8 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->parser = new Parser(new PublicSuffixList(PDP_TEST_ROOT . '/_files/public-suffix-list.php'));
+        $file = realpath(dirname(__DIR__) . '/../../data/public-suffix-list.php');
+        $this->parser = new Parser(new PublicSuffixList($file));
     }
 
     protected function tearDown()
