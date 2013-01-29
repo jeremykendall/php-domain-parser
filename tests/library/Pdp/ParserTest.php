@@ -22,18 +22,23 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\Parser::parse()
+     * @covers Pdp\Parser::parseUrl()
      * @dataProvider parseDataProvider
      */
-    public function testParse($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testParseUrl($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
-        $host = $this->parser->parse($url);
+        $pdpUrl = $this->parser->parseUrl($url);
+        $this->assertInstanceOf('\Pdp\Uri\Url', $pdpUrl);
+    }
 
-        $this->assertInstanceOf('\Pdp\Uri\Url\Host', $host);
-        
-        $this->assertSame($subdomain, $host->getSubdomain());
-        $this->assertEquals($publicSuffix, $host->getPublicSuffix());
-        $this->assertEquals($registerableDomain, $host->getRegisterableDomain());
+    /**
+     * @covers Pdp\Parser::parseHost()
+     * @dataProvider parseDataProvider
+     */
+    public function testParseHost($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    {
+        $pdpHost = $this->parser->parseHost($hostPart);
+        $this->assertInstanceOf('\Pdp\Uri\Url\Host', $pdpHost);
     }
 
     /**

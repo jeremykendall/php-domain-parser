@@ -33,43 +33,42 @@ class Host
     /**
      * Public constructor
      *
-     * @param array $parts Url parts
+     * @param string|null $subdomain          Subdomain portion of host
+     * @param string      $registerableDomain Registerable domain portion of host
+     * @param string      $publicSuffix       Public suffix portion of host
      */
-    public function __construct(array $parts)
+    public function __construct($subdomain, $registerableDomain, $publicSuffix)
     {
-        $this->subdomain = isset($parts['subdomain']) ? $parts['subdomain'] : null;
-        $this->registerableDomain = isset($parts['registerableDomain']) ? $parts['registerableDomain'] : null;
-        $this->publicSuffix = isset($parts['publicSuffix']) ? $parts['publicSuffix'] : null;
+        $this->subdomain = $subdomain;
+        $this->registerableDomain = $registerableDomain;
+        $this->publicSuffix = $publicSuffix;
     }
 
     /**
-     * Gets subdomain
+     * Get string representation of host
      *
-     * @return string Subdomain
+     * @return string String representation of host
      */
-    public function getSubdomain()
+    public function __toString()
     {
-        return $this->subdomain;
+        $host = $this->registerableDomain;
+
+        if ($this->subdomain) {
+            $host = $this->subdomain . '.' . $host;
+        }
+
+        return $host;
     }
 
     /**
-     * Gets registerable domain
+     * Get property
      *
-     * @return string Registerable domain
+     * @param  string      $property Property to get
+     * @return string|null Property requested if exists and is set, null otherwise
      */
-    public function getRegisterableDomain()
+    public function __get($property)
     {
-        return $this->registerableDomain;
-    }
-
-    /**
-     * Gets public suffix
-     *
-     * @return string Public suffix
-     */
-    public function getPublicSuffix()
-    {
-        return $this->publicSuffix;
+        return $this->$property;
     }
 
 }

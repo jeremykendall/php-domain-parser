@@ -10,6 +10,7 @@
 
 namespace Pdp;
 
+use Pdp\Uri\Url;
 use Pdp\Uri\Url\Host;
 
 /**
@@ -40,10 +41,21 @@ class Parser
      * Parses url
      *
      * @param  string $url Url to parse
-     * @return Domain Parsed domain object
+     * @return Url    Object representation of url
      */
-    public function parse($url)
+    public function parseUrl($url)
     {
+        $elem = array(
+            'scheme'   => null,
+            'user'     => null,
+            'pass'     => null,
+            'host'     => null,
+            'port'     => null,
+            'path'     => null,
+            'query'    => null,
+            'fragment' => null,
+        );
+
         preg_match('#^https?://#i', $url, $schemeMatches);
 
         if (empty($schemeMatches)) {
@@ -51,27 +63,52 @@ class Parser
         }
 
         $parts = parse_url($url);
-        $parts['publicSuffix'] = $this->getPublicSuffix($parts['host']);
-        $parts['registerableDomain'] = $this->getRegisterableDomain($parts['host']);
-        $parts['subdomain'] = $this->getSubdomain($parts['host']);
 
-        return new Host($parts);
+        $elem = (array) $parts + $elem;
+
+        $host = $this->parseHost($parts['host']);
+
+        return new Url(
+            $elem['scheme'],
+            $elem['user'],
+            $elem['pass'],
+            $host,
+            $elem['port'],
+            $elem['path'],
+            $elem['query'],
+            $elem['fragment']
+        );
     }
 
     /**
-     * Returns the public suffix portion of provided domain
+     * Parses host
      *
-     * @param  string $domain domain
+     * @param  string $host Host part of url
+     * @return Host   Object representation of host portion of url
+     */
+    public function parseHost($host)
+    {
+        return new Host(
+            $this->getSubdomain($host),
+            $this->getRegisterableDomain($host),
+            $this->getPublicSuffix($host)
+        );
+    }
+
+    /**
+     * Returns the public suffix portion of provided host
+     *
+     * @param  string $host host
      * @return string public suffix
      */
-    public function getPublicSuffix($domain)
+    public function getPublicSuffix($host)
     {
-        if (strpos($domain, '.') === 0) {
+        if (strpos($host, '.') === 0) {
             return null;
         }
 
-        $domain = strtolower($domain);
-        $parts = array_reverse(explode('.', $domain));
+        $host = strtolower($host);
+        $parts = array_reverse(explode('.', $host));
         $publicSuffix = array();
         $publicSuffixList = $this->publicSuffixList;
 
@@ -103,53 +140,53 @@ class Parser
     }
 
     /**
-     * Returns registerable domain portion of provided domain
+     * Returns registerable domain portion of provided host
      *
      * Per the test cases provided by Mozilla
      * (http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1),
      * this method should return null if the domain provided is a public suffix.
      *
-     * @param  string $domain domain
+     * @param  string $host host
      * @return string registerable domain
      */
-    public function getRegisterableDomain($domain)
+    public function getRegisterableDomain($host)
     {
-        if (strpos($domain, '.') === false) {
+        if (strpos($host, '.') === false) {
             return null;
         }
 
-        $domain = strtolower($domain);
-        $publicSuffix = $this->getPublicSuffix($domain);
+        $host = strtolower($host);
+        $publicSuffix = $this->getPublicSuffix($host);
 
-        if ($publicSuffix === null || $domain == $publicSuffix) {
+        if ($publicSuffix === null || $host == $publicSuffix) {
             return null;
         }
 
         $publicSuffixParts = array_reverse(explode('.', $publicSuffix));
-        $domainParts = array_reverse(explode('.', $domain));
-        $registerableDomainParts = array_slice($domainParts, 0, count($publicSuffixParts) + 1);
+        $hostParts = array_reverse(explode('.', $host));
+        $registerableDomainParts = array_slice($hostParts, 0, count($publicSuffixParts) + 1);
 
         return implode('.', array_reverse($registerableDomainParts));
     }
 
     /**
-     * Returns the subdomain portion of provided domain
+     * Returns the subdomain portion of provided host
      *
-     * @param  string $domain domain
+     * @param  string $host host
      * @return string subdomain
      */
-    public function getSubdomain($domain)
+    public function getSubdomain($host)
     {
-        $domain = strtolower($domain);
-        $registerableDomain = $this->getRegisterableDomain($domain);
+        $host = strtolower($host);
+        $registerableDomain = $this->getRegisterableDomain($host);
 
-        if ($registerableDomain === null || $domain == $registerableDomain) {
+        if ($registerableDomain === null || $host == $registerableDomain) {
             return null;
         }
 
         $registerableDomainParts = array_reverse(explode('.', $registerableDomain));
-        $domainParts = array_reverse(explode('.', $domain));
-        $subdomainParts = array_slice($domainParts, count($registerableDomainParts));
+        $hostParts = array_reverse(explode('.', $host));
+        $subdomainParts = array_slice($hostParts, count($registerableDomainParts));
 
         return implode('.', array_reverse($subdomainParts));
     }
