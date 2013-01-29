@@ -21,42 +21,42 @@ class Url
     /**
      * @var string scheme
      */
-    protected $scheme;
+    private $scheme;
 
     /**
      * @var Host Host object
      */
-    protected $host;
+    private $host;
 
     /**
      * @var int port
      */
-    protected $port;
+    private $port;
 
     /**
      * @var string user
      */
-    protected $user;
+    private $user;
 
     /**
      * @var string pass
      */
-    protected $pass;
+    private $pass;
 
     /**
      * @var string path
      */
-    protected $path;
+    private $path;
 
     /**
      * @var string query
      */
-    protected $query;
+    private $query;
 
     /**
      * @var string fragment
      */
-    protected $fragment;
+    private $fragment;
 
     /**
      * Public constructor
