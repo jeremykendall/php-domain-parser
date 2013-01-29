@@ -4,22 +4,20 @@ PHP Domain Parser
 **PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based 
 domain parser implemented in PHP.
 
-[![Build Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=master)](https://travis-ci.org/jeremykendall/php-domain-parser)
+master: [![Build Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=master)](https://travis-ci.org/jeremykendall/php-domain-parser)
+develop: [![Build
+Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=development)](https://travis-ci.org/jeremykendall/php-domain-parser) 
 
 Motivation
 ----------
 
 While there are plenty of excellent URL parsers and builders available, there
-are very few projects that can accurately parse a domain into its component
+are very few projects that can accurately parse a url into its component 
 subdomain, registerable domain, and public suffix parts.
 
 Consider the domain www.pref.okinawa.jp.  In this domain, the
 **public suffix** portion is *okinawa.jp*, the **registerable domain** is
 *pref.okinawa.jp*, and the **subdomain** is *www*. You can't regex that.
-
-With that in mind, this library is intended to parse domains into their
-component parts and to do nothing more.  This library might then be used in
-concert with other URL tools, and not be in direct competition with them.
 
 Installation
 ------------
@@ -52,61 +50,119 @@ You're now ready to begin using the PHP Domain Parser.
 Usage
 -----
 
-### Parsing ###
+### Parsing URLs ###
 
-Parsing domains is as simple as the example you see below.
+Parsing URLs into their component parts is as simple as the example you see below.
 
 ``` php
 <?php
 
 require_once '../vendor/autoload.php';
 
-$listManager = new \Pdp\PublicSuffixListManager();
-$parser = new \Pdp\DomainParser($listManager->getList());
-
-var_dump($parser->parse('https://github.com/jeremykendall/php-domain-parser'));
-var_dump($parser->parse('waxaudio.com.au'));
-var_dump($parser->parse('http://www.scottwills.co.uk'));
-var_dump($parser->parse('http://www.pref.okinawa.jp'));
+$pslManager = new PublicSuffixListManager();
+$parser = new Parser($pslManager->getList());
+$url = $parser->parseUrl('http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment');
+var_dump($url);
 ```
 
 The above will output:
 
 ```
-object(Pdp\Domain)[5]
-  private 'subdomain' => null
-  private 'registerableDomain' => string 'github.com' (length=10)
-  private 'publicSuffix' => string 'com' (length=3)
-object(Pdp\Domain)[5]
-  private 'subdomain' => null
-  private 'registerableDomain' => string 'waxaudio.com.au' (length=15)
-  private 'publicSuffix' => string 'com.au' (length=6)
-object(Pdp\Domain)[5]
-  private 'subdomain' => string 'www' (length=3)
-  private 'registerableDomain' => string 'scottwills.co.uk' (length=16)
-  private 'publicSuffix' => string 'co.uk' (length=5)
-object(Pdp\Domain)[5]
-  private 'subdomain' => string 'www' (length=3)
-  private 'registerableDomain' => string 'pref.okinawa.jp' (length=15)
-  private 'publicSuffix' => string 'okinawa.jp' (length=10)
+class Pdp\Uri\Url#6 (8) {
+    private $scheme =>
+    string(4) "http"
+    private $host =>
+    class Pdp\Uri\Url\Host#5 (3) {
+        private $subdomain =>
+        string(3) "www"
+        private $registerableDomain =>
+        string(15) "pref.okinawa.jp"
+        private $publicSuffix =>
+        string(10) "okinawa.jp"
+    }
+    private $port =>
+    int(8080)
+    private $user =>
+    string(4) "user"
+    private $pass =>
+    string(4) "pass"
+    private $path =>
+    string(18) "/path/to/page.html"
+    private $query =>
+    string(12) "query=string"
+    private $fragment =>
+    string(8) "fragment"
+}
 ```
 
-Getters are provided for the above private properties.  Obtaining the
+A magic __get() method is provided to access the above object properties.  Obtaining the
 public suffix for a parsed domain is as simple as:
 
 ``` php
 <?php
 
-$domain = $parser->parse('waxaudio.com.au');
-$publicSuffix = $domain->getPublicSuffix();
+$url = $parser->parseUrl('waxaudio.com.au');
+$publicSuffix = $domain->host->publicSuffix;
 
 // $publicSuffix = 'com.au'
 ```
 
+### Parsing Domains ###
+
+If you'd like to parse the domain (or host) portion only, you can use 
+`Parser::parseHost()`.
+
+```php
+<?php
+
+$host = $parser->parseHost('a.b.c.cy');
+var_dump($host);
+```
+
+The above will output:
+
+```
+class Pdp\Uri\Url\Host#7 (3) {
+    private $subdomain =>
+    string(1) "a"
+    private $registerableDomain =>
+    string(6) "b.c.cy"
+    private $publicSuffix =>
+    string(4) "c.cy"
+}
+```
+
+### Retrieving Domain Components Only ###
+
+If you're only interested in a domain component, you can use the parser to
+retrieve only the component you're interested in
+
+```php
+<?php
+
+var_dump($parser->getSubdomain('www.scottwills.co.uk'));
+var_dump($parser->getRegisterableDomain('www.scottwills.co.uk'));
+var_dump($parser->getPublicSuffix('www.scottwills.co.uk'));
+```
+
+The above will output:
+
+```
+string(3) "www"
+string(16) "scottwills.co.uk"
+string(5) "co.uk"
+```
+
+### Example Script ###
+
+For more information on using the PHP Domain Parser, please see the provided
+[example
+script](https://github.com/jeremykendall/php-domain-parser/blob/master/example.php).
+
 ### Refreshing the Public Suffix List ###
 
 While a cached PHP copy of the Public Suffix List is provided for you in the
-`psl` directory, that copy may or may not be up to date (Mozilla provides an
+`data` directory, that copy may or may not be up to date (Mozilla provides an
 [Atom change
 feed](http://hg.mozilla.org/mozilla-central/atom-log/default/netwerk/dns/effective_tld_names.dat) to keep
 up with changes to the list). Please use the provided vendor binary to refresh
@@ -119,7 +175,7 @@ $ ./vendor/bin/pdp-psl
 ```
 
 You may verify the update by checking the timestamp on the files located in the
-`psl` directory.
+`data` directory.
 
 **Important**: The vendor binary `pdp-psl` depends on an internet connection to
 update the cached Public Suffix List.
