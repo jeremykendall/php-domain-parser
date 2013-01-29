@@ -17,9 +17,7 @@
     },
 	"require-dev": {
 		"mikey179/vfsStream": "1.1.*",
-		"jeremykendall/phpctagger": "0.0.*",
-		"phpunit/phpunit": "3.7.*",
-		"phing/phing": "2.4.*"
+		"jeremykendall/phpctagger": "0.0.*"
 	},
 	"autoload": {
 		"psr-0": 

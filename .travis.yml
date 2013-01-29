@@ -8,4 +8,5 @@ php:
 script: phpunit
 
 before_script:
+  - composer self-update
   - composer install --dev --prefer-source

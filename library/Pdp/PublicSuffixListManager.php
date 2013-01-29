@@ -50,7 +50,9 @@ class PublicSuffixListManager
     public function __construct($cacheDir = null)
     {
         if (is_null($cacheDir)) {
-            $cacheDir = realpath(dirname(__DIR__) . '/../psl');
+            $cacheDir = realpath(
+                dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'data'
+            );
         }
 
         $this->cacheDir = $cacheDir;
