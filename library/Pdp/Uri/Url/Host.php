@@ -63,12 +63,12 @@ class Host
     /**
      * Get property
      *
-     * @param  string      $property Property to get
+     * @param  string      $name Property to get
      * @return string|null Property requested if exists and is set, null otherwise
      */
-    public function __get($property)
+    public function __get($name)
     {
-        return $this->$property;
+        return $this->$name;
     }
 
 }

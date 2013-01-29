@@ -93,11 +93,11 @@ class Url
     /**
      * Magic getter
      *
-     * @param mixed $property Property name to get
+     * @param mixed $name Property name to get
      */
-    public function __get($property)
+    public function __get($name)
     {
-        return $this->$property;
+        return $this->$name;
     }
 
     /**
