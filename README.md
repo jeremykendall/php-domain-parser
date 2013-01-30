@@ -13,11 +13,16 @@ Motivation
 
 While there are plenty of excellent URL parsers and builders available, there
 are very few projects that can accurately parse a url into its component 
-subdomain, registerable domain, and public suffix parts.
+subdomain, registerable domain, and public suffix parts. 
 
 Consider the domain www.pref.okinawa.jp.  In this domain, the
 **public suffix** portion is *okinawa.jp*, the **registerable domain** is
 *pref.okinawa.jp*, and the **subdomain** is *www*. You can't regex that.
+
+Other libraries focus primarily on URL building, parsing, and manipulation and 
+throw in public suffix domain parsing.  PHP Domain Parser was built around 
+accurate Public Suffix List based parsing from the very beginning and happens 
+to include a URL object for completeness.
 
 Installation
 ------------
