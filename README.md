@@ -64,8 +64,8 @@ Parsing URLs into their component parts is as simple as the example you see belo
 
 require_once '../vendor/autoload.php';
 
-$pslManager = new PublicSuffixListManager();
-$parser = new Parser($pslManager->getList());
+$pslManager = new Pdp\PublicSuffixListManager();
+$parser = new Pdp\Parser($pslManager->getList());
 $url = $parser->parseUrl('http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment');
 var_dump($url);
 ```
