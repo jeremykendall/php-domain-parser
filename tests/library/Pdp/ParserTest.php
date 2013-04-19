@@ -94,6 +94,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('a.b.test.om', 'test.om', 'b.test.om', 'a', 'a.b.test.om'),
             array('baez.songfest.om', 'om', 'songfest.om', 'baez', 'baez.songfest.om'),
             array('politics.news.omanpost.om', 'om', 'omanpost.om', 'politics.news', 'politics.news.omanpost.om'),
+            array('us.example.com', 'com', 'example.com', 'us', 'us.example.com'),
         );
     }
 	
