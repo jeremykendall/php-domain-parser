@@ -129,6 +129,9 @@ class Parser
                 $publicSuffixList = $publicSuffixList['*'];
                 continue;
             }
+            
+            // unknown part 
+            break;
         }
 
         // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
