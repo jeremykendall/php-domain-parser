@@ -130,6 +130,9 @@ class Parser
                 continue;
             }
 
+            // Avoids improper parsing when $host's subdomain + public suffix ===
+            // a valid public suffix (e.g. host 'us.example.com' and public suffix 'us.com')
+            //
             // Added by @goodhabit in https://github.com/jeremykendall/php-domain-parser/pull/15
             // Resolves https://github.com/jeremykendall/php-domain-parser/issues/16
             break;
