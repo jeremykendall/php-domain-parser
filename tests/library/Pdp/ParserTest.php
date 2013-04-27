@@ -97,8 +97,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             // BEGIN https://github.com/jeremykendall/php-domain-parser/issues/16
             array('us.example.com', 'com', 'example.com', 'us', 'us.example.com'),
             array('us.example.na', 'na', 'example.na', 'us', 'us.example.na'),
+            array('www.example.us.na', 'us.na', 'example.us.na', 'www', 'www.example.us.na'),
             array('us.example.org', 'org', 'example.org', 'us', 'us.example.org'),
             array('webhop.broken.biz', 'biz', 'broken.biz', 'webhop', 'webhop.broken.biz'),
+            array('www.broken.webhop.biz', 'webhop.biz', 'broken.webhop.biz', 'www', 'www.broken.webhop.biz'),
             // END https://github.com/jeremykendall/php-domain-parser/issues/16
         );
     }
