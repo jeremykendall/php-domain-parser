@@ -81,7 +81,7 @@ class Parser
     }
 
     /**
-     * Parses host
+     * Parses host part of url
      *
      * @param  string $host Host part of url
      * @return Host   Object representation of host portion of url
