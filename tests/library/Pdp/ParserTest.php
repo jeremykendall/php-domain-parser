@@ -94,7 +94,12 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('a.b.test.om', 'test.om', 'b.test.om', 'a', 'a.b.test.om'),
             array('baez.songfest.om', 'om', 'songfest.om', 'baez', 'baez.songfest.om'),
             array('politics.news.omanpost.om', 'om', 'omanpost.om', 'politics.news', 'politics.news.omanpost.om'),
+            // BEGIN https://github.com/jeremykendall/php-domain-parser/issues/16
             array('us.example.com', 'com', 'example.com', 'us', 'us.example.com'),
+            array('us.example.na', 'na', 'example.na', 'us', 'us.example.na'),
+            array('us.example.org', 'org', 'example.org', 'us', 'us.example.org'),
+            array('webhop.broken.biz', 'biz', 'broken.biz', 'webhop', 'webhop.broken.biz'),
+            // END https://github.com/jeremykendall/php-domain-parser/issues/16
         );
     }
 	
