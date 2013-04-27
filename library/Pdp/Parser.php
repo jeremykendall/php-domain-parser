@@ -129,8 +129,9 @@ class Parser
                 $publicSuffixList = $publicSuffixList['*'];
                 continue;
             }
-            
-            // unknown part 
+
+            // Added by @goodhabit in https://github.com/jeremykendall/php-domain-parser/pull/15
+            // Resolves https://github.com/jeremykendall/php-domain-parser/issues/16
             break;
         }
 
