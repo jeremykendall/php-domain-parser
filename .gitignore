@@ -1,5 +1,6 @@
 tags
 tests/log
+data/*.txt
 composer.lock
 vendor
 *.swp
