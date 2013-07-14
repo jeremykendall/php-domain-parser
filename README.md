@@ -4,6 +4,7 @@ PHP Domain Parser [![Build Status](https://travis-ci.org/jeremykendall/php-domai
 **PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based 
 domain parser implemented in PHP.
 
+[![Total Downloads](https://poser.pugx.org/jeremykendall/php-domain-parser/downloads.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 [![Latest Stable Version](https://poser.pugx.org/jeremykendall/php-domain-parser/v/stable.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 
 Motivation
