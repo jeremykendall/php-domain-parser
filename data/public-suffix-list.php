@@ -437,50 +437,32 @@ return array (
   ),
   'ar' => 
   array (
-    '*' => 
-    array (
-    ),
-    'congresodelalengua3' => 
-    array (
-      '!' => '',
-    ),
-    'educ' => 
-    array (
-      '!' => '',
-    ),
-    'gobiernoelectronico' => 
-    array (
-      '!' => '',
-    ),
-    'mecon' => 
-    array (
-      '!' => '',
-    ),
-    'nacion' => 
-    array (
-      '!' => '',
-    ),
-    'nic' => 
-    array (
-      '!' => '',
-    ),
-    'promocion' => 
-    array (
-      '!' => '',
-    ),
-    'retina' => 
-    array (
-      '!' => '',
-    ),
-    'uba' => 
-    array (
-      '!' => '',
-    ),
     'com' => 
     array (
       'blogspot' => 
       array (
       ),
+    ),
+    'edu' => 
+    array (
+    ),
+    'gob' => 
+    array (
+    ),
+    'int' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'tur' => 
+    array (
     ),
   ),
   'arpa' => 
@@ -609,6 +591,9 @@ return array (
     array (
     ),
     'id' => 
+    array (
+    ),
+    'csiro' => 
     array (
     ),
     'info' => 
@@ -1659,6 +1644,114 @@ return array (
   ),
   'com' => 
   array (
+    'amazonaws' => 
+    array (
+      'compute' => 
+      array (
+        'ap-northeast-1' => 
+        array (
+        ),
+        'ap-southeast-1' => 
+        array (
+        ),
+        'ap-southeast-2' => 
+        array (
+        ),
+        'eu-west-1' => 
+        array (
+        ),
+        'sa-east-1' => 
+        array (
+        ),
+        'us-gov-west-1' => 
+        array (
+        ),
+        'us-west-1' => 
+        array (
+        ),
+        'us-west-2' => 
+        array (
+        ),
+      ),
+      'us-east-1' => 
+      array (
+      ),
+      'compute-1' => 
+      array (
+        'z-1' => 
+        array (
+        ),
+        'z-2' => 
+        array (
+        ),
+      ),
+      'elb' => 
+      array (
+      ),
+      's3' => 
+      array (
+      ),
+      's3-us-west-2' => 
+      array (
+      ),
+      's3-us-west-1' => 
+      array (
+      ),
+      's3-eu-west-1' => 
+      array (
+      ),
+      's3-ap-southeast-1' => 
+      array (
+      ),
+      's3-ap-southeast-2' => 
+      array (
+      ),
+      's3-ap-northeast-1' => 
+      array (
+      ),
+      's3-sa-east-1' => 
+      array (
+      ),
+      's3-us-gov-west-1' => 
+      array (
+      ),
+      's3-fips-us-gov-west-1' => 
+      array (
+      ),
+      's3-website-us-east-1' => 
+      array (
+      ),
+      's3-website-us-west-2' => 
+      array (
+      ),
+      's3-website-us-west-1' => 
+      array (
+      ),
+      's3-website-eu-west-1' => 
+      array (
+      ),
+      's3-website-ap-southeast-1' => 
+      array (
+      ),
+      's3-website-ap-southeast-2' => 
+      array (
+      ),
+      's3-website-ap-northeast-1' => 
+      array (
+      ),
+      's3-website-sa-east-1' => 
+      array (
+      ),
+      's3-website-us-gov-west-1' => 
+      array (
+      ),
+    ),
+    'elasticbeanstalk' => 
+    array (
+    ),
+    'betainabox' => 
+    array (
+    ),
     'ar' => 
     array (
     ),
@@ -1716,22 +1809,10 @@ return array (
     'za' => 
     array (
     ),
-    'operaunite' => 
+    'cloudcontrolled' => 
     array (
     ),
-    'appspot' => 
-    array (
-    ),
-    'blogspot' => 
-    array (
-    ),
-    'codespot' => 
-    array (
-    ),
-    'googleapis' => 
-    array (
-    ),
-    'googlecode' => 
+    'cloudcontrolapp' => 
     array (
     ),
     'dreamhosters' => 
@@ -2187,7 +2268,31 @@ return array (
     'writesthisblog' => 
     array (
     ),
-    'betainabox' => 
+    'ro' => 
+    array (
+    ),
+    'appspot' => 
+    array (
+    ),
+    'blogspot' => 
+    array (
+    ),
+    'codespot' => 
+    array (
+    ),
+    'googleapis' => 
+    array (
+    ),
+    'googlecode' => 
+    array (
+    ),
+    'herokuapp' => 
+    array (
+    ),
+    'herokussl' => 
+    array (
+    ),
+    'operaunite' => 
     array (
     ),
     'rhcloud' => 
@@ -2248,6 +2353,21 @@ return array (
     array (
     ),
   ),
+  'cw' => 
+  array (
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+  ),
   'cx' => 
   array (
     'gov' => 
@@ -2274,9 +2394,6 @@ return array (
     'com' => 
     array (
     ),
-    'blogspot' => 
-    array (
-    ),
     'fuettertdasnetz' => 
     array (
     ),
@@ -2293,6 +2410,9 @@ return array (
     array (
     ),
     'traeumtgerade' => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -3114,6 +3234,9 @@ return array (
     'ac' => 
     array (
     ),
+    'biz' => 
+    array (
+    ),
     'co' => 
     array (
     ),
@@ -3121,6 +3244,9 @@ return array (
     array (
     ),
     'mil' => 
+    array (
+    ),
+    'my' => 
     array (
     ),
     'net' => 
@@ -3268,6 +3394,9 @@ return array (
   'io' => 
   array (
     'com' => 
+    array (
+    ),
+    'github' => 
     array (
     ),
   ),
@@ -10171,6 +10300,9 @@ return array (
     'org' => 
     array (
     ),
+    'nyc' => 
+    array (
+    ),
   ),
   'mo' => 
   array (
@@ -12104,6 +12236,9 @@ return array (
   ),
   'net' => 
   array (
+    'cloudfront' => 
+    array (
+    ),
     'gb' => 
     array (
     ),
@@ -12117,9 +12252,6 @@ return array (
     array (
     ),
     'uk' => 
-    array (
-    ),
-    'za' => 
     array (
     ),
     'at-band-camp' => 
@@ -12227,6 +12359,33 @@ return array (
     'webhop' => 
     array (
     ),
+    'fastly' => 
+    array (
+      'ssl' => 
+      array (
+        'a' => 
+        array (
+        ),
+        'b' => 
+        array (
+        ),
+        'global' => 
+        array (
+        ),
+      ),
+      'prod' => 
+      array (
+        'a' => 
+        array (
+        ),
+        'global' => 
+        array (
+        ),
+      ),
+    ),
+    'za' => 
+    array (
+    ),
   ),
   'nf' => 
   array (
@@ -12263,22 +12422,31 @@ return array (
   ),
   'ng' => 
   array (
-    'ac' => 
-    array (
-    ),
     'com' => 
     array (
     ),
     'edu' => 
     array (
     ),
-    'gov' => 
+    'name' => 
     array (
     ),
     'net' => 
     array (
     ),
     'org' => 
+    array (
+    ),
+    'sch' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'mobi' => 
     array (
     ),
   ),
@@ -12293,10 +12461,10 @@ return array (
     'bv' => 
     array (
     ),
-    'blogspot' => 
+    'co' => 
     array (
     ),
-    'co' => 
+    'blogspot' => 
     array (
     ),
   ),
@@ -14594,10 +14762,10 @@ return array (
       array (
       ),
     ),
-    'blogspot' => 
+    'co' => 
     array (
     ),
-    'co' => 
+    'blogspot' => 
     array (
     ),
   ),
@@ -14657,7 +14825,31 @@ return array (
   ),
   'om' => 
   array (
-    '*' => 
+    'co' => 
+    array (
+    ),
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'med' => 
+    array (
+    ),
+    'museum' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'pro' => 
     array (
     ),
     'mediaphone' => 
@@ -14707,9 +14899,6 @@ return array (
     array (
     ),
     'us' => 
-    array (
-    ),
-    'za' => 
     array (
     ),
     'dyndns' => 
@@ -14866,6 +15055,9 @@ return array (
     array (
     ),
     'webhop' => 
+    array (
+    ),
+    'za' => 
     array (
     ),
   ),
@@ -15582,6 +15774,9 @@ return array (
     'net' => 
     array (
     ),
+  ),
+  'post' => 
+  array (
   ),
   'pr' => 
   array (
@@ -16653,7 +16848,19 @@ return array (
   ),
   'sv' => 
   array (
-    '*' => 
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'gob' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'red' => 
     array (
     ),
   ),
