@@ -1,12 +1,11 @@
-PHP Domain Parser
+PHP Domain Parser [![Build Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=master)](https://travis-ci.org/jeremykendall/php-domain-parser)
 =================
 
 **PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based 
 domain parser implemented in PHP.
 
-master: [![Build Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=master)](https://travis-ci.org/jeremykendall/php-domain-parser)
-develop: [![Build
-Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=development)](https://travis-ci.org/jeremykendall/php-domain-parser) 
+[![Total Downloads](https://poser.pugx.org/jeremykendall/php-domain-parser/downloads.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
+[![Latest Stable Version](https://poser.pugx.org/jeremykendall/php-domain-parser/v/stable.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 
 Motivation
 ----------
