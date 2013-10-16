@@ -78,6 +78,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     public function parseDataProvider()
     {
+        // url, public suffix, registerable domain, subdomain, host part
         return array(
             array('http://www.waxaudio.com.au/audio/albums/the_mashening', 'com.au', 'waxaudio.com.au', 'www', 'www.waxaudio.com.au'),
             array('example.com', 'com', 'example.com', null, 'example.com'),
@@ -91,7 +92,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('b.ide.kyoto.jp', 'ide.kyoto.jp', 'b.ide.kyoto.jp', null, 'b.ide.kyoto.jp'),
             array('a.b.example.uk.com', 'uk.com', 'example.uk.com', 'a.b', 'a.b.example.uk.com'),
             array('test.nic.ar', 'ar', 'nic.ar', 'test', 'test.nic.ar'),
-            array('a.b.test.om', 'test.om', 'b.test.om', 'a', 'a.b.test.om'),
+            array('a.b.test.ck', 'test.ck', 'b.test.ck', 'a', 'a.b.test.ck'),
             array('baez.songfest.om', 'om', 'songfest.om', 'baez', 'baez.songfest.om'),
             array('politics.news.omanpost.om', 'om', 'omanpost.om', 'politics.news', 'politics.news.omanpost.om'),
             // BEGIN https://github.com/jeremykendall/php-domain-parser/issues/16

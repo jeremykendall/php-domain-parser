@@ -437,50 +437,32 @@ return array (
   ),
   'ar' => 
   array (
-    '*' => 
-    array (
-    ),
-    'congresodelalengua3' => 
-    array (
-      '!' => '',
-    ),
-    'educ' => 
-    array (
-      '!' => '',
-    ),
-    'gobiernoelectronico' => 
-    array (
-      '!' => '',
-    ),
-    'mecon' => 
-    array (
-      '!' => '',
-    ),
-    'nacion' => 
-    array (
-      '!' => '',
-    ),
-    'nic' => 
-    array (
-      '!' => '',
-    ),
-    'promocion' => 
-    array (
-      '!' => '',
-    ),
-    'retina' => 
-    array (
-      '!' => '',
-    ),
-    'uba' => 
-    array (
-      '!' => '',
-    ),
     'com' => 
     array (
       'blogspot' => 
       array (
       ),
+    ),
+    'edu' => 
+    array (
+    ),
+    'gob' => 
+    array (
+    ),
+    'int' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'tur' => 
+    array (
     ),
   ),
   'arpa' => 
@@ -609,6 +591,9 @@ return array (
     array (
     ),
     'id' => 
+    array (
+    ),
+    'csiro' => 
     array (
     ),
     'info' => 
@@ -1659,11 +1644,47 @@ return array (
   ),
   'com' => 
   array (
-    'elasticbeanstalk' => 
-    array (
-    ),
     'amazonaws' => 
     array (
+      'compute' => 
+      array (
+        'ap-northeast-1' => 
+        array (
+        ),
+        'ap-southeast-1' => 
+        array (
+        ),
+        'ap-southeast-2' => 
+        array (
+        ),
+        'eu-west-1' => 
+        array (
+        ),
+        'sa-east-1' => 
+        array (
+        ),
+        'us-gov-west-1' => 
+        array (
+        ),
+        'us-west-1' => 
+        array (
+        ),
+        'us-west-2' => 
+        array (
+        ),
+      ),
+      'us-east-1' => 
+      array (
+      ),
+      'compute-1' => 
+      array (
+        'z-1' => 
+        array (
+        ),
+        'z-2' => 
+        array (
+        ),
+      ),
       'elb' => 
       array (
       ),
@@ -1725,6 +1746,9 @@ return array (
       array (
       ),
     ),
+    'elasticbeanstalk' => 
+    array (
+    ),
     'betainabox' => 
     array (
     ),
@@ -1783,6 +1807,12 @@ return array (
     array (
     ),
     'za' => 
+    array (
+    ),
+    'cloudcontrolled' => 
+    array (
+    ),
+    'cloudcontrolapp' => 
     array (
     ),
     'dreamhosters' => 
@@ -2238,6 +2268,9 @@ return array (
     'writesthisblog' => 
     array (
     ),
+    'ro' => 
+    array (
+    ),
     'appspot' => 
     array (
     ),
@@ -2251,6 +2284,12 @@ return array (
     array (
     ),
     'googlecode' => 
+    array (
+    ),
+    'herokuapp' => 
+    array (
+    ),
+    'herokussl' => 
     array (
     ),
     'operaunite' => 
@@ -12320,6 +12359,30 @@ return array (
     'webhop' => 
     array (
     ),
+    'fastly' => 
+    array (
+      'ssl' => 
+      array (
+        'a' => 
+        array (
+        ),
+        'b' => 
+        array (
+        ),
+        'global' => 
+        array (
+        ),
+      ),
+      'prod' => 
+      array (
+        'a' => 
+        array (
+        ),
+        'global' => 
+        array (
+        ),
+      ),
+    ),
     'za' => 
     array (
     ),
@@ -12359,22 +12422,31 @@ return array (
   ),
   'ng' => 
   array (
-    'ac' => 
-    array (
-    ),
     'com' => 
     array (
     ),
     'edu' => 
     array (
     ),
-    'gov' => 
+    'name' => 
     array (
     ),
     'net' => 
     array (
     ),
     'org' => 
+    array (
+    ),
+    'sch' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'mobi' => 
     array (
     ),
   ),
@@ -14753,7 +14825,31 @@ return array (
   ),
   'om' => 
   array (
-    '*' => 
+    'co' => 
+    array (
+    ),
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'med' => 
+    array (
+    ),
+    'museum' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'pro' => 
     array (
     ),
     'mediaphone' => 
@@ -16752,7 +16848,19 @@ return array (
   ),
   'sv' => 
   array (
-    '*' => 
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'gob' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'red' => 
     array (
     ),
   ),
