@@ -105,7 +105,7 @@ public suffix for a parsed domain is as simple as:
 ``` php
 <?php
 
-$url = $parser->parseUrl('waxaudio.com.au');
+$domain = $parser->parseUrl('waxaudio.com.au');
 $publicSuffix = $domain->host->publicSuffix;
 
 // $publicSuffix = 'com.au'
