@@ -184,6 +184,12 @@ You may verify the update by checking the timestamp on the files located in the
 **Important**: The vendor binary `pdp-psl` depends on an internet connection to
 update the cached Public Suffix List.
 
+Contributing
+------------
+
+Pull requests are *always* welcome! Please review the CONTRIBUTING.md document before
+submitting pull requests.
+
 Attribution
 -----------
 
