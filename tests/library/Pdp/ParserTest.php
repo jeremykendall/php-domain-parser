@@ -23,6 +23,19 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Pdp\Parser::parseUrl()
+     */
+    public function testParseBadUrlThrowsInvalidArgumentException()
+    {
+        $this->setExpectedException(
+            '\InvalidArgumentException', 
+            'Invalid url http:///example.com'
+        );
+
+        $this->parser->parseUrl('http:///example.com');
+    }
+
+    /**
+     * @covers Pdp\Parser::parseUrl()
      * @dataProvider parseDataProvider
      */
     public function testParseUrl($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
@@ -54,8 +67,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     public function testGetPublicSuffix($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
         $pdpUrl = $this->parser->parseUrl($url);
-        $this->assertEquals($publicSuffix, $pdpUrl->host->publicSuffix);
-        $this->assertEquals($publicSuffix, $this->parser->getPublicSuffix($hostPart));
+        $this->assertSame($publicSuffix, $pdpUrl->host->publicSuffix);
+        $this->assertSame($publicSuffix, $this->parser->getPublicSuffix($hostPart));
     }
 
     /**
@@ -66,8 +79,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     public function testGetRegisterableDomain($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
         $pdpUrl = $this->parser->parseUrl($url);
-        $this->assertEquals($registerableDomain, $pdpUrl->host->registerableDomain);
-        $this->assertEquals($registerableDomain, $this->parser->getRegisterableDomain($hostPart));
+        $this->assertSame($registerableDomain, $pdpUrl->host->registerableDomain);
+        $this->assertSame($registerableDomain, $this->parser->getRegisterableDomain($hostPart));
     }
 
     /**
@@ -78,8 +91,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     public function testGetSubdomain($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
         $pdpUrl = $this->parser->parseUrl($url);
-        $this->assertEquals($subdomain, $pdpUrl->host->subdomain);
-        $this->assertEquals($subdomain, $this->parser->getSubdomain($hostPart));
+        $this->assertSame($subdomain, $pdpUrl->host->subdomain);
+        $this->assertSame($subdomain, $this->parser->getSubdomain($hostPart));
     }
     
 	/**
@@ -117,7 +130,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('webhop.broken.biz', 'biz', 'broken.biz', 'webhop', 'webhop.broken.biz'),
             array('www.broken.webhop.biz', 'webhop.biz', 'broken.webhop.biz', 'www', 'www.broken.webhop.biz'),
             // END https://github.com/jeremykendall/php-domain-parser/issues/16
-            // Test relative url
+            // Test schemeless url
             array('//www.broken.webhop.biz', 'webhop.biz', 'broken.webhop.biz', 'www', 'www.broken.webhop.biz'),
         );
     }

@@ -65,6 +65,10 @@ class Parser
 
         $parts = parse_url($url);
 
+        if ($parts === false) {
+            throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
+        }
+
         $elem = (array) $parts + $elem;
 
         $host = $this->parseHost($parts['host']);
