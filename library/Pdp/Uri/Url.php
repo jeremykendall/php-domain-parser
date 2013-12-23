@@ -155,4 +155,26 @@ class Url
 
         return $url;
     }
+
+    /**
+     * Converts the URI object to an array and returns it.
+     *
+     * @return array Array of URI component parts
+     */
+    public function toArray()
+    {
+        return array(
+            'scheme' => $this->scheme,
+            'user' => $this->user,
+            'pass' => $this->pass,
+            'host' => $this->host->__toString(),
+            'subdomain' => $this->host->subdomain,
+            'registerableDomain' => $this->host->registerableDomain,
+            'publicSuffix' => $this->host->publicSuffix,
+            'port' => $this->port,
+            'path' => $this->path,
+            'query' => $this->query,
+            'fragment' => $this->fragment,
+        );
+    }
 }

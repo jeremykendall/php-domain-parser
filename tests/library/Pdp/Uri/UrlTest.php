@@ -91,4 +91,23 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected['query'], $this->url->query);
         $this->assertEquals($expected['fragment'], $this->url->fragment);
     }
+
+    public function testToArray()
+    {
+        $expected = array(
+            'scheme' => 'http',
+            'user' => 'anonymous',
+            'pass' => 'guest',
+            'host' => 'example.com',
+            'subdomain' => null,
+            'registerableDomain' => 'example.com',
+            'publicSuffix' => 'com',
+            'port' => 8080,
+            'path' => '/path/to/index.php/foo/bar.xml',
+            'query' => 'baz=dib',
+            'fragment' => 'anchor',
+        );
+
+        $this->assertEquals($expected, $this->url->toArray());
+    }
 }
