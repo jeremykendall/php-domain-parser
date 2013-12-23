@@ -61,6 +61,20 @@ class Host
     }
 
     /**
+     * Get array representation of host
+     *
+     * @return array Array representation of host
+     */
+    public function toArray()
+    {
+        return array(
+            'subdomain' => $this->subdomain,
+            'registerableDomain' => $this->registerableDomain,
+            'publicSuffix' => $this->publicSuffix,
+        );
+    }
+
+    /**
      * Get property
      *
      * @param  string      $name Property to get

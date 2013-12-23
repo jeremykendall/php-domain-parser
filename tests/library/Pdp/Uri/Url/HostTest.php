@@ -4,23 +4,23 @@ namespace Pdp\Uri\Url;
 
 class HostTest extends \PHPUnit_Framework_TestCase
 {
-	/**
+    /**
      * @dataProvider hostDataProvider
-	 */
-	public function test__toString($publicSuffix, $registerableDomain, $subdomain, $hostPart)
-	{
+     */
+    public function test__toString($publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    {
         $host = new Host(
             $subdomain,
             $registerableDomain,
             $publicSuffix
         );
 
-		$this->assertEquals($hostPart, $host->__toString());
-	}
+        $this->assertEquals($hostPart, $host->__toString());
+    }
 
-	/**
+    /**
      * @dataProvider hostDataProvider
-	 */
+     */
     public function test__get($publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
         $parts = array(
@@ -38,6 +38,26 @@ class HostTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($parts['subdomain'], $host->subdomain);
         $this->assertEquals($parts['registerableDomain'], $host->registerableDomain);
         $this->assertEquals($parts['publicSuffix'], $host->publicSuffix);
+    }
+
+    /**
+     * @dataProvider hostDataProvider
+     */
+    public function testToArray($publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    {
+        $parts = array(
+            'subdomain' => $subdomain,
+            'registerableDomain' => $registerableDomain,
+            'publicSuffix' => $publicSuffix
+        );
+
+        $host = new Host(
+            $parts['subdomain'],
+            $parts['registerableDomain'],
+            $parts['publicSuffix']
+        );
+
+        $this->assertEquals($parts, $host->toArray());
     }
 
     public function hostDataProvider()
