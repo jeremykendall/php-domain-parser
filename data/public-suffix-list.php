@@ -568,9 +568,6 @@ return array (
       'act' => 
       array (
       ),
-      'nt' => 
-      array (
-      ),
       'qld' => 
       array (
       ),
@@ -866,9 +863,6 @@ return array (
     8 => 
     array (
     ),
-  ),
-  'bg	 	 	' => 
-  array (
     9 => 
     array (
     ),
@@ -2578,9 +2572,6 @@ return array (
     array (
     ),
   ),
-  'eg  ' => 
-  array (
-  ),
   'eg' => 
   array (
     'com' => 
@@ -2790,16 +2781,10 @@ return array (
     'co' => 
     array (
     ),
-    'org' => 
-    array (
-    ),
     'net' => 
     array (
     ),
-    'sch' => 
-    array (
-    ),
-    'gov' => 
+    'org' => 
     array (
     ),
   ),
@@ -3027,13 +3012,10 @@ return array (
     '組織' => 
     array (
     ),
-    'blogspot' => 
+    '組织' => 
     array (
     ),
-  ),
-  'hk ' => 
-  array (
-    '組织' => 
+    'blogspot' => 
     array (
     ),
   ),
@@ -3285,6 +3267,9 @@ return array (
   ),
   'im' => 
   array (
+    'ac' => 
+    array (
+    ),
     'co' => 
     array (
       'ltd' => 
@@ -3294,19 +3279,19 @@ return array (
       array (
       ),
     ),
-    'net' => 
+    'com' => 
     array (
     ),
-    'gov' => 
+    'net' => 
     array (
     ),
     'org' => 
     array (
     ),
-    'nic' => 
+    'tt' => 
     array (
     ),
-    'ac' => 
+    'tv' => 
     array (
     ),
   ),
@@ -3469,6 +3454,9 @@ return array (
     array (
     ),
     'int' => 
+    array (
+    ),
+    'cupcake' => 
     array (
     ),
   ),
@@ -4314,16 +4302,10 @@ return array (
     'co' => 
     array (
     ),
-    'org' => 
-    array (
-    ),
     'net' => 
     array (
     ),
-    'sch' => 
-    array (
-    ),
-    'gov' => 
+    'org' => 
     array (
     ),
   ),
@@ -10345,7 +10327,16 @@ return array (
   ),
   'mt' => 
   array (
-    '*' => 
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
     array (
     ),
   ),
@@ -14852,46 +14843,6 @@ return array (
     'pro' => 
     array (
     ),
-    'mediaphone' => 
-    array (
-      '!' => '',
-    ),
-    'nawrastelecom' => 
-    array (
-      '!' => '',
-    ),
-    'nawras' => 
-    array (
-      '!' => '',
-    ),
-    'omanmobile' => 
-    array (
-      '!' => '',
-    ),
-    'omanpost' => 
-    array (
-      '!' => '',
-    ),
-    'omantel' => 
-    array (
-      '!' => '',
-    ),
-    'rakpetroleum' => 
-    array (
-      '!' => '',
-    ),
-    'siemens' => 
-    array (
-      '!' => '',
-    ),
-    'songfest' => 
-    array (
-      '!' => '',
-    ),
-    'statecouncil' => 
-    array (
-      '!' => '',
-    ),
   ),
   'org' => 
   array (
@@ -18156,9 +18107,6 @@ return array (
     ),
     'sd' => 
     array (
-      'k12' => 
-      array (
-      ),
       'cc' => 
       array (
       ),
@@ -18264,13 +18212,7 @@ return array (
     ),
     'wv' => 
     array (
-      'k12' => 
-      array (
-      ),
       'cc' => 
-      array (
-      ),
-      'lib' => 
       array (
       ),
     ),
@@ -18634,5 +18576,359 @@ return array (
     '*' => 
     array (
     ),
+  ),
+  'онлайн' => 
+  array (
+  ),
+  'сайт' => 
+  array (
+  ),
+  'شبكة' => 
+  array (
+  ),
+  '游戏' => 
+  array (
+  ),
+  '企业' => 
+  array (
+  ),
+  'camera' => 
+  array (
+  ),
+  'clothing' => 
+  array (
+  ),
+  'lighting' => 
+  array (
+  ),
+  'singles' => 
+  array (
+  ),
+  'ventures' => 
+  array (
+  ),
+  'voyage' => 
+  array (
+  ),
+  'guru' => 
+  array (
+  ),
+  'holdings' => 
+  array (
+  ),
+  'equipment' => 
+  array (
+  ),
+  'bike' => 
+  array (
+  ),
+  'estate' => 
+  array (
+  ),
+  'tattoo' => 
+  array (
+  ),
+  '在线' => 
+  array (
+  ),
+  '中文网' => 
+  array (
+  ),
+  'land' => 
+  array (
+  ),
+  'plumbing' => 
+  array (
+  ),
+  'contractors' => 
+  array (
+  ),
+  'sexy' => 
+  array (
+  ),
+  'menu' => 
+  array (
+  ),
+  '世界' => 
+  array (
+  ),
+  'uno' => 
+  array (
+  ),
+  'gallery' => 
+  array (
+  ),
+  'technology' => 
+  array (
+  ),
+  '集团' => 
+  array (
+  ),
+  'reviews' => 
+  array (
+  ),
+  'guide' => 
+  array (
+  ),
+  '我爱你' => 
+  array (
+  ),
+  'graphics' => 
+  array (
+  ),
+  'construction' => 
+  array (
+  ),
+  'onl' => 
+  array (
+  ),
+  'みんな' => 
+  array (
+  ),
+  'diamonds' => 
+  array (
+  ),
+  'kiwi' => 
+  array (
+  ),
+  'enterprises' => 
+  array (
+  ),
+  'today' => 
+  array (
+  ),
+  'futbol' => 
+  array (
+  ),
+  'photography' => 
+  array (
+  ),
+  'tips' => 
+  array (
+  ),
+  'directory' => 
+  array (
+  ),
+  'kitchen' => 
+  array (
+  ),
+  '移动' => 
+  array (
+  ),
+  'kim' => 
+  array (
+  ),
+  '삼성' => 
+  array (
+  ),
+  'monash' => 
+  array (
+  ),
+  'wed' => 
+  array (
+  ),
+  'pink' => 
+  array (
+  ),
+  'ruhr' => 
+  array (
+  ),
+  'buzz' => 
+  array (
+  ),
+  'careers' => 
+  array (
+  ),
+  'shoes' => 
+  array (
+  ),
+  'موقع' => 
+  array (
+  ),
+  'career' => 
+  array (
+  ),
+  'otsuka' => 
+  array (
+  ),
+  '中信' => 
+  array (
+  ),
+  'gift' => 
+  array (
+  ),
+  'recipes' => 
+  array (
+  ),
+  'coffee' => 
+  array (
+  ),
+  'luxury' => 
+  array (
+  ),
+  'domains' => 
+  array (
+  ),
+  'photos' => 
+  array (
+  ),
+  'limo' => 
+  array (
+  ),
+  'viajes' => 
+  array (
+  ),
+  'wang' => 
+  array (
+  ),
+  'democrat' => 
+  array (
+  ),
+  'mango' => 
+  array (
+  ),
+  'cab' => 
+  array (
+  ),
+  'support' => 
+  array (
+  ),
+  'dance' => 
+  array (
+  ),
+  'nagoya' => 
+  array (
+  ),
+  'computer' => 
+  array (
+  ),
+  'wien' => 
+  array (
+  ),
+  'berlin' => 
+  array (
+  ),
+  'codes' => 
+  array (
+  ),
+  'email' => 
+  array (
+  ),
+  'بازار' => 
+  array (
+  ),
+  'repair' => 
+  array (
+  ),
+  'holiday' => 
+  array (
+  ),
+  'center' => 
+  array (
+  ),
+  'systems' => 
+  array (
+  ),
+  'wiki' => 
+  array (
+  ),
+  'ceo' => 
+  array (
+  ),
+  'international' => 
+  array (
+  ),
+  'solar' => 
+  array (
+  ),
+  'company' => 
+  array (
+  ),
+  'education' => 
+  array (
+  ),
+  'training' => 
+  array (
+  ),
+  'academy' => 
+  array (
+  ),
+  'marketing' => 
+  array (
+  ),
+  'florist' => 
+  array (
+  ),
+  'solutions' => 
+  array (
+  ),
+  'build' => 
+  array (
+  ),
+  'institute' => 
+  array (
+  ),
+  'builders' => 
+  array (
+  ),
+  'red' => 
+  array (
+  ),
+  'blue' => 
+  array (
+  ),
+  'ninja' => 
+  array (
+  ),
+  'business' => 
+  array (
+  ),
+  'gal' => 
+  array (
+  ),
+  'social' => 
+  array (
+  ),
+  'house' => 
+  array (
+  ),
+  'camp' => 
+  array (
+  ),
+  'immobilien' => 
+  array (
+  ),
+  'moda' => 
+  array (
+  ),
+  'glass' => 
+  array (
+  ),
+  'management' => 
+  array (
+  ),
+  'kaufen' => 
+  array (
+  ),
+  'farm' => 
+  array (
+  ),
+  '公益' => 
+  array (
+  ),
+  '政务' => 
+  array (
+  ),
+  'club' => 
+  array (
+  ),
+  'voting' => 
+  array (
+  ),
+  'TOKYO' => 
+  array (
+  ),
+  'moe' => 
+  array (
   ),
 );
