@@ -2,6 +2,9 @@
 
 namespace Pdp\HttpAdapter;
 
+/**
+ * @group internet
+ */
 class CurlHttpAdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
