@@ -10,6 +10,7 @@
 
 namespace Pdp\Uri;
 
+use Pdp\Parser;
 use Pdp\Uri\Url\Host;
 
 /**
@@ -17,7 +18,6 @@ use Pdp\Uri\Url\Host;
  */
 class Url
 {
-
     /**
      * @var string scheme
      */
@@ -101,6 +101,16 @@ class Url
     }
 
     /**
+     * Gets schemeless url
+     *
+     * @return string Url without scheme
+     */
+    public function getSchemeless()
+    {
+        return preg_replace(Parser::SCHEME_PATTERN, '//', $this->__toString(), 1);
+    }
+
+    /**
      * Converts the URI object to a string and returns it.
      *
      * @return string The full URI this object represents.
@@ -145,5 +155,4 @@ class Url
 
         return $url;
     }
-
 }

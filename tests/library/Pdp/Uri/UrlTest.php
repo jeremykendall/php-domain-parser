@@ -63,6 +63,12 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->spec, $this->url->__toString());
     }
 
+    public function testGetSchemeless()
+    {
+        $schemeless = substr_replace($this->spec, '', 0, 5);
+        $this->assertEquals($schemeless, $this->url->getSchemeless());
+    }
+
     public function test__getProperties()
     {
         $expected = array(
@@ -85,5 +91,4 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected['query'], $this->url->query);
         $this->assertEquals($expected['fragment'], $this->url->fragment);
     }
-    
 }

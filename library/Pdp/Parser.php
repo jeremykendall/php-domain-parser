@@ -20,6 +20,7 @@ use Pdp\Uri\Url\Host;
  */
 class Parser
 {
+    const SCHEME_PATTERN = '#^https?://#i';
 
     /**
      * @var PublicSuffixList Public Suffix List
@@ -56,10 +57,10 @@ class Parser
             'fragment' => null,
         );
 
-        preg_match('#^https?://#i', $url, $schemeMatches);
+        preg_match(self::SCHEME_PATTERN, $url, $schemeMatches);
 
         if (empty($schemeMatches)) {
-            $url = 'http://' . $url;
+            $url = 'http://' . preg_replace('#^//#', '', $url, 1);
         }
 
         $parts = parse_url($url);
