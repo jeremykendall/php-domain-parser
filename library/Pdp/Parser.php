@@ -20,7 +20,7 @@ use Pdp\Uri\Url\Host;
  */
 class Parser
 {
-    const SCHEME_PATTERN = '#^https?://#i';
+    const SCHEME_PATTERN = '#^(http|ftp)s?://#i';
 
     /**
      * @var PublicSuffixList Public Suffix List
@@ -57,9 +57,7 @@ class Parser
             'fragment' => null,
         );
 
-        preg_match(self::SCHEME_PATTERN, $url, $schemeMatches);
-
-        if (empty($schemeMatches)) {
+        if (preg_match(self::SCHEME_PATTERN, $url, $schemeMatches) === 0) {
             $url = 'http://' . preg_replace('#^//#', '', $url, 1);
         }
 

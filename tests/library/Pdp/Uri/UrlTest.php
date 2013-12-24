@@ -13,6 +13,11 @@ class UrlTest extends \PHPUnit_Framework_TestCase
      * @var Url
      */
     protected $url;
+
+    /**
+     * @var Parser
+     */
+    protected $parser;
     
     /**
      * @var string Url spec
@@ -29,8 +34,8 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
         $file = realpath(dirname(__DIR__) . '/../../../data/' . PublicSuffixListManager::PDP_PSL_PHP_FILE); 
         $psl = new PublicSuffixList($file);
-        $parser = new Parser($psl);
-        $this->url = $parser->parseUrl($this->spec);
+        $this->parser = new Parser($psl);
+        $this->url = $this->parser->parseUrl($this->spec);
     }
 
     protected function tearDown()
@@ -109,5 +114,16 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($expected, $this->url->toArray());
+    }
+
+    /**
+     * @group issue18
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/18
+     */
+    public function testFtpUrlToString()
+    {
+        $ftpUrl = 'ftp://ftp.somewhere.com';
+        $url = $this->parser->parseUrl($ftpUrl);
+        $this->assertEquals($ftpUrl, $url->__toString());
     }
 }
