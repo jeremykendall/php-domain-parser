@@ -13,7 +13,7 @@ if (is_dir($vendor = __DIR__.'/../vendor')) {
     );
 }
 
-$domain = 'http://www.pref.okinawa.jp';
+$domain = 'http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment';
 
 if ($argc == 2) {
     $domain = $argv[1];
