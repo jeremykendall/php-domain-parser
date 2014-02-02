@@ -157,24 +157,57 @@ string(16) "scottwills.co.uk"
 string(5) "co.uk"
 ```
 
+### Sanity Check ###
+
+You can quickly parse a url from the command line with the provided `parse` 
+vendor binary.  From the root of your project, simply call:
+
+``` bash
+$ ./vendor/bin/parse <url>
+```
+
+If you pass a url to `parse`, that url will be parsed and the output printed
+to screen.  
+
+If you do not pass a url, `http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment` will be parsed and the output printed to screen.
+
+Example:
+
+``` bash
+$ ./vendor/bin/parse http://www.waxaudio.com.au/
+
+Array
+(
+    [scheme] => http
+    [user] =>
+    [pass] =>
+    [host] => www.waxaudio.com.au
+    [subdomain] => www
+    [registerableDomain] => waxaudio.com.au
+    [publicSuffix] => com.au
+    [port] =>
+    [path] => /
+    [query] =>
+    [fragment] =>
+)
+```
+
 ### Example Script ###
 
 For more information on using the PHP Domain Parser, please see the provided
-[example
-script](https://github.com/jeremykendall/php-domain-parser/blob/master/example.php).
+[example script](https://github.com/jeremykendall/php-domain-parser/blob/master/example.php).
 
 ### Refreshing the Public Suffix List ###
 
 While a cached PHP copy of the Public Suffix List is provided for you in the
 `data` directory, that copy may or may not be up to date (Mozilla provides an
-[Atom change
-feed](http://hg.mozilla.org/mozilla-central/atom-log/default/netwerk/dns/effective_tld_names.dat) to keep
-up with changes to the list). Please use the provided vendor binary to refresh
-your cached copy of the Public Suffix List.
+[Atom change feed](http://hg.mozilla.org/mozilla-central/atom-log/default/netwerk/dns/effective_tld_names.dat)
+to keep up with changes to the list). Please use the provided vendor binary to
+refresh your cached copy of the Public Suffix List.
 
 From the root of your project, simply call:
 
-```
+``` bash
 $ ./vendor/bin/pdp-psl
 ```
 
