@@ -10,6 +10,7 @@
         }
     ],
     "bin": [
+        "bin/parser",
         "bin/pdp-psl"
     ],
     "keywords": [
@@ -23,20 +24,11 @@
     },
     "require-dev": {
         "mikey179/vfsStream": "1.1.*",
-        "jeremykendall/phpctagger": "0.0.*",
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
         "psr-0": {
             "Pdp\\": "library/"
         }
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "PhpCtagger\\Composer\\Script\\Ctagger::ctag"
-        ],
-        "post-update-cmd": [
-            "PhpCtagger\\Composer\\Script\\Ctagger::ctag"
-        ]
     }
 }
