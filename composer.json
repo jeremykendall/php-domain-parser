@@ -23,8 +23,8 @@
         "ext-curl": "*"
     },
     "require-dev": {
-        "mikey179/vfsStream": "1.1.*",
-        "phpunit/phpunit": "3.7.*"
+        "mikey179/vfsStream": "1.2.*",
+        "phpunit/phpunit": "4.*"
     },
     "autoload": {
         "psr-0": {
