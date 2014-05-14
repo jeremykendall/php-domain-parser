@@ -67,7 +67,7 @@ class HostTest extends \PHPUnit_Framework_TestCase
             array('com', 'example.com', null, 'example.com'),
             array('com', 'cnn.com', 'edition', 'edition.cnn.com'),
             array('org', 'wikipedia.org', 'en', 'en.wikipedia.org'),
-            array('uk.com', 'example.uk.com', 'a.b', 'a.b.example.uk.com')
+            array('uk.com', 'example.uk.com', 'a.b', 'a.b.example.uk.com'),
         );
     }
 }
