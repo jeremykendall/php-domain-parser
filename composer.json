@@ -10,7 +10,7 @@
         }
     ],
     "bin": [
-        "bin/parser",
+        "bin/parse",
         "bin/pdp-psl"
     ],
     "keywords": [
