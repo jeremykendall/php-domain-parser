@@ -190,6 +190,7 @@ Array
     [query] =>
     [fragment] =>
 )
+Host: http://www.waxaudio.com.au/
 ```
 
 ### Example Script ###

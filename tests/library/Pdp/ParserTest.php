@@ -135,6 +135,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             // Test ftp support - https://github.com/jeremykendall/php-domain-parser/issues/18
             array('ftp://www.waxaudio.com.au/audio/albums/the_mashening', 'com.au', 'waxaudio.com.au', 'www', 'www.waxaudio.com.au'),
             array('ftps://test.k12.ak.us', 'k12.ak.us', 'test.k12.ak.us', null, 'test.k12.ak.us'),
+            array('http://localhost', null, null, null, 'localhost'),
         );
     }
 }

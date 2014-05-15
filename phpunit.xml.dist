@@ -20,13 +20,13 @@
 
     <logging>
         <log type="coverage-html" 
-            target="tests/log/report" 
+            target="build/coverage" 
             charset="UTF-8" 
             yui="true" 
             highlight="true" 
             lowUpperBound="40"
             highLowerBound="70" />
-        <log type="testdox-html" target="tests/log/testdox.html" />
+        <log type="testdox-html" target="build/coverage/log/testdox.html" />
     </logging>
 
 </phpunit>

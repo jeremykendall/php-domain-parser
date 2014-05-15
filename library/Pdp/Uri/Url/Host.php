@@ -31,17 +31,24 @@ class Host
     private $publicSuffix;
 
     /**
+     * @var string host Entire host part
+     */
+    private $host;
+
+    /**
      * Public constructor
      *
      * @param string|null $subdomain          Subdomain portion of host
-     * @param string      $registerableDomain Registerable domain portion of host
-     * @param string      $publicSuffix       Public suffix portion of host
+     * @param string|null $registerableDomain Registerable domain portion of host
+     * @param string|null $publicSuffix       Public suffix portion of host
+     * @param string      $host               OPTIONAL Entire host part
      */
-    public function __construct($subdomain, $registerableDomain, $publicSuffix)
+    public function __construct($subdomain, $registerableDomain, $publicSuffix, $host = null)
     {
         $this->subdomain = $subdomain;
         $this->registerableDomain = $registerableDomain;
         $this->publicSuffix = $publicSuffix;
+        $this->host = $host;
     }
 
     /**
@@ -51,13 +58,17 @@ class Host
      */
     public function __toString()
     {
-        $host = $this->registerableDomain;
-
-        if ($this->subdomain) {
-            $host = $this->subdomain . '.' . $host;
+        if ($this->host !== null) {
+            return $this->host;
         }
 
-        return $host;
+        // retain only the elements that are not empty
+        $str = array_filter(
+            array($this->subdomain, $this->registerableDomain),
+            'strlen'
+        );
+
+        return implode('.', $str);
     }
 
     /**
@@ -71,6 +82,7 @@ class Host
             'subdomain' => $this->subdomain,
             'registerableDomain' => $this->registerableDomain,
             'publicSuffix' => $this->publicSuffix,
+            'host' => $this->host,
         );
     }
 
