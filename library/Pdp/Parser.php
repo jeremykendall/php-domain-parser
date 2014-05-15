@@ -91,10 +91,23 @@ class Parser
      */
     public function parseHost($host)
     {
+        $subdomain = null;
+        $registerableDomain = null;
+        $publicSuffix = null;
+
+        // Fixes #22: Single label domains are set as Host::$host and all other 
+        // properties are null.
+        if (strpos($host, '.') !== false) {
+            $subdomain = $this->getSubdomain($host);
+            $registerableDomain = $this->getRegisterableDomain($host);
+            $publicSuffix = $this->getPublicSuffix($host);
+        }
+
         return new Host(
-            $this->getSubdomain($host),
-            $this->getRegisterableDomain($host),
-            $this->getPublicSuffix($host)
+            $subdomain,
+            $registerableDomain,
+            $publicSuffix,
+            $host
         );
     }
 
@@ -107,6 +120,13 @@ class Parser
     public function getPublicSuffix($host)
     {
         if (strpos($host, '.') === 0) {
+            return null;
+        }
+
+        // Fixes #22: If a single label domain makes it this far (e.g., 
+        // localhost, foo, etc.), this stops it from incorrectly being set as 
+        // the  public suffix.
+        if (strpos($host, '.') === false) {
             return null;
         }
 

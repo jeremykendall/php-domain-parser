@@ -12,10 +12,22 @@ class HostTest extends \PHPUnit_Framework_TestCase
         $host = new Host(
             $subdomain,
             $registerableDomain,
-            $publicSuffix
+            $publicSuffix,
+            $hostPart
         );
 
         $this->assertEquals($hostPart, $host->__toString());
+    }
+
+    public function test__toStringWhenHostPartIsNull()
+    {
+        $host = new Host(
+            'www',
+            'example.com',
+            'com'
+        );
+
+        $this->assertEquals('www.example.com', $host->__toString());
     }
 
     /**
@@ -26,15 +38,18 @@ class HostTest extends \PHPUnit_Framework_TestCase
         $parts = array(
             'subdomain' => $subdomain,
             'registerableDomain' => $registerableDomain,
-            'publicSuffix' => $publicSuffix
+            'publicSuffix' => $publicSuffix,
+            'host' => $hostPart,
         );
 
         $host = new Host(
             $parts['subdomain'],
             $parts['registerableDomain'],
-            $parts['publicSuffix']
+            $parts['publicSuffix'],
+            $parts['host']
         );
 
+        $this->assertSame($hostPart, $host->host);
         $this->assertSame($parts['subdomain'], $host->subdomain);
         $this->assertEquals($parts['registerableDomain'], $host->registerableDomain);
         $this->assertEquals($parts['publicSuffix'], $host->publicSuffix);
@@ -48,13 +63,15 @@ class HostTest extends \PHPUnit_Framework_TestCase
         $parts = array(
             'subdomain' => $subdomain,
             'registerableDomain' => $registerableDomain,
-            'publicSuffix' => $publicSuffix
+            'publicSuffix' => $publicSuffix,
+            'host' => $hostPart,
         );
 
         $host = new Host(
             $parts['subdomain'],
             $parts['registerableDomain'],
-            $parts['publicSuffix']
+            $parts['publicSuffix'],
+            $parts['host']
         );
 
         $this->assertEquals($parts, $host->toArray());
@@ -68,6 +85,7 @@ class HostTest extends \PHPUnit_Framework_TestCase
             array('com', 'cnn.com', 'edition', 'edition.cnn.com'),
             array('org', 'wikipedia.org', 'en', 'en.wikipedia.org'),
             array('uk.com', 'example.uk.com', 'a.b', 'a.b.example.uk.com'),
+            array(null, null, null, 'localhost'),
         );
     }
 }
