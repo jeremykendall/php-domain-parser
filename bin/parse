@@ -24,6 +24,7 @@ try {
     $parser = new Pdp\Parser($manager->getList());
     $url = $parser->parseUrl($domain);
     print_r($url->toArray());
+    echo sprintf('Host: %s', $url) . PHP_EOL;
 } catch (\Exception $e) {
     die($e->getMessage() . PHP_EOL);
 }
