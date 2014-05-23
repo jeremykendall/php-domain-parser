@@ -172,11 +172,34 @@ class PublicSuffixListManager
     public function getList()
     {
         if ($this->list == null) {
+            if (!$this->cacheExist()) {
+                $this->refreshPublicSuffixList();
+            }
+
             $list = include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
+
+            if ($list === false) {
+                throw new \Exception("Cannot read '" . $this->cacheDir . "/" . self::PDP_PSL_PHP_FILE . "'");
+            }
+
             $this->list = new PublicSuffixList($list);
         }
 
         return $this->list;
+    }
+
+    /**
+     * Verifies the existence of the cache file
+     *
+     * @return bool TRUE if the cache file exists; FALSE otherwise.
+     */
+    protected function cacheExist()
+    {
+        if (file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE) === true) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
