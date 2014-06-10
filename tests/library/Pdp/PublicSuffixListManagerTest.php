@@ -39,7 +39,7 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
     /**
      * @var string url
      */
-    protected $publicSuffixListUrl = 'http://mxr.mozilla.org/mozilla-central/source/netwerk/dns/effective_tld_names.dat?raw=1';
+    protected $publicSuffixListUrl = 'https://publicsuffix.org/list/effective_tld_names.dat';
 
     /**
      * @var \Pdp\HttpAdapter\HttpAdapterInterface Http adapter
