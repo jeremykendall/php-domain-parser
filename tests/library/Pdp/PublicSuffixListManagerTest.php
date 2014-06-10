@@ -153,6 +153,28 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
     }
 
+    public function testGetListWithoutCache()
+    {
+        unlink($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
+        $this->assertFileNotExists($this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
+
+        $listManager = $this->getMock('\Pdp\PublicSuffixListManager', array('refreshPublicSuffixList'), array($this->cacheDir));
+
+        $dataDir = $this->dataDir;
+        $cacheDir = $this->cacheDir;
+
+        $listManager->expects($this->once())
+            ->method('refreshPublicSuffixList')
+            ->will($this->returnCallback(function () use ($dataDir, $cacheDir) {
+                copy(
+                    $dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE,
+                    $cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+                );
+            }));
+
+        $listManager->getList();
+    }
+
     public function testGetProvidedListFromDefaultCacheDir()
     {
         // By not providing cache I'm forcing use of default cache dir
