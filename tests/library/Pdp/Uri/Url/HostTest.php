@@ -79,6 +79,7 @@ class HostTest extends \PHPUnit_Framework_TestCase
 
     public function hostDataProvider()
     {
+        // $publicSuffix, $registerableDomain, $subdomain, $hostPart
         return array(
             array('com.au', 'waxaudio.com.au', 'www', 'www.waxaudio.com.au'),
             array('com', 'example.com', null, 'example.com'),
