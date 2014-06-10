@@ -25,7 +25,7 @@ class PublicSuffixListManager
     /**
      * @var string Public Suffix List URL
      */
-    protected $publicSuffixListUrl = 'http://mxr.mozilla.org/mozilla-central/source/netwerk/dns/effective_tld_names.dat?raw=1';
+    protected $publicSuffixListUrl = 'https://publicsuffix.org/list/effective_tld_names.dat';
 
     /**
      * @var string Directory where text and php versions of list will be cached
