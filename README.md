@@ -34,7 +34,7 @@ Create a `composer.json` file in the root of your project:
 ``` json
 {
     "require": {
-        "jeremykendall/php-domain-parser": "0.0.*"
+        "jeremykendall/php-domain-parser": "~1.3"
     }
 }
 ```
