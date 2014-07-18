@@ -95,7 +95,7 @@ class Parser
         $registerableDomain = null;
         $publicSuffix = null;
 
-        // Fixes #22: Single label domains are set as Host::$host and all other 
+        // Fixes #22: Single label domains are set as Host::$host and all other
         // properties are null.
         if (strpos($host, '.') !== false) {
             $subdomain = $this->getSubdomain($host);
@@ -123,8 +123,8 @@ class Parser
             return null;
         }
 
-        // Fixes #22: If a single label domain makes it this far (e.g., 
-        // localhost, foo, etc.), this stops it from incorrectly being set as 
+        // Fixes #22: If a single label domain makes it this far (e.g.,
+        // localhost, foo, etc.), this stops it from incorrectly being set as
         // the  public suffix.
         if (strpos($host, '.') === false) {
             return null;

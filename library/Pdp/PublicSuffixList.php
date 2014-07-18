@@ -18,10 +18,7 @@ class PublicSuffixList extends \ArrayObject
     /**
      * Public constructor
      *
-     * @param mixed $list Array representing Public Suffix List or PHP Public
-     * Suffix List file
-     * @throws \InvalidArgumentException If $list is not array, file did not
-     * contain an array, or $list is not an object
+     * @param mixed $list Array representing Public Suffix List or PHP Public Suffix List file
      */
     public function __construct($list)
     {

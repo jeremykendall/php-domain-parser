@@ -65,18 +65,23 @@ class PublicSuffixListManager
     public function refreshPublicSuffixList()
     {
         $this->fetchListFromSource();
-        $publicSuffixListArray = $this->parseListToArray($this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE);
+        $publicSuffixListArray = $this->parseListToArray(
+            $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE
+        );
         $this->writePhpCache($publicSuffixListArray);
     }
 
     /**
      * Obtain Public Suffix List from its online source and write to cache dir
      *
+     * TODO: Should throw exception if empty/null/content-length too short
+     *
      * @return int Number of bytes that were written to the file
      */
     public function fetchListFromSource()
     {
-        $publicSuffixList = $this->getHttpAdapter()->getContent($this->publicSuffixListUrl);
+        $publicSuffixList = $this->getHttpAdapter()
+            ->getContent($this->publicSuffixListUrl);
 
         return $this->write(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
     }
@@ -91,7 +96,7 @@ class PublicSuffixListManager
      *
      * @param  string $textFile Public Suffix List text filename
      * @return array  Associative, multidimensional array representation of the
-     * public suffx list
+     *                         public suffx list
      */
     public function parseListToArray($textFile)
     {
@@ -100,7 +105,7 @@ class PublicSuffixListManager
             FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
         );
 
-        $data = array_filter($data, function($line) {
+        $data = array_filter($data, function ($line) {
             return strstr($line, '//') === false;
         });
 
@@ -123,9 +128,9 @@ class PublicSuffixListManager
      * distribution
      *
      * @param array $publicSuffixListArray Initially an empty array, this eventually
-     * becomes the array representation of the Public Suffix List
-     * @param array $ruleParts One line (rule) from the Public Suffix List
-     * exploded on '.', or the remaining portion of that array during recursion
+     *                                     becomes the array representation of the Public Suffix List
+     * @param array $ruleParts             One line (rule) from the Public Suffix List
+     *                                     exploded on '.', or the remaining portion of that array during recursion
      */
     public function buildArray(array &$publicSuffixListArray, array $ruleParts)
     {
@@ -171,35 +176,15 @@ class PublicSuffixListManager
      */
     public function getList()
     {
-        if ($this->list == null) {
-            if (!$this->cacheExist()) {
-                $this->refreshPublicSuffixList();
-            }
-
-            $list = include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
-
-            if ($list === false) {
-                throw new \Exception("Cannot read '" . $this->cacheDir . "/" . self::PDP_PSL_PHP_FILE . "'");
-            }
-
-            $this->list = new PublicSuffixList($list);
+        if (!file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE)) {
+            $this->refreshPublicSuffixList();
         }
+
+        $this->list = new PublicSuffixList(
+            include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE
+        );
 
         return $this->list;
-    }
-
-    /**
-     * Verifies the existence of the cache file
-     *
-     * @return bool TRUE if the cache file exists; FALSE otherwise.
-     */
-    protected function cacheExist()
-    {
-        if (file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE) === true) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**

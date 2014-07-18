@@ -32,6 +32,4 @@ class CurlHttpAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertNotNull($content);
         $this->assertContains('google', $content);
     }
-
 }
-
