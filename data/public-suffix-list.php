@@ -449,6 +449,9 @@ return array (
     'gob' => 
     array (
     ),
+    'gov' => 
+    array (
+    ),
     'int' => 
     array (
     ),
@@ -565,9 +568,6 @@ return array (
     ),
     'gov' => 
     array (
-      'act' => 
-      array (
-      ),
       'qld' => 
       array (
       ),
@@ -588,9 +588,6 @@ return array (
     array (
     ),
     'id' => 
-    array (
-    ),
-    'csiro' => 
     array (
     ),
     'info' => 
@@ -713,6 +710,9 @@ return array (
     'biz' => 
     array (
     ),
+    'co' => 
+    array (
+    ),
     'com' => 
     array (
     ),
@@ -732,6 +732,9 @@ return array (
     array (
     ),
     'store' => 
+    array (
+    ),
+    'tv' => 
     array (
     ),
   ),
@@ -1464,7 +1467,16 @@ return array (
   ),
   'cm' => 
   array (
+    'co' => 
+    array (
+    ),
+    'com' => 
+    array (
+    ),
     'gov' => 
+    array (
+    ),
+    'net' => 
     array (
     ),
   ),
@@ -1602,6 +1614,15 @@ return array (
     'tw' => 
     array (
     ),
+    'amazonaws' => 
+    array (
+      'compute' => 
+      array (
+        'cn-north-1' => 
+        array (
+        ),
+      ),
+    ),
   ),
   'co' => 
   array (
@@ -1676,9 +1697,6 @@ return array (
         array (
         ),
       ),
-      'us-east-1' => 
-      array (
-      ),
       'compute-1' => 
       array (
         'z-1' => 
@@ -1687,6 +1705,9 @@ return array (
         'z-2' => 
         array (
         ),
+      ),
+      'us-east-1' => 
+      array (
       ),
       'elb' => 
       array (
@@ -2280,6 +2301,9 @@ return array (
     'writesthisblog' => 
     array (
     ),
+    'firebaseapp' => 
+    array (
+    ),
     'githubusercontent' => 
     array (
     ),
@@ -2308,6 +2332,9 @@ return array (
     array (
     ),
     'herokussl' => 
+    array (
+    ),
+    'nfshost' => 
     array (
     ),
     'operaunite' => 
@@ -3415,6 +3442,9 @@ return array (
     array (
     ),
     'github' => 
+    array (
+    ),
+    'nid' => 
     array (
     ),
   ),
@@ -15131,7 +15161,7 @@ return array (
   ),
   'nz' => 
   array (
-    '*' => 
+    'ac' => 
     array (
     ),
     'co' => 
@@ -15139,6 +15169,48 @@ return array (
       'blogspot' => 
       array (
       ),
+    ),
+    'cri' => 
+    array (
+    ),
+    'geek' => 
+    array (
+    ),
+    'gen' => 
+    array (
+    ),
+    'govt' => 
+    array (
+    ),
+    'health' => 
+    array (
+    ),
+    'iwi' => 
+    array (
+    ),
+    'kiwi' => 
+    array (
+    ),
+    'maori' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'māori' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'parliament' => 
+    array (
+    ),
+    'school' => 
+    array (
     ),
   ),
   'om' => 
@@ -16535,9 +16607,6 @@ return array (
     'perm' => 
     array (
     ),
-    'pskov' => 
-    array (
-    ),
     'ptz' => 
     array (
     ),
@@ -16962,6 +17031,9 @@ return array (
     array (
     ),
     'z' => 
+    array (
+    ),
+    'com' => 
     array (
     ),
     'blogspot' => 
@@ -17832,54 +17904,42 @@ return array (
   ),
   'uk' => 
   array (
-    '*' => 
+    'ac' => 
+    array (
+    ),
+    'co' => 
+    array (
+      'blogspot' => 
+      array (
+      ),
+    ),
+    'gov' => 
+    array (
+    ),
+    'ltd' => 
+    array (
+    ),
+    'me' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'nhs' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'plc' => 
+    array (
+    ),
+    'police' => 
     array (
     ),
     'sch' => 
     array (
       '*' => 
-      array (
-      ),
-    ),
-    'bl' => 
-    array (
-      '!' => '',
-    ),
-    'british-library' => 
-    array (
-      '!' => '',
-    ),
-    'jet' => 
-    array (
-      '!' => '',
-    ),
-    'mod' => 
-    array (
-      '!' => '',
-    ),
-    'national-library-scotland' => 
-    array (
-      '!' => '',
-    ),
-    'nel' => 
-    array (
-      '!' => '',
-    ),
-    'nic' => 
-    array (
-      '!' => '',
-    ),
-    'nls' => 
-    array (
-      '!' => '',
-    ),
-    'parliament' => 
-    array (
-      '!' => '',
-    ),
-    'co' => 
-    array (
-      'blogspot' => 
       array (
       ),
     ),
@@ -18630,6 +18690,9 @@ return array (
   ),
   've' => 
   array (
+    'arts' => 
+    array (
+    ),
     'co' => 
     array (
     ),
@@ -18642,10 +18705,19 @@ return array (
     'edu' => 
     array (
     ),
+    'firm' => 
+    array (
+    ),
+    'gob' => 
+    array (
+    ),
     'gov' => 
     array (
     ),
     'info' => 
+    array (
+    ),
+    'int' => 
     array (
     ),
     'mil' => 
@@ -18655,6 +18727,15 @@ return array (
     array (
     ),
     'org' => 
+    array (
+    ),
+    'rec' => 
+    array (
+    ),
+    'store' => 
+    array (
+    ),
+    'tec' => 
     array (
     ),
     'web' => 
@@ -18723,6 +18804,18 @@ return array (
   ),
   'vu' => 
   array (
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
   ),
   'wf' => 
   array (
@@ -18837,6 +18930,24 @@ return array (
   ),
   'срб' => 
   array (
+    'пр' => 
+    array (
+    ),
+    'орг' => 
+    array (
+    ),
+    'обр' => 
+    array (
+    ),
+    'од' => 
+    array (
+    ),
+    'упр' => 
+    array (
+    ),
+    'ак' => 
+    array (
+    ),
   ),
   'рф' => 
   array (
@@ -19880,6 +19991,300 @@ return array (
   array (
   ),
   'reise' => 
+  array (
+  ),
+  'accountants' => 
+  array (
+  ),
+  'clinic' => 
+  array (
+  ),
+  'versicherung' => 
+  array (
+  ),
+  'top' => 
+  array (
+  ),
+  'furniture' => 
+  array (
+  ),
+  'dental' => 
+  array (
+  ),
+  'fund' => 
+  array (
+  ),
+  'creditcard' => 
+  array (
+  ),
+  'insure' => 
+  array (
+  ),
+  'audio' => 
+  array (
+  ),
+  'claims' => 
+  array (
+  ),
+  'loans' => 
+  array (
+  ),
+  'auction' => 
+  array (
+  ),
+  'attorney' => 
+  array (
+  ),
+  'finance' => 
+  array (
+  ),
+  'investments' => 
+  array (
+  ),
+  'juegos' => 
+  array (
+  ),
+  'dentist' => 
+  array (
+  ),
+  'lds' => 
+  array (
+  ),
+  'lawyer' => 
+  array (
+  ),
+  'surgery' => 
+  array (
+  ),
+  'gratis' => 
+  array (
+  ),
+  'software' => 
+  array (
+  ),
+  'mortgage' => 
+  array (
+  ),
+  'republican' => 
+  array (
+  ),
+  'credit' => 
+  array (
+  ),
+  'tax' => 
+  array (
+  ),
+  'africa' => 
+  array (
+  ),
+  'joburg' => 
+  array (
+  ),
+  'durban' => 
+  array (
+  ),
+  'capetown' => 
+  array (
+  ),
+  'sap' => 
+  array (
+  ),
+  'datsun' => 
+  array (
+  ),
+  'infiniti' => 
+  array (
+  ),
+  'firmdale' => 
+  array (
+  ),
+  'organic' => 
+  array (
+  ),
+  'nissan' => 
+  array (
+  ),
+  'website' => 
+  array (
+  ),
+  'space' => 
+  array (
+  ),
+  'schmidt' => 
+  array (
+  ),
+  'cuisinella' => 
+  array (
+  ),
+  'samsung' => 
+  array (
+  ),
+  'crs' => 
+  array (
+  ),
+  'doosan' => 
+  array (
+  ),
+  'press' => 
+  array (
+  ),
+  'emerck' => 
+  array (
+  ),
+  'erni' => 
+  array (
+  ),
+  'direct' => 
+  array (
+  ),
+  'yandex' => 
+  array (
+  ),
+  'lotto' => 
+  array (
+  ),
+  'toshiba' => 
+  array (
+  ),
+  'bauhaus' => 
+  array (
+  ),
+  'host' => 
+  array (
+  ),
+  'ltda' => 
+  array (
+  ),
+  'global' => 
+  array (
+  ),
+  'abogado' => 
+  array (
+  ),
+  'place' => 
+  array (
+  ),
+  'tirol' => 
+  array (
+  ),
+  'gmx' => 
+  array (
+  ),
+  'tatar' => 
+  array (
+  ),
+  'scholarships' => 
+  array (
+  ),
+  'eurovision' => 
+  array (
+  ),
+  'wedding' => 
+  array (
+  ),
+  'active' => 
+  array (
+  ),
+  'madrid' => 
+  array (
+  ),
+  'youtube' => 
+  array (
+  ),
+  'sharp' => 
+  array (
+  ),
+  'uol' => 
+  array (
+  ),
+  'physio' => 
+  array (
+  ),
+  'gmail' => 
+  array (
+  ),
+  'channel' => 
+  array (
+  ),
+  'fly' => 
+  array (
+  ),
+  'zip' => 
+  array (
+  ),
+  'esq' => 
+  array (
+  ),
+  'rsvp' => 
+  array (
+  ),
+  'wales' => 
+  array (
+  ),
+  'cymru' => 
+  array (
+  ),
+  'green' => 
+  array (
+  ),
+  'lgbt' => 
+  array (
+  ),
+  '网店' => 
+  array (
+  ),
+  'cancerresearch' => 
+  array (
+  ),
+  'everbank' => 
+  array (
+  ),
+  'frl' => 
+  array (
+  ),
+  'property' => 
+  array (
+  ),
+  'forsale' => 
+  array (
+  ),
+  'seat' => 
+  array (
+  ),
+  'deals' => 
+  array (
+  ),
+  'nra' => 
+  array (
+  ),
+  '娱乐' => 
+  array (
+  ),
+  'realtor' => 
+  array (
+  ),
+  'bnpparibas' => 
+  array (
+  ),
+  'melbourne' => 
+  array (
+  ),
+  'hosting' => 
+  array (
+  ),
+  'yoga' => 
+  array (
+  ),
+  'city' => 
+  array (
+  ),
+  'bond' => 
+  array (
+  ),
+  'click' => 
+  array (
+  ),
+  'cern' => 
   array (
   ),
 );
