@@ -20,7 +20,7 @@ use Pdp\Uri\Url\Host;
  */
 class Parser
 {
-    const SCHEME_PATTERN = '#^(http|ftp)s?://#i';
+    const SCHEME_PATTERN = '#^((http|ftp)s?://)#i';
 
     /**
      * @var PublicSuffixList Public Suffix List
@@ -57,9 +57,11 @@ class Parser
             'fragment' => null,
         );
 
-        if (preg_match(self::SCHEME_PATTERN, $url, $schemeMatches) === 0) {
+        if (preg_match(self::SCHEME_PATTERN, $url) === 0) {
             $url = 'http://' . preg_replace('#^//#', '', $url, 1);
         }
+
+        $url = $this->idnToAscii($url);
 
         $parts = parse_url($url);
 
@@ -130,7 +132,7 @@ class Parser
             return null;
         }
 
-        $host = strtolower($host);
+        $host = mb_strtolower($host);
         $parts = array_reverse(explode('.', $host));
         $publicSuffix = array();
         $publicSuffixList = $this->publicSuffixList;
@@ -185,7 +187,7 @@ class Parser
             return null;
         }
 
-        $host = strtolower($host);
+        $host = mb_strtolower($host);
         $publicSuffix = $this->getPublicSuffix($host);
 
         if ($publicSuffix === null || $host == $publicSuffix) {
@@ -207,7 +209,7 @@ class Parser
      */
     public function getSubdomain($host)
     {
-        $host = strtolower($host);
+        $host = mb_strtolower($host);
         $registerableDomain = $this->getRegisterableDomain($host);
 
         if ($registerableDomain === null || $host == $registerableDomain) {
@@ -221,4 +223,17 @@ class Parser
         return implode('.', array_reverse($subdomainParts));
     }
 
+    /**
+     * Convert IDNA URLs to ASCII - must strip the scheme and only convert the URL
+     *
+     * @param string $url URL to convert
+     * @return string ASCII URL
+     */
+    protected function idnToAscii($url)
+    {
+        $split = preg_split(self::SCHEME_PATTERN, $url, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $url = sprintf('%s%s', $split[1], idn_to_ascii($split[3]));
+
+        return $url;
+    }
 }
