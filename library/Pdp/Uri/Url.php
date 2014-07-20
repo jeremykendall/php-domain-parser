@@ -134,7 +134,7 @@ class Url
         $host = $this->host->__toString();
 
         if ($host) {
-            $url .= urlencode($host);
+            $url .= $host;
         }
 
         if ($this->port) {
