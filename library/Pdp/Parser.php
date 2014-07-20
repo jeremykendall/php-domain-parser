@@ -20,7 +20,7 @@ use Pdp\Uri\Url\Host;
  */
 class Parser
 {
-    const SCHEME_PATTERN = '#^((http|ftp)s?://)#i';
+    const SCHEME_PATTERN = '#^(http|ftp)s?://#i';
 
     /**
      * @var PublicSuffixList Public Suffix List
