@@ -128,7 +128,6 @@ class Parser
             return null;
         }
 
-        $host = mb_strtolower($host, 'UTF-8');
         $parts = array_reverse(explode('.', $host));
         $publicSuffix = array();
         $publicSuffixList = $this->publicSuffixList;
@@ -217,7 +216,6 @@ class Parser
      */
     public function getSubdomain($host)
     {
-        $host = mb_strtolower($host, 'UTF-8');
         $registerableDomain = $this->getRegisterableDomain($host);
 
         if ($registerableDomain === null || $host == $registerableDomain) {
@@ -238,7 +236,7 @@ class Parser
      *
      * @return array
      */
-    public function mbParseUrl($url)
+    protected function mbParseUrl($url)
     {
         $enc_url = preg_replace_callback(
             '%[^:/@?&=#]+%usD',

@@ -23,6 +23,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Pdp\Parser::parseUrl()
+     * @covers Pdp\Parser::mbParseUrl()
      */
     public function testParseBadUrlThrowsInvalidArgumentException()
     {
@@ -108,7 +109,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         // url, public suffix, registerable domain, subdomain, host part
         return array(
             array('http://www.waxaudio.com.au/audio/albums/the_mashening', 'com.au', 'waxaudio.com.au', 'www', 'www.waxaudio.com.au'),
-            array('example.com', 'com', 'example.com', null, 'example.com'),
+            array('example.COM', 'com', 'example.com', null, 'example.com'),
             array('giant.yyyy', 'yyyy', 'giant.yyyy', null, 'giant.yyyy'),
             array('cea-law.co.il', 'co.il', 'cea-law.co.il', null, 'cea-law.co.il'),
             array('http://edition.cnn.com/WORLD/', 'com', 'cnn.com', 'edition', 'edition.cnn.com'),
