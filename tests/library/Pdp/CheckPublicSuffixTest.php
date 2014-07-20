@@ -3,9 +3,9 @@
 namespace Pdp;
 
 /**
- * This test case is based on the test data linked at 
+ * This test case is based on the test data linked at
  * http://publicsuffix.org/list/ and provided by Rob Strading of Comodo.
- * @link 
+ * @link
  * http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1
  */
 class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
@@ -27,6 +27,8 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
     {
         // Test data from Rob Stradling at Comodo
         // http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1
+        // Any copyright is dedicated to the Public Domain.
+        // http://creativecommons.org/publicdomain/zero/1.0/
 
         // null input.
         $this->checkPublicSuffix(null, null);
@@ -99,19 +101,39 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
         $this->checkPublicSuffix('k12.ak.us', null);
         $this->checkPublicSuffix('test.k12.ak.us', 'test.k12.ak.us');
         $this->checkPublicSuffix('www.test.k12.ak.us', 'test.k12.ak.us');
+        // IDN labels.
+        $this->checkPublicSuffix('食狮.com.cn', '食狮.com.cn');
+        $this->checkPublicSuffix('食狮.公司.cn', '食狮.公司.cn');
+        $this->checkPublicSuffix('www.食狮.公司.cn', '食狮.公司.cn');
+        $this->checkPublicSuffix('shishi.公司.cn', 'shishi.公司.cn');
+        $this->checkPublicSuffix('公司.cn', null);
+        $this->checkPublicSuffix('食狮.中国', '食狮.中国');
+        $this->checkPublicSuffix('www.食狮.中国', '食狮.中国');
+        $this->checkPublicSuffix('shishi.中国', 'shishi.中国');
+        $this->checkPublicSuffix('中国', null);
+        // Same as above, but punycoded.
+        $this->checkPublicSuffix('xn--85x722f.com.cn', 'xn--85x722f.com.cn');
+        $this->checkPublicSuffix('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn');
+        $this->checkPublicSuffix('www.xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn');
+        $this->checkPublicSuffix('shishi.xn--55qx5d.cn', 'shishi.xn--55qx5d.cn');
+        $this->checkPublicSuffix('xn--55qx5d.cn', null);
+        $this->checkPublicSuffix('xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s');
+        $this->checkPublicSuffix('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s');
+        $this->checkPublicSuffix('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s');
+        $this->checkPublicSuffix('xn--fiqs8s', null);
     }
 
     /**
-     * This is my version of the checkPublicSuffix function referred to in the 
+     * This is my version of the checkPublicSuffix function referred to in the
      * test instructions at the Public Suffix List project.
      *
-     * "You will need to define a checkPublicSuffix() function which takes as a 
-     * parameter a domain name and the public suffix, runs your implementation 
+     * "You will need to define a checkPublicSuffix() function which takes as a
+     * parameter a domain name and the public suffix, runs your implementation
      * on the domain name and checks the result is the public suffix expected."
      *
      * @link http://publicsuffix.org/list/
      *
-     * @param string $input Domain and public suffix
+     * @param string $input    Domain and public suffix
      * @param string $expected Expected result
      */
     public function checkPublicSuffix($input, $expected)
