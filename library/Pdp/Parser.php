@@ -61,13 +61,7 @@ class Parser
             $url = 'http://' . preg_replace('#^//#', '', $url, 1);
         }
 
-        $url = $this->idnToAscii($url);
-
-        $parts = parse_url($url);
-
-        if ($parts === false) {
-            throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
-        }
+        $parts = $this->mbParseUrl($url);
 
         $elem = (array) $parts + $elem;
 
@@ -93,6 +87,8 @@ class Parser
      */
     public function parseHost($host)
     {
+        $host = mb_strtolower($host, 'UTF-8');
+
         $subdomain = null;
         $registerableDomain = null;
         $publicSuffix = null;
@@ -132,7 +128,7 @@ class Parser
             return null;
         }
 
-        $host = mb_strtolower($host);
+        $host = mb_strtolower($host, 'UTF-8');
         $parts = array_reverse(explode('.', $host));
         $publicSuffix = array();
         $publicSuffixList = $this->publicSuffixList;
@@ -187,7 +183,13 @@ class Parser
             return null;
         }
 
-        $host = mb_strtolower($host);
+        $punycoded = (strpos($host, 'xn--') !== false);
+
+        if ($punycoded) {
+            $host = idn_to_utf8($host);
+        }
+
+        $host = mb_strtolower($host, 'UTF-8');
         $publicSuffix = $this->getPublicSuffix($host);
 
         if ($publicSuffix === null || $host == $publicSuffix) {
@@ -198,7 +200,13 @@ class Parser
         $hostParts = array_reverse(explode('.', $host));
         $registerableDomainParts = array_slice($hostParts, 0, count($publicSuffixParts) + 1);
 
-        return implode('.', array_reverse($registerableDomainParts));
+        $registerableDomain = implode('.', array_reverse($registerableDomainParts));
+
+        if ($punycoded) {
+            $registerableDomain = idn_to_ascii($registerableDomain);
+        }
+
+        return $registerableDomain;
     }
 
     /**
@@ -209,7 +217,7 @@ class Parser
      */
     public function getSubdomain($host)
     {
-        $host = mb_strtolower($host);
+        $host = mb_strtolower($host, 'UTF-8');
         $registerableDomain = $this->getRegisterableDomain($host);
 
         if ($registerableDomain === null || $host == $registerableDomain) {
@@ -224,16 +232,32 @@ class Parser
     }
 
     /**
-     * Convert IDNA URLs to ASCII - must strip the scheme and only convert the URL
+     * UTF-8 aware parse_url() replacement. Taken from php.net manual comments.
      *
-     * @param string $url URL to convert
-     * @return string ASCII URL
+     * @link http://php.net/manual/en/function.parse-url.php#114817
+     *
+     * @return array
      */
-    protected function idnToAscii($url)
+    public function mbParseUrl($url)
     {
-        $split = preg_split(self::SCHEME_PATTERN, $url, -1, PREG_SPLIT_DELIM_CAPTURE);
-        $url = sprintf('%s%s', $split[1], idn_to_ascii($split[3]));
+        $enc_url = preg_replace_callback(
+            '%[^:/@?&=#]+%usD',
+            function ($matches) {
+                return urlencode($matches[0]);
+            },
+            $url
+        );
 
-        return $url;
+        $parts = parse_url($enc_url);
+
+        if ($parts === false) {
+            throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
+        }
+
+        foreach ($parts as $name => $value) {
+            $parts[$name] = urldecode($value);
+        }
+
+        return $parts;
     }
 }

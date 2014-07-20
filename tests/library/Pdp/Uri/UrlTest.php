@@ -134,7 +134,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     public function testIdnToAscii()
     {
         $idn = 'Яндекс.РФ';
-        $expected = 'http://xn--d1acpjx3f.xn--p1ai';
+        $expected = 'http://яндекс.рф';
         $url = $this->parser->parseUrl($idn);
         $actual = $url->__toString();
 
