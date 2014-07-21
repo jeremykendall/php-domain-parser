@@ -23,11 +23,12 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Pdp\Parser::parseUrl()
+     * @covers Pdp\Parser::mbParseUrl()
      */
     public function testParseBadUrlThrowsInvalidArgumentException()
     {
         $this->setExpectedException(
-            '\InvalidArgumentException', 
+            '\InvalidArgumentException',
             'Invalid url http:///example.com'
         );
 
@@ -94,21 +95,24 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($subdomain, $pdpUrl->host->subdomain);
         $this->assertSame($subdomain, $this->parser->getSubdomain($hostPart));
     }
-    
-	/**
+
+    /**
      * @dataProvider parseDataProvider
-	 */
-	public function testPHPparse_urlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
-	{
-		$this->assertEquals($hostPart, parse_url('http://' . $hostPart, PHP_URL_HOST));
-	}
+     */
+    public function testMbParseUrlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    {
+        $this->assertEquals(
+            $hostPart,
+            $this->parser->mbParseUrl('http://' . $hostPart, PHP_URL_HOST)
+        );
+    }
 
     public function parseDataProvider()
     {
         // url, public suffix, registerable domain, subdomain, host part
         return array(
             array('http://www.waxaudio.com.au/audio/albums/the_mashening', 'com.au', 'waxaudio.com.au', 'www', 'www.waxaudio.com.au'),
-            array('example.com', 'com', 'example.com', null, 'example.com'),
+            array('example.COM', 'com', 'example.com', null, 'example.com'),
             array('giant.yyyy', 'yyyy', 'giant.yyyy', null, 'giant.yyyy'),
             array('cea-law.co.il', 'co.il', 'cea-law.co.il', null, 'cea-law.co.il'),
             array('http://edition.cnn.com/WORLD/', 'com', 'cnn.com', 'edition', 'edition.cnn.com'),
@@ -139,6 +143,15 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('test.museum', 'museum', 'test.museum', null, 'test.museum'),
             array('bob.smith.name', 'name', 'smith.name', 'bob', 'bob.smith.name'),
             array('tons.of.info', 'info', 'of.info', 'tons', 'tons.of.info'),
+            // Test IDN parsing
+            // BEGIN https://github.com/jeremykendall/php-domain-parser/issues/29
+            array('http://Яндекс.РФ', 'рф', 'яндекс.рф', null, 'яндекс.рф'),
+            // END https://github.com/jeremykendall/php-domain-parser/issues/29
+            array('www.食狮.中国', '中国', '食狮.中国', 'www', 'www.食狮.中国'),
+            array('食狮.com.cn', 'com.cn', '食狮.com.cn', null, '食狮.com.cn'),
+            // Test punycode URLs
+            array('www.xn--85x722f.xn--fiqs8s', 'xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', 'www', 'www.xn--85x722f.xn--fiqs8s'),
+            array('xn--85x722f.com.cn', 'com.cn', 'xn--85x722f.com.cn', null, 'xn--85x722f.com.cn'),
         );
     }
 }

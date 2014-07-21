@@ -126,4 +126,18 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $url = $this->parser->parseUrl($ftpUrl);
         $this->assertEquals($ftpUrl, $url->__toString());
     }
+
+    /**
+     * @group issue29
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/29
+     */
+    public function testIdnToAscii()
+    {
+        $idn = 'Яндекс.РФ';
+        $expected = 'http://яндекс.рф';
+        $url = $this->parser->parseUrl($idn);
+        $actual = $url->__toString();
+
+        $this->assertEquals($expected, $actual);
+    }
 }

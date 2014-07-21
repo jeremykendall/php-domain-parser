@@ -57,15 +57,11 @@ class Parser
             'fragment' => null,
         );
 
-        if (preg_match(self::SCHEME_PATTERN, $url, $schemeMatches) === 0) {
+        if (preg_match(self::SCHEME_PATTERN, $url) === 0) {
             $url = 'http://' . preg_replace('#^//#', '', $url, 1);
         }
 
-        $parts = parse_url($url);
-
-        if ($parts === false) {
-            throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
-        }
+        $parts = $this->mbParseUrl($url);
 
         $elem = (array) $parts + $elem;
 
@@ -91,6 +87,8 @@ class Parser
      */
     public function parseHost($host)
     {
+        $host = mb_strtolower($host, 'UTF-8');
+
         $subdomain = null;
         $registerableDomain = null;
         $publicSuffix = null;
@@ -130,7 +128,6 @@ class Parser
             return null;
         }
 
-        $host = strtolower($host);
         $parts = array_reverse(explode('.', $host));
         $publicSuffix = array();
         $publicSuffixList = $this->publicSuffixList;
@@ -185,7 +182,13 @@ class Parser
             return null;
         }
 
-        $host = strtolower($host);
+        $punycoded = (strpos($host, 'xn--') !== false);
+
+        if ($punycoded) {
+            $host = idn_to_utf8($host);
+        }
+
+        $host = mb_strtolower($host, 'UTF-8');
         $publicSuffix = $this->getPublicSuffix($host);
 
         if ($publicSuffix === null || $host == $publicSuffix) {
@@ -196,7 +199,13 @@ class Parser
         $hostParts = array_reverse(explode('.', $host));
         $registerableDomainParts = array_slice($hostParts, 0, count($publicSuffixParts) + 1);
 
-        return implode('.', array_reverse($registerableDomainParts));
+        $registerableDomain = implode('.', array_reverse($registerableDomainParts));
+
+        if ($punycoded) {
+            $registerableDomain = idn_to_ascii($registerableDomain);
+        }
+
+        return $registerableDomain;
     }
 
     /**
@@ -207,7 +216,6 @@ class Parser
      */
     public function getSubdomain($host)
     {
-        $host = strtolower($host);
         $registerableDomain = $this->getRegisterableDomain($host);
 
         if ($registerableDomain === null || $host == $registerableDomain) {
@@ -221,4 +229,43 @@ class Parser
         return implode('.', array_reverse($subdomainParts));
     }
 
+    /**
+     * UTF-8 aware parse_url() replacement. 
+     *
+     * Taken from php.net manual comments {@link http://php.net/manual/en/function.parse-url.php#114817}
+     *
+     * @param  string  $url       The URL to parse
+     * @param  integer $component Specify one of PHP_URL_SCHEME, PHP_URL_HOST,
+     *                            PHP_URL_PORT, PHP_URL_USER, PHP_URL_PASS, PHP_URL_PATH, PHP_URL_QUERY or
+     *                            PHP_URL_FRAGMENT to retrieve just a specific URL component as a string
+     *                            (except when PHP_URL_PORT is given, in which case the return value will
+     *                            be an integer).
+     * @return mixed   See parse_url documentation {@link http://us1.php.net/parse_url}
+     */
+    public function mbParseUrl($url, $component = -1)
+    {
+        $enc_url = preg_replace_callback(
+            '%[^:/@?&=#]+%usD',
+            function ($matches) {
+                return urlencode($matches[0]);
+            },
+            $url
+        );
+
+        $parts = parse_url($enc_url, $component);
+
+        if ($parts === false) {
+            throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
+        }
+
+        if (is_array($parts)) {
+            foreach ($parts as $name => $value) {
+                $parts[$name] = urldecode($value);
+            }
+        } else {
+            $parts = urldecode($parts);
+        }
+
+        return $parts;
+    }
 }
