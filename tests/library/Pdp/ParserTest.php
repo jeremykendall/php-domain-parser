@@ -144,8 +144,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('bob.smith.name', 'name', 'smith.name', 'bob', 'bob.smith.name'),
             array('tons.of.info', 'info', 'of.info', 'tons', 'tons.of.info'),
             // Test IDN parsing
-            // Related to https://github.com/jeremykendall/php-domain-parser/issues/29
+            // BEGIN https://github.com/jeremykendall/php-domain-parser/issues/29
             array('http://Яндекс.РФ', 'рф', 'яндекс.рф', null, 'яндекс.рф'),
+            // END https://github.com/jeremykendall/php-domain-parser/issues/29
             array('www.食狮.中国', '中国', '食狮.中国', 'www', 'www.食狮.中国'),
             array('食狮.com.cn', 'com.cn', '食狮.com.cn', null, '食狮.com.cn'),
             // Test punycode URLs
