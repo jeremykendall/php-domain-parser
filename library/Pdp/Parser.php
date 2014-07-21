@@ -61,7 +61,11 @@ class Parser
             $url = 'http://' . preg_replace('#^//#', '', $url, 1);
         }
 
-        $parts = $this->mbParseUrl($url);
+        $parts = mb_parse_url($url);
+
+        if ($parts === false) {
+            throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
+        }
 
         $elem = (array) $parts + $elem;
 
@@ -230,9 +234,12 @@ class Parser
     }
 
     /**
-     * UTF-8 aware parse_url() replacement. 
+     * DEPRECATED: UTF-8 aware parse_url() replacement.
      *
      * Taken from php.net manual comments {@link http://php.net/manual/en/function.parse-url.php#114817}
+     *
+     * @deprecated Please use mb_parse_url instead. Will be removed in version 2.0.
+     * @codeCoverageIgnore
      *
      * @param  string  $url       The URL to parse
      * @param  integer $component Specify one of PHP_URL_SCHEME, PHP_URL_HOST,
@@ -255,7 +262,7 @@ class Parser
         $parts = parse_url($enc_url, $component);
 
         if ($parts === false) {
-            throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
+            return $parts;
         }
 
         if (is_array($parts)) {

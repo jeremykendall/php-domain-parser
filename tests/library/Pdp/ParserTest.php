@@ -23,7 +23,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Pdp\Parser::parseUrl()
-     * @covers Pdp\Parser::mbParseUrl()
+     * @covers ::mb_parse_url
      */
     public function testParseBadUrlThrowsInvalidArgumentException()
     {
@@ -98,12 +98,13 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider parseDataProvider
+     * @covers ::mb_parse_url
      */
-    public function testMbParseUrlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testmb_parse_urlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
         $this->assertEquals(
             $hostPart,
-            $this->parser->mbParseUrl('http://' . $hostPart, PHP_URL_HOST)
+            mb_parse_url('http://' . $hostPart, PHP_URL_HOST)
         );
     }
 
