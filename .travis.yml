@@ -9,6 +9,5 @@ php:
 script: phpunit
 
 before_script:
-  - composer self-update
-  - composer update
+  - composer install
   - ./bin/pdp-psl
