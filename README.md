@@ -65,7 +65,8 @@ require_once '../vendor/autoload.php';
 
 $pslManager = new Pdp\PublicSuffixListManager();
 $parser = new Pdp\Parser($pslManager->getList());
-$url = $parser->parseUrl('http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment');
+$host = 'http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment';
+$url = $parser->parseUrl($host);
 var_dump($url);
 ```
 
@@ -99,13 +100,90 @@ class Pdp\Uri\Url#6 (8) {
 }
 ```
 
+### IDNA Support
+
+#### Unicode
+
+[IDN (Internationalized Domain Name)](http://en.wikipedia.org/wiki/Internationalized_domain_name) 
+support was added in 1.4.0. Setting `$host = 'Яндекс.РФ';` (Russian-Cyrillic)
+in the previous example would return:
+
+```
+class Pdp\Uri\Url#6 (8) {
+  private $scheme =>
+  string(4) "http"
+  private $host =>
+  class Pdp\Uri\Url\Host#5 (4) {
+    private $subdomain =>
+    NULL
+    private $registerableDomain =>
+    string(17) "яндекс.рф"
+    private $publicSuffix =>
+    string(4) "рф"
+    private $host =>
+    string(17) "яндекс.рф"
+  }
+  private $port =>
+  NULL
+  private $user =>
+  NULL
+  private $pass =>
+  NULL
+  private $path =>
+  NULL
+  private $query =>
+  NULL
+  private $fragment =>
+  NULL
+}
+```
+
+#### ASCII (Punycode)
+
+If you choose to provide the ASCII equivalent of the unicode domain name
+(`$host = 'http://xn--d1acpjx3f.xn--p1ai';` in the case of the above example),
+the ASCII equivalent will be returned by the parser:
+
+```
+class Pdp\Uri\Url#6 (8) {
+  private $scheme =>
+  string(4) "http"
+  private $host =>
+  class Pdp\Uri\Url\Host#5 (4) {
+    private $subdomain =>
+    NULL
+    private $registerableDomain =>
+    string(22) "xn--d1acpjx3f.xn--p1ai"
+    private $publicSuffix =>
+    string(8) "xn--p1ai"
+    private $host =>
+    string(22) "xn--d1acpjx3f.xn--p1ai"
+  }
+  private $port =>
+  NULL
+  private $user =>
+  NULL
+  private $pass =>
+  NULL
+  private $path =>
+  NULL
+  private $query =>
+  NULL
+  private $fragment =>
+  NULL
+}
+```
+
+### Convenience Methods
+
 A magic __get() method is provided to access the above object properties.  Obtaining the
 public suffix for a parsed domain is as simple as:
 
 ``` php
 <?php
 
-$url = $parser->parseUrl('waxaudio.com.au');
+$host = 'waxaudio.com.au';
+$url = $parser->parseUrl($host);
 $publicSuffix = $url->host->publicSuffix;
 
 // $publicSuffix = 'com.au'
