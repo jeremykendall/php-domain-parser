@@ -100,13 +100,31 @@ class Pdp\Uri\Url#6 (8) {
 }
 ```
 
+### Convenience Methods
+
+A magic __get() method is provided to access the above object properties.  Obtaining the
+public suffix for a parsed domain is as simple as:
+
+``` php
+<?php
+
+$host = 'waxaudio.com.au';
+$url = $parser->parseUrl($host);
+$publicSuffix = $url->host->publicSuffix;
+
+// $publicSuffix = 'com.au'
+```
+
 ### IDNA Support
+
+[IDN (Internationalized Domain Name)](http://en.wikipedia.org/wiki/Internationalized_domain_name) 
+support was added in version `1.4.0`. Both unicode domains and their ASCII equivalents
+are supported.
 
 #### Unicode
 
-[IDN (Internationalized Domain Name)](http://en.wikipedia.org/wiki/Internationalized_domain_name) 
-support was added in 1.4.0. Setting `$host = 'Яндекс.РФ';` (Russian-Cyrillic)
-in the previous example would return:
+Parsing IDNA hosts is no different that parsing standard hosts. Setting `$host = 'Яндекс.РФ';` (Russian-Cyrillic)
+in the *Parsing URLs* example would return:
 
 ```
 class Pdp\Uri\Url#6 (8) {
@@ -141,7 +159,7 @@ class Pdp\Uri\Url#6 (8) {
 #### ASCII (Punycode)
 
 If you choose to provide the ASCII equivalent of the unicode domain name
-(`$host = 'http://xn--d1acpjx3f.xn--p1ai';` in the case of the above example),
+(`$host = 'http://xn--d1acpjx3f.xn--p1ai';` in the case of the *Parsing URLs* example),
 the ASCII equivalent will be returned by the parser:
 
 ```
@@ -172,21 +190,6 @@ class Pdp\Uri\Url#6 (8) {
   private $fragment =>
   NULL
 }
-```
-
-### Convenience Methods
-
-A magic __get() method is provided to access the above object properties.  Obtaining the
-public suffix for a parsed domain is as simple as:
-
-``` php
-<?php
-
-$host = 'waxaudio.com.au';
-$url = $parser->parseUrl($host);
-$publicSuffix = $url->host->publicSuffix;
-
-// $publicSuffix = 'com.au'
 ```
 
 ### Parsing Domains ###
