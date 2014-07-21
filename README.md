@@ -121,6 +121,9 @@ $publicSuffix = $url->host->publicSuffix;
 support was added in version `1.4.0`. Both unicode domains and their ASCII equivalents
 are supported.
 
+**IMPORTANT**: PHP's [intl](http://php.net/manual/en/book.intl.php) extension is
+required for the [IDN functions](http://php.net/manual/en/ref.intl.idn.php).
+
 #### Unicode
 
 Parsing IDNA hosts is no different that parsing standard hosts. Setting `$host = 'Яндекс.РФ';` (Russian-Cyrillic)
