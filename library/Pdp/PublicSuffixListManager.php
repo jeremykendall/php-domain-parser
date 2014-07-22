@@ -74,8 +74,6 @@ class PublicSuffixListManager
     /**
      * Obtain Public Suffix List from its online source and write to cache dir
      *
-     * TODO: Should throw exception if empty/null/content-length too short
-     *
      * @return int Number of bytes that were written to the file
      */
     public function fetchListFromSource()
