@@ -20,8 +20,13 @@ if ($argc == 2 && is_dir($argv[1])) {
 }
 
 try {
+    echo 'Updating Public Suffix List.' . PHP_EOL;
     $manager = new \Pdp\PublicSuffixListManager($cacheDir);
     $manager->refreshPublicSuffixList();
+    echo 'Update complete.' . PHP_EOL;
+    exit(0);
 } catch (\Exception $e) {
-    die($e->getMessage() . PHP_EOL);
+    echo 'An error occurred while updating the Public Suffix List.' . PHP_EOL;
+    echo $e->getMessage() . PHP_EOL;
+    exit(1);
 }
