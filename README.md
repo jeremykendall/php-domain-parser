@@ -197,6 +197,47 @@ class Pdp\Uri\Url#6 (8) {
 }
 ```
 
+### IPv6 Support
+
+Parsing IPv6 hosts is no different that parsing standard hosts. Setting `$host = 'http://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:8080/';`
+in the *Parsing URLs* example would return:
+
+```
+class Pdp\Uri\Url#6 (8) {
+  private $scheme =>
+  string(4) "http"
+  private $host =>
+  class Pdp\Uri\Url\Host#5 (4) {
+    private $subdomain =>
+    NULL
+    private $registerableDomain =>
+    NULL
+    private $publicSuffix =>
+    NULL
+    private $host =>
+    string(38) "[2001:db8:85a3:8d3:1319:8a2e:370:7348]"
+  }
+  private $port =>
+  string(4) "8080"
+  private $user =>
+  NULL
+  private $pass =>
+  NULL
+  private $path =>
+  string(1) "/"
+  private $query =>
+  NULL
+  private $fragment =>
+  NULL
+}
+```
+
+**IMPORTANT**: IPv6 url host names *must* be enclosed in square brackets. They
+will not be parsed properly otherwise.
+
+> Hat tip to [@geekwright](https://github.com/geekwright) for adding IPv6 support in a 
+> [bugfix pull request](https://github.com/jeremykendall/php-domain-parser/pull/35).
+
 ### Parsing Domains ###
 
 If you'd like to parse the domain (or host) portion only, you can use 
