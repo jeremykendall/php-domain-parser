@@ -153,6 +153,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             // Test punycode URLs
             array('www.xn--85x722f.xn--fiqs8s', 'xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', 'www', 'www.xn--85x722f.xn--fiqs8s'),
             array('xn--85x722f.com.cn', 'com.cn', 'xn--85x722f.com.cn', null, 'xn--85x722f.com.cn'),
+            // Test ipv6 URL
+            array('http://[::1]/', null, null, null, '[::1]'),
         );
     }
 }
