@@ -155,6 +155,11 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('xn--85x722f.com.cn', 'com.cn', 'xn--85x722f.com.cn', null, 'xn--85x722f.com.cn'),
             // Test ipv6 URL
             array('http://[::1]/', null, null, null, '[::1]'),
+            array('http://[2001:db8:85a3:8d3:1319:8a2e:370:7348]/', null, null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]'),
+            array('https://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443/', null, null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]'),
+            // Link-local addresses and zone indices
+            array('http://[fe80::3%25eth0]', null, null, null, '[fe80::3%25eth0]'),
+            array('http://[fe80::1%2511]', null, null, null, '[fe80::1%2511]'),
         );
     }
 }
