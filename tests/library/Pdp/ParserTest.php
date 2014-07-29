@@ -22,6 +22,15 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Pdp\Parser::getRawPublicSuffix()
+     */
+    public function testGetRawPublicSuffixReturnsFalseForHostsWithInvalidDomain()
+    {
+        $this->assertFalse($this->parser->getRawPublicSuffix('http://www.example.faketld'));
+        $this->assertFalse($this->parser->getRawPublicSuffix('http://www.example.faketld?x=y&a=b'));
+    }
+
+    /**
      * @covers Pdp\Parser::parseUrl()
      * @covers ::mb_parse_url
      */
