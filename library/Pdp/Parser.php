@@ -113,15 +113,20 @@ class Parser
         );
     }
 
+
     /**
-     * Returns the public suffix portion of provided host
+     * Get the raw public suffix based on the cached public suffix list file. Return false if the provided suffix is
+     * invalid
      *
-     * @param  string $host host
-     * @return string public suffix
+     * @param string $host The host to process
+     * @throws \InvalidArgumentException
+     * @return string|null|bool The suffix or false if unable to find a valid one
      */
-    public function getPublicSuffix($host)
+    public function getRawPublicSuffix($host)
     {
         if (strpos($host, '.') === 0) {
+            // Probably can't throw an exception in lieu of backwards compatibility.
+//            throw new \InvalidArgumentException(sprintf('Invalid host %s. Can\'t being with the "." character.', $host));
             return null;
         }
 
@@ -129,6 +134,8 @@ class Parser
         // localhost, foo, etc.), this stops it from incorrectly being set as
         // the  public suffix.
         if (strpos($host, '.') === false) {
+            // Probably can't throw an exception in lieu of backwards compatibility.
+//            throw new \InvalidArgumentException(sprintf('Invalid host %s. Has to have at least one "." character.', $host));
             return null;
         }
 
@@ -162,12 +169,28 @@ class Parser
             break;
         }
 
-        // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
         if (empty($publicSuffix)) {
-            $publicSuffix[0] = $parts[0];
+            return false;
+        } else {
+            return implode('.', array_filter($publicSuffix, 'strlen'));
         }
+    }
 
-        return implode('.', array_filter($publicSuffix, 'strlen'));
+    /**
+     * Returns the public suffix portion of provided host
+     *
+     * @param  string $host host
+     * @return string public suffix
+     */
+    public function getPublicSuffix($host)
+    {
+        $suffix = $this->getRawPublicSuffix($host);
+        // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
+        if( false === $suffix) {
+            $parts = array_reverse(explode('.', $host));
+            $suffix = array_shift($parts);
+        }
+        return $suffix;
     }
 
     /**
