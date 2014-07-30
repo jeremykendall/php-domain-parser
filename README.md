@@ -9,6 +9,19 @@ domain parser implemented in PHP.
 [![Total Downloads](https://poser.pugx.org/jeremykendall/php-domain-parser/downloads.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 [![Latest Stable Version](https://poser.pugx.org/jeremykendall/php-domain-parser/v/stable.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 
+## WARNING: BC BREAK IN ALL 1.4 VERSIONS
+
+The 1.4 series introduced a backwards incompatible change by adding PHP's `ext-mbstring`
+and `ext-intl` as dependencies.  This should have resulted in a major version
+bump.  Instead I bumped the minor version from 1.3.1 to 1.4.
+
+I highly recommend reverting to 1.3.1 if you're running into extension issues and 
+do not want to or cannot install `ext-mbstring` and `ext-intl`. You will lose
+IDNA and IPv6 support, however.  Those are only available in versions >= 1.4.
+
+Version 2 is currently in the works.  Please keep an eye out.  I apologize for any
+issues you may have encountered due my [semver](http://semver.org/) error.
+
 Motivation
 ----------
 
