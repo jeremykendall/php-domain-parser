@@ -1424,7 +1424,7 @@ return array (
     'asso' => 
     array (
     ),
-    'aéroport' => 
+    'xn--aroport-bya' => 
     array (
     ),
     'int' => 
@@ -1503,13 +1503,13 @@ return array (
     'mil' => 
     array (
     ),
-    '公司' => 
+    'xn--55qx5d' => 
     array (
     ),
-    '网络' => 
+    'xn--io0a7i' => 
     array (
     ),
-    '網絡' => 
+    'xn--od0alg' => 
     array (
     ),
     'ah' => 
@@ -3027,49 +3027,49 @@ return array (
     'org' => 
     array (
     ),
-    '公司' => 
+    'xn--55qx5d' => 
     array (
     ),
-    '教育' => 
+    'xn--wcvs22d' => 
     array (
     ),
-    '敎育' => 
+    'xn--lcvr32d' => 
     array (
     ),
-    '政府' => 
+    'xn--mxtq1m' => 
     array (
     ),
-    '個人' => 
+    'xn--gmqw5a' => 
     array (
     ),
-    '个人' => 
+    'xn--ciqpn' => 
     array (
     ),
-    '箇人' => 
+    'xn--gmq050i' => 
     array (
     ),
-    '網络' => 
+    'xn--zf0avx' => 
     array (
     ),
-    '网络' => 
+    'xn--io0a7i' => 
     array (
     ),
-    '组織' => 
+    'xn--mk0axi' => 
     array (
     ),
-    '網絡' => 
+    'xn--od0alg' => 
     array (
     ),
-    '网絡' => 
+    'xn--od0aq3b' => 
     array (
     ),
-    '组织' => 
+    'xn--tn0ag' => 
     array (
     ),
-    '組織' => 
+    'xn--uc0atv' => 
     array (
     ),
-    '組织' => 
+    'xn--uc0ay4a' => 
     array (
     ),
     'blogspot' => 
@@ -3492,10 +3492,10 @@ return array (
     'sch' => 
     array (
     ),
-    'ایران' => 
+    'xn--mgba3a4f16a' => 
     array (
     ),
-    'ايران' => 
+    'xn--mgba3a4fra' => 
     array (
     ),
   ),
@@ -11098,7 +11098,7 @@ return array (
     'computerhistory' => 
     array (
     ),
-    'comunicações' => 
+    'xn--comunicaes-v6a2o' => 
     array (
     ),
     'contemporary' => 
@@ -11116,7 +11116,7 @@ return array (
     'corporation' => 
     array (
     ),
-    'correios-e-telecomunicações' => 
+    'xn--correios-e-telecomunicaes-ghc29a' => 
     array (
     ),
     'corvette' => 
@@ -11563,7 +11563,7 @@ return array (
     'lans' => 
     array (
     ),
-    'läns' => 
+    'xn--lns-qla' => 
     array (
     ),
     'larsson' => 
@@ -12349,10 +12349,10 @@ return array (
     'zoology' => 
     array (
     ),
-    'ירושלים' => 
+    'xn--9dbhblg6di' => 
     array (
     ),
-    'иком' => 
+    'xn--h1aegh' => 
     array (
     ),
   ),
@@ -12983,13 +12983,13 @@ return array (
     'akrehamn' => 
     array (
     ),
-    'åkrehamn' => 
+    'xn--krehamn-dxa' => 
     array (
     ),
     'algard' => 
     array (
     ),
-    'ålgård' => 
+    'xn--lgrd-poac' => 
     array (
     ),
     'arna' => 
@@ -13004,13 +13004,13 @@ return array (
     'bronnoysund' => 
     array (
     ),
-    'brønnøysund' => 
+    'xn--brnnysund-m8ac' => 
     array (
     ),
     'drobak' => 
     array (
     ),
-    'drøbak' => 
+    'xn--drbak-wua' => 
     array (
     ),
     'egersund' => 
@@ -13022,7 +13022,7 @@ return array (
     'floro' => 
     array (
     ),
-    'florø' => 
+    'xn--flor-jra' => 
     array (
     ),
     'fredrikstad' => 
@@ -13034,7 +13034,7 @@ return array (
     'honefoss' => 
     array (
     ),
-    'hønefoss' => 
+    'xn--hnefoss-q1a' => 
     array (
     ),
     'jessheim' => 
@@ -13043,7 +13043,7 @@ return array (
     'jorpeland' => 
     array (
     ),
-    'jørpeland' => 
+    'xn--jrpeland-54a' => 
     array (
     ),
     'kirkenes' => 
@@ -13058,7 +13058,7 @@ return array (
     'langevag' => 
     array (
     ),
-    'langevåg' => 
+    'xn--langevg-jxa' => 
     array (
     ),
     'leirvik' => 
@@ -13067,7 +13067,7 @@ return array (
     'mjondalen' => 
     array (
     ),
-    'mjøndalen' => 
+    'xn--mjndalen-64a' => 
     array (
     ),
     'mo-i-rana' => 
@@ -13076,7 +13076,7 @@ return array (
     'mosjoen' => 
     array (
     ),
-    'mosjøen' => 
+    'xn--mosjen-eya' => 
     array (
     ),
     'nesoddtangen' => 
@@ -13088,19 +13088,19 @@ return array (
     'osoyro' => 
     array (
     ),
-    'osøyro' => 
+    'xn--osyro-wua' => 
     array (
     ),
     'raholt' => 
     array (
     ),
-    'råholt' => 
+    'xn--rholt-mra' => 
     array (
     ),
     'sandnessjoen' => 
     array (
     ),
-    'sandnessjøen' => 
+    'xn--sandnessjen-ogb' => 
     array (
     ),
     'skedsmokorset' => 
@@ -13121,7 +13121,7 @@ return array (
     'stjordalshalsen' => 
     array (
     ),
-    'stjørdalshalsen' => 
+    'xn--stjrdalshalsen-sqb' => 
     array (
     ),
     'tananger' => 
@@ -13136,7 +13136,7 @@ return array (
     'afjord' => 
     array (
     ),
-    'åfjord' => 
+    'xn--fjord-lra' => 
     array (
     ),
     'agdenes' => 
@@ -13145,13 +13145,13 @@ return array (
     'al' => 
     array (
     ),
-    'ål' => 
+    'xn--l-1fa' => 
     array (
     ),
     'alesund' => 
     array (
     ),
-    'ålesund' => 
+    'xn--lesund-hua' => 
     array (
     ),
     'alstahaug' => 
@@ -13160,13 +13160,13 @@ return array (
     'alta' => 
     array (
     ),
-    'áltá' => 
+    'xn--lt-liac' => 
     array (
     ),
     'alaheadju' => 
     array (
     ),
-    'álaheadju' => 
+    'xn--laheadju-7ya' => 
     array (
     ),
     'alvdal' => 
@@ -13175,13 +13175,13 @@ return array (
     'amli' => 
     array (
     ),
-    'åmli' => 
+    'xn--mli-tla' => 
     array (
     ),
     'amot' => 
     array (
     ),
-    'åmot' => 
+    'xn--mot-tla' => 
     array (
     ),
     'andebu' => 
@@ -13190,7 +13190,7 @@ return array (
     'andoy' => 
     array (
     ),
-    'andøy' => 
+    'xn--andy-ira' => 
     array (
     ),
     'andasuolo' => 
@@ -13199,7 +13199,7 @@ return array (
     'ardal' => 
     array (
     ),
-    'årdal' => 
+    'xn--rdal-poa' => 
     array (
     ),
     'aremark' => 
@@ -13208,13 +13208,13 @@ return array (
     'arendal' => 
     array (
     ),
-    'ås' => 
+    'xn--s-1fa' => 
     array (
     ),
     'aseral' => 
     array (
     ),
-    'åseral' => 
+    'xn--seral-lra' => 
     array (
     ),
     'asker' => 
@@ -13229,13 +13229,13 @@ return array (
     'askoy' => 
     array (
     ),
-    'askøy' => 
+    'xn--asky-ira' => 
     array (
     ),
     'asnes' => 
     array (
     ),
-    'åsnes' => 
+    'xn--snes-poa' => 
     array (
     ),
     'audnedaln' => 
@@ -13253,7 +13253,7 @@ return array (
     'aurskog-holand' => 
     array (
     ),
-    'aurskog-høland' => 
+    'xn--aurskog-hland-jnb' => 
     array (
     ),
     'austevoll' => 
@@ -13265,7 +13265,7 @@ return array (
     'averoy' => 
     array (
     ),
-    'averøy' => 
+    'xn--avery-yua' => 
     array (
     ),
     'balestrand' => 
@@ -13277,7 +13277,7 @@ return array (
     'balat' => 
     array (
     ),
-    'bálát' => 
+    'xn--blt-elab' => 
     array (
     ),
     'balsfjord' => 
@@ -13286,7 +13286,7 @@ return array (
     'bahccavuotna' => 
     array (
     ),
-    'báhccavuotna' => 
+    'xn--bhccavuotna-k7a' => 
     array (
     ),
     'bamble' => 
@@ -13304,13 +13304,13 @@ return array (
     'bajddar' => 
     array (
     ),
-    'bájddar' => 
+    'xn--bjddar-pta' => 
     array (
     ),
     'baidar' => 
     array (
     ),
-    'báidár' => 
+    'xn--bidr-5nac' => 
     array (
     ),
     'berg' => 
@@ -13322,13 +13322,13 @@ return array (
     'berlevag' => 
     array (
     ),
-    'berlevåg' => 
+    'xn--berlevg-jxa' => 
     array (
     ),
     'bearalvahki' => 
     array (
     ),
-    'bearalváhki' => 
+    'xn--bearalvhki-y4a' => 
     array (
     ),
     'bindal' => 
@@ -13340,7 +13340,7 @@ return array (
     'bjarkoy' => 
     array (
     ),
-    'bjarkøy' => 
+    'xn--bjarky-fya' => 
     array (
     ),
     'bjerkreim' => 
@@ -13352,13 +13352,13 @@ return array (
     'bodo' => 
     array (
     ),
-    'bodø' => 
+    'xn--bod-2na' => 
     array (
     ),
     'badaddja' => 
     array (
     ),
-    'bådåddjå' => 
+    'xn--bdddj-mrabd' => 
     array (
     ),
     'budejju' => 
@@ -13373,7 +13373,7 @@ return array (
     'bronnoy' => 
     array (
     ),
-    'brønnøy' => 
+    'xn--brnny-wuac' => 
     array (
     ),
     'bygland' => 
@@ -13385,7 +13385,7 @@ return array (
     'barum' => 
     array (
     ),
-    'bærum' => 
+    'xn--brum-voa' => 
     array (
     ),
     'telemark' => 
@@ -13393,7 +13393,7 @@ return array (
       'bo' => 
       array (
       ),
-      'bø' => 
+      'xn--b-5ga' => 
       array (
       ),
     ),
@@ -13402,38 +13402,38 @@ return array (
       'bo' => 
       array (
       ),
-      'bø' => 
+      'xn--b-5ga' => 
       array (
       ),
       'heroy' => 
       array (
       ),
-      'herøy' => 
+      'xn--hery-ira' => 
       array (
       ),
     ),
     'bievat' => 
     array (
     ),
-    'bievát' => 
+    'xn--bievt-0qa' => 
     array (
     ),
     'bomlo' => 
     array (
     ),
-    'bømlo' => 
+    'xn--bmlo-gra' => 
     array (
     ),
     'batsfjord' => 
     array (
     ),
-    'båtsfjord' => 
+    'xn--btsfjord-9za' => 
     array (
     ),
     'bahcavuotna' => 
     array (
     ),
-    'báhcavuotna' => 
+    'xn--bhcavuotna-s4a' => 
     array (
     ),
     'dovre' => 
@@ -13448,13 +13448,13 @@ return array (
     'dyroy' => 
     array (
     ),
-    'dyrøy' => 
+    'xn--dyry-ira' => 
     array (
     ),
     'donna' => 
     array (
     ),
-    'dønna' => 
+    'xn--dnna-gra' => 
     array (
     ),
     'eid' => 
@@ -13496,7 +13496,7 @@ return array (
     'evenassi' => 
     array (
     ),
-    'evenášši' => 
+    'xn--eveni-0qa01ga' => 
     array (
     ),
     'evje-og-hornnes' => 
@@ -13523,7 +13523,7 @@ return array (
     'finnoy' => 
     array (
     ),
-    'finnøy' => 
+    'xn--finny-yua' => 
     array (
     ),
     'fitjar' => 
@@ -13553,7 +13553,7 @@ return array (
     'fla' => 
     array (
     ),
-    'flå' => 
+    'xn--fl-zia' => 
     array (
     ),
     'folldal' => 
@@ -13580,13 +13580,13 @@ return array (
     'frana' => 
     array (
     ),
-    'fræna' => 
+    'xn--frna-woa' => 
     array (
     ),
     'froya' => 
     array (
     ),
-    'frøya' => 
+    'xn--frya-hra' => 
     array (
     ),
     'fusa' => 
@@ -13598,7 +13598,7 @@ return array (
     'forde' => 
     array (
     ),
-    'førde' => 
+    'xn--frde-gra' => 
     array (
     ),
     'gamvik' => 
@@ -13607,7 +13607,7 @@ return array (
     'gangaviika' => 
     array (
     ),
-    'gáŋgaviika' => 
+    'xn--ggaviika-8ya47h' => 
     array (
     ),
     'gaular' => 
@@ -13619,7 +13619,7 @@ return array (
     'gildeskal' => 
     array (
     ),
-    'gildeskål' => 
+    'xn--gildeskl-g0a' => 
     array (
     ),
     'giske' => 
@@ -13640,7 +13640,7 @@ return array (
     'gjovik' => 
     array (
     ),
-    'gjøvik' => 
+    'xn--gjvik-wua' => 
     array (
     ),
     'gloppen' => 
@@ -13670,7 +13670,7 @@ return array (
     'kraanghke' => 
     array (
     ),
-    'kråanghke' => 
+    'xn--kranghke-b0a' => 
     array (
     ),
     'grue' => 
@@ -13697,13 +13697,13 @@ return array (
     'habmer' => 
     array (
     ),
-    'hábmer' => 
+    'xn--hbmer-xqa' => 
     array (
     ),
     'hapmir' => 
     array (
     ),
-    'hápmir' => 
+    'xn--hpmir-xqa' => 
     array (
     ),
     'hammerfest' => 
@@ -13712,7 +13712,7 @@ return array (
     'hammarfeasta' => 
     array (
     ),
-    'hámmárfeasta' => 
+    'xn--hmmrfeasta-s4ac' => 
     array (
     ),
     'haram' => 
@@ -13730,7 +13730,7 @@ return array (
     'aknoluokta' => 
     array (
     ),
-    'ákŋoluokta' => 
+    'xn--koluokta-7ya57h' => 
     array (
     ),
     'hattfjelldal' => 
@@ -13760,9 +13760,9 @@ return array (
       array (
       ),
     ),
-    'møre-og-romsdal' => 
+    'xn--mre-og-romsdal-qqb' => 
     array (
-      'herøy' => 
+      'xn--hery-ira' => 
       array (
       ),
       'sande' => 
@@ -13781,7 +13781,7 @@ return array (
     'hobol' => 
     array (
     ),
-    'hobøl' => 
+    'xn--hobl-ira' => 
     array (
     ),
     'hof' => 
@@ -13799,7 +13799,7 @@ return array (
     'holtalen' => 
     array (
     ),
-    'holtålen' => 
+    'xn--holtlen-hxa' => 
     array (
     ),
     'hornindal' => 
@@ -13823,25 +13823,25 @@ return array (
     'hagebostad' => 
     array (
     ),
-    'hægebostad' => 
+    'xn--hgebostad-g3a' => 
     array (
     ),
     'hoyanger' => 
     array (
     ),
-    'høyanger' => 
+    'xn--hyanger-q1a' => 
     array (
     ),
     'hoylandet' => 
     array (
     ),
-    'høylandet' => 
+    'xn--hylandet-54a' => 
     array (
     ),
     'ha' => 
     array (
     ),
-    'hå' => 
+    'xn--h-2fa' => 
     array (
     ),
     'ibestad' => 
@@ -13850,7 +13850,7 @@ return array (
     'inderoy' => 
     array (
     ),
-    'inderøy' => 
+    'xn--indery-fya' => 
     array (
     ),
     'iveland' => 
@@ -13865,7 +13865,7 @@ return array (
     'jolster' => 
     array (
     ),
-    'jølster' => 
+    'xn--jlster-bya' => 
     array (
     ),
     'karasjok' => 
@@ -13874,7 +13874,7 @@ return array (
     'karasjohka' => 
     array (
     ),
-    'kárášjohka' => 
+    'xn--krjohka-hwab49j' => 
     array (
     ),
     'karlsoy' => 
@@ -13883,13 +13883,13 @@ return array (
     'galsa' => 
     array (
     ),
-    'gálsá' => 
+    'xn--gls-elac' => 
     array (
     ),
     'karmoy' => 
     array (
     ),
-    'karmøy' => 
+    'xn--karmy-yua' => 
     array (
     ),
     'kautokeino' => 
@@ -13904,7 +13904,7 @@ return array (
     'klabu' => 
     array (
     ),
-    'klæbu' => 
+    'xn--klbu-woa' => 
     array (
     ),
     'kongsberg' => 
@@ -13916,7 +13916,7 @@ return array (
     'kragero' => 
     array (
     ),
-    'kragerø' => 
+    'xn--krager-gya' => 
     array (
     ),
     'kristiansand' => 
@@ -13928,7 +13928,7 @@ return array (
     'krodsherad' => 
     array (
     ),
-    'krødsherad' => 
+    'xn--krdsherad-m8a' => 
     array (
     ),
     'kvalsund' => 
@@ -13937,7 +13937,7 @@ return array (
     'rahkkeravju' => 
     array (
     ),
-    'ráhkkerávju' => 
+    'xn--rhkkervju-01af' => 
     array (
     ),
     'kvam' => 
@@ -13955,13 +13955,13 @@ return array (
     'kvitsoy' => 
     array (
     ),
-    'kvitsøy' => 
+    'xn--kvitsy-fya' => 
     array (
     ),
     'kvafjord' => 
     array (
     ),
-    'kvæfjord' => 
+    'xn--kvfjord-nxa' => 
     array (
     ),
     'giehtavuoatna' => 
@@ -13970,25 +13970,25 @@ return array (
     'kvanangen' => 
     array (
     ),
-    'kvænangen' => 
+    'xn--kvnangen-k0a' => 
     array (
     ),
     'navuotna' => 
     array (
     ),
-    'návuotna' => 
+    'xn--nvuotna-hwa' => 
     array (
     ),
     'kafjord' => 
     array (
     ),
-    'kåfjord' => 
+    'xn--kfjord-iua' => 
     array (
     ),
     'gaivuotna' => 
     array (
     ),
-    'gáivuotna' => 
+    'xn--givuotna-8ya' => 
     array (
     ),
     'larvik' => 
@@ -14003,7 +14003,7 @@ return array (
     'loabat' => 
     array (
     ),
-    'loabát' => 
+    'xn--loabt-0qa' => 
     array (
     ),
     'lebesby' => 
@@ -14030,7 +14030,7 @@ return array (
     'leangaviika' => 
     array (
     ),
-    'leaŋgaviika' => 
+    'xn--leagaviika-52b' => 
     array (
     ),
     'lesja' => 
@@ -14057,7 +14057,7 @@ return array (
     'lindas' => 
     array (
     ),
-    'lindås' => 
+    'xn--linds-pra' => 
     array (
     ),
     'lom' => 
@@ -14069,7 +14069,7 @@ return array (
     'lahppi' => 
     array (
     ),
-    'láhppi' => 
+    'xn--lhppi-xqa' => 
     array (
     ),
     'lund' => 
@@ -14081,7 +14081,7 @@ return array (
     'luroy' => 
     array (
     ),
-    'lurøy' => 
+    'xn--lury-ira' => 
     array (
     ),
     'luster' => 
@@ -14102,25 +14102,25 @@ return array (
     'lerdal' => 
     array (
     ),
-    'lærdal' => 
+    'xn--lrdal-sra' => 
     array (
     ),
     'lodingen' => 
     array (
     ),
-    'lødingen' => 
+    'xn--ldingen-q1a' => 
     array (
     ),
     'lorenskog' => 
     array (
     ),
-    'lørenskog' => 
+    'xn--lrenskog-54a' => 
     array (
     ),
     'loten' => 
     array (
     ),
-    'løten' => 
+    'xn--lten-gra' => 
     array (
     ),
     'malvik' => 
@@ -14129,13 +14129,13 @@ return array (
     'masoy' => 
     array (
     ),
-    'måsøy' => 
+    'xn--msy-ula0h' => 
     array (
     ),
     'muosat' => 
     array (
     ),
-    'muosát' => 
+    'xn--muost-0qa' => 
     array (
     ),
     'mandal' => 
@@ -14162,19 +14162,19 @@ return array (
     'meloy' => 
     array (
     ),
-    'meløy' => 
+    'xn--mely-ira' => 
     array (
     ),
     'meraker' => 
     array (
     ),
-    'meråker' => 
+    'xn--merker-kua' => 
     array (
     ),
     'moareke' => 
     array (
     ),
-    'moåreke' => 
+    'xn--moreke-jua' => 
     array (
     ),
     'midsund' => 
@@ -14204,13 +14204,13 @@ return array (
     'malselv' => 
     array (
     ),
-    'målselv' => 
+    'xn--mlselv-iua' => 
     array (
     ),
     'malatvuopmi' => 
     array (
     ),
-    'málatvuopmi' => 
+    'xn--mlatvuopmi-s4a' => 
     array (
     ),
     'namdalseid' => 
@@ -14228,7 +14228,7 @@ return array (
     'naamesjevuemie' => 
     array (
     ),
-    'nååmesjevuemie' => 
+    'xn--nmesjevuemie-tcba' => 
     array (
     ),
     'laakesvuemie' => 
@@ -14273,7 +14273,7 @@ return array (
     'unjarga' => 
     array (
     ),
-    'unjárga' => 
+    'xn--unjrga-rta' => 
     array (
     ),
     'nesset' => 
@@ -14303,7 +14303,7 @@ return array (
     'davvenjarga' => 
     array (
     ),
-    'davvenjárga' => 
+    'xn--davvenjrga-y4a' => 
     array (
     ),
     'nordre-land' => 
@@ -14315,7 +14315,7 @@ return array (
     'raisa' => 
     array (
     ),
-    'ráisa' => 
+    'xn--risa-5na' => 
     array (
     ),
     'nore-og-uvdal' => 
@@ -14327,13 +14327,13 @@ return array (
     'naroy' => 
     array (
     ),
-    'nærøy' => 
+    'xn--nry-yla5g' => 
     array (
     ),
     'notteroy' => 
     array (
     ),
-    'nøtterøy' => 
+    'xn--nttery-byae' => 
     array (
     ),
     'odda' => 
@@ -14342,7 +14342,7 @@ return array (
     'oksnes' => 
     array (
     ),
-    'øksnes' => 
+    'xn--ksnes-uua' => 
     array (
     ),
     'oppdal' => 
@@ -14351,7 +14351,7 @@ return array (
     'oppegard' => 
     array (
     ),
-    'oppegård' => 
+    'xn--oppegrd-ixa' => 
     array (
     ),
     'orkdal' => 
@@ -14360,19 +14360,19 @@ return array (
     'orland' => 
     array (
     ),
-    'ørland' => 
+    'xn--rland-uua' => 
     array (
     ),
     'orskog' => 
     array (
     ),
-    'ørskog' => 
+    'xn--rskog-uua' => 
     array (
     ),
     'orsta' => 
     array (
     ),
-    'ørsta' => 
+    'xn--rsta-fra' => 
     array (
     ),
     'hedmark' => 
@@ -14383,7 +14383,7 @@ return array (
       'valer' => 
       array (
       ),
-      'våler' => 
+      'xn--vler-qoa' => 
       array (
       ),
     ),
@@ -14399,13 +14399,13 @@ return array (
     'osteroy' => 
     array (
     ),
-    'osterøy' => 
+    'xn--ostery-fya' => 
     array (
     ),
     'ostre-toten' => 
     array (
     ),
-    'østre-toten' => 
+    'xn--stre-toten-zcb' => 
     array (
     ),
     'overhalla' => 
@@ -14414,25 +14414,25 @@ return array (
     'ovre-eiker' => 
     array (
     ),
-    'øvre-eiker' => 
+    'xn--vre-eiker-k8a' => 
     array (
     ),
     'oyer' => 
     array (
     ),
-    'øyer' => 
+    'xn--yer-zna' => 
     array (
     ),
     'oygarden' => 
     array (
     ),
-    'øygarden' => 
+    'xn--ygarden-p1a' => 
     array (
     ),
     'oystre-slidre' => 
     array (
     ),
-    'øystre-slidre' => 
+    'xn--ystre-slidre-ujb' => 
     array (
     ),
     'porsanger' => 
@@ -14441,7 +14441,7 @@ return array (
     'porsangu' => 
     array (
     ),
-    'porsáŋgu' => 
+    'xn--porsgu-sta26f' => 
     array (
     ),
     'porsgrunn' => 
@@ -14450,7 +14450,7 @@ return array (
     'radoy' => 
     array (
     ),
-    'radøy' => 
+    'xn--rady-ira' => 
     array (
     ),
     'rakkestad' => 
@@ -14477,7 +14477,7 @@ return array (
     'rennesoy' => 
     array (
     ),
-    'rennesøy' => 
+    'xn--rennesy-v1a' => 
     array (
     ),
     'rindal' => 
@@ -14498,7 +14498,7 @@ return array (
     'risor' => 
     array (
     ),
-    'risør' => 
+    'xn--risr-ira' => 
     array (
     ),
     'roan' => 
@@ -14513,49 +14513,49 @@ return array (
     'ralingen' => 
     array (
     ),
-    'rælingen' => 
+    'xn--rlingen-mxa' => 
     array (
     ),
     'rodoy' => 
     array (
     ),
-    'rødøy' => 
+    'xn--rdy-0nab' => 
     array (
     ),
     'romskog' => 
     array (
     ),
-    'rømskog' => 
+    'xn--rmskog-bya' => 
     array (
     ),
     'roros' => 
     array (
     ),
-    'røros' => 
+    'xn--rros-gra' => 
     array (
     ),
     'rost' => 
     array (
     ),
-    'røst' => 
+    'xn--rst-0na' => 
     array (
     ),
     'royken' => 
     array (
     ),
-    'røyken' => 
+    'xn--ryken-vua' => 
     array (
     ),
     'royrvik' => 
     array (
     ),
-    'røyrvik' => 
+    'xn--ryrvik-bya' => 
     array (
     ),
     'rade' => 
     array (
     ),
-    'råde' => 
+    'xn--rde-ula' => 
     array (
     ),
     'salangen' => 
@@ -14570,10 +14570,10 @@ return array (
     'salat' => 
     array (
     ),
-    'sálát' => 
+    'xn--slt-elab' => 
     array (
     ),
-    'sálat' => 
+    'xn--slat-5na' => 
     array (
     ),
     'samnanger' => 
@@ -14594,7 +14594,7 @@ return array (
     'sandoy' => 
     array (
     ),
-    'sandøy' => 
+    'xn--sandy-yua' => 
     array (
     ),
     'sarpsborg' => 
@@ -14645,19 +14645,19 @@ return array (
     'skjervoy' => 
     array (
     ),
-    'skjervøy' => 
+    'xn--skjervy-v1a' => 
     array (
     ),
     'skierva' => 
     array (
     ),
-    'skiervá' => 
+    'xn--skierv-uta' => 
     array (
     ),
     'skjak' => 
     array (
     ),
-    'skjåk' => 
+    'xn--skjk-soa' => 
     array (
     ),
     'skodje' => 
@@ -14666,19 +14666,19 @@ return array (
     'skanland' => 
     array (
     ),
-    'skånland' => 
+    'xn--sknland-fxa' => 
     array (
     ),
     'skanit' => 
     array (
     ),
-    'skánit' => 
+    'xn--sknit-yqa' => 
     array (
     ),
     'smola' => 
     array (
     ),
-    'smøla' => 
+    'xn--smla-hra' => 
     array (
     ),
     'snillfjord' => 
@@ -14687,7 +14687,7 @@ return array (
     'snasa' => 
     array (
     ),
-    'snåsa' => 
+    'xn--snsa-roa' => 
     array (
     ),
     'snoasa' => 
@@ -14696,7 +14696,7 @@ return array (
     'snaase' => 
     array (
     ),
-    'snåase' => 
+    'xn--snase-nra' => 
     array (
     ),
     'sogndal' => 
@@ -14735,7 +14735,7 @@ return array (
     'stjordal' => 
     array (
     ),
-    'stjørdal' => 
+    'xn--stjrdal-s1a' => 
     array (
     ),
     'stokke' => 
@@ -14792,67 +14792,67 @@ return array (
     'sogne' => 
     array (
     ),
-    'søgne' => 
+    'xn--sgne-gra' => 
     array (
     ),
     'somna' => 
     array (
     ),
-    'sømna' => 
+    'xn--smna-gra' => 
     array (
     ),
     'sondre-land' => 
     array (
     ),
-    'søndre-land' => 
+    'xn--sndre-land-0cb' => 
     array (
     ),
     'sor-aurdal' => 
     array (
     ),
-    'sør-aurdal' => 
+    'xn--sr-aurdal-l8a' => 
     array (
     ),
     'sor-fron' => 
     array (
     ),
-    'sør-fron' => 
+    'xn--sr-fron-q1a' => 
     array (
     ),
     'sor-odal' => 
     array (
     ),
-    'sør-odal' => 
+    'xn--sr-odal-q1a' => 
     array (
     ),
     'sor-varanger' => 
     array (
     ),
-    'sør-varanger' => 
+    'xn--sr-varanger-ggb' => 
     array (
     ),
     'matta-varjjat' => 
     array (
     ),
-    'mátta-várjjat' => 
+    'xn--mtta-vrjjat-k7af' => 
     array (
     ),
     'sorfold' => 
     array (
     ),
-    'sørfold' => 
+    'xn--srfold-bya' => 
     array (
     ),
     'sorreisa' => 
     array (
     ),
-    'sørreisa' => 
+    'xn--srreisa-q1a' => 
     array (
     ),
     'sorum' => 
     array (
     ),
-    'sørum' => 
+    'xn--srum-gra' => 
     array (
     ),
     'tana' => 
@@ -14879,7 +14879,7 @@ return array (
     'tjome' => 
     array (
     ),
-    'tjøme' => 
+    'xn--tjme-hra' => 
     array (
     ),
     'tokke' => 
@@ -14894,13 +14894,13 @@ return array (
     'tranoy' => 
     array (
     ),
-    'tranøy' => 
+    'xn--trany-yua' => 
     array (
     ),
     'tromso' => 
     array (
     ),
-    'tromsø' => 
+    'xn--troms-zua' => 
     array (
     ),
     'tromsa' => 
@@ -14921,13 +14921,13 @@ return array (
     'trana' => 
     array (
     ),
-    'træna' => 
+    'xn--trna-woa' => 
     array (
     ),
     'trogstad' => 
     array (
     ),
-    'trøgstad' => 
+    'xn--trgstad-r1a' => 
     array (
     ),
     'tvedestrand' => 
@@ -14954,13 +14954,13 @@ return array (
     'tysvar' => 
     array (
     ),
-    'tysvær' => 
+    'xn--tysvr-vra' => 
     array (
     ),
     'tonsberg' => 
     array (
     ),
-    'tønsberg' => 
+    'xn--tnsberg-q1a' => 
     array (
     ),
     'ullensaker' => 
@@ -14978,13 +14978,13 @@ return array (
     'vadso' => 
     array (
     ),
-    'vadsø' => 
+    'xn--vads-jra' => 
     array (
     ),
     'cahcesuolo' => 
     array (
     ),
-    'čáhcesuolo' => 
+    'xn--hcesuolo-7ya35b' => 
     array (
     ),
     'vaksdal' => 
@@ -15002,13 +15002,13 @@ return array (
     'vardo' => 
     array (
     ),
-    'vardø' => 
+    'xn--vard-jra' => 
     array (
     ),
     'varggat' => 
     array (
     ),
-    'várggát' => 
+    'xn--vrggt-xqad' => 
     array (
     ),
     'vefsn' => 
@@ -15023,7 +15023,7 @@ return array (
     'vegarshei' => 
     array (
     ),
-    'vegårshei' => 
+    'xn--vegrshei-c0a' => 
     array (
     ),
     'vennesla' => 
@@ -15050,7 +15050,7 @@ return array (
     'vestvagoy' => 
     array (
     ),
-    'vestvågøy' => 
+    'xn--vestvgy-ixa6o' => 
     array (
     ),
     'vevelstad' => 
@@ -15074,13 +15074,13 @@ return array (
     'varoy' => 
     array (
     ),
-    'værøy' => 
+    'xn--vry-yla5g' => 
     array (
     ),
     'vagan' => 
     array (
     ),
-    'vågan' => 
+    'xn--vgan-qoa' => 
     array (
     ),
     'voagat' => 
@@ -15089,13 +15089,13 @@ return array (
     'vagsoy' => 
     array (
     ),
-    'vågsøy' => 
+    'xn--vgsy-qoa0j' => 
     array (
     ),
     'vaga' => 
     array (
     ),
-    'vågå' => 
+    'xn--vg-yiab' => 
     array (
     ),
     'ostfold' => 
@@ -15104,9 +15104,9 @@ return array (
       array (
       ),
     ),
-    'østfold' => 
+    'xn--stfold-9xa' => 
     array (
-      'våler' => 
+      'xn--vler-qoa' => 
       array (
       ),
     ),
@@ -15197,7 +15197,7 @@ return array (
     'mil' => 
     array (
     ),
-    'māori' => 
+    'xn--mori-qsa' => 
     array (
     ),
     'net' => 
@@ -17586,13 +17586,13 @@ return array (
     'club' => 
     array (
     ),
-    '網路' => 
+    'xn--zf0ao64a' => 
     array (
     ),
-    '組織' => 
+    'xn--uc0atv' => 
     array (
     ),
-    '商業' => 
+    'xn--czrw28b' => 
     array (
     ),
     'blogspot' => 
@@ -18847,157 +18847,157 @@ return array (
   'yt' => 
   array (
   ),
-  'امارات' => 
+  'xn--mgbaam7a8h' => 
   array (
   ),
-  'বাংলা' => 
+  'xn--54b7fta0cc' => 
   array (
   ),
-  '中国' => 
+  'xn--fiqs8s' => 
   array (
   ),
-  '中國' => 
+  'xn--fiqz9s' => 
   array (
   ),
-  'الجزائر' => 
+  'xn--lgbbat1ad8j' => 
   array (
   ),
-  'مصر' => 
+  'xn--wgbh1c' => 
   array (
   ),
-  'გე' => 
+  'xn--node' => 
   array (
   ),
-  '香港' => 
+  'xn--j6w193g' => 
   array (
   ),
-  'भारत' => 
+  'xn--h2brj9c' => 
   array (
   ),
-  'بھارت' => 
+  'xn--mgbbh1a71e' => 
   array (
   ),
-  'భారత్' => 
+  'xn--fpcrj9c3d' => 
   array (
   ),
-  'ભારત' => 
+  'xn--gecrj9c' => 
   array (
   ),
-  'ਭਾਰਤ' => 
+  'xn--s9brj9c' => 
   array (
   ),
-  'ভারত' => 
+  'xn--45brj9c' => 
   array (
   ),
-  'இந்தியா' => 
+  'xn--xkc2dl3a5ee0h' => 
   array (
   ),
-  'ایران' => 
+  'xn--mgba3a4f16a' => 
   array (
   ),
-  'ايران' => 
+  'xn--mgba3a4fra' => 
   array (
   ),
-  'الاردن' => 
+  'xn--mgbayh7gpa' => 
   array (
   ),
-  '한국' => 
+  'xn--3e0b707e' => 
   array (
   ),
-  'қаз' => 
+  'xn--80ao21a' => 
   array (
   ),
-  'ලංකා' => 
+  'xn--fzc2c9e2c' => 
   array (
   ),
-  'இலங்கை' => 
+  'xn--xkc2al3hye2a' => 
   array (
   ),
-  'المغرب' => 
+  'xn--mgbc0a9azcg' => 
   array (
   ),
-  'мон' => 
+  'xn--l1acc' => 
   array (
   ),
-  'مليسيا' => 
+  'xn--mgbx4cd0ab' => 
   array (
   ),
-  'عمان' => 
+  'xn--mgb9awbf' => 
   array (
   ),
-  'فلسطين' => 
+  'xn--ygbi2ammx' => 
   array (
   ),
-  'срб' => 
+  'xn--90a3ac' => 
   array (
-    'пр' => 
+    'xn--o1ac' => 
     array (
     ),
-    'орг' => 
+    'xn--c1avg' => 
     array (
     ),
-    'обр' => 
+    'xn--90azh' => 
     array (
     ),
-    'од' => 
+    'xn--d1at' => 
     array (
     ),
-    'упр' => 
+    'xn--o1ach' => 
     array (
     ),
-    'ак' => 
+    'xn--80au' => 
     array (
     ),
   ),
-  'рф' => 
+  'xn--p1ai' => 
   array (
   ),
-  'قطر' => 
+  'xn--wgbl6a' => 
   array (
   ),
-  'السعودية' => 
+  'xn--mgberp4a5d4ar' => 
   array (
   ),
-  'السعودیة' => 
+  'xn--mgberp4a5d4a87g' => 
   array (
   ),
-  'السعودیۃ' => 
+  'xn--mgbqly7c0a67fbc' => 
   array (
   ),
-  'السعوديه' => 
+  'xn--mgbqly7cvafr' => 
   array (
   ),
-  'سورية' => 
+  'xn--ogbpf8fl' => 
   array (
   ),
-  'سوريا' => 
+  'xn--mgbtf8fl' => 
   array (
   ),
-  '新加坡' => 
+  'xn--yfro4i67o' => 
   array (
   ),
-  'சிங்கப்பூர்' => 
+  'xn--clchc0ea0b2g2a9gcd' => 
   array (
   ),
-  'ไทย' => 
+  'xn--o3cw4h' => 
   array (
   ),
-  'تونس' => 
+  'xn--pgbs0dh' => 
   array (
   ),
-  '台灣' => 
+  'xn--kpry57d' => 
   array (
   ),
-  '台湾' => 
+  'xn--kprw13d' => 
   array (
   ),
-  '臺灣' => 
+  'xn--nnx388a' => 
   array (
   ),
-  'укр' => 
+  'xn--j1amh' => 
   array (
   ),
-  'اليمن' => 
+  'xn--mgb2ddes' => 
   array (
   ),
   'xxx' => 
@@ -19027,19 +19027,19 @@ return array (
     array (
     ),
   ),
-  'онлайн' => 
+  'xn--80asehdb' => 
   array (
   ),
-  'сайт' => 
+  'xn--80aswg' => 
   array (
   ),
-  'شبكة' => 
+  'xn--ngbc5azd' => 
   array (
   ),
-  '游戏' => 
+  'xn--unup4y' => 
   array (
   ),
-  '企业' => 
+  'xn--vhquv' => 
   array (
   ),
   'camera' => 
@@ -19078,10 +19078,10 @@ return array (
   'tattoo' => 
   array (
   ),
-  '在线' => 
+  'xn--3ds443g' => 
   array (
   ),
-  '中文网' => 
+  'xn--fiq228c5hs' => 
   array (
   ),
   'land' => 
@@ -19099,7 +19099,7 @@ return array (
   'menu' => 
   array (
   ),
-  '世界' => 
+  'xn--rhqv96g' => 
   array (
   ),
   'uno' => 
@@ -19111,7 +19111,7 @@ return array (
   'technology' => 
   array (
   ),
-  '集团' => 
+  'xn--3bst00m' => 
   array (
   ),
   'reviews' => 
@@ -19120,7 +19120,7 @@ return array (
   'guide' => 
   array (
   ),
-  '我爱你' => 
+  'xn--6qq986b3xl' => 
   array (
   ),
   'graphics' => 
@@ -19132,7 +19132,7 @@ return array (
   'onl' => 
   array (
   ),
-  'みんな' => 
+  'xn--q9jyb4c' => 
   array (
   ),
   'diamonds' => 
@@ -19162,13 +19162,13 @@ return array (
   'kitchen' => 
   array (
   ),
-  '移动' => 
+  'xn--6frz82g' => 
   array (
   ),
   'kim' => 
   array (
   ),
-  '삼성' => 
+  'xn--cg4bki' => 
   array (
   ),
   'monash' => 
@@ -19192,7 +19192,7 @@ return array (
   'shoes' => 
   array (
   ),
-  'موقع' => 
+  'xn--4gbrim' => 
   array (
   ),
   'career' => 
@@ -19201,7 +19201,7 @@ return array (
   'otsuka' => 
   array (
   ),
-  '中信' => 
+  'xn--fiq64b' => 
   array (
   ),
   'gift' => 
@@ -19264,7 +19264,7 @@ return array (
   'email' => 
   array (
   ),
-  'بازار' => 
+  'xn--mgbab2bd' => 
   array (
   ),
   'repair' => 
@@ -19363,10 +19363,10 @@ return array (
   'farm' => 
   array (
   ),
-  '公益' => 
+  'xn--55qw42g' => 
   array (
   ),
-  '政务' => 
+  'xn--zfr164b' => 
   array (
   ),
   'club' => 
@@ -19387,7 +19387,7 @@ return array (
   'bargains' => 
   array (
   ),
-  '组织机构' => 
+  'xn--nqv7fs00ema' => 
   array (
   ),
   'desi' => 
@@ -19402,19 +19402,19 @@ return array (
   'pics' => 
   array (
   ),
-  'орг' => 
+  'xn--c1avg' => 
   array (
   ),
-  '公司' => 
+  'xn--55qx5d' => 
   array (
   ),
-  '网络' => 
+  'xn--io0a7i' => 
   array (
   ),
   'cheap' => 
   array (
   ),
-  '广东' => 
+  'xn--xhq521b' => 
   array (
   ),
   'photo' => 
@@ -19426,7 +19426,7 @@ return array (
   'zone' => 
   array (
   ),
-  '机构' => 
+  'xn--nqv7f' => 
   array (
   ),
   'link' => 
@@ -19435,7 +19435,7 @@ return array (
   'qpon' => 
   array (
   ),
-  'संगठन' => 
+  'xn--i1b6b1a6a2e' => 
   array (
   ),
   'agency' => 
@@ -19459,7 +19459,7 @@ return array (
   'shiksha' => 
   array (
   ),
-  'дети' => 
+  'xn--d1acj3b' => 
   array (
   ),
   'budapest' => 
@@ -19486,7 +19486,7 @@ return array (
   'cooking' => 
   array (
   ),
-  '商城' => 
+  'xn--czru2d' => 
   array (
   ),
   'casa' => 
@@ -19501,7 +19501,7 @@ return array (
   'tools' => 
   array (
   ),
-  '八卦' => 
+  'xn--45q11c' => 
   array (
   ),
   'praxi' => 
@@ -19615,7 +19615,7 @@ return array (
   'pub' => 
   array (
   ),
-  'рус' => 
+  'xn--p1acf' => 
   array (
   ),
   'ren' => 
@@ -19654,10 +19654,10 @@ return array (
   'axa' => 
   array (
   ),
-  'москва' => 
+  'xn--80adxhks' => 
   array (
   ),
-  '商店' => 
+  'xn--czrs0t' => 
   array (
   ),
   'vodka' => 
@@ -19723,7 +19723,7 @@ return array (
   'beer' => 
   array (
   ),
-  '佛山' => 
+  'xn--1qqw23a' => 
   array (
   ),
   'college' => 
@@ -19735,7 +19735,7 @@ return array (
   'meet' => 
   array (
   ),
-  '网址' => 
+  'xn--ses554g' => 
   array (
   ),
   'gop' => 
@@ -19747,7 +19747,7 @@ return array (
   'lacaixa' => 
   array (
   ),
-  '商标' => 
+  'xn--czr694b' => 
   array (
   ),
   'vegas' => 
@@ -19846,7 +19846,7 @@ return array (
   'cologne' => 
   array (
   ),
-  '手机' => 
+  'xn--kput3i' => 
   array (
   ),
   'wme' => 
@@ -19978,7 +19978,7 @@ return array (
   'associates' => 
   array (
   ),
-  '政府' => 
+  'xn--mxtq1m' => 
   array (
   ),
   'williamhill' => 
@@ -20230,7 +20230,7 @@ return array (
   'lgbt' => 
   array (
   ),
-  '网店' => 
+  'xn--hxt814e' => 
   array (
   ),
   'cancerresearch' => 
@@ -20257,7 +20257,7 @@ return array (
   'nra' => 
   array (
   ),
-  '娱乐' => 
+  'xn--fjq720a' => 
   array (
   ),
   'realtor' => 

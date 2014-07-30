@@ -136,6 +136,8 @@ class PublicSuffixListManager
 
         $part = array_pop($ruleParts);
 
+        $part = idn_to_ascii($part);
+
         if (strpos($part, '!') === 0) {
             $part = substr($part, 1);
             $isDomain = false;
