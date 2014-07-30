@@ -73,6 +73,17 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Pdp\Parser::getPublicSuffix()
+     */
+    public function testGetPublicSuffixHandlesWrongCaseProperly()
+    {
+        $publicSuffix = 'рф';
+        $hostPart = 'Яндекс.РФ';
+
+        $this->assertSame($publicSuffix, $this->parser->getPublicSuffix($hostPart));
+    }
+
+    /**
      * @covers Pdp\Parser::parseUrl()
      * @covers Pdp\Parser::getRegisterableDomain()
      * @dataProvider parseDataProvider
@@ -97,6 +108,20 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Pdp\Parser::getSubdomain()
+     */
+    public function testGetSubdomainHandlesWrongCaseProperly()
+    {
+        $url = 'http://WWW.example.COM';
+        $hostPart = 'WWW.example.com';
+        $subdomain = 'www';
+        $pdpUrl = $this->parser->parseUrl($url);
+
+        $this->assertSame($subdomain, $pdpUrl->host->subdomain);
+        $this->assertSame($subdomain, $this->parser->getSubdomain($hostPart));
+    }
+
+    /**
      * @dataProvider parseDataProvider
      * @covers ::mb_parse_url
      */
@@ -110,8 +135,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     public function parseDataProvider()
     {
-        // url, public suffix, registerable domain, subdomain, host part
         return array(
+            // url, public suffix, registerable domain, subdomain, host part
             array('http://www.waxaudio.com.au/audio/albums/the_mashening', 'com.au', 'waxaudio.com.au', 'www', 'www.waxaudio.com.au'),
             array('example.COM', 'com', 'example.com', null, 'example.com'),
             array('giant.yyyy', 'yyyy', 'giant.yyyy', null, 'giant.yyyy'),
@@ -160,6 +185,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             // Link-local addresses and zone indices
             array('http://[fe80::3%25eth0]', null, null, null, '[fe80::3%25eth0]'),
             array('http://[fe80::1%2511]', null, null, null, '[fe80::1%2511]'),
+            // url, public suffix, registerable domain, subdomain, host part
         );
     }
 }

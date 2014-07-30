@@ -20,6 +20,8 @@ use Pdp\Uri\Url\Host;
  */
 class Parser
 {
+    protected $isPunycoded;
+
     const SCHEME_PATTERN = '#^(http|ftp)s?://#i';
 
     /**
@@ -132,6 +134,8 @@ class Parser
             return null;
         }
 
+        $host = $this->normalize($host);
+
         $parts = array_reverse(explode('.', $host));
         $publicSuffix = array();
         $publicSuffixList = $this->publicSuffixList;
@@ -167,7 +171,9 @@ class Parser
             $publicSuffix[0] = $parts[0];
         }
 
-        return implode('.', array_filter($publicSuffix, 'strlen'));
+        $suffix = implode('.', array_filter($publicSuffix, 'strlen'));
+
+        return $this->denormalize($suffix);
     }
 
     /**
@@ -186,13 +192,6 @@ class Parser
             return null;
         }
 
-        $punycoded = (strpos($host, 'xn--') !== false);
-
-        if ($punycoded) {
-            $host = idn_to_utf8($host);
-        }
-
-        $host = mb_strtolower($host, 'UTF-8');
         $publicSuffix = $this->getPublicSuffix($host);
 
         if ($publicSuffix === null || $host == $publicSuffix) {
@@ -201,15 +200,9 @@ class Parser
 
         $publicSuffixParts = array_reverse(explode('.', $publicSuffix));
         $hostParts = array_reverse(explode('.', $host));
-        $registerableDomainParts = array_slice($hostParts, 0, count($publicSuffixParts) + 1);
+        $registerableDomainParts = $publicSuffixParts + array_slice($hostParts, 0, count($publicSuffixParts) + 1);
 
-        $registerableDomain = implode('.', array_reverse($registerableDomainParts));
-
-        if ($punycoded) {
-            $registerableDomain = idn_to_ascii($registerableDomain);
-        }
-
-        return $registerableDomain;
+        return implode('.', array_reverse($registerableDomainParts));
     }
 
     /**
@@ -222,15 +215,40 @@ class Parser
     {
         $registerableDomain = $this->getRegisterableDomain($host);
 
-        if ($registerableDomain === null || $host == $registerableDomain) {
+        if ($registerableDomain === null || $host === $registerableDomain) {
             return null;
         }
 
         $registerableDomainParts = array_reverse(explode('.', $registerableDomain));
+
+        $host = $this->normalize($host);
+
         $hostParts = array_reverse(explode('.', $host));
         $subdomainParts = array_slice($hostParts, count($registerableDomainParts));
 
-        return implode('.', array_reverse($subdomainParts));
+        $subdomain = implode('.', array_reverse($subdomainParts));
+
+        return $this->denormalize($subdomain);
+    }
+
+    protected function normalize($part)
+    {
+        $this->isPunycoded = (strpos($part, 'xn--') !== false);
+
+        if ($this->isPunycoded === false) {
+            $part = idn_to_ascii($part);
+        }
+
+        return strtolower($part);
+    }
+
+    protected function denormalize($part)
+    {
+        if ($this->isPunycoded === false) {
+            $part = idn_to_utf8($part);
+        }
+
+        return $part;
     }
 
     /**
