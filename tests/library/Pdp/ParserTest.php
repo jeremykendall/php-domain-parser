@@ -22,6 +22,16 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Pdp\Parser::getRawPublicSuffix()
+     */
+    public function testGetRawPublicSuffixReturnsFalseForHostsWithInvalidDomain()
+    {
+        $this->assertFalse($this->parser->getRawPublicSuffix('http://www.example.faketld'));
+        $this->assertFalse($this->parser->getRawPublicSuffix('http://www.example.faketld?x=y&a=b'));
+        $this->assertFalse($this->parser->getRawPublicSuffix('http://www.example.dev'));
+    }
+
+    /**
      * @covers Pdp\Parser::parseUrl()
      * @covers ::mb_parse_url
      */
@@ -185,6 +195,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             // Link-local addresses and zone indices
             array('http://[fe80::3%25eth0]', null, null, null, '[fe80::3%25eth0]'),
             array('http://[fe80::1%2511]', null, null, null, '[fe80::1%2511]'),
+            array('http://www.example.dev', 'dev', 'example.dev', 'www', 'www.example.dev'),
+            array('http://example.faketld', 'faketld', 'example.faketld', null, 'example.faketld'),
             // url, public suffix, registerable domain, subdomain, host part
         );
     }

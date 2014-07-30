@@ -116,24 +116,14 @@ class Parser
     }
 
     /**
-     * Returns the public suffix portion of provided host
+     * Get the raw public suffix based on the cached public suffix list file.
+     * Return false if the provided suffix is invalid
      *
-     * @param  string $host host
-     * @return string public suffix
+     * @param  string           $host The host to process
+     * @return string|null|bool The suffix or false if unable to find a valid one
      */
-    public function getPublicSuffix($host)
+    public function getRawPublicSuffix($host)
     {
-        if (strpos($host, '.') === 0) {
-            return null;
-        }
-
-        // Fixes #22: If a single label domain makes it this far (e.g.,
-        // localhost, foo, etc.), this stops it from incorrectly being set as
-        // the  public suffix.
-        if (strpos($host, '.') === false) {
-            return null;
-        }
-
         $host = $this->normalize($host);
 
         $parts = array_reverse(explode('.', $host));
@@ -168,12 +158,42 @@ class Parser
 
         // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
         if (empty($publicSuffix)) {
-            $publicSuffix[0] = $parts[0];
+            return false;
         }
 
         $suffix = implode('.', array_filter($publicSuffix, 'strlen'));
 
         return $this->denormalize($suffix);
+    }
+
+    /**
+     * Returns the public suffix portion of provided host
+     *
+     * @param  string $host host
+     * @return string public suffix
+     */
+    public function getPublicSuffix($host)
+    {
+        if (strpos($host, '.') === 0) {
+            return null;
+        }
+
+        // Fixes #22: If a single label domain makes it this far (e.g.,
+        // localhost, foo, etc.), this stops it from incorrectly being set as
+        // the  public suffix.
+        if (strpos($host, '.') === false) {
+            return null;
+        }
+
+        $suffix = $this->getRawPublicSuffix($host);
+
+        // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
+        if (false === $suffix) {
+            $parts = array_reverse(explode('.', $host));
+            $suffix = array_shift($parts);
+        }
+
+        return $suffix;
     }
 
     /**
