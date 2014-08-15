@@ -20,14 +20,17 @@ use Pdp\Uri\Url\Host;
  */
 class Parser
 {
-    protected $isPunycoded;
-
     const SCHEME_PATTERN = '#^(http|ftp)s?://#i';
 
     /**
      * @var PublicSuffixList Public Suffix List
      */
     protected $publicSuffixList;
+
+    /**
+     * @var bool Whether or not a host part has been normalized
+     */
+    protected $isNormalized = false;
 
     /**
      * Public constructor
@@ -251,66 +254,39 @@ class Parser
         return $this->denormalize($subdomain);
     }
 
+    /**
+     * If a URL is not punycoded, then it may be an IDNA URL, so it must be
+     * converted to ASCII. Performs conversion and sets flag.
+     *
+     * @param  string $part Host part
+     * @return string Host part, transformed if not punycoded
+     */
     protected function normalize($part)
     {
-        $this->isPunycoded = (strpos($part, 'xn--') !== false);
+        $punycoded = (strpos($part, 'xn--') !== false);
 
-        if ($this->isPunycoded === false) {
+        if ($punycoded === false) {
             $part = idn_to_ascii($part);
+            $this->isNormalized = true;
         }
 
         return strtolower($part);
     }
 
+    /**
+     * Converts any normalized part back to IDNA. Performs conversion and 
+     * resets flag.
+     *
+     * @param  string $part Host part
+     * @return string Denormalized host part
+     */
     protected function denormalize($part)
     {
-        if ($this->isPunycoded === false) {
+        if ($this->isNormalized === true) {
             $part = idn_to_utf8($part);
+            $this->isNormalized = false;
         }
 
         return $part;
-    }
-
-    /**
-     * DEPRECATED: UTF-8 aware parse_url() replacement.
-     *
-     * Taken from php.net manual comments {@link http://php.net/manual/en/function.parse-url.php#114817}
-     *
-     * @deprecated Please use mb_parse_url instead. Will be removed in version 2.0.
-     * @codeCoverageIgnore
-     *
-     * @param  string  $url       The URL to parse
-     * @param  integer $component Specify one of PHP_URL_SCHEME, PHP_URL_HOST,
-     *                            PHP_URL_PORT, PHP_URL_USER, PHP_URL_PASS, PHP_URL_PATH, PHP_URL_QUERY or
-     *                            PHP_URL_FRAGMENT to retrieve just a specific URL component as a string
-     *                            (except when PHP_URL_PORT is given, in which case the return value will
-     *                            be an integer).
-     * @return mixed   See parse_url documentation {@link http://us1.php.net/parse_url}
-     */
-    public function mbParseUrl($url, $component = -1)
-    {
-        $enc_url = preg_replace_callback(
-            '%[^:/@?&=#]+%usD',
-            function ($matches) {
-                return urlencode($matches[0]);
-            },
-            $url
-        );
-
-        $parts = parse_url($enc_url, $component);
-
-        if ($parts === false) {
-            return $parts;
-        }
-
-        if (is_array($parts)) {
-            foreach ($parts as $name => $value) {
-                $parts[$name] = urldecode($value);
-            }
-        } else {
-            $parts = urldecode($parts);
-        }
-
-        return $parts;
     }
 }
