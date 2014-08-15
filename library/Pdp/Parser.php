@@ -66,7 +66,7 @@ class Parser
             $url = 'http://' . preg_replace('#^//#', '', $url, 1);
         }
 
-        $parts = mb_parse_url($url);
+        $parts = pdp_parse_url($url);
 
         if ($parts === false) {
             throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
@@ -172,8 +172,8 @@ class Parser
     /**
      * Returns the public suffix portion of provided host
      *
-     * @param  string $host host
-     * @return string public suffix
+     * @param  string      $host host
+     * @return string|null public suffix or null if host does not contain a public suffix
      */
     public function getPublicSuffix($host)
     {
@@ -183,7 +183,7 @@ class Parser
 
         // Fixes #22: If a single label domain makes it this far (e.g.,
         // localhost, foo, etc.), this stops it from incorrectly being set as
-        // the  public suffix.
+        // the public suffix.
         if (strpos($host, '.') === false) {
             return null;
         }
@@ -274,7 +274,7 @@ class Parser
     }
 
     /**
-     * Converts any normalized part back to IDNA. Performs conversion and 
+     * Converts any normalized part back to IDNA. Performs conversion and
      * resets flag.
      *
      * @param  string $part Host part

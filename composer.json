@@ -33,7 +33,7 @@
             "Pdp\\": "library/"
         },
         "files": [
-            "library/mb-parse-url.php"
+            "library/pdp-parse-url.php"
         ]
     }
 }
