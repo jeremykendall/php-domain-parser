@@ -136,6 +136,10 @@ class PublicSuffixListManager
 
         $part = array_pop($ruleParts);
 
+        // Adheres to canonicalization rule from the "Formal Algorithm" section 
+        // of https://publicsuffix.org/list/
+        // "The domain and all rules must be canonicalized in the normal way 
+        // for hostnames - lower-case, Punycode (RFC 3492)."
         $part = idn_to_ascii($part);
 
         if (strpos($part, '!') === 0) {
