@@ -22,13 +22,19 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\Parser::getRawPublicSuffix()
+     * @covers Pdp\Parser::isSuffixValid()
      */
-    public function testGetRawPublicSuffixReturnsFalseForHostsWithInvalidDomain()
+    public function testIsSuffixValid()
     {
-        $this->assertFalse($this->parser->getRawPublicSuffix('http://www.example.faketld'));
-        $this->assertFalse($this->parser->getRawPublicSuffix('http://www.example.faketld?x=y&a=b'));
-        $this->assertFalse($this->parser->getRawPublicSuffix('http://www.example.dev'));
+        $this->assertFalse($this->parser->isSuffixValid('www.example.faketld'));
+        $this->assertFalse($this->parser->isSuffixValid('www.example.faketld'));
+        $this->assertFalse($this->parser->isSuffixValid('www.example.dev'));
+        $this->assertFalse($this->parser->isSuffixValid('example.example'));
+
+        $this->assertTrue($this->parser->isSuffixValid('www.example.com'));
+        $this->assertTrue($this->parser->isSuffixValid('www.example.co.uk'));
+        $this->assertTrue($this->parser->isSuffixValid('www.example.рф'));
+        $this->assertTrue($this->parser->isSuffixValid('example.com.au'));
     }
 
     /**

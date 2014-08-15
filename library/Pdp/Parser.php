@@ -120,12 +120,12 @@ class Parser
 
     /**
      * Get the raw public suffix based on the cached public suffix list file.
-     * Return false if the provided suffix is invalid
+     * Return false if the provided suffix is not included in the PSL
      *
-     * @param  string           $host The host to process
-     * @return string|null|bool The suffix or false if unable to find a valid one
+     * @param  string       $host The host to process
+     * @return string|false The suffix or false if suffix not included in the PSL
      */
-    public function getRawPublicSuffix($host)
+    protected function getRawPublicSuffix($host)
     {
         $host = $this->normalize($host);
 
@@ -159,7 +159,9 @@ class Parser
             break;
         }
 
-        // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
+        // If empty, then the suffix is not included in the PSL and is 
+        // considered "invalid". This also triggers algorithm rule #2: If no 
+        // rules match, the prevailing rule is "*".
         if (empty($publicSuffix)) {
             return false;
         }
@@ -197,6 +199,19 @@ class Parser
         }
 
         return $suffix;
+    }
+
+    /**
+     * Is suffix valid?
+     *
+     * Validity determined by whether or not the suffix is included in the PSL.
+     *
+     * @param  string $host Host part
+     * @return bool   True is suffix is valid, false otherwise
+     */
+    public function isSuffixValid($host)
+    {
+        return $this->getRawPublicSuffix($host) !== false;
     }
 
     /**
