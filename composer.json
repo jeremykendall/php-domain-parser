@@ -30,10 +30,10 @@
     },
     "autoload": {
         "psr-0": {
-            "Pdp\\": "library/"
+            "Pdp\\": "src/"
         },
         "files": [
-            "library/pdp-parse-url.php"
+            "src/pdp-parse-url.php"
         ]
     }
 }
