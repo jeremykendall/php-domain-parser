@@ -6,15 +6,12 @@
     colors="true">
 
     <testsuite name="php-domain-parser">
-        <directory>tests/library</directory>
+        <directory>tests/src</directory>
     </testsuite>
 
     <filter>
         <whitelist>
-            <directory suffix=".php">./library</directory>
-            <exclude>
-                <file>./library/Pdp/Domain.php</file>
-            </exclude>
+            <directory suffix=".php">./src</directory>
         </whitelist>
     </filter>
 
