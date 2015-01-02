@@ -50,6 +50,9 @@ return array (
     'mil' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   'aero' => 
   array (
@@ -1144,6 +1147,9 @@ return array (
     ),
     'nom' => 
     array (
+      '*' => 
+      array (
+      ),
     ),
     'not' => 
     array (
@@ -1682,6 +1688,9 @@ return array (
         array (
         ),
         'eu-west-1' => 
+        array (
+        ),
+        'eu-central-1' => 
         array (
         ),
         'sa-east-1' => 
@@ -2304,6 +2313,9 @@ return array (
     'firebaseapp' => 
     array (
     ),
+    'flynnhub' => 
+    array (
+    ),
     'githubusercontent' => 
     array (
     ),
@@ -2325,6 +2337,9 @@ return array (
     'googlecode' => 
     array (
     ),
+    'pagespeedmobilizer' => 
+    array (
+    ),
     'withgoogle' => 
     array (
     ),
@@ -2344,6 +2359,12 @@ return array (
     array (
     ),
     'rhcloud' => 
+    array (
+    ),
+    'hk' => 
+    array (
+    ),
+    'yolasite' => 
     array (
     ),
   ),
@@ -2685,7 +2706,25 @@ return array (
   ),
   'et' => 
   array (
-    '*' => 
+    'com' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'biz' => 
+    array (
+    ),
+    'name' => 
+    array (
+    ),
+    'info' => 
     array (
     ),
   ),
@@ -3073,6 +3112,12 @@ return array (
     array (
     ),
     'blogspot' => 
+    array (
+    ),
+    'ltd' => 
+    array (
+    ),
+    'inc' => 
     array (
     ),
   ),
@@ -9882,6 +9927,147 @@ return array (
       array (
       ),
     ),
+    'xn--4pvxs' => 
+    array (
+    ),
+    'xn--vgu402c' => 
+    array (
+    ),
+    'xn--c3s14m' => 
+    array (
+    ),
+    'xn--f6qx53a' => 
+    array (
+    ),
+    'xn--8pvr4u' => 
+    array (
+    ),
+    'xn--uist22h' => 
+    array (
+    ),
+    'xn--djrs72d6uy' => 
+    array (
+    ),
+    'xn--mkru45i' => 
+    array (
+    ),
+    'xn--0trq7p7nn' => 
+    array (
+    ),
+    'xn--8ltr62k' => 
+    array (
+    ),
+    'xn--2m4a15e' => 
+    array (
+    ),
+    'xn--efvn9s' => 
+    array (
+    ),
+    'xn--32vp30h' => 
+    array (
+    ),
+    'xn--4it797k' => 
+    array (
+    ),
+    'xn--1lqs71d' => 
+    array (
+    ),
+    'xn--5rtp49c' => 
+    array (
+    ),
+    'xn--5js045d' => 
+    array (
+    ),
+    'xn--ehqz56n' => 
+    array (
+    ),
+    'xn--1lqs03n' => 
+    array (
+    ),
+    'xn--qqqt11m' => 
+    array (
+    ),
+    'xn--kbrq7o' => 
+    array (
+    ),
+    'xn--pssu33l' => 
+    array (
+    ),
+    'xn--ntsq17g' => 
+    array (
+    ),
+    'xn--uisz3g' => 
+    array (
+    ),
+    'xn--6btw5a' => 
+    array (
+    ),
+    'xn--1ctwo' => 
+    array (
+    ),
+    'xn--6orx2r' => 
+    array (
+    ),
+    'xn--rht61e' => 
+    array (
+    ),
+    'xn--rht27z' => 
+    array (
+    ),
+    'xn--djty4k' => 
+    array (
+    ),
+    'xn--nit225k' => 
+    array (
+    ),
+    'xn--rht3d' => 
+    array (
+    ),
+    'xn--klty5x' => 
+    array (
+    ),
+    'xn--kltx9a' => 
+    array (
+    ),
+    'xn--kltp7d' => 
+    array (
+    ),
+    'xn--uuwu58a' => 
+    array (
+    ),
+    'xn--zbx025d' => 
+    array (
+    ),
+    'xn--ntso0iqx3a' => 
+    array (
+    ),
+    'xn--elqq16h' => 
+    array (
+    ),
+    'xn--4it168d' => 
+    array (
+    ),
+    'xn--klt787d' => 
+    array (
+    ),
+    'xn--rny31h' => 
+    array (
+    ),
+    'xn--7t0a264c' => 
+    array (
+    ),
+    'xn--5rtq34k' => 
+    array (
+    ),
+    'xn--k7yn95e' => 
+    array (
+    ),
+    'xn--tor131o' => 
+    array (
+    ),
+    'xn--d5qv7z876c' => 
+    array (
+    ),
     'kawasaki' => 
     array (
       '*' => 
@@ -15407,6 +15593,9 @@ return array (
     'webhop' => 
     array (
     ),
+    'hk' => 
+    array (
+    ),
     'za' => 
     array (
     ),
@@ -15563,6 +15752,51 @@ return array (
   ),
   'pl' => 
   array (
+    'com' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'info' => 
+    array (
+    ),
+    'waw' => 
+    array (
+    ),
+    'gov' => 
+    array (
+      'uw' => 
+      array (
+      ),
+      'um' => 
+      array (
+      ),
+      'ug' => 
+      array (
+      ),
+      'upow' => 
+      array (
+      ),
+      'starostwo' => 
+      array (
+      ),
+      'so' => 
+      array (
+      ),
+      'sr' => 
+      array (
+      ),
+      'po' => 
+      array (
+      ),
+      'pa' => 
+      array (
+      ),
+    ),
     'aid' => 
     array (
     ),
@@ -15578,9 +15812,6 @@ return array (
     'biz' => 
     array (
     ),
-    'com' => 
-    array (
-    ),
     'edu' => 
     array (
     ),
@@ -15588,9 +15819,6 @@ return array (
     array (
     ),
     'gsm' => 
-    array (
-    ),
-    'info' => 
     array (
     ),
     'mail' => 
@@ -15605,16 +15833,10 @@ return array (
     'mil' => 
     array (
     ),
-    'net' => 
-    array (
-    ),
     'nieruchomosci' => 
     array (
     ),
     'nom' => 
-    array (
-    ),
-    'org' => 
     array (
     ),
     'pc' => 
@@ -15660,54 +15882,6 @@ return array (
     array (
     ),
     'turystyka' => 
-    array (
-    ),
-    '6bone' => 
-    array (
-    ),
-    'art' => 
-    array (
-    ),
-    'mbone' => 
-    array (
-    ),
-    'gov' => 
-    array (
-      'uw' => 
-      array (
-      ),
-      'um' => 
-      array (
-      ),
-      'ug' => 
-      array (
-      ),
-      'upow' => 
-      array (
-      ),
-      'starostwo' => 
-      array (
-      ),
-      'so' => 
-      array (
-      ),
-      'sr' => 
-      array (
-      ),
-      'po' => 
-      array (
-      ),
-      'pa' => 
-      array (
-      ),
-    ),
-    'ngo' => 
-    array (
-    ),
-    'irc' => 
-    array (
-    ),
-    'usenet' => 
     array (
     ),
     'augustow' => 
@@ -15965,9 +16139,6 @@ return array (
     'sejny' => 
     array (
     ),
-    'siedlce' => 
-    array (
-    ),
     'slask' => 
     array (
     ),
@@ -16031,9 +16202,6 @@ return array (
     'warszawa' => 
     array (
     ),
-    'waw' => 
-    array (
-    ),
     'wegrow' => 
     array (
     ),
@@ -16070,19 +16238,10 @@ return array (
     'zgorzelec' => 
     array (
     ),
-    'gda' => 
+    'co' => 
     array (
     ),
-    'gdansk' => 
-    array (
-    ),
-    'gdynia' => 
-    array (
-    ),
-    'med' => 
-    array (
-    ),
-    'sopot' => 
+    'art' => 
     array (
     ),
     'gliwice' => 
@@ -16100,7 +16259,19 @@ return array (
     'zakopane' => 
     array (
     ),
-    'co' => 
+    'gda' => 
+    array (
+    ),
+    'gdansk' => 
+    array (
+    ),
+    'gdynia' => 
+    array (
+    ),
+    'med' => 
+    array (
+    ),
+    'sopot' => 
     array (
     ),
   ),
@@ -16565,9 +16736,6 @@ return array (
     'mordovia' => 
     array (
     ),
-    'mosreg' => 
-    array (
-    ),
     'msk' => 
     array (
     ),
@@ -16791,6 +16959,9 @@ return array (
     array (
     ),
     'test' => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -17468,12 +17639,68 @@ return array (
   ),
   'tr' => 
   array (
-    '*' => 
+    'com' => 
+    array (
+      'blogspot' => 
+      array (
+      ),
+    ),
+    'info' => 
     array (
     ),
-    'nic' => 
+    'biz' => 
     array (
-      '!' => '',
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'web' => 
+    array (
+    ),
+    'gen' => 
+    array (
+    ),
+    'tv' => 
+    array (
+    ),
+    'av' => 
+    array (
+    ),
+    'dr' => 
+    array (
+    ),
+    'bbs' => 
+    array (
+    ),
+    'name' => 
+    array (
+    ),
+    'tel' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'bel' => 
+    array (
+    ),
+    'pol' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'k12' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'kep' => 
+    array (
     ),
     'nc' => 
     array (
@@ -17915,6 +18142,9 @@ return array (
     ),
     'gov' => 
     array (
+      'service' => 
+      array (
+      ),
     ),
     'ltd' => 
     array (
@@ -18329,9 +18559,6 @@ return array (
     ),
     'nd' => 
     array (
-      'k12' => 
-      array (
-      ),
       'cc' => 
       array (
       ),
@@ -19027,907 +19254,1798 @@ return array (
     array (
     ),
   ),
-  'xn--80asehdb' => 
+  'abb' => 
   array (
   ),
-  'xn--80aswg' => 
+  'abbott' => 
   array (
   ),
-  'xn--ngbc5azd' => 
-  array (
-  ),
-  'xn--unup4y' => 
-  array (
-  ),
-  'xn--vhquv' => 
-  array (
-  ),
-  'camera' => 
-  array (
-  ),
-  'clothing' => 
-  array (
-  ),
-  'lighting' => 
-  array (
-  ),
-  'singles' => 
-  array (
-  ),
-  'ventures' => 
-  array (
-  ),
-  'voyage' => 
-  array (
-  ),
-  'guru' => 
-  array (
-  ),
-  'holdings' => 
-  array (
-  ),
-  'equipment' => 
-  array (
-  ),
-  'bike' => 
-  array (
-  ),
-  'estate' => 
-  array (
-  ),
-  'tattoo' => 
-  array (
-  ),
-  'xn--3ds443g' => 
-  array (
-  ),
-  'xn--fiq228c5hs' => 
-  array (
-  ),
-  'land' => 
-  array (
-  ),
-  'plumbing' => 
-  array (
-  ),
-  'contractors' => 
-  array (
-  ),
-  'sexy' => 
-  array (
-  ),
-  'menu' => 
-  array (
-  ),
-  'xn--rhqv96g' => 
-  array (
-  ),
-  'uno' => 
-  array (
-  ),
-  'gallery' => 
-  array (
-  ),
-  'technology' => 
-  array (
-  ),
-  'xn--3bst00m' => 
-  array (
-  ),
-  'reviews' => 
-  array (
-  ),
-  'guide' => 
-  array (
-  ),
-  'xn--6qq986b3xl' => 
-  array (
-  ),
-  'graphics' => 
-  array (
-  ),
-  'construction' => 
-  array (
-  ),
-  'onl' => 
-  array (
-  ),
-  'xn--q9jyb4c' => 
-  array (
-  ),
-  'diamonds' => 
-  array (
-  ),
-  'kiwi' => 
-  array (
-  ),
-  'enterprises' => 
-  array (
-  ),
-  'today' => 
-  array (
-  ),
-  'futbol' => 
-  array (
-  ),
-  'photography' => 
-  array (
-  ),
-  'tips' => 
-  array (
-  ),
-  'directory' => 
-  array (
-  ),
-  'kitchen' => 
-  array (
-  ),
-  'xn--6frz82g' => 
-  array (
-  ),
-  'kim' => 
-  array (
-  ),
-  'xn--cg4bki' => 
-  array (
-  ),
-  'monash' => 
-  array (
-  ),
-  'wed' => 
-  array (
-  ),
-  'pink' => 
-  array (
-  ),
-  'ruhr' => 
-  array (
-  ),
-  'buzz' => 
-  array (
-  ),
-  'careers' => 
-  array (
-  ),
-  'shoes' => 
-  array (
-  ),
-  'xn--4gbrim' => 
-  array (
-  ),
-  'career' => 
-  array (
-  ),
-  'otsuka' => 
-  array (
-  ),
-  'xn--fiq64b' => 
-  array (
-  ),
-  'gift' => 
-  array (
-  ),
-  'recipes' => 
-  array (
-  ),
-  'coffee' => 
-  array (
-  ),
-  'luxury' => 
-  array (
-  ),
-  'domains' => 
-  array (
-  ),
-  'photos' => 
-  array (
-  ),
-  'limo' => 
-  array (
-  ),
-  'viajes' => 
-  array (
-  ),
-  'wang' => 
-  array (
-  ),
-  'democrat' => 
-  array (
-  ),
-  'mango' => 
-  array (
-  ),
-  'cab' => 
-  array (
-  ),
-  'support' => 
-  array (
-  ),
-  'dance' => 
-  array (
-  ),
-  'nagoya' => 
-  array (
-  ),
-  'computer' => 
-  array (
-  ),
-  'wien' => 
-  array (
-  ),
-  'berlin' => 
-  array (
-  ),
-  'codes' => 
-  array (
-  ),
-  'email' => 
-  array (
-  ),
-  'xn--mgbab2bd' => 
-  array (
-  ),
-  'repair' => 
-  array (
-  ),
-  'holiday' => 
-  array (
-  ),
-  'center' => 
-  array (
-  ),
-  'systems' => 
-  array (
-  ),
-  'wiki' => 
-  array (
-  ),
-  'ceo' => 
-  array (
-  ),
-  'international' => 
-  array (
-  ),
-  'solar' => 
-  array (
-  ),
-  'company' => 
-  array (
-  ),
-  'education' => 
-  array (
-  ),
-  'training' => 
+  'abogado' => 
   array (
   ),
   'academy' => 
   array (
   ),
-  'marketing' => 
+  'accenture' => 
   array (
   ),
-  'florist' => 
+  'accountant' => 
   array (
   ),
-  'solutions' => 
+  'accountants' => 
   array (
   ),
-  'build' => 
-  array (
-  ),
-  'institute' => 
-  array (
-  ),
-  'builders' => 
-  array (
-  ),
-  'red' => 
-  array (
-  ),
-  'blue' => 
-  array (
-  ),
-  'ninja' => 
-  array (
-  ),
-  'business' => 
-  array (
-  ),
-  'gal' => 
-  array (
-  ),
-  'social' => 
-  array (
-  ),
-  'house' => 
-  array (
-  ),
-  'camp' => 
-  array (
-  ),
-  'immobilien' => 
-  array (
-  ),
-  'moda' => 
-  array (
-  ),
-  'glass' => 
-  array (
-  ),
-  'management' => 
-  array (
-  ),
-  'kaufen' => 
-  array (
-  ),
-  'farm' => 
-  array (
-  ),
-  'xn--55qw42g' => 
-  array (
-  ),
-  'xn--zfr164b' => 
-  array (
-  ),
-  'club' => 
-  array (
-  ),
-  'voting' => 
-  array (
-  ),
-  'tokyo' => 
-  array (
-  ),
-  'moe' => 
-  array (
-  ),
-  'guitars' => 
-  array (
-  ),
-  'bargains' => 
-  array (
-  ),
-  'xn--nqv7fs00ema' => 
-  array (
-  ),
-  'desi' => 
-  array (
-  ),
-  'cool' => 
-  array (
-  ),
-  'boutique' => 
-  array (
-  ),
-  'pics' => 
-  array (
-  ),
-  'xn--c1avg' => 
-  array (
-  ),
-  'xn--55qx5d' => 
-  array (
-  ),
-  'xn--io0a7i' => 
-  array (
-  ),
-  'cheap' => 
-  array (
-  ),
-  'xn--xhq521b' => 
-  array (
-  ),
-  'photo' => 
-  array (
-  ),
-  'network' => 
-  array (
-  ),
-  'zone' => 
-  array (
-  ),
-  'xn--nqv7f' => 
-  array (
-  ),
-  'link' => 
-  array (
-  ),
-  'qpon' => 
-  array (
-  ),
-  'xn--i1b6b1a6a2e' => 
-  array (
-  ),
-  'agency' => 
-  array (
-  ),
-  'tienda' => 
-  array (
-  ),
-  'works' => 
-  array (
-  ),
-  'london' => 
-  array (
-  ),
-  'watch' => 
-  array (
-  ),
-  'rocks' => 
-  array (
-  ),
-  'shiksha' => 
-  array (
-  ),
-  'xn--d1acj3b' => 
-  array (
-  ),
-  'budapest' => 
-  array (
-  ),
-  'nrw' => 
-  array (
-  ),
-  'vote' => 
-  array (
-  ),
-  'fishing' => 
-  array (
-  ),
-  'expert' => 
-  array (
-  ),
-  'horse' => 
-  array (
-  ),
-  'christmas' => 
-  array (
-  ),
-  'cooking' => 
-  array (
-  ),
-  'xn--czru2d' => 
-  array (
-  ),
-  'casa' => 
-  array (
-  ),
-  'rich' => 
-  array (
-  ),
-  'voto' => 
-  array (
-  ),
-  'tools' => 
-  array (
-  ),
-  'xn--45q11c' => 
-  array (
-  ),
-  'praxi' => 
-  array (
-  ),
-  'events' => 
-  array (
-  ),
-  'flights' => 
-  array (
-  ),
-  'report' => 
-  array (
-  ),
-  'partners' => 
-  array (
-  ),
-  'neustar' => 
-  array (
-  ),
-  'rentals' => 
-  array (
-  ),
-  'catering' => 
-  array (
-  ),
-  'community' => 
-  array (
-  ),
-  'maison' => 
-  array (
-  ),
-  'parts' => 
-  array (
-  ),
-  'cleaning' => 
-  array (
-  ),
-  'okinawa' => 
-  array (
-  ),
-  'foundation' => 
-  array (
-  ),
-  'properties' => 
-  array (
-  ),
-  'vacations' => 
-  array (
-  ),
-  'productions' => 
-  array (
-  ),
-  'industries' => 
-  array (
-  ),
-  'haus' => 
-  array (
-  ),
-  'vision' => 
-  array (
-  ),
-  'mormon' => 
-  array (
-  ),
-  'cards' => 
-  array (
-  ),
-  'ink' => 
-  array (
-  ),
-  'villas' => 
-  array (
-  ),
-  'consulting' => 
-  array (
-  ),
-  'cruises' => 
-  array (
-  ),
-  'krd' => 
-  array (
-  ),
-  'xyz' => 
-  array (
-  ),
-  'dating' => 
-  array (
-  ),
-  'exposed' => 
-  array (
-  ),
-  'condos' => 
-  array (
-  ),
-  'eus' => 
-  array (
-  ),
-  'caravan' => 
+  'active' => 
   array (
   ),
   'actor' => 
   array (
   ),
-  'saarland' => 
+  'ads' => 
   array (
   ),
-  'yokohama' => 
+  'adult' => 
   array (
   ),
-  'pub' => 
+  'afl' => 
   array (
   ),
-  'xn--p1acf' => 
+  'africa' => 
   array (
   ),
-  'ren' => 
+  'agency' => 
   array (
   ),
-  'fish' => 
+  'aig' => 
   array (
   ),
-  'bar' => 
+  'airforce' => 
   array (
   ),
-  'dnp' => 
+  'airtel' => 
   array (
   ),
-  'bid' => 
+  'allfinanz' => 
   array (
   ),
-  'supply' => 
+  'alsace' => 
   array (
   ),
-  'miami' => 
+  'amsterdam' => 
   array (
   ),
-  'supplies' => 
+  'analytics' => 
   array (
   ),
-  'quebec' => 
+  'android' => 
   array (
   ),
-  'moscow' => 
+  'apartments' => 
   array (
   ),
-  'globo' => 
+  'aquarelle' => 
   array (
   ),
-  'axa' => 
-  array (
-  ),
-  'xn--80adxhks' => 
-  array (
-  ),
-  'xn--czrs0t' => 
-  array (
-  ),
-  'vodka' => 
-  array (
-  ),
-  'rest' => 
-  array (
-  ),
-  'frogans' => 
-  array (
-  ),
-  'wtc' => 
-  array (
-  ),
-  'rodeo' => 
-  array (
-  ),
-  'sohu' => 
-  array (
-  ),
-  'best' => 
-  array (
-  ),
-  'country' => 
-  array (
-  ),
-  'kred' => 
-  array (
-  ),
-  'feedback' => 
-  array (
-  ),
-  'work' => 
-  array (
-  ),
-  'luxe' => 
-  array (
-  ),
-  'ryukyu' => 
-  array (
-  ),
-  'autos' => 
-  array (
-  ),
-  'homes' => 
-  array (
-  ),
-  'jetzt' => 
-  array (
-  ),
-  'yachts' => 
-  array (
-  ),
-  'motorcycles' => 
-  array (
-  ),
-  'mini' => 
-  array (
-  ),
-  'ggee' => 
-  array (
-  ),
-  'beer' => 
-  array (
-  ),
-  'xn--1qqw23a' => 
-  array (
-  ),
-  'college' => 
-  array (
-  ),
-  'ovh' => 
-  array (
-  ),
-  'meet' => 
-  array (
-  ),
-  'xn--ses554g' => 
-  array (
-  ),
-  'gop' => 
-  array (
-  ),
-  'blackfriday' => 
-  array (
-  ),
-  'lacaixa' => 
-  array (
-  ),
-  'xn--czr694b' => 
-  array (
-  ),
-  'vegas' => 
-  array (
-  ),
-  'black' => 
-  array (
-  ),
-  'soy' => 
-  array (
-  ),
-  'trade' => 
-  array (
-  ),
-  'gent' => 
-  array (
-  ),
-  'ing' => 
-  array (
-  ),
-  'dad' => 
-  array (
-  ),
-  'shriram' => 
-  array (
-  ),
-  'bayern' => 
-  array (
-  ),
-  'scot' => 
-  array (
-  ),
-  'webcam' => 
-  array (
-  ),
-  'foo' => 
-  array (
-  ),
-  'eat' => 
-  array (
-  ),
-  'nyc' => 
-  array (
-  ),
-  'prod' => 
-  array (
-  ),
-  'how' => 
-  array (
-  ),
-  'day' => 
-  array (
-  ),
-  'meme' => 
-  array (
-  ),
-  'mov' => 
-  array (
-  ),
-  'paris' => 
-  array (
-  ),
-  'boo' => 
-  array (
-  ),
-  'new' => 
-  array (
-  ),
-  'ifm' => 
-  array (
-  ),
-  'life' => 
+  'aramco' => 
   array (
   ),
   'archi' => 
   array (
   ),
-  'spiegel' => 
+  'army' => 
   array (
   ),
-  'brussels' => 
+  'arte' => 
   array (
   ),
-  'church' => 
+  'associates' => 
   array (
   ),
-  'here' => 
+  'attorney' => 
   array (
   ),
-  'dabur' => 
+  'auction' => 
   array (
   ),
-  'vlaanderen' => 
+  'audio' => 
   array (
   ),
-  'cologne' => 
+  'author' => 
   array (
   ),
-  'xn--kput3i' => 
+  'auto' => 
   array (
   ),
-  'wme' => 
+  'autos' => 
   array (
   ),
-  'nhk' => 
+  'axa' => 
   array (
   ),
-  'suzuki' => 
+  'azure' => 
   array (
   ),
-  'whoswho' => 
+  'band' => 
   array (
   ),
-  'scb' => 
+  'bank' => 
   array (
   ),
-  'hamburg' => 
+  'bar' => 
   array (
   ),
-  'services' => 
+  'barcelona' => 
   array (
   ),
-  'bzh' => 
+  'barclaycard' => 
   array (
   ),
-  'rio' => 
+  'barclays' => 
   array (
   ),
-  'cash' => 
+  'bargains' => 
   array (
   ),
-  'gives' => 
+  'bauhaus' => 
   array (
   ),
-  'hiphop' => 
+  'bayern' => 
   array (
   ),
-  'degree' => 
+  'bbc' => 
   array (
   ),
-  'digital' => 
+  'bbva' => 
   array (
   ),
-  'rehab' => 
+  'bcn' => 
   array (
   ),
-  'wtf' => 
+  'beer' => 
   array (
   ),
-  'financial' => 
+  'bentley' => 
   array (
   ),
-  'limited' => 
+  'berlin' => 
   array (
   ),
-  'discount' => 
+  'best' => 
   array (
   ),
-  'fail' => 
+  'bharti' => 
   array (
   ),
-  'vet' => 
+  'bible' => 
   array (
   ),
-  'ngo' => 
+  'bid' => 
   array (
   ),
-  'fitness' => 
+  'bike' => 
   array (
   ),
-  'schule' => 
+  'bing' => 
   array (
   ),
-  'navy' => 
+  'bingo' => 
   array (
   ),
   'bio' => 
   array (
   ),
+  'black' => 
+  array (
+  ),
+  'blackfriday' => 
+  array (
+  ),
+  'bloomberg' => 
+  array (
+  ),
+  'blue' => 
+  array (
+  ),
+  'bms' => 
+  array (
+  ),
+  'bmw' => 
+  array (
+  ),
+  'bnl' => 
+  array (
+  ),
+  'bnpparibas' => 
+  array (
+  ),
+  'boats' => 
+  array (
+  ),
+  'bom' => 
+  array (
+  ),
+  'bond' => 
+  array (
+  ),
+  'boo' => 
+  array (
+  ),
+  'bot' => 
+  array (
+  ),
+  'boutique' => 
+  array (
+  ),
+  'bradesco' => 
+  array (
+  ),
+  'bridgestone' => 
+  array (
+  ),
+  'broker' => 
+  array (
+  ),
+  'brussels' => 
+  array (
+  ),
+  'budapest' => 
+  array (
+  ),
+  'build' => 
+  array (
+  ),
+  'builders' => 
+  array (
+  ),
+  'business' => 
+  array (
+  ),
+  'buy' => 
+  array (
+  ),
+  'buzz' => 
+  array (
+  ),
+  'bzh' => 
+  array (
+  ),
+  'cab' => 
+  array (
+  ),
+  'cal' => 
+  array (
+  ),
+  'call' => 
+  array (
+  ),
+  'camera' => 
+  array (
+  ),
+  'camp' => 
+  array (
+  ),
+  'cancerresearch' => 
+  array (
+  ),
+  'canon' => 
+  array (
+  ),
+  'capetown' => 
+  array (
+  ),
+  'capital' => 
+  array (
+  ),
+  'caravan' => 
+  array (
+  ),
+  'cards' => 
+  array (
+  ),
+  'care' => 
+  array (
+  ),
+  'career' => 
+  array (
+  ),
+  'careers' => 
+  array (
+  ),
+  'cars' => 
+  array (
+  ),
+  'cartier' => 
+  array (
+  ),
+  'casa' => 
+  array (
+  ),
+  'cash' => 
+  array (
+  ),
+  'casino' => 
+  array (
+  ),
+  'catering' => 
+  array (
+  ),
+  'cba' => 
+  array (
+  ),
+  'cbn' => 
+  array (
+  ),
+  'center' => 
+  array (
+  ),
+  'ceo' => 
+  array (
+  ),
+  'cern' => 
+  array (
+  ),
+  'cfa' => 
+  array (
+  ),
+  'cfd' => 
+  array (
+  ),
+  'channel' => 
+  array (
+  ),
+  'chat' => 
+  array (
+  ),
+  'cheap' => 
+  array (
+  ),
+  'chloe' => 
+  array (
+  ),
+  'christmas' => 
+  array (
+  ),
+  'chrome' => 
+  array (
+  ),
+  'church' => 
+  array (
+  ),
+  'circle' => 
+  array (
+  ),
+  'citic' => 
+  array (
+  ),
+  'city' => 
+  array (
+  ),
+  'cityeats' => 
+  array (
+  ),
+  'claims' => 
+  array (
+  ),
+  'cleaning' => 
+  array (
+  ),
+  'click' => 
+  array (
+  ),
+  'clinic' => 
+  array (
+  ),
+  'clothing' => 
+  array (
+  ),
+  'club' => 
+  array (
+  ),
+  'coach' => 
+  array (
+  ),
+  'codes' => 
+  array (
+  ),
+  'coffee' => 
+  array (
+  ),
+  'college' => 
+  array (
+  ),
+  'cologne' => 
+  array (
+  ),
+  'commbank' => 
+  array (
+  ),
+  'community' => 
+  array (
+  ),
+  'company' => 
+  array (
+  ),
+  'computer' => 
+  array (
+  ),
+  'condos' => 
+  array (
+  ),
+  'construction' => 
+  array (
+  ),
+  'consulting' => 
+  array (
+  ),
+  'contractors' => 
+  array (
+  ),
+  'cooking' => 
+  array (
+  ),
+  'cool' => 
+  array (
+  ),
+  'corsica' => 
+  array (
+  ),
+  'country' => 
+  array (
+  ),
+  'courses' => 
+  array (
+  ),
+  'credit' => 
+  array (
+  ),
+  'creditcard' => 
+  array (
+  ),
+  'cricket' => 
+  array (
+  ),
+  'crown' => 
+  array (
+  ),
+  'crs' => 
+  array (
+  ),
+  'cruises' => 
+  array (
+  ),
+  'csc' => 
+  array (
+  ),
+  'cuisinella' => 
+  array (
+  ),
+  'cymru' => 
+  array (
+  ),
+  'dabur' => 
+  array (
+  ),
+  'dad' => 
+  array (
+  ),
+  'dance' => 
+  array (
+  ),
+  'date' => 
+  array (
+  ),
+  'dating' => 
+  array (
+  ),
+  'datsun' => 
+  array (
+  ),
+  'day' => 
+  array (
+  ),
+  'dclk' => 
+  array (
+  ),
+  'deals' => 
+  array (
+  ),
+  'degree' => 
+  array (
+  ),
+  'delivery' => 
+  array (
+  ),
+  'dell' => 
+  array (
+  ),
+  'democrat' => 
+  array (
+  ),
+  'dental' => 
+  array (
+  ),
+  'dentist' => 
+  array (
+  ),
+  'desi' => 
+  array (
+  ),
+  'design' => 
+  array (
+  ),
+  'dev' => 
+  array (
+  ),
+  'diamonds' => 
+  array (
+  ),
+  'diet' => 
+  array (
+  ),
+  'digital' => 
+  array (
+  ),
+  'direct' => 
+  array (
+  ),
+  'directory' => 
+  array (
+  ),
+  'discount' => 
+  array (
+  ),
+  'dnp' => 
+  array (
+  ),
+  'docs' => 
+  array (
+  ),
+  'dog' => 
+  array (
+  ),
+  'doha' => 
+  array (
+  ),
+  'domains' => 
+  array (
+  ),
+  'doosan' => 
+  array (
+  ),
+  'download' => 
+  array (
+  ),
+  'durban' => 
+  array (
+  ),
+  'dvag' => 
+  array (
+  ),
+  'earth' => 
+  array (
+  ),
+  'eat' => 
+  array (
+  ),
+  'edeka' => 
+  array (
+  ),
+  'education' => 
+  array (
+  ),
+  'email' => 
+  array (
+  ),
+  'emerck' => 
+  array (
+  ),
+  'energy' => 
+  array (
+  ),
+  'engineer' => 
+  array (
+  ),
+  'engineering' => 
+  array (
+  ),
+  'enterprises' => 
+  array (
+  ),
+  'epson' => 
+  array (
+  ),
+  'equipment' => 
+  array (
+  ),
+  'erni' => 
+  array (
+  ),
+  'esq' => 
+  array (
+  ),
+  'estate' => 
+  array (
+  ),
+  'eurovision' => 
+  array (
+  ),
+  'eus' => 
+  array (
+  ),
+  'events' => 
+  array (
+  ),
+  'everbank' => 
+  array (
+  ),
+  'exchange' => 
+  array (
+  ),
+  'expert' => 
+  array (
+  ),
+  'exposed' => 
+  array (
+  ),
+  'fage' => 
+  array (
+  ),
+  'fail' => 
+  array (
+  ),
+  'fairwinds' => 
+  array (
+  ),
+  'faith' => 
+  array (
+  ),
+  'fan' => 
+  array (
+  ),
+  'fans' => 
+  array (
+  ),
+  'farm' => 
+  array (
+  ),
+  'fashion' => 
+  array (
+  ),
+  'fast' => 
+  array (
+  ),
+  'feedback' => 
+  array (
+  ),
+  'ferrero' => 
+  array (
+  ),
+  'final' => 
+  array (
+  ),
+  'finance' => 
+  array (
+  ),
+  'financial' => 
+  array (
+  ),
+  'firestone' => 
+  array (
+  ),
+  'firmdale' => 
+  array (
+  ),
+  'fish' => 
+  array (
+  ),
+  'fishing' => 
+  array (
+  ),
+  'fit' => 
+  array (
+  ),
+  'fitness' => 
+  array (
+  ),
+  'flights' => 
+  array (
+  ),
+  'florist' => 
+  array (
+  ),
+  'flowers' => 
+  array (
+  ),
+  'flsmidth' => 
+  array (
+  ),
+  'fly' => 
+  array (
+  ),
+  'foo' => 
+  array (
+  ),
+  'football' => 
+  array (
+  ),
+  'ford' => 
+  array (
+  ),
+  'forex' => 
+  array (
+  ),
+  'forsale' => 
+  array (
+  ),
+  'foundation' => 
+  array (
+  ),
+  'frl' => 
+  array (
+  ),
+  'frogans' => 
+  array (
+  ),
+  'fund' => 
+  array (
+  ),
+  'furniture' => 
+  array (
+  ),
+  'futbol' => 
+  array (
+  ),
+  'gal' => 
+  array (
+  ),
+  'gallery' => 
+  array (
+  ),
+  'garden' => 
+  array (
+  ),
+  'gbiz' => 
+  array (
+  ),
+  'gdn' => 
+  array (
+  ),
+  'gea' => 
+  array (
+  ),
+  'gent' => 
+  array (
+  ),
+  'ggee' => 
+  array (
+  ),
+  'gift' => 
+  array (
+  ),
+  'gifts' => 
+  array (
+  ),
+  'gives' => 
+  array (
+  ),
+  'giving' => 
+  array (
+  ),
+  'glass' => 
+  array (
+  ),
+  'gle' => 
+  array (
+  ),
+  'global' => 
+  array (
+  ),
+  'globo' => 
+  array (
+  ),
+  'gmail' => 
+  array (
+  ),
+  'gmo' => 
+  array (
+  ),
+  'gmx' => 
+  array (
+  ),
+  'goldpoint' => 
+  array (
+  ),
+  'golf' => 
+  array (
+  ),
+  'goo' => 
+  array (
+  ),
+  'goog' => 
+  array (
+  ),
+  'google' => 
+  array (
+  ),
+  'gop' => 
+  array (
+  ),
+  'got' => 
+  array (
+  ),
+  'graphics' => 
+  array (
+  ),
+  'gratis' => 
+  array (
+  ),
+  'green' => 
+  array (
+  ),
+  'gripe' => 
+  array (
+  ),
+  'group' => 
+  array (
+  ),
+  'gucci' => 
+  array (
+  ),
+  'guge' => 
+  array (
+  ),
+  'guide' => 
+  array (
+  ),
+  'guitars' => 
+  array (
+  ),
+  'guru' => 
+  array (
+  ),
+  'hamburg' => 
+  array (
+  ),
+  'hangout' => 
+  array (
+  ),
+  'haus' => 
+  array (
+  ),
+  'healthcare' => 
+  array (
+  ),
+  'help' => 
+  array (
+  ),
+  'here' => 
+  array (
+  ),
+  'hermes' => 
+  array (
+  ),
+  'hiphop' => 
+  array (
+  ),
+  'hitachi' => 
+  array (
+  ),
+  'hiv' => 
+  array (
+  ),
+  'holdings' => 
+  array (
+  ),
+  'holiday' => 
+  array (
+  ),
+  'homes' => 
+  array (
+  ),
+  'honda' => 
+  array (
+  ),
+  'horse' => 
+  array (
+  ),
+  'host' => 
+  array (
+  ),
+  'hosting' => 
+  array (
+  ),
+  'hotmail' => 
+  array (
+  ),
+  'house' => 
+  array (
+  ),
+  'how' => 
+  array (
+  ),
+  'hsbc' => 
+  array (
+  ),
+  'ibm' => 
+  array (
+  ),
+  'ice' => 
+  array (
+  ),
+  'ifm' => 
+  array (
+  ),
+  'iinet' => 
+  array (
+  ),
+  'immo' => 
+  array (
+  ),
+  'immobilien' => 
+  array (
+  ),
+  'industries' => 
+  array (
+  ),
+  'infiniti' => 
+  array (
+  ),
+  'ing' => 
+  array (
+  ),
+  'ink' => 
+  array (
+  ),
+  'institute' => 
+  array (
+  ),
+  'insure' => 
+  array (
+  ),
+  'international' => 
+  array (
+  ),
+  'investments' => 
+  array (
+  ),
+  'ipiranga' => 
+  array (
+  ),
+  'irish' => 
+  array (
+  ),
+  'ist' => 
+  array (
+  ),
+  'istanbul' => 
+  array (
+  ),
+  'itau' => 
+  array (
+  ),
+  'iwc' => 
+  array (
+  ),
+  'jaguar' => 
+  array (
+  ),
+  'java' => 
+  array (
+  ),
+  'jcb' => 
+  array (
+  ),
+  'jetzt' => 
+  array (
+  ),
+  'jlc' => 
+  array (
+  ),
+  'joburg' => 
+  array (
+  ),
+  'jot' => 
+  array (
+  ),
+  'joy' => 
+  array (
+  ),
+  'jprs' => 
+  array (
+  ),
+  'juegos' => 
+  array (
+  ),
+  'kaufen' => 
+  array (
+  ),
+  'kddi' => 
+  array (
+  ),
+  'kfh' => 
+  array (
+  ),
+  'kim' => 
+  array (
+  ),
+  'kinder' => 
+  array (
+  ),
+  'kitchen' => 
+  array (
+  ),
+  'kiwi' => 
+  array (
+  ),
+  'koeln' => 
+  array (
+  ),
+  'krd' => 
+  array (
+  ),
+  'kred' => 
+  array (
+  ),
+  'kyoto' => 
+  array (
+  ),
+  'lacaixa' => 
+  array (
+  ),
+  'land' => 
+  array (
+  ),
+  'landrover' => 
+  array (
+  ),
+  'lat' => 
+  array (
+  ),
+  'latrobe' => 
+  array (
+  ),
+  'lawyer' => 
+  array (
+  ),
+  'lds' => 
+  array (
+  ),
+  'lease' => 
+  array (
+  ),
+  'leclerc' => 
+  array (
+  ),
+  'legal' => 
+  array (
+  ),
+  'lgbt' => 
+  array (
+  ),
+  'liaison' => 
+  array (
+  ),
+  'lidl' => 
+  array (
+  ),
+  'life' => 
+  array (
+  ),
+  'lifestyle' => 
+  array (
+  ),
+  'lighting' => 
+  array (
+  ),
+  'like' => 
+  array (
+  ),
+  'limited' => 
+  array (
+  ),
+  'limo' => 
+  array (
+  ),
+  'lincoln' => 
+  array (
+  ),
+  'linde' => 
+  array (
+  ),
+  'link' => 
+  array (
+  ),
+  'live' => 
+  array (
+  ),
+  'loan' => 
+  array (
+  ),
+  'loans' => 
+  array (
+  ),
+  'london' => 
+  array (
+  ),
+  'lotte' => 
+  array (
+  ),
+  'lotto' => 
+  array (
+  ),
+  'ltd' => 
+  array (
+  ),
+  'ltda' => 
+  array (
+  ),
+  'lupin' => 
+  array (
+  ),
+  'luxe' => 
+  array (
+  ),
+  'luxury' => 
+  array (
+  ),
+  'madrid' => 
+  array (
+  ),
+  'maif' => 
+  array (
+  ),
+  'maison' => 
+  array (
+  ),
+  'man' => 
+  array (
+  ),
+  'management' => 
+  array (
+  ),
+  'mango' => 
+  array (
+  ),
+  'market' => 
+  array (
+  ),
+  'marketing' => 
+  array (
+  ),
+  'markets' => 
+  array (
+  ),
+  'marriott' => 
+  array (
+  ),
+  'media' => 
+  array (
+  ),
+  'meet' => 
+  array (
+  ),
+  'melbourne' => 
+  array (
+  ),
+  'meme' => 
+  array (
+  ),
+  'memorial' => 
+  array (
+  ),
+  'menu' => 
+  array (
+  ),
+  'meo' => 
+  array (
+  ),
+  'miami' => 
+  array (
+  ),
+  'microsoft' => 
+  array (
+  ),
+  'mini' => 
+  array (
+  ),
+  'mma' => 
+  array (
+  ),
+  'mobily' => 
+  array (
+  ),
+  'moda' => 
+  array (
+  ),
+  'moe' => 
+  array (
+  ),
+  'moi' => 
+  array (
+  ),
+  'monash' => 
+  array (
+  ),
+  'money' => 
+  array (
+  ),
+  'montblanc' => 
+  array (
+  ),
+  'mormon' => 
+  array (
+  ),
+  'mortgage' => 
+  array (
+  ),
+  'moscow' => 
+  array (
+  ),
+  'motorcycles' => 
+  array (
+  ),
+  'mov' => 
+  array (
+  ),
+  'movistar' => 
+  array (
+  ),
+  'mtn' => 
+  array (
+  ),
+  'mtpc' => 
+  array (
+  ),
+  'nadex' => 
+  array (
+  ),
+  'nagoya' => 
+  array (
+  ),
+  'navy' => 
+  array (
+  ),
+  'netbank' => 
+  array (
+  ),
+  'network' => 
+  array (
+  ),
+  'neustar' => 
+  array (
+  ),
+  'new' => 
+  array (
+  ),
+  'news' => 
+  array (
+  ),
+  'nexus' => 
+  array (
+  ),
+  'ngo' => 
+  array (
+  ),
+  'nhk' => 
+  array (
+  ),
+  'nico' => 
+  array (
+  ),
+  'ninja' => 
+  array (
+  ),
+  'nissan' => 
+  array (
+  ),
+  'norton' => 
+  array (
+  ),
+  'nowruz' => 
+  array (
+  ),
+  'nra' => 
+  array (
+  ),
+  'nrw' => 
+  array (
+  ),
+  'ntt' => 
+  array (
+  ),
+  'nyc' => 
+  array (
+  ),
+  'obi' => 
+  array (
+  ),
+  'okinawa' => 
+  array (
+  ),
+  'one' => 
+  array (
+  ),
   'ong' => 
+  array (
+  ),
+  'onl' => 
+  array (
+  ),
+  'ooo' => 
+  array (
+  ),
+  'oracle' => 
+  array (
+  ),
+  'organic' => 
+  array (
+  ),
+  'osaka' => 
+  array (
+  ),
+  'otsuka' => 
+  array (
+  ),
+  'ovh' => 
+  array (
+  ),
+  'page' => 
+  array (
+  ),
+  'panerai' => 
+  array (
+  ),
+  'paris' => 
+  array (
+  ),
+  'pars' => 
+  array (
+  ),
+  'partners' => 
+  array (
+  ),
+  'parts' => 
+  array (
+  ),
+  'party' => 
+  array (
+  ),
+  'pharmacy' => 
+  array (
+  ),
+  'philips' => 
+  array (
+  ),
+  'photo' => 
+  array (
+  ),
+  'photography' => 
+  array (
+  ),
+  'photos' => 
+  array (
+  ),
+  'physio' => 
+  array (
+  ),
+  'piaget' => 
+  array (
+  ),
+  'pics' => 
+  array (
+  ),
+  'pictet' => 
+  array (
+  ),
+  'pictures' => 
+  array (
+  ),
+  'pin' => 
+  array (
+  ),
+  'pink' => 
+  array (
+  ),
+  'pizza' => 
+  array (
+  ),
+  'place' => 
+  array (
+  ),
+  'plumbing' => 
+  array (
+  ),
+  'pohl' => 
+  array (
+  ),
+  'poker' => 
+  array (
+  ),
+  'porn' => 
+  array (
+  ),
+  'praxi' => 
+  array (
+  ),
+  'press' => 
+  array (
+  ),
+  'prod' => 
+  array (
+  ),
+  'productions' => 
+  array (
+  ),
+  'prof' => 
+  array (
+  ),
+  'promo' => 
+  array (
+  ),
+  'properties' => 
+  array (
+  ),
+  'property' => 
+  array (
+  ),
+  'pub' => 
+  array (
+  ),
+  'qpon' => 
+  array (
+  ),
+  'quebec' => 
+  array (
+  ),
+  'racing' => 
+  array (
+  ),
+  'read' => 
+  array (
+  ),
+  'realtor' => 
+  array (
+  ),
+  'recipes' => 
+  array (
+  ),
+  'red' => 
+  array (
+  ),
+  'redstone' => 
+  array (
+  ),
+  'rehab' => 
+  array (
+  ),
+  'reise' => 
+  array (
+  ),
+  'reisen' => 
+  array (
+  ),
+  'reit' => 
+  array (
+  ),
+  'ren' => 
+  array (
+  ),
+  'rent' => 
+  array (
+  ),
+  'rentals' => 
+  array (
+  ),
+  'repair' => 
+  array (
+  ),
+  'report' => 
+  array (
+  ),
+  'republican' => 
+  array (
+  ),
+  'rest' => 
+  array (
+  ),
+  'restaurant' => 
+  array (
+  ),
+  'review' => 
+  array (
+  ),
+  'reviews' => 
+  array (
+  ),
+  'rich' => 
+  array (
+  ),
+  'ricoh' => 
+  array (
+  ),
+  'rio' => 
+  array (
+  ),
+  'rip' => 
+  array (
+  ),
+  'rocher' => 
+  array (
+  ),
+  'rocks' => 
+  array (
+  ),
+  'rodeo' => 
+  array (
+  ),
+  'room' => 
+  array (
+  ),
+  'rsvp' => 
+  array (
+  ),
+  'ruhr' => 
+  array (
+  ),
+  'ryukyu' => 
+  array (
+  ),
+  'saarland' => 
+  array (
+  ),
+  'safe' => 
+  array (
+  ),
+  'sakura' => 
+  array (
+  ),
+  'sale' => 
+  array (
+  ),
+  'salon' => 
+  array (
+  ),
+  'samsung' => 
+  array (
+  ),
+  'sandvik' => 
+  array (
+  ),
+  'sandvikcoromant' => 
+  array (
+  ),
+  'sanofi' => 
+  array (
+  ),
+  'sap' => 
+  array (
+  ),
+  'sapo' => 
+  array (
+  ),
+  'sarl' => 
+  array (
+  ),
+  'saxo' => 
+  array (
+  ),
+  'sbs' => 
+  array (
+  ),
+  'sca' => 
+  array (
+  ),
+  'scb' => 
+  array (
+  ),
+  'schmidt' => 
+  array (
+  ),
+  'scholarships' => 
+  array (
+  ),
+  'school' => 
+  array (
+  ),
+  'schule' => 
+  array (
+  ),
+  'schwarz' => 
+  array (
+  ),
+  'science' => 
+  array (
+  ),
+  'scor' => 
+  array (
+  ),
+  'scot' => 
+  array (
+  ),
+  'seat' => 
+  array (
+  ),
+  'seek' => 
+  array (
+  ),
+  'sener' => 
+  array (
+  ),
+  'services' => 
+  array (
+  ),
+  'sew' => 
+  array (
+  ),
+  'sex' => 
+  array (
+  ),
+  'sexy' => 
+  array (
+  ),
+  'sharp' => 
+  array (
+  ),
+  'shia' => 
+  array (
+  ),
+  'shiksha' => 
+  array (
+  ),
+  'shoes' => 
+  array (
+  ),
+  'shriram' => 
+  array (
+  ),
+  'singles' => 
+  array (
+  ),
+  'sky' => 
+  array (
+  ),
+  'skype' => 
+  array (
+  ),
+  'smile' => 
+  array (
+  ),
+  'social' => 
+  array (
+  ),
+  'software' => 
+  array (
+  ),
+  'sohu' => 
+  array (
+  ),
+  'solar' => 
+  array (
+  ),
+  'solutions' => 
+  array (
+  ),
+  'soy' => 
+  array (
+  ),
+  'space' => 
+  array (
+  ),
+  'spiegel' => 
+  array (
+  ),
+  'spreadbetting' => 
+  array (
+  ),
+  'stada' => 
+  array (
+  ),
+  'statoil' => 
+  array (
+  ),
+  'stc' => 
+  array (
+  ),
+  'stcgroup' => 
+  array (
+  ),
+  'stockholm' => 
+  array (
+  ),
+  'study' => 
+  array (
+  ),
+  'style' => 
+  array (
+  ),
+  'supplies' => 
+  array (
+  ),
+  'supply' => 
+  array (
+  ),
+  'support' => 
+  array (
+  ),
+  'surf' => 
+  array (
+  ),
+  'surgery' => 
+  array (
+  ),
+  'suzuki' => 
+  array (
+  ),
+  'swiss' => 
+  array (
+  ),
+  'sydney' => 
+  array (
+  ),
+  'symantec' => 
+  array (
+  ),
+  'systems' => 
+  array (
+  ),
+  'tab' => 
+  array (
+  ),
+  'taipei' => 
+  array (
+  ),
+  'tatar' => 
+  array (
+  ),
+  'tattoo' => 
+  array (
+  ),
+  'tax' => 
+  array (
+  ),
+  'tci' => 
+  array (
+  ),
+  'technology' => 
+  array (
+  ),
+  'telefonica' => 
+  array (
+  ),
+  'temasek' => 
+  array (
+  ),
+  'tennis' => 
+  array (
+  ),
+  'tienda' => 
+  array (
+  ),
+  'tips' => 
+  array (
+  ),
+  'tires' => 
+  array (
+  ),
+  'tirol' => 
+  array (
+  ),
+  'today' => 
+  array (
+  ),
+  'tokyo' => 
+  array (
+  ),
+  'tools' => 
+  array (
+  ),
+  'top' => 
+  array (
+  ),
+  'toray' => 
+  array (
+  ),
+  'toshiba' => 
   array (
   ),
   'town' => 
@@ -19936,355 +21054,370 @@ return array (
   'toys' => 
   array (
   ),
-  'army' => 
+  'trade' => 
   array (
   ),
-  'engineering' => 
+  'trading' => 
   array (
   ),
-  'capital' => 
+  'training' => 
   array (
   ),
-  'exchange' => 
+  'trust' => 
   array (
   ),
-  'fan' => 
+  'tui' => 
   array (
   ),
-  'market' => 
+  'tushu' => 
   array (
   ),
-  'media' => 
-  array (
-  ),
-  'lease' => 
+  'ubs' => 
   array (
   ),
   'university' => 
   array (
   ),
-  'reisen' => 
-  array (
-  ),
-  'airforce' => 
-  array (
-  ),
-  'pictures' => 
-  array (
-  ),
-  'gripe' => 
-  array (
-  ),
-  'associates' => 
-  array (
-  ),
-  'xn--mxtq1m' => 
-  array (
-  ),
-  'williamhill' => 
-  array (
-  ),
-  'hiv' => 
-  array (
-  ),
-  'sca' => 
-  array (
-  ),
-  'reise' => 
-  array (
-  ),
-  'accountants' => 
-  array (
-  ),
-  'clinic' => 
-  array (
-  ),
-  'versicherung' => 
-  array (
-  ),
-  'top' => 
-  array (
-  ),
-  'furniture' => 
-  array (
-  ),
-  'dental' => 
-  array (
-  ),
-  'fund' => 
-  array (
-  ),
-  'creditcard' => 
-  array (
-  ),
-  'insure' => 
-  array (
-  ),
-  'audio' => 
-  array (
-  ),
-  'claims' => 
-  array (
-  ),
-  'loans' => 
-  array (
-  ),
-  'auction' => 
-  array (
-  ),
-  'attorney' => 
-  array (
-  ),
-  'finance' => 
-  array (
-  ),
-  'investments' => 
-  array (
-  ),
-  'juegos' => 
-  array (
-  ),
-  'dentist' => 
-  array (
-  ),
-  'lds' => 
-  array (
-  ),
-  'lawyer' => 
-  array (
-  ),
-  'surgery' => 
-  array (
-  ),
-  'gratis' => 
-  array (
-  ),
-  'software' => 
-  array (
-  ),
-  'mortgage' => 
-  array (
-  ),
-  'republican' => 
-  array (
-  ),
-  'credit' => 
-  array (
-  ),
-  'tax' => 
-  array (
-  ),
-  'africa' => 
-  array (
-  ),
-  'joburg' => 
-  array (
-  ),
-  'durban' => 
-  array (
-  ),
-  'capetown' => 
-  array (
-  ),
-  'sap' => 
-  array (
-  ),
-  'datsun' => 
-  array (
-  ),
-  'infiniti' => 
-  array (
-  ),
-  'firmdale' => 
-  array (
-  ),
-  'organic' => 
-  array (
-  ),
-  'nissan' => 
-  array (
-  ),
-  'website' => 
-  array (
-  ),
-  'space' => 
-  array (
-  ),
-  'schmidt' => 
-  array (
-  ),
-  'cuisinella' => 
-  array (
-  ),
-  'samsung' => 
-  array (
-  ),
-  'crs' => 
-  array (
-  ),
-  'doosan' => 
-  array (
-  ),
-  'press' => 
-  array (
-  ),
-  'emerck' => 
-  array (
-  ),
-  'erni' => 
-  array (
-  ),
-  'direct' => 
-  array (
-  ),
-  'yandex' => 
-  array (
-  ),
-  'lotto' => 
-  array (
-  ),
-  'toshiba' => 
-  array (
-  ),
-  'bauhaus' => 
-  array (
-  ),
-  'host' => 
-  array (
-  ),
-  'ltda' => 
-  array (
-  ),
-  'global' => 
-  array (
-  ),
-  'abogado' => 
-  array (
-  ),
-  'place' => 
-  array (
-  ),
-  'tirol' => 
-  array (
-  ),
-  'gmx' => 
-  array (
-  ),
-  'tatar' => 
-  array (
-  ),
-  'scholarships' => 
-  array (
-  ),
-  'eurovision' => 
-  array (
-  ),
-  'wedding' => 
-  array (
-  ),
-  'active' => 
-  array (
-  ),
-  'madrid' => 
-  array (
-  ),
-  'youtube' => 
-  array (
-  ),
-  'sharp' => 
+  'uno' => 
   array (
   ),
   'uol' => 
   array (
   ),
-  'physio' => 
+  'vacations' => 
   array (
   ),
-  'gmail' => 
+  'vana' => 
   array (
   ),
-  'channel' => 
+  'vegas' => 
   array (
   ),
-  'fly' => 
+  'ventures' => 
   array (
   ),
-  'zip' => 
+  'versicherung' => 
   array (
   ),
-  'esq' => 
+  'vet' => 
   array (
   ),
-  'rsvp' => 
+  'viajes' => 
+  array (
+  ),
+  'video' => 
+  array (
+  ),
+  'villas' => 
+  array (
+  ),
+  'virgin' => 
+  array (
+  ),
+  'vision' => 
+  array (
+  ),
+  'vista' => 
+  array (
+  ),
+  'vistaprint' => 
+  array (
+  ),
+  'viva' => 
+  array (
+  ),
+  'vlaanderen' => 
+  array (
+  ),
+  'vodka' => 
+  array (
+  ),
+  'vote' => 
+  array (
+  ),
+  'voting' => 
+  array (
+  ),
+  'voto' => 
+  array (
+  ),
+  'voyage' => 
   array (
   ),
   'wales' => 
   array (
   ),
-  'cymru' => 
+  'walter' => 
   array (
   ),
-  'green' => 
+  'wang' => 
   array (
   ),
-  'lgbt' => 
+  'wanggou' => 
   array (
   ),
-  'xn--hxt814e' => 
+  'watch' => 
   array (
   ),
-  'cancerresearch' => 
+  'webcam' => 
   array (
   ),
-  'everbank' => 
+  'website' => 
   array (
   ),
-  'frl' => 
+  'wed' => 
   array (
   ),
-  'property' => 
+  'wedding' => 
   array (
   ),
-  'forsale' => 
+  'whoswho' => 
   array (
   ),
-  'seat' => 
+  'wien' => 
   array (
   ),
-  'deals' => 
+  'wiki' => 
   array (
   ),
-  'nra' => 
+  'williamhill' => 
+  array (
+  ),
+  'win' => 
+  array (
+  ),
+  'windows' => 
+  array (
+  ),
+  'wme' => 
+  array (
+  ),
+  'work' => 
+  array (
+  ),
+  'works' => 
+  array (
+  ),
+  'world' => 
+  array (
+  ),
+  'wtc' => 
+  array (
+  ),
+  'wtf' => 
+  array (
+  ),
+  'xbox' => 
+  array (
+  ),
+  'xerox' => 
+  array (
+  ),
+  'xin' => 
+  array (
+  ),
+  'xn--1qqw23a' => 
+  array (
+  ),
+  'xn--30rr7y' => 
+  array (
+  ),
+  'xn--3bst00m' => 
+  array (
+  ),
+  'xn--3ds443g' => 
+  array (
+  ),
+  'xn--45q11c' => 
+  array (
+  ),
+  'xn--4gbrim' => 
+  array (
+  ),
+  'xn--55qw42g' => 
+  array (
+  ),
+  'xn--55qx5d' => 
+  array (
+  ),
+  'xn--6frz82g' => 
+  array (
+  ),
+  'xn--6qq986b3xl' => 
+  array (
+  ),
+  'xn--80adxhks' => 
+  array (
+  ),
+  'xn--80asehdb' => 
+  array (
+  ),
+  'xn--80aswg' => 
+  array (
+  ),
+  'xn--9et52u' => 
+  array (
+  ),
+  'xn--b4w605ferd' => 
+  array (
+  ),
+  'xn--c1avg' => 
+  array (
+  ),
+  'xn--cg4bki' => 
+  array (
+  ),
+  'xn--czr694b' => 
+  array (
+  ),
+  'xn--czrs0t' => 
+  array (
+  ),
+  'xn--czru2d' => 
+  array (
+  ),
+  'xn--d1acj3b' => 
+  array (
+  ),
+  'xn--eckvdtc9d' => 
+  array (
+  ),
+  'xn--efvy88h' => 
+  array (
+  ),
+  'xn--fiq228c5hs' => 
+  array (
+  ),
+  'xn--fiq64b' => 
   array (
   ),
   'xn--fjq720a' => 
   array (
   ),
-  'realtor' => 
+  'xn--flw351e' => 
   array (
   ),
-  'bnpparibas' => 
+  'xn--hxt814e' => 
   array (
   ),
-  'melbourne' => 
+  'xn--i1b6b1a6a2e' => 
   array (
   ),
-  'hosting' => 
+  'xn--imr513n' => 
+  array (
+  ),
+  'xn--io0a7i' => 
+  array (
+  ),
+  'xn--kcrx77d1x4a' => 
+  array (
+  ),
+  'xn--kput3i' => 
+  array (
+  ),
+  'xn--mgba3a3ejt' => 
+  array (
+  ),
+  'xn--mgbab2bd' => 
+  array (
+  ),
+  'xn--mgbb9fbpob' => 
+  array (
+  ),
+  'xn--mgbt3dhd' => 
+  array (
+  ),
+  'xn--mxtq1m' => 
+  array (
+  ),
+  'xn--ngbc5azd' => 
+  array (
+  ),
+  'xn--ngbe9e0a' => 
+  array (
+  ),
+  'xn--nqv7f' => 
+  array (
+  ),
+  'xn--nqv7fs00ema' => 
+  array (
+  ),
+  'xn--nyqy26a' => 
+  array (
+  ),
+  'xn--p1acf' => 
+  array (
+  ),
+  'xn--q9jyb4c' => 
+  array (
+  ),
+  'xn--qcka1pmc' => 
+  array (
+  ),
+  'xn--rhqv96g' => 
+  array (
+  ),
+  'xn--ses554g' => 
+  array (
+  ),
+  'xn--unup4y' => 
+  array (
+  ),
+  'xn--vermgensberater-ctb' => 
+  array (
+  ),
+  'xn--vermgensberatung-pwb' => 
+  array (
+  ),
+  'xn--vhquv' => 
+  array (
+  ),
+  'xn--vuq861b' => 
+  array (
+  ),
+  'xn--xhq521b' => 
+  array (
+  ),
+  'xn--zfr164b' => 
+  array (
+  ),
+  'xyz' => 
+  array (
+  ),
+  'yachts' => 
+  array (
+  ),
+  'yamaxun' => 
+  array (
+  ),
+  'yandex' => 
+  array (
+  ),
+  'yodobashi' => 
   array (
   ),
   'yoga' => 
   array (
   ),
-  'city' => 
+  'yokohama' => 
   array (
   ),
-  'bond' => 
+  'youtube' => 
   array (
   ),
-  'click' => 
+  'zara' => 
   array (
   ),
-  'cern' => 
+  'zero' => 
+  array (
+  ),
+  'zip' => 
+  array (
+  ),
+  'zone' => 
+  array (
+  ),
+  'zuerich' => 
   array (
   ),
 );
