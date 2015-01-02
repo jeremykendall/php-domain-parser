@@ -3,31 +3,40 @@
 
     <property file="build.properties" />
 
+    <target name="clean" description="Clean build path">
+        <delete dir="${project.basedir}/build" />
+        <mkdir dir="${project.basedir}/build" />
+        <mkdir dir="${project.basedir}/build/coverage" />
+        <mkdir dir="${project.basedir}/build/docs" />
+    </target>
+
     <target name="phpunit" description="Running unit tests">
         <exec
             passthru="${passthru}"
             dir="${project.basedir}"
-			command="phpunit" />
+            command="phpunit" />
     </target>
 
     <target name="php-cs-fixer" description="PHP Codings Standards fixer">
         <exec
             passthru="${passthru}"
-            command="php-cs-fixer --verbose fix library/" />
+            command="php-cs-fixer --verbose fix" />
     </target>
 
     <target name="phpdoc" description="Generate API documentation">
         <exec
             passthru="${passthru}"
             command="phpdoc
-                -d ${project.basedir}/library
-                -t ${project.basedir}/docs
-                --title='PHP Domain Parser'
-                --defaultpackagename='Pdp'
-                --force" />
+            -d ${project.basedir}/src
+            -t ${project.basedir}/build/docs
+            --title='PHP Domain Parser'
+            --defaultpackagename='Pdp'
+            --template='responsive-twig'
+            --force" />
     </target>
-    
+
     <target name="build" description="Build app">
+        <phingCall target="clean" />
         <phingCall target="php-cs-fixer" />
         <phingCall target="phpunit" />
         <phingCall target="phpdoc" />

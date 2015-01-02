@@ -2,10 +2,10 @@
 
 namespace Pdp\Uri;
 
-use Pdp\PublicSuffixList;
-use Pdp\Uri\Url\Host;
-use Pdp\PublicSuffixListManager;
 use Pdp\Parser;
+use Pdp\PublicSuffixList;
+use Pdp\PublicSuffixListManager;
+use Pdp\Uri\Url\Host;
 
 class UrlTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,7 +18,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
      * @var Parser
      */
     protected $parser;
-    
+
     /**
      * @var string Url spec
      */
@@ -32,7 +32,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-        $file = realpath(dirname(__DIR__) . '/../../../data/' . PublicSuffixListManager::PDP_PSL_PHP_FILE); 
+        $file = realpath(dirname(__DIR__) . '/../../../data/' . PublicSuffixListManager::PDP_PSL_PHP_FILE);
         $psl = new PublicSuffixList($file);
         $this->parser = new Parser($psl);
         $this->url = $this->parser->parseUrl($this->spec);
@@ -50,8 +50,8 @@ class UrlTest extends \PHPUnit_Framework_TestCase
             'anonymous',
             'guest',
             new Host(
-                null, 
-                'example.com', 
+                null,
+                'example.com',
                 'com'
             ),
             null,
@@ -59,7 +59,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
             'baz=dib',
             'anchor'
         );
-        
+
         $this->assertInstanceOf('Pdp\Uri\Url', $url);
     }
 
@@ -84,7 +84,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
             'port' => 8080,
             'path' => '/path/to/index.php/foo/bar.xml',
             'query' => 'baz=dib',
-            'fragment' => 'anchor'
+            'fragment' => 'anchor',
         );
 
         $this->assertEquals($expected['scheme'], $this->url->scheme);

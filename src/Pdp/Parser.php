@@ -28,6 +28,11 @@ class Parser
     protected $publicSuffixList;
 
     /**
+     * @var bool Whether or not a host part has been normalized
+     */
+    protected $isNormalized = false;
+
+    /**
      * Public constructor
      *
      * @codeCoverageIgnore
@@ -61,7 +66,7 @@ class Parser
             $url = 'http://' . preg_replace('#^//#', '', $url, 1);
         }
 
-        $parts = mb_parse_url($url);
+        $parts = pdp_parse_url($url);
 
         if ($parts === false) {
             throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
@@ -114,23 +119,15 @@ class Parser
     }
 
     /**
-     * Returns the public suffix portion of provided host
+     * Get the raw public suffix based on the cached public suffix list file.
+     * Return false if the provided suffix is not included in the PSL
      *
-     * @param  string $host host
-     * @return string public suffix
+     * @param  string       $host The host to process
+     * @return string|false The suffix or false if suffix not included in the PSL
      */
-    public function getPublicSuffix($host)
+    protected function getRawPublicSuffix($host)
     {
-        if (strpos($host, '.') === 0) {
-            return null;
-        }
-
-        // Fixes #22: If a single label domain makes it this far (e.g.,
-        // localhost, foo, etc.), this stops it from incorrectly being set as
-        // the  public suffix.
-        if (strpos($host, '.') === false) {
-            return null;
-        }
+        $host = $this->normalize($host);
 
         $parts = array_reverse(explode('.', $host));
         $publicSuffix = array();
@@ -162,12 +159,59 @@ class Parser
             break;
         }
 
-        // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
+        // If empty, then the suffix is not included in the PSL and is
+        // considered "invalid". This also triggers algorithm rule #2: If no
+        // rules match, the prevailing rule is "*".
         if (empty($publicSuffix)) {
-            $publicSuffix[0] = $parts[0];
+            return false;
         }
 
-        return implode('.', array_filter($publicSuffix, 'strlen'));
+        $suffix = implode('.', array_filter($publicSuffix, 'strlen'));
+
+        return $this->denormalize($suffix);
+    }
+
+    /**
+     * Returns the public suffix portion of provided host
+     *
+     * @param  string      $host host
+     * @return string|null public suffix or null if host does not contain a public suffix
+     */
+    public function getPublicSuffix($host)
+    {
+        if (strpos($host, '.') === 0) {
+            return;
+        }
+
+        // Fixes #22: If a single label domain makes it this far (e.g.,
+        // localhost, foo, etc.), this stops it from incorrectly being set as
+        // the public suffix.
+        if (strpos($host, '.') === false) {
+            return;
+        }
+
+        $suffix = $this->getRawPublicSuffix($host);
+
+        // Apply algorithm rule #2: If no rules match, the prevailing rule is "*".
+        if (false === $suffix) {
+            $parts = array_reverse(explode('.', $host));
+            $suffix = array_shift($parts);
+        }
+
+        return $suffix;
+    }
+
+    /**
+     * Is suffix valid?
+     *
+     * Validity determined by whether or not the suffix is included in the PSL.
+     *
+     * @param  string $host Host part
+     * @return bool   True is suffix is valid, false otherwise
+     */
+    public function isSuffixValid($host)
+    {
+        return $this->getRawPublicSuffix($host) !== false;
     }
 
     /**
@@ -183,33 +227,20 @@ class Parser
     public function getRegisterableDomain($host)
     {
         if (strpos($host, '.') === false) {
-            return null;
+            return;
         }
 
-        $punycoded = (strpos($host, 'xn--') !== false);
-
-        if ($punycoded) {
-            $host = idn_to_utf8($host);
-        }
-
-        $host = mb_strtolower($host, 'UTF-8');
         $publicSuffix = $this->getPublicSuffix($host);
 
         if ($publicSuffix === null || $host == $publicSuffix) {
-            return null;
+            return;
         }
 
         $publicSuffixParts = array_reverse(explode('.', $publicSuffix));
         $hostParts = array_reverse(explode('.', $host));
-        $registerableDomainParts = array_slice($hostParts, 0, count($publicSuffixParts) + 1);
+        $registerableDomainParts = $publicSuffixParts + array_slice($hostParts, 0, count($publicSuffixParts) + 1);
 
-        $registerableDomain = implode('.', array_reverse($registerableDomainParts));
-
-        if ($punycoded) {
-            $registerableDomain = idn_to_ascii($registerableDomain);
-        }
-
-        return $registerableDomain;
+        return implode('.', array_reverse($registerableDomainParts));
     }
 
     /**
@@ -222,57 +253,55 @@ class Parser
     {
         $registerableDomain = $this->getRegisterableDomain($host);
 
-        if ($registerableDomain === null || $host == $registerableDomain) {
-            return null;
+        if ($registerableDomain === null || $host === $registerableDomain) {
+            return;
         }
 
         $registerableDomainParts = array_reverse(explode('.', $registerableDomain));
+
+        $host = $this->normalize($host);
+
         $hostParts = array_reverse(explode('.', $host));
         $subdomainParts = array_slice($hostParts, count($registerableDomainParts));
 
-        return implode('.', array_reverse($subdomainParts));
+        $subdomain = implode('.', array_reverse($subdomainParts));
+
+        return $this->denormalize($subdomain);
     }
 
     /**
-     * DEPRECATED: UTF-8 aware parse_url() replacement.
+     * If a URL is not punycoded, then it may be an IDNA URL, so it must be
+     * converted to ASCII. Performs conversion and sets flag.
      *
-     * Taken from php.net manual comments {@link http://php.net/manual/en/function.parse-url.php#114817}
-     *
-     * @deprecated Please use mb_parse_url instead. Will be removed in version 2.0.
-     * @codeCoverageIgnore
-     *
-     * @param  string  $url       The URL to parse
-     * @param  integer $component Specify one of PHP_URL_SCHEME, PHP_URL_HOST,
-     *                            PHP_URL_PORT, PHP_URL_USER, PHP_URL_PASS, PHP_URL_PATH, PHP_URL_QUERY or
-     *                            PHP_URL_FRAGMENT to retrieve just a specific URL component as a string
-     *                            (except when PHP_URL_PORT is given, in which case the return value will
-     *                            be an integer).
-     * @return mixed   See parse_url documentation {@link http://us1.php.net/parse_url}
+     * @param  string $part Host part
+     * @return string Host part, transformed if not punycoded
      */
-    public function mbParseUrl($url, $component = -1)
+    protected function normalize($part)
     {
-        $enc_url = preg_replace_callback(
-            '%[^:/@?&=#]+%usD',
-            function ($matches) {
-                return urlencode($matches[0]);
-            },
-            $url
-        );
+        $punycoded = (strpos($part, 'xn--') !== false);
 
-        $parts = parse_url($enc_url, $component);
-
-        if ($parts === false) {
-            return $parts;
+        if ($punycoded === false) {
+            $part = idn_to_ascii($part);
+            $this->isNormalized = true;
         }
 
-        if (is_array($parts)) {
-            foreach ($parts as $name => $value) {
-                $parts[$name] = urldecode($value);
-            }
-        } else {
-            $parts = urldecode($parts);
+        return strtolower($part);
+    }
+
+    /**
+     * Converts any normalized part back to IDNA. Performs conversion and
+     * resets flag.
+     *
+     * @param  string $part Host part
+     * @return string Denormalized host part
+     */
+    protected function denormalize($part)
+    {
+        if ($this->isNormalized === true) {
+            $part = idn_to_utf8($part);
+            $this->isNormalized = false;
         }
 
-        return $parts;
+        return $part;
     }
 }

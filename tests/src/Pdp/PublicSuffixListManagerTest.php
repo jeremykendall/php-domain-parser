@@ -119,7 +119,7 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
     {
         $listManager = new PublicSuffixListManager($this->cacheDir);
         $this->assertInstanceOf(
-            '\Pdp\HttpAdapter\CurlHttpAdapter', 
+            '\Pdp\HttpAdapter\CurlHttpAdapter',
             $listManager->getHttpAdapter()
         );
     }
@@ -181,8 +181,8 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         );
 
         $listManager = $this->getMock(
-            '\Pdp\PublicSuffixListManager', 
-            array('refreshPublicSuffixList'), 
+            '\Pdp\PublicSuffixListManager',
+            array('refreshPublicSuffixList'),
             array($this->cacheDir)
         );
 
