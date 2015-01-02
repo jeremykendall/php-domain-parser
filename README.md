@@ -123,8 +123,12 @@ $publicSuffix = $url->host->publicSuffix;
 support was added in version `1.4.0`. Both unicode domains and their ASCII equivalents
 are supported.
 
-**IMPORTANT**: PHP's [intl](http://php.net/manual/en/book.intl.php) extension is
+**IMPORTANT**: 
+
+* PHP's [intl](http://php.net/manual/en/book.intl.php) extension is
 required for the [IDN functions](http://php.net/manual/en/ref.intl.idn.php).
+* PHP's [mb_string](http://php.net/manual/en/book.mbstring.php) extension is
+required for [mb_strtolower](http://php.net/manual/en/function.mb-strtolower.php).
 
 #### Unicode
 
@@ -262,6 +266,24 @@ class Pdp\Uri\Url\Host#7 (3) {
     string(4) "c.cy"
 }
 ```
+
+### Validation of Public Suffixes
+
+Public Suffix validation is available by calling `Parser::isValidSuffix()`:
+
+```
+var_dump($parser->isValidSuffix('www.example.faketld');
+// false
+
+var_dump($parser->isValidSuffix('www.example.com.au');
+// true
+```
+
+A suffix is considered invalid if it is not contained in the [Public Suffix List](http://publicsuffix.org/).
+
+> Huge thanks to [@SmellyFish](https://github.com/SmellyFish) for submitting 
+> [Add a way to validate TLDs](https://github.com/jeremykendall/php-domain-parser/pull/36) 
+> to add public suffix validation to the project.  
 
 ### Retrieving Domain Components Only ###
 
