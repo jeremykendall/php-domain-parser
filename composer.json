@@ -34,8 +34,8 @@
         "ext-mbstring": "*"
     },
     "require-dev": {
-        "mikey179/vfsStream": "1.*",
-        "phpunit/phpunit": "4.*"
+        "mikey179/vfsStream": "~1.4",
+        "phpunit/phpunit": "~4.4"
     },
     "autoload": {
         "psr-0": {
