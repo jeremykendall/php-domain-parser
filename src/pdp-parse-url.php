@@ -1,7 +1,14 @@
 <?php
 
+/**
+ * PHP Domain Parser: Public Suffix List based URL parsing
+ *
+ * @link      http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
+ * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ */
 namespace {
-    if (!function_exists('mb_parse_url')) {
+    if (!function_exists('pdp_parse_url')) {
         /**
          * UTF-8 aware parse_url() replacement.
          *
@@ -15,7 +22,7 @@ namespace {
          *                            be an integer).
          * @return mixed   See parse_url documentation {@link http://us1.php.net/parse_url}
          */
-        function mb_parse_url($url, $component = -1)
+        function pdp_parse_url($url, $component = -1)
         {
             $enc_url = preg_replace_callback(
                 '%[^:/@?&=#\[\]]+%usD',
