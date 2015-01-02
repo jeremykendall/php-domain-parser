@@ -24,13 +24,17 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Pdp\Parser::isSuffixValid()
      */
-    public function testIsSuffixValid()
+    public function testIsSuffixValidFalse()
     {
         $this->assertFalse($this->parser->isSuffixValid('www.example.faketld'));
-        $this->assertFalse($this->parser->isSuffixValid('www.example.faketld'));
-        $this->assertFalse($this->parser->isSuffixValid('www.example.dev'));
         $this->assertFalse($this->parser->isSuffixValid('example.example'));
+    }
 
+    /**
+     * @covers Pdp\Parser::isSuffixValid()
+     */
+    public function testIsSuffixValidTrue()
+    {
         $this->assertTrue($this->parser->isSuffixValid('www.example.com'));
         $this->assertTrue($this->parser->isSuffixValid('www.example.co.uk'));
         $this->assertTrue($this->parser->isSuffixValid('www.example.рф'));
