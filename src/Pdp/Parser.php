@@ -159,8 +159,8 @@ class Parser
             break;
         }
 
-        // If empty, then the suffix is not included in the PSL and is 
-        // considered "invalid". This also triggers algorithm rule #2: If no 
+        // If empty, then the suffix is not included in the PSL and is
+        // considered "invalid". This also triggers algorithm rule #2: If no
         // rules match, the prevailing rule is "*".
         if (empty($publicSuffix)) {
             return false;
@@ -180,14 +180,14 @@ class Parser
     public function getPublicSuffix($host)
     {
         if (strpos($host, '.') === 0) {
-            return null;
+            return;
         }
 
         // Fixes #22: If a single label domain makes it this far (e.g.,
         // localhost, foo, etc.), this stops it from incorrectly being set as
         // the public suffix.
         if (strpos($host, '.') === false) {
-            return null;
+            return;
         }
 
         $suffix = $this->getRawPublicSuffix($host);
@@ -227,13 +227,13 @@ class Parser
     public function getRegisterableDomain($host)
     {
         if (strpos($host, '.') === false) {
-            return null;
+            return;
         }
 
         $publicSuffix = $this->getPublicSuffix($host);
 
         if ($publicSuffix === null || $host == $publicSuffix) {
-            return null;
+            return;
         }
 
         $publicSuffixParts = array_reverse(explode('.', $publicSuffix));
@@ -254,7 +254,7 @@ class Parser
         $registerableDomain = $this->getRegisterableDomain($host);
 
         if ($registerableDomain === null || $host === $registerableDomain) {
-            return null;
+            return;
         }
 
         $registerableDomainParts = array_reverse(explode('.', $registerableDomain));

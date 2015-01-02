@@ -136,9 +136,9 @@ class PublicSuffixListManager
 
         $part = array_pop($ruleParts);
 
-        // Adheres to canonicalization rule from the "Formal Algorithm" section 
+        // Adheres to canonicalization rule from the "Formal Algorithm" section
         // of https://publicsuffix.org/list/
-        // "The domain and all rules must be canonicalized in the normal way 
+        // "The domain and all rules must be canonicalized in the normal way
         // for hostnames - lower-case, Punycode (RFC 3492)."
         $part = idn_to_ascii($part);
 
@@ -163,8 +163,8 @@ class PublicSuffixListManager
     /**
      * Writes php array representation of the Public Suffix List to disk
      *
-     * @param array Array representation of the Public Suffix List
-     * @return int Number of bytes that were written to the file
+     * @param  array $publicSuffixList Array representation of the Public Suffix List
+     * @return int   Number of bytes that were written to the file
      */
     public function writePhpCache(array $publicSuffixList)
     {
@@ -227,7 +227,7 @@ class PublicSuffixListManager
     /**
      * Sets http adapter
      *
-     * @param \Pdp\HttpAdapter\HttpAdapterInterface
+     * @param \Pdp\HttpAdapter\HttpAdapterInterface $httpAdapter
      */
     public function setHttpAdapter(HttpAdapter\HttpAdapterInterface $httpAdapter)
     {
