@@ -1,12 +1,21 @@
 {
     "name": "jeremykendall/php-domain-parser",
     "description": "Public Suffix List based URL parsing implemented in PHP.",
+    "homepage": "https://github.com/jeremykendall/php-domain-parser",
+    "support": {
+        "issues": "https://github.com/jeremykendall/php-domain-parser/issues",
+        "source": "https://github.com/jeremykendall/php-domain-parser"
+    },
     "license": "MIT",
     "authors": [
         {
             "name": "Jeremy Kendall",
             "homepage": "http://about.me/jeremykendall",
             "role": "Developer"
+        },
+        {
+            "name": "Contributors",
+            "homepage": "https://github.com/jeremykendall/php-domain-parser/graphs/contributors"
         }
     ],
     "bin": [
@@ -25,7 +34,7 @@
         "ext-mbstring": "*"
     },
     "require-dev": {
-        "mikey179/vfsStream": "1.2.*",
+        "mikey179/vfsStream": "1.*",
         "phpunit/phpunit": "4.*"
     },
     "autoload": {
