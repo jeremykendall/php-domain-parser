@@ -17252,6 +17252,12 @@ return array (
     'mil' => 
     array (
     ),
+    'platform' => 
+    array (
+      '*' => 
+      array (
+      ),
+    ),
   ),
   'si' => 
   array (
@@ -19275,6 +19281,9 @@ return array (
   'accountants' => 
   array (
   ),
+  'aco' => 
+  array (
+  ),
   'active' => 
   array (
   ),
@@ -19305,6 +19314,12 @@ return array (
   'airtel' => 
   array (
   ),
+  'alibaba' => 
+  array (
+  ),
+  'alipay' => 
+  array (
+  ),
   'allfinanz' => 
   array (
   ),
@@ -19318,6 +19333,9 @@ return array (
   array (
   ),
   'android' => 
+  array (
+  ),
+  'anquan' => 
   array (
   ),
   'apartments' => 
@@ -19359,10 +19377,16 @@ return array (
   'autos' => 
   array (
   ),
+  'avianca' => 
+  array (
+  ),
   'axa' => 
   array (
   ),
   'azure' => 
+  array (
+  ),
+  'baidu' => 
   array (
   ),
   'band' => 
@@ -19470,6 +19494,9 @@ return array (
   'boo' => 
   array (
   ),
+  'boots' => 
+  array (
+  ),
   'bot' => 
   array (
   ),
@@ -19480,6 +19507,9 @@ return array (
   array (
   ),
   'bridgestone' => 
+  array (
+  ),
+  'broadway' => 
   array (
   ),
   'broker' => 
@@ -19534,6 +19564,9 @@ return array (
   array (
   ),
   'capital' => 
+  array (
+  ),
+  'car' => 
   array (
   ),
   'caravan' => 
@@ -19614,6 +19647,9 @@ return array (
   'circle' => 
   array (
   ),
+  'cisco' => 
+  array (
+  ),
   'citic' => 
   array (
   ),
@@ -19668,6 +19704,9 @@ return array (
   'computer' => 
   array (
   ),
+  'comsec' => 
+  array (
+  ),
   'condos' => 
   array (
   ),
@@ -19675,6 +19714,9 @@ return array (
   array (
   ),
   'consulting' => 
+  array (
+  ),
+  'contact' => 
   array (
   ),
   'contractors' => 
@@ -19701,6 +19743,9 @@ return array (
   'creditcard' => 
   array (
   ),
+  'creditunion' => 
+  array (
+  ),
   'cricket' => 
   array (
   ),
@@ -19720,6 +19765,9 @@ return array (
   array (
   ),
   'cymru' => 
+  array (
+  ),
+  'cyou' => 
   array (
   ),
   'dabur' => 
@@ -19744,6 +19792,9 @@ return array (
   array (
   ),
   'dclk' => 
+  array (
+  ),
+  'dealer' => 
   array (
   ),
   'deals' => 
@@ -19813,6 +19864,9 @@ return array (
   array (
   ),
   'download' => 
+  array (
+  ),
+  'dubai' => 
   array (
   ),
   'durban' => 
@@ -19918,6 +19972,9 @@ return array (
   array (
   ),
   'ferrero' => 
+  array (
+  ),
+  'film' => 
   array (
   ),
   'final' => 
@@ -20052,6 +20109,9 @@ return array (
   'gmx' => 
   array (
   ),
+  'gold' => 
+  array (
+  ),
   'goldpoint' => 
   array (
   ),
@@ -20172,6 +20232,9 @@ return array (
   'ice' => 
   array (
   ),
+  'icu' => 
+  array (
+  ),
   'ifm' => 
   array (
   ),
@@ -20280,6 +20343,12 @@ return array (
   'koeln' => 
   array (
   ),
+  'komatsu' => 
+  array (
+  ),
+  'kpn' => 
+  array (
+  ),
   'krd' => 
   array (
   ),
@@ -20302,6 +20371,9 @@ return array (
   array (
   ),
   'latrobe' => 
+  array (
+  ),
+  'law' => 
   array (
   ),
   'lawyer' => 
@@ -20329,6 +20401,9 @@ return array (
   array (
   ),
   'life' => 
+  array (
+  ),
+  'lifeinsurance' => 
   array (
   ),
   'lifestyle' => 
@@ -20373,6 +20448,9 @@ return array (
   'lotto' => 
   array (
   ),
+  'love' => 
+  array (
+  ),
   'ltd' => 
   array (
   ),
@@ -20395,6 +20473,9 @@ return array (
   array (
   ),
   'maison' => 
+  array (
+  ),
+  'makeup' => 
   array (
   ),
   'man' => 
@@ -20505,6 +20586,9 @@ return array (
   'navy' => 
   array (
   ),
+  'nec' => 
+  array (
+  ),
   'netbank' => 
   array (
   ),
@@ -20538,6 +20622,9 @@ return array (
   'nissan' => 
   array (
   ),
+  'nokia' => 
+  array (
+  ),
   'norton' => 
   array (
   ),
@@ -20562,6 +20649,9 @@ return array (
   'okinawa' => 
   array (
   ),
+  'omega' => 
+  array (
+  ),
   'one' => 
   array (
   ),
@@ -20569,6 +20659,9 @@ return array (
   array (
   ),
   'onl' => 
+  array (
+  ),
+  'online' => 
   array (
   ),
   'ooo' => 
@@ -20638,6 +20731,9 @@ return array (
   array (
   ),
   'pictures' => 
+  array (
+  ),
+  'pid' => 
   array (
   ),
   'pin' => 
@@ -20796,6 +20892,9 @@ return array (
   'safe' => 
   array (
   ),
+  'safety' => 
+  array (
+  ),
   'sakura' => 
   array (
   ),
@@ -20895,10 +20994,19 @@ return array (
   'shoes' => 
   array (
   ),
+  'shouji' => 
+  array (
+  ),
   'shriram' => 
   array (
   ),
   'singles' => 
+  array (
+  ),
+  'site' => 
+  array (
+  ),
+  'skin' => 
   array (
   ),
   'sky' => 
@@ -20925,6 +21033,9 @@ return array (
   'solutions' => 
   array (
   ),
+  'sony' => 
+  array (
+  ),
   'soy' => 
   array (
   ),
@@ -20940,6 +21051,9 @@ return array (
   'stada' => 
   array (
   ),
+  'star' => 
+  array (
+  ),
   'statoil' => 
   array (
   ),
@@ -20952,10 +21066,16 @@ return array (
   'stockholm' => 
   array (
   ),
+  'storage' => 
+  array (
+  ),
   'study' => 
   array (
   ),
   'style' => 
+  array (
+  ),
+  'sucks' => 
   array (
   ),
   'supplies' => 
@@ -20976,6 +21096,9 @@ return array (
   'suzuki' => 
   array (
   ),
+  'swatch' => 
+  array (
+  ),
   'swiss' => 
   array (
   ),
@@ -20992,6 +21115,9 @@ return array (
   array (
   ),
   'taipei' => 
+  array (
+  ),
+  'taobao' => 
   array (
   ),
   'tatar' => 
@@ -21030,6 +21156,9 @@ return array (
   'tirol' => 
   array (
   ),
+  'tmall' => 
+  array (
+  ),
   'today' => 
   array (
   ),
@@ -21046,6 +21175,9 @@ return array (
   array (
   ),
   'toshiba' => 
+  array (
+  ),
+  'tours' => 
   array (
   ),
   'town' => 
@@ -21111,6 +21243,9 @@ return array (
   'villas' => 
   array (
   ),
+  'vip' => 
+  array (
+  ),
   'virgin' => 
   array (
   ),
@@ -21157,6 +21292,12 @@ return array (
   array (
   ),
   'watch' => 
+  array (
+  ),
+  'watches' => 
+  array (
+  ),
+  'weather' => 
   array (
   ),
   'webcam' => 
@@ -21213,7 +21354,13 @@ return array (
   'xerox' => 
   array (
   ),
+  'xihuan' => 
+  array (
+  ),
   'xin' => 
+  array (
+  ),
+  'xn--11b4c3d' => 
   array (
   ),
   'xn--1qqw23a' => 
@@ -21228,6 +21375,12 @@ return array (
   'xn--3ds443g' => 
   array (
   ),
+  'xn--3pxu8k' => 
+  array (
+  ),
+  'xn--42c2d9a' => 
+  array (
+  ),
   'xn--45q11c' => 
   array (
   ),
@@ -21238,6 +21391,9 @@ return array (
   array (
   ),
   'xn--55qx5d' => 
+  array (
+  ),
+  'xn--5tzm5g' => 
   array (
   ),
   'xn--6frz82g' => 
@@ -21255,6 +21411,9 @@ return array (
   'xn--80aswg' => 
   array (
   ),
+  'xn--9dbq2a' => 
+  array (
+  ),
   'xn--9et52u' => 
   array (
   ),
@@ -21262,6 +21421,9 @@ return array (
   array (
   ),
   'xn--c1avg' => 
+  array (
+  ),
+  'xn--c2br7g' => 
   array (
   ),
   'xn--cg4bki' => 
@@ -21283,6 +21445,9 @@ return array (
   array (
   ),
   'xn--efvy88h' => 
+  array (
+  ),
+  'xn--fhbei' => 
   array (
   ),
   'xn--fiq228c5hs' => 
@@ -21309,7 +21474,16 @@ return array (
   'xn--io0a7i' => 
   array (
   ),
+  'xn--j1aef' => 
+  array (
+  ),
+  'xn--jlq61u9w7b' => 
+  array (
+  ),
   'xn--kcrx77d1x4a' => 
+  array (
+  ),
+  'xn--kpu716f' => 
   array (
   ),
   'xn--kput3i' => 
@@ -21325,6 +21499,9 @@ return array (
   array (
   ),
   'xn--mgbt3dhd' => 
+  array (
+  ),
+  'xn--mk1bu44c' => 
   array (
   ),
   'xn--mxtq1m' => 
@@ -21348,6 +21525,12 @@ return array (
   'xn--p1acf' => 
   array (
   ),
+  'xn--pbt977c' => 
+  array (
+  ),
+  'xn--pssy2u' => 
+  array (
+  ),
   'xn--q9jyb4c' => 
   array (
   ),
@@ -21358,6 +21541,12 @@ return array (
   array (
   ),
   'xn--ses554g' => 
+  array (
+  ),
+  'xn--t60b56a' => 
+  array (
+  ),
+  'xn--tckwe' => 
   array (
   ),
   'xn--unup4y' => 
@@ -21403,6 +21592,9 @@ return array (
   array (
   ),
   'youtube' => 
+  array (
+  ),
+  'yun' => 
   array (
   ),
   'zara' => 

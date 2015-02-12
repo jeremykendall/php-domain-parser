@@ -23,7 +23,7 @@ try {
     $manager = new \Pdp\PublicSuffixListManager();
     $parser = new Pdp\Parser($manager->getList());
     $url = $parser->parseUrl($domain);
-    $suffixValid = ($parser->isSuffixValid($domain)) ? 'IS' : 'IS NOT';
+    $suffixValid = ($parser->isSuffixValid((string) $url->host)) ? 'IS' : 'IS NOT';
 
     print_r($url->toArray());
     echo sprintf('Host: %s', $url) . PHP_EOL;
