@@ -12,7 +12,7 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
     protected $listManager;
 
     /**
-     * @var  vfsStreamDirectory
+     * @var vfsStreamDirectory
      */
     protected $root;
 
