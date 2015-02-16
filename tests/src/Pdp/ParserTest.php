@@ -202,6 +202,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('http://[::1]/', null, null, null, '[::1]'),
             array('http://[2001:db8:85a3:8d3:1319:8a2e:370:7348]/', null, null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]'),
             array('https://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443/', null, null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]'),
+            // Test IP address: Fixes #43
+            array('http://192.168.1.2/', null, null, null, '192.168.1.2'),
+            array('http://127.0.0.1:443', null, null, null, '127.0.0.1'),
+            array('http://67.196.2.34/whois-archive/latest.php?page=2479', null, null, null, '67.196.2.34'),
             // Link-local addresses and zone indices
             array('http://[fe80::3%25eth0]', null, null, null, '[fe80::3%25eth0]'),
             array('http://[fe80::1%2511]', null, null, null, '[fe80::1%2511]'),

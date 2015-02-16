@@ -282,13 +282,13 @@ class Pdp\Uri\Url\Host#7 (3) {
 
 ### Validation of Public Suffixes
 
-Public Suffix validation is available by calling `Parser::isValidSuffix()`:
+Public Suffix validation is available by calling `Parser::isSuffixValid()`:
 
 ```
-var_dump($parser->isValidSuffix('www.example.faketld');
+var_dump($parser->isSuffixValid('www.example.faketld');
 // false
 
-var_dump($parser->isValidSuffix('www.example.com.au');
+var_dump($parser->isSuffixValid('www.example.com.au');
 // true
 ```
 
