@@ -7,7 +7,6 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp;
 
 use Pdp\Uri\Url;
@@ -21,6 +20,7 @@ use Pdp\Uri\Url\Host;
 class Parser
 {
     const SCHEME_PATTERN = '#^(http|ftp)s?://#i';
+    const IP_ADDRESS_PATTERN = '/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/';
 
     /**
      * @var PublicSuffixList Public Suffix List
@@ -104,7 +104,8 @@ class Parser
 
         // Fixes #22: Single label domains are set as Host::$host and all other
         // properties are null.
-        if (strpos($host, '.') !== false) {
+        // Fixes #43: Ip Addresses should not be parsed
+        if ($this->isMutliLabelDomain($host) || !$this->isIpv4Address($host)) {
             $subdomain = $this->getSubdomain($host);
             $registerableDomain = $this->getRegisterableDomain($host);
             $publicSuffix = $this->getPublicSuffix($host);
@@ -186,7 +187,12 @@ class Parser
         // Fixes #22: If a single label domain makes it this far (e.g.,
         // localhost, foo, etc.), this stops it from incorrectly being set as
         // the public suffix.
-        if (strpos($host, '.') === false) {
+        if (!$this->isMutliLabelDomain($host)) {
+            return;
+        }
+
+        // Fixes #43
+        if ($this->isIpv4Address($host)) {
             return;
         }
 
@@ -303,5 +309,31 @@ class Parser
         }
 
         return $part;
+    }
+
+    /**
+     * Tests host for presence of '.'
+     *
+     * Related to #22
+     *
+     * @param  string $host Host part of url
+     * @return bool   True if multi-label domain, false otherwise
+     */
+    protected function isMutliLabelDomain($host)
+    {
+        return strpos($host, '.') !== false;
+    }
+
+    /**
+     * Tests host to determine if it is an IP address
+     *
+     * Related to #43
+     *
+     * @param  string $host Host part of url
+     * @return bool   True if host is an ip address, false otherwise
+     */
+    protected function isIpv4Address($host)
+    {
+        return preg_match(self::IP_ADDRESS_PATTERN, $host) === 1;
     }
 }
