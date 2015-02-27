@@ -1,7 +1,7 @@
-PHP Domain Parser 
+PHP Domain Parser
 =================
 
-**PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based 
+**PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based
 domain parser implemented in PHP.
 
 [![Build Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=master)](https://travis-ci.org/jeremykendall/php-domain-parser)
@@ -9,33 +9,20 @@ domain parser implemented in PHP.
 [![Total Downloads](https://poser.pugx.org/jeremykendall/php-domain-parser/downloads.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 [![Latest Stable Version](https://poser.pugx.org/jeremykendall/php-domain-parser/v/stable.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 
-## WARNING: BC BREAK IN ALL 1.4 VERSIONS
-
-The 1.4 series introduced a backwards incompatible change by adding PHP's `ext-mbstring`
-and `ext-intl` as dependencies.  This should have resulted in a major version
-bump.  Instead I bumped the minor version from 1.3.1 to 1.4.
-
-I highly recommend reverting to 1.3.1 if you're running into extension issues and 
-do not want to or cannot install `ext-mbstring` and `ext-intl`. You will lose
-IDNA and IPv6 support, however.  Those are only available in versions >= 1.4.
-
-Version 2 is currently in the works.  Please keep an eye out.  I apologize for any
-issues you may have encountered due my [semver](http://semver.org/) error.
-
 Motivation
 ----------
 
 While there are plenty of excellent URL parsers and builders available, there
-are very few projects that can accurately parse a url into its component 
-subdomain, registerable domain, and public suffix parts. 
+are very few projects that can accurately parse a url into its component
+subdomain, registerable domain, and public suffix parts.
 
 Consider the domain www.pref.okinawa.jp.  In this domain, the
 *public suffix* portion is **okinawa.jp**, the *registerable domain* is
 **pref.okinawa.jp**, and the *subdomain* is **www**. You can't regex that.
 
-Other similar libraries focus primarily on URL building, parsing, and manipulation and 
-additionally include public suffix domain parsing.  PHP Domain Parser was built around 
-accurate Public Suffix List based parsing from the very beginning, adding a URL 
+Other similar libraries focus primarily on URL building, parsing, and manipulation and
+additionally include public suffix domain parsing.  PHP Domain Parser was built around
+accurate Public Suffix List based parsing from the very beginning, adding a URL
 object simply for the sake of completeness.
 
 Installation
@@ -132,11 +119,11 @@ $publicSuffix = $url->host->publicSuffix;
 
 ### IDNA Support
 
-[IDN (Internationalized Domain Name)](http://en.wikipedia.org/wiki/Internationalized_domain_name) 
+[IDN (Internationalized Domain Name)](http://en.wikipedia.org/wiki/Internationalized_domain_name)
 support was added in version `1.4.0`. Both unicode domains and their ASCII equivalents
 are supported.
 
-**IMPORTANT**: 
+**IMPORTANT**:
 
 * PHP's [intl](http://php.net/manual/en/book.intl.php) extension is
 required for the [IDN functions](http://php.net/manual/en/ref.intl.idn.php).
@@ -252,12 +239,12 @@ class Pdp\Uri\Url#6 (8) {
 **IMPORTANT**: IPv6 url host names *must* be enclosed in square brackets. They
 will not be parsed properly otherwise.
 
-> Hat tip to [@geekwright](https://github.com/geekwright) for adding IPv6 support in a 
+> Hat tip to [@geekwright](https://github.com/geekwright) for adding IPv6 support in a
 > [bugfix pull request](https://github.com/jeremykendall/php-domain-parser/pull/35).
 
 ### Parsing Domains ###
 
-If you'd like to parse the domain (or host) portion only, you can use 
+If you'd like to parse the domain (or host) portion only, you can use
 `Parser::parseHost()`.
 
 ```php
@@ -294,9 +281,9 @@ var_dump($parser->isSuffixValid('www.example.com.au');
 
 A suffix is considered invalid if it is not contained in the [Public Suffix List](http://publicsuffix.org/).
 
-> Huge thanks to [@SmellyFish](https://github.com/SmellyFish) for submitting 
-> [Add a way to validate TLDs](https://github.com/jeremykendall/php-domain-parser/pull/36) 
-> to add public suffix validation to the project.  
+> Huge thanks to [@SmellyFish](https://github.com/SmellyFish) for submitting
+> [Add a way to validate TLDs](https://github.com/jeremykendall/php-domain-parser/pull/36)
+> to add public suffix validation to the project.
 
 ### Retrieving Domain Components Only ###
 
@@ -321,7 +308,7 @@ string(5) "co.uk"
 
 ### Sanity Check ###
 
-You can quickly parse a url from the command line with the provided `parse` 
+You can quickly parse a url from the command line with the provided `parse`
 vendor binary.  From the root of your project, simply call:
 
 ``` bash
@@ -329,7 +316,7 @@ $ ./vendor/bin/parse <url>
 ```
 
 If you pass a url to `parse`, that url will be parsed and the output printed
-to screen.  
+to screen.
 
 If you do not pass a url, `http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment` will be parsed and the output printed to screen.
 
@@ -385,6 +372,19 @@ Contributing
 
 Pull requests are *always* welcome! Please review the CONTRIBUTING.md document before
 submitting pull requests.
+
+#### Heads up: BC Break In All 1.4 Versions
+
+The 1.4 series introduced a backwards incompatible change by adding PHP's `ext-mbstring`
+and `ext-intl` as dependencies.  This should have resulted in a major version
+bump.  Instead I bumped the minor version from 1.3.1 to 1.4.
+
+I highly recommend reverting to 1.3.1 if you're running into extension issues and
+do not want to or cannot install `ext-mbstring` and `ext-intl`. You will lose
+IDNA and IPv6 support, however.  Those are only available in versions >= 1.4.
+
+Version 2 is currently in the works.  Please keep an eye out.  I apologize for any
+issues you may have encountered due my [semver](http://semver.org/) error.
 
 Attribution
 -----------
