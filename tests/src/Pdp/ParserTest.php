@@ -153,6 +153,30 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @group issue46
+     *
+     * Don't add a scheme to schemeless URLs
+     *
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/46
+     */
+    public function testDoNotPrependSchemeToSchemelessUrls()
+    {
+        $schemeless = 'www.graphstory.com';
+        $expected = 'www.graphstory.com';
+        $url = $this->parser->parseUrl($schemeless);
+        $actual = $url->__toString();
+
+        $this->assertEquals($expected, $actual);
+
+        $schemeless = '//www.graphstory.com';
+        $expected = 'www.graphstory.com';
+        $url = $this->parser->parseUrl($schemeless);
+        $actual = $url->__toString();
+
+        $this->assertEquals($expected, $actual);
+    }
+
     public function parseDataProvider()
     {
         return array(
