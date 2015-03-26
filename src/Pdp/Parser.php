@@ -63,7 +63,7 @@ class Parser
         );
 
         if (preg_match(self::SCHEME_PATTERN, $url) === 0) {
-            $url = 'http://' . preg_replace('#^//#', '', $url, 1);
+            $url = '//' . preg_replace('#^//#', '', $url, 1);
         }
 
         $parts = pdp_parse_url($url);
