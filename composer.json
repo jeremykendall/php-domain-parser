@@ -44,5 +44,8 @@
         "files": [
             "src/pdp-parse-url.php"
         ]
+    },
+    "scripts": {
+        "post-install-cmd": "php bin/pdp-psl"
     }
 }
