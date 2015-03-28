@@ -118,6 +118,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group issue18
+     *
      * @see https://github.com/jeremykendall/php-domain-parser/issues/18
      */
     public function testFtpUrlToString()
@@ -135,6 +136,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
      *
      * @group issue29
      * @group issue46
+     *
      * @see https://github.com/jeremykendall/php-domain-parser/issues/29
      * @see https://github.com/jeremykendall/php-domain-parser/issues/46
      */

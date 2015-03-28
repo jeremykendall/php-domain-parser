@@ -1,19 +1,21 @@
 <?php
 
 /**
- * PHP Domain Parser: Public Suffix List based URL parsing
+ * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @link      http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
+
 namespace Pdp\Uri;
 
 use Pdp\Parser;
 use Pdp\Uri\Url\Host;
 
 /**
- * An object representation of a Url
+ * An object representation of a Url.
  */
 class Url
 {
@@ -58,7 +60,7 @@ class Url
     private $fragment;
 
     /**
-     * Public constructor
+     * Public constructor.
      *
      * @param string $scheme   The URL scheme (e.g. `http`).
      * @param string $user     The username.
@@ -90,7 +92,7 @@ class Url
     }
 
     /**
-     * Magic getter
+     * Magic getter.
      *
      * @param mixed $name Property name to get
      */
@@ -100,7 +102,7 @@ class Url
     }
 
     /**
-     * Gets schemeless url
+     * Gets schemeless url.
      *
      * @return string Url without scheme
      */

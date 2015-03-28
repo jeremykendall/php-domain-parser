@@ -1,18 +1,20 @@
 <?php
 
 /**
- * PHP Domain Parser: Public Suffix List based URL parsing
+ * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @link      http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
+
 namespace Pdp;
 
 use Pdp\HttpAdapter\HttpAdapterInterface;
 
 /**
- * Public Suffix List Manager
+ * Public Suffix List Manager.
  *
  * This class obtains, writes, caches, and returns text and PHP representations
  * of the Public Suffix List
@@ -42,7 +44,7 @@ class PublicSuffixListManager
     protected $httpAdapter;
 
     /**
-     * Public constructor
+     * Public constructor.
      *
      * @param string $cacheDir Optional cache directory
      */
@@ -59,7 +61,7 @@ class PublicSuffixListManager
 
     /**
      * Downloads Public Suffix List and writes text cache and PHP cache. If these files
-     * already exist, they will be overwritten
+     * already exist, they will be overwritten.
      */
     public function refreshPublicSuffixList()
     {
@@ -71,7 +73,7 @@ class PublicSuffixListManager
     }
 
     /**
-     * Obtain Public Suffix List from its online source and write to cache dir
+     * Obtain Public Suffix List from its online source and write to cache dir.
      *
      * @return int Number of bytes that were written to the file
      */
@@ -84,16 +86,18 @@ class PublicSuffixListManager
     }
 
     /**
-     * Parses text representation of list to associative, multidimensional array
+     * Parses text representation of list to associative, multidimensional array.
      *
      * This method is based heavily on the code found in generateEffectiveTLDs.php
+     *
      * @link https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
-     * @param  string $textFile Public Suffix List text filename
-     * @return array  Associative, multidimensional array representation of the
-     *                         public suffx list
+     * @param string $textFile Public Suffix List text filename
+     *
+     * @return array Associative, multidimensional array representation of the
+     *               public suffx list
      */
     public function parseListToArray($textFile)
     {
@@ -117,9 +121,10 @@ class PublicSuffixListManager
     }
 
     /**
-     * Recursive method to build the array representation of the Public Suffix List
+     * Recursive method to build the array representation of the Public Suffix List.
      *
      * This method is based heavily on the code found in generateEffectiveTLDs.php
+     *
      * @link https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
@@ -160,10 +165,11 @@ class PublicSuffixListManager
     }
 
     /**
-     * Writes php array representation of the Public Suffix List to disk
+     * Writes php array representation of the Public Suffix List to disk.
      *
-     * @param  array $publicSuffixList Array representation of the Public Suffix List
-     * @return int   Number of bytes that were written to the file
+     * @param array $publicSuffixList Array representation of the Public Suffix List
+     *
+     * @return int Number of bytes that were written to the file
      */
     public function writePhpCache(array $publicSuffixList)
     {
@@ -173,7 +179,7 @@ class PublicSuffixListManager
     }
 
     /**
-     * Gets Public Suffix List
+     * Gets Public Suffix List.
      *
      * @return PublicSuffixList Instance of Public Suffix List
      */
@@ -191,11 +197,13 @@ class PublicSuffixListManager
     }
 
     /**
-     * Writes to file
+     * Writes to file.
      *
-     * @param  string     $filename Filename in cache dir where data will be written
-     * @param  mixed      $data     Data to write
-     * @return int        Number of bytes that were written to the file
+     * @param string $filename Filename in cache dir where data will be written
+     * @param mixed  $data     Data to write
+     *
+     * @return int Number of bytes that were written to the file
+     *
      * @throws \Exception Throws \Exception if unable to write file
      */
     protected function write($filename, $data)
@@ -224,7 +232,7 @@ class PublicSuffixListManager
     }
 
     /**
-     * Sets http adapter
+     * Sets http adapter.
      *
      * @param \Pdp\HttpAdapter\HttpAdapterInterface $httpAdapter
      */
