@@ -21,7 +21,16 @@ use Pdp\Uri\Url\Host;
  */
 class Parser
 {
+    /**
+     * @var string RFC 3986 compliant scheme regex pattern
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     */
     const SCHEME_PATTERN = '#^([a-zA-Z][a-zA-Z0-9+\-.]*)://#';
+
+    /**
+     * @var string IP address regex pattern
+     */
     const IP_ADDRESS_PATTERN = '/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/';
 
     /**
@@ -67,13 +76,21 @@ class Parser
         );
 
         if (preg_match(self::SCHEME_PATTERN, $url) === 0) {
-            $url = '//' . preg_replace('#^//#', '', $url, 1);
+            // Wacky scheme required to overcome parse_url behavior in PHP lt 5.4.7
+            // See https://github.com/jeremykendall/php-domain-parser/issues/49
+            $url = 'php-lt-5.4.7-hack://' . preg_replace('#^//#', '', $url, 1);
         }
 
         $parts = pdp_parse_url($url);
 
         if ($parts === false) {
             throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
+        }
+
+        if ($parts['scheme'] === 'php-lt-5.4.7-hack') {
+            // Remove wacky scheme required to overcome parse_url behavior in PHP lt 5.4.7
+            // See https://github.com/jeremykendall/php-domain-parser/issues/49
+            $parts['scheme'] = null;
         }
 
         $elem = (array) $parts + $elem;

@@ -155,10 +155,12 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group issue46
+     * @group issue49
      *
      * Don't add a scheme to schemeless URLs
      *
      * @see https://github.com/jeremykendall/php-domain-parser/issues/46
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/49
      */
     public function testDoNotPrependSchemeToSchemelessUrls()
     {
