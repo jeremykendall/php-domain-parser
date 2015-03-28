@@ -128,20 +128,13 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This test fixes #29. It has been updated due to a change suggested in #46.
-     * The original $expected value was 'http://яндекс.рф', as parsing would add
-     * 'http://' to URLs that did not have a scheme. That behavior has been removed.
-     * The new $expected result is 'яндекс.рф'.
-     *
      * @group issue29
-     * @group issue46
      * @see https://github.com/jeremykendall/php-domain-parser/issues/29
-     * @see https://github.com/jeremykendall/php-domain-parser/issues/46
      */
     public function testIdnToAscii()
     {
         $idn = 'Яндекс.РФ';
-        $expected = 'яндекс.рф';
+        $expected = 'http://яндекс.рф';
         $url = $this->parser->parseUrl($idn);
         $actual = $url->__toString();
 
