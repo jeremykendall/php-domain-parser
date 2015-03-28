@@ -1,18 +1,16 @@
 <?php
 
 /**
- * PHP Domain Parser: Public Suffix List based URL parsing.
+ * PHP Domain Parser: Public Suffix List based URL parsing
  *
  * @link      http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp\Uri\Url;
 
 /**
- * Represents the host portion of a Url.
+ * Represents the host portion of a Url
  */
 class Host
 {
@@ -37,7 +35,7 @@ class Host
     private $host;
 
     /**
-     * Public constructor.
+     * Public constructor
      *
      * @param string|null $subdomain          Subdomain portion of host
      * @param string|null $registerableDomain Registerable domain portion of host
@@ -53,7 +51,7 @@ class Host
     }
 
     /**
-     * Get string representation of host.
+     * Get string representation of host
      *
      * @return string String representation of host
      */
@@ -73,7 +71,7 @@ class Host
     }
 
     /**
-     * Get array representation of host.
+     * Get array representation of host
      *
      * @return array Array representation of host
      */
@@ -88,10 +86,9 @@ class Host
     }
 
     /**
-     * Get property.
+     * Get property
      *
-     * @param string $name Property to get
-     *
+     * @param  string      $name Property to get
      * @return string|null Property requested if exists and is set, null otherwise
      */
     public function __get($name)
