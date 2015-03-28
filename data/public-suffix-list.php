@@ -2361,15 +2361,6 @@ return array (
     'rhcloud' => 
     array (
     ),
-    'sinaapp' => 
-    array (
-    ),
-    'vipsinaapp' => 
-    array (
-    ),
-    '1kapp' => 
-    array (
-    ),
     'hk' => 
     array (
     ),
@@ -17381,102 +17372,6 @@ return array (
   ),
   'su' => 
   array (
-    'adygeya' => 
-    array (
-    ),
-    'arkhangelsk' => 
-    array (
-    ),
-    'balashov' => 
-    array (
-    ),
-    'bashkiria' => 
-    array (
-    ),
-    'bryansk' => 
-    array (
-    ),
-    'dagestan' => 
-    array (
-    ),
-    'grozny' => 
-    array (
-    ),
-    'ivanovo' => 
-    array (
-    ),
-    'kalmykia' => 
-    array (
-    ),
-    'kaluga' => 
-    array (
-    ),
-    'karelia' => 
-    array (
-    ),
-    'khakassia' => 
-    array (
-    ),
-    'krasnodar' => 
-    array (
-    ),
-    'kurgan' => 
-    array (
-    ),
-    'lenug' => 
-    array (
-    ),
-    'mordovia' => 
-    array (
-    ),
-    'msk' => 
-    array (
-    ),
-    'murmansk' => 
-    array (
-    ),
-    'nalchik' => 
-    array (
-    ),
-    'nov' => 
-    array (
-    ),
-    'obninsk' => 
-    array (
-    ),
-    'penza' => 
-    array (
-    ),
-    'pokrovsk' => 
-    array (
-    ),
-    'sochi' => 
-    array (
-    ),
-    'spb' => 
-    array (
-    ),
-    'togliatti' => 
-    array (
-    ),
-    'troitsk' => 
-    array (
-    ),
-    'tula' => 
-    array (
-    ),
-    'tuva' => 
-    array (
-    ),
-    'vladikavkaz' => 
-    array (
-    ),
-    'vladimir' => 
-    array (
-    ),
-    'vologda' => 
-    array (
-    ),
   ),
   'sv' => 
   array (
