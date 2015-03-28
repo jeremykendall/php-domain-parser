@@ -24,13 +24,10 @@ namespace {
          */
         function pdp_parse_url($url, $component = -1)
         {
-            $pattern = '%([a-zA-Z][a-zA-Z0-9+\-.]*)?(:?//)?([^:/@?&=#\[\]]+)%usD';
-
             $enc_url = preg_replace_callback(
-                $pattern,
+                '%[^:/@?&=#\[\]]+%usD',
                 function ($matches) {
-                    $encoded = urlencode($matches[3]);
-                    return sprintf('%s%s%s', $matches[1], $matches[2], $encoded);
+                    return urlencode($matches[0]);
                 },
                     $url
                 );
@@ -43,10 +40,6 @@ namespace {
 
             if (is_array($parts)) {
                 foreach ($parts as $name => $value) {
-                    if ($name === 'scheme') {
-                        continue;
-                    }
-
                     $parts[$name] = urldecode($value);
                 }
             } else {
