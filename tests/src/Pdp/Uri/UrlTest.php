@@ -149,4 +149,19 @@ class UrlTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $actual);
     }
+
+    /**
+     * Scheme should not be URL encoded
+     *
+     * @group issue46
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     */
+    public function testToStringDoesNotUrlEncodeScheme()
+    {
+        // The '+' should not be URL encoded when output to string
+        $spec = 'fake-scheme+RFC-3986.compliant://www.graphstory.com';
+        $url = $this->parser->parseUrl($spec);
+        $this->assertEquals($spec, $url->__toString());
+    }
 }

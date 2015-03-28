@@ -121,7 +121,7 @@ class Url
         $url = null;
 
         if ($this->scheme) {
-            $url .= urlencode($this->scheme) . '://';
+            $url .= $this->scheme . '://';
         }
 
         if ($this->user) {
