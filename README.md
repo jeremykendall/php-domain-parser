@@ -358,13 +358,13 @@ refresh your cached copy of the Public Suffix List.
 From the root of your project, simply call:
 
 ``` bash
-$ ./vendor/bin/pdp-psl
+$ ./vendor/bin/update-psl
 ```
 
 You may verify the update by checking the timestamp on the files located in the
 `data` directory.
 
-**Important**: The vendor binary `pdp-psl` depends on an internet connection to
+**Important**: The vendor binary `update-psl` depends on an internet connection to
 update the cached Public Suffix List.
 
 Contributing

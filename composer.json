@@ -20,7 +20,7 @@
     ],
     "bin": [
         "bin/parse",
-        "bin/pdp-psl"
+        "bin/update-psl"
     ],
     "keywords": [
         "Public Suffix List",
@@ -47,6 +47,6 @@
         ]
     },
     "scripts": {
-        "post-install-cmd": "php bin/pdp-psl"
+        "post-install-cmd": "php bin/update-psl"
     }
 }
