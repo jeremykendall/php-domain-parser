@@ -121,7 +121,7 @@ class Url
         $url = null;
 
         if ($this->scheme) {
-            $url .= $this->scheme . '://';
+            $url .= mb_strtolower($this->scheme, 'UTF-8') . '://';
         }
 
         if ($this->user) {

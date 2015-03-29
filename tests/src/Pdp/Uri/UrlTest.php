@@ -154,14 +154,31 @@ class UrlTest extends \PHPUnit_Framework_TestCase
      * Scheme should not be URL encoded
      *
      * @group issue46
+     * @group issue51
      *
      * @see https://tools.ietf.org/html/rfc3986#section-3.1
      */
-    public function testToStringDoesNotUrlEncodeScheme()
+    public function test__toStringDoesNotUrlEncodeScheme()
     {
         // The '+' should not be URL encoded when output to string
         $spec = 'fake-scheme+RFC-3986.compliant://www.graphstory.com';
+        $expected = 'fake-scheme+rfc-3986.compliant://www.graphstory.com';
         $url = $this->parser->parseUrl($spec);
-        $this->assertEquals($spec, $url->__toString());
+        $this->assertEquals($expected, $url->__toString());
+    }
+
+    /**
+     * Scheme should be output in lowercase regardless of case of original arg
+     *
+     * @group issue51
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     */
+    public function testSchemeAlwaysConvertedToLowerCasePerRFC3986()
+    {
+        $spec = 'HttPS://www.google.com';
+        $expected = 'https://www.google.com';
+        $url = $this->parser->parseUrl($spec);
+        $this->assertEquals($expected, $url->__toString());
     }
 }
