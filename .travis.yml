@@ -11,4 +11,4 @@ script: phpunit
 
 before_script:
   - composer install
-  - ./bin/pdp-psl
+  - ./bin/update-psl

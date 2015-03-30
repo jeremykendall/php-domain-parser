@@ -20,7 +20,7 @@
     ],
     "bin": [
         "bin/parse",
-        "bin/pdp-psl"
+        "bin/update-psl"
     ],
     "keywords": [
         "Public Suffix List",
@@ -35,7 +35,8 @@
     },
     "require-dev": {
         "mikey179/vfsStream": "~1.4",
-        "phpunit/phpunit": "~4.4"
+        "phpunit/phpunit": "~4.4",
+        "jeremykendall/debug-die": "0.0.1.*"
     },
     "autoload": {
         "psr-0": {
@@ -44,5 +45,8 @@
         "files": [
             "src/pdp-parse-url.php"
         ]
+    },
+    "scripts": {
+        "post-install-cmd": "php bin/update-psl"
     }
 }
