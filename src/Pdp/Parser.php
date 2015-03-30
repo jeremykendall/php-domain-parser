@@ -1,25 +1,36 @@
 <?php
 
 /**
- * PHP Domain Parser: Public Suffix List based URL parsing
+ * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @link      http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
+
 namespace Pdp;
 
 use Pdp\Uri\Url;
 use Pdp\Uri\Url\Host;
 
 /**
- * Parser
+ * Parser.
  *
  * This class is reponsible for Public Suffix List based url parsing
  */
 class Parser
 {
-    const SCHEME_PATTERN = '#^(http|ftp)s?://#i';
+    /**
+     * @var string RFC 3986 compliant scheme regex pattern
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     */
+    const SCHEME_PATTERN = '#^([a-zA-Z][a-zA-Z0-9+\-.]*)://#';
+
+    /**
+     * @var string IP address regex pattern
+     */
     const IP_ADDRESS_PATTERN = '/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/';
 
     /**
@@ -33,9 +44,10 @@ class Parser
     protected $isNormalized = false;
 
     /**
-     * Public constructor
+     * Public constructor.
      *
      * @codeCoverageIgnore
+     *
      * @param PublicSuffixList $publicSuffixList Instance of PublicSuffixList
      */
     public function __construct(PublicSuffixList $publicSuffixList)
@@ -44,10 +56,11 @@ class Parser
     }
 
     /**
-     * Parses url
+     * Parses url.
      *
-     * @param  string $url Url to parse
-     * @return Url    Object representation of url
+     * @param string $url Url to parse
+     *
+     * @return Url Object representation of url
      */
     public function parseUrl($url)
     {
@@ -63,13 +76,21 @@ class Parser
         );
 
         if (preg_match(self::SCHEME_PATTERN, $url) === 0) {
-            $url = 'http://' . preg_replace('#^//#', '', $url, 1);
+            // Wacky scheme required to overcome parse_url behavior in PHP lt 5.4.7
+            // See https://github.com/jeremykendall/php-domain-parser/issues/49
+            $url = 'php-lt-5.4.7-hack://' . preg_replace('#^//#', '', $url, 1);
         }
 
         $parts = pdp_parse_url($url);
 
         if ($parts === false) {
             throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
+        }
+
+        if ($parts['scheme'] === 'php-lt-5.4.7-hack') {
+            // Remove wacky scheme required to overcome parse_url behavior in PHP lt 5.4.7
+            // See https://github.com/jeremykendall/php-domain-parser/issues/49
+            $parts['scheme'] = null;
         }
 
         $elem = (array) $parts + $elem;
@@ -89,10 +110,11 @@ class Parser
     }
 
     /**
-     * Parses host part of url
+     * Parses host part of url.
      *
-     * @param  string $host Host part of url
-     * @return Host   Object representation of host portion of url
+     * @param string $host Host part of url
+     *
+     * @return Host Object representation of host portion of url
      */
     public function parseHost($host)
     {
@@ -121,9 +143,10 @@ class Parser
 
     /**
      * Get the raw public suffix based on the cached public suffix list file.
-     * Return false if the provided suffix is not included in the PSL
+     * Return false if the provided suffix is not included in the PSL.
      *
-     * @param  string       $host The host to process
+     * @param string $host The host to process
+     *
      * @return string|false The suffix or false if suffix not included in the PSL
      */
     protected function getRawPublicSuffix($host)
@@ -173,9 +196,10 @@ class Parser
     }
 
     /**
-     * Returns the public suffix portion of provided host
+     * Returns the public suffix portion of provided host.
      *
-     * @param  string      $host host
+     * @param string $host host
+     *
      * @return string|null public suffix or null if host does not contain a public suffix
      */
     public function getPublicSuffix($host)
@@ -212,8 +236,9 @@ class Parser
      *
      * Validity determined by whether or not the suffix is included in the PSL.
      *
-     * @param  string $host Host part
-     * @return bool   True is suffix is valid, false otherwise
+     * @param string $host Host part
+     *
+     * @return bool True is suffix is valid, false otherwise
      */
     public function isSuffixValid($host)
     {
@@ -221,13 +246,14 @@ class Parser
     }
 
     /**
-     * Returns registerable domain portion of provided host
+     * Returns registerable domain portion of provided host.
      *
      * Per the test cases provided by Mozilla
      * (http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1),
      * this method should return null if the domain provided is a public suffix.
      *
-     * @param  string $host host
+     * @param string $host host
+     *
      * @return string registerable domain
      */
     public function getRegisterableDomain($host)
@@ -250,9 +276,10 @@ class Parser
     }
 
     /**
-     * Returns the subdomain portion of provided host
+     * Returns the subdomain portion of provided host.
      *
-     * @param  string $host host
+     * @param string $host host
+     *
      * @return string subdomain
      */
     public function getSubdomain($host)
@@ -279,7 +306,8 @@ class Parser
      * If a URL is not punycoded, then it may be an IDNA URL, so it must be
      * converted to ASCII. Performs conversion and sets flag.
      *
-     * @param  string $part Host part
+     * @param string $part Host part
+     *
      * @return string Host part, transformed if not punycoded
      */
     protected function normalize($part)
@@ -298,7 +326,8 @@ class Parser
      * Converts any normalized part back to IDNA. Performs conversion and
      * resets flag.
      *
-     * @param  string $part Host part
+     * @param string $part Host part
+     *
      * @return string Denormalized host part
      */
     protected function denormalize($part)
@@ -312,12 +341,13 @@ class Parser
     }
 
     /**
-     * Tests host for presence of '.'
+     * Tests host for presence of '.'.
      *
      * Related to #22
      *
-     * @param  string $host Host part of url
-     * @return bool   True if multi-label domain, false otherwise
+     * @param string $host Host part of url
+     *
+     * @return bool True if multi-label domain, false otherwise
      */
     protected function isMutliLabelDomain($host)
     {
@@ -325,12 +355,13 @@ class Parser
     }
 
     /**
-     * Tests host to determine if it is an IP address
+     * Tests host to determine if it is an IP address.
      *
      * Related to #43
      *
-     * @param  string $host Host part of url
-     * @return bool   True if host is an ip address, false otherwise
+     * @param string $host Host part of url
+     *
+     * @return bool True if host is an ip address, false otherwise
      */
     protected function isIpv4Address($host)
     {

@@ -118,6 +118,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group issue18
+     *
      * @see https://github.com/jeremykendall/php-domain-parser/issues/18
      */
     public function testFtpUrlToString()
@@ -128,16 +129,56 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * This test fixes #29. It has been updated due to a change suggested in #46.
+     * The original $expected value was 'http://яндекс.рф', as parsing would add
+     * 'http://' to URLs that did not have a scheme. That behavior has been removed.
+     * The new $expected result is 'яндекс.рф'.
+     *
      * @group issue29
+     * @group issue46
+     *
      * @see https://github.com/jeremykendall/php-domain-parser/issues/29
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/46
      */
     public function testIdnToAscii()
     {
         $idn = 'Яндекс.РФ';
-        $expected = 'http://яндекс.рф';
+        $expected = 'яндекс.рф';
         $url = $this->parser->parseUrl($idn);
         $actual = $url->__toString();
 
         $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Scheme should not be URL encoded
+     *
+     * @group issue46
+     * @group issue51
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     */
+    public function test__toStringDoesNotUrlEncodeScheme()
+    {
+        // The '+' should not be URL encoded when output to string
+        $spec = 'fake-scheme+RFC-3986.compliant://www.graphstory.com';
+        $expected = 'fake-scheme+rfc-3986.compliant://www.graphstory.com';
+        $url = $this->parser->parseUrl($spec);
+        $this->assertEquals($expected, $url->__toString());
+    }
+
+    /**
+     * Scheme should be output in lowercase regardless of case of original arg
+     *
+     * @group issue51
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     */
+    public function testSchemeAlwaysConvertedToLowerCasePerRFC3986()
+    {
+        $spec = 'HttPS://www.google.com';
+        $expected = 'https://www.google.com';
+        $url = $this->parser->parseUrl($spec);
+        $this->assertEquals($expected, $url->__toString());
     }
 }
