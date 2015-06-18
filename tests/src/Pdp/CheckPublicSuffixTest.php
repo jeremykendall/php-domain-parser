@@ -11,9 +11,9 @@ namespace Pdp;
  */
 class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
 {
-	/**
-	 * @var Parser
-	 */
+    /**
+     * @var Parser
+     */
     protected $parser;
 
     protected function setUp()

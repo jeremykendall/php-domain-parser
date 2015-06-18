@@ -181,7 +181,7 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
             $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
         );
 
-		/** @var PublicSuffixListManager $listManager */
+        /** @var PublicSuffixListManager $listManager */
         $listManager = $this->getMock(
             '\Pdp\PublicSuffixListManager',
             array('refreshPublicSuffixList'),
