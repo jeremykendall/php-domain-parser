@@ -4,9 +4,12 @@ namespace Pdp\Uri\Url;
 
 class HostTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @dataProvider hostDataProvider
-     */
+	/**
+	 * @param $publicSuffix
+	 * @param $registerableDomain
+	 * @param $subdomain
+	 * @param $hostPart
+	 */
     public function test__toString($publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
         $host = new Host(
@@ -30,9 +33,12 @@ class HostTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('www.example.com', $host->__toString());
     }
 
-    /**
-     * @dataProvider hostDataProvider
-     */
+	/**
+	 * @param $publicSuffix
+	 * @param $registerableDomain
+	 * @param $subdomain
+	 * @param $hostPart
+	 */
     public function test__get($publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
         $parts = array(
@@ -49,15 +55,18 @@ class HostTest extends \PHPUnit_Framework_TestCase
             $parts['host']
         );
 
-        $this->assertSame($hostPart, $host->host);
-        $this->assertSame($parts['subdomain'], $host->subdomain);
-        $this->assertEquals($parts['registerableDomain'], $host->registerableDomain);
-        $this->assertEquals($parts['publicSuffix'], $host->publicSuffix);
+        $this->assertSame($hostPart, $host->getHost());
+        $this->assertSame($parts['subdomain'], $host->getSubdomain());
+        $this->assertEquals($parts['registerableDomain'], $host->getRegisterableDomain());
+        $this->assertEquals($parts['publicSuffix'], $host->getPublicSuffix());
     }
 
-    /**
-     * @dataProvider hostDataProvider
-     */
+	/**
+	 * @param $publicSuffix
+	 * @param $registerableDomain
+	 * @param $subdomain
+	 * @param $hostPart
+	 */
     public function testToArray($publicSuffix, $registerableDomain, $subdomain, $hostPart)
     {
         $parts = array(
@@ -77,6 +86,9 @@ class HostTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($parts, $host->toArray());
     }
 
+	/**
+	 * @return array
+	 */
     public function hostDataProvider()
     {
         // $publicSuffix, $registerableDomain, $subdomain, $hostPart
