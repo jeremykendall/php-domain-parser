@@ -11,8 +11,6 @@
 
 namespace Pdp;
 
-use Pdp\HttpAdapter\HttpAdapterInterface;
-
 /**
  * Public Suffix List Manager.
  *
