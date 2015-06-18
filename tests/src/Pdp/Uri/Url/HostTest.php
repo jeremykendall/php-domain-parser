@@ -5,6 +5,8 @@ namespace Pdp\Uri\Url;
 class HostTest extends \PHPUnit_Framework_TestCase
 {
 	/**
+	 * @dataProvider hostDataProvider
+	 *
 	 * @param $publicSuffix
 	 * @param $registerableDomain
 	 * @param $subdomain
@@ -34,6 +36,8 @@ class HostTest extends \PHPUnit_Framework_TestCase
     }
 
 	/**
+	 * @dataProvider hostDataProvider
+	 *
 	 * @param $publicSuffix
 	 * @param $registerableDomain
 	 * @param $subdomain
@@ -62,6 +66,8 @@ class HostTest extends \PHPUnit_Framework_TestCase
     }
 
 	/**
+	 * @dataProvider hostDataProvider
+	 *
 	 * @param $publicSuffix
 	 * @param $registerableDomain
 	 * @param $subdomain
@@ -86,9 +92,6 @@ class HostTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($parts, $host->toArray());
     }
 
-	/**
-	 * @return array
-	 */
     public function hostDataProvider()
     {
         // $publicSuffix, $registerableDomain, $subdomain, $hostPart
