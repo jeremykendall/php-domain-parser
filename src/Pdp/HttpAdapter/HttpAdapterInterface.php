@@ -28,8 +28,11 @@ interface HttpAdapterInterface
      * Returns the content fetched from a given URL.
      *
      * @param string $url
+     * @param bool $ignoreSslPeer
      *
      * @return string Retrieved content
+     *
+     * @throws Exception\HttpAdapterException
      */
-    public function getContent($url);
+    public function getContent($url, $ignoreSslPeer = false);
 }
