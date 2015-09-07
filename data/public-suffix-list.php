@@ -395,9 +395,15 @@ return array (
     'org' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   'am' => 
   array (
+    'blogspot' => 
+    array (
+    ),
   ),
   'an' => 
   array (
@@ -707,6 +713,9 @@ return array (
     'rs' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   'bb' => 
   array (
@@ -870,6 +879,9 @@ return array (
     array (
     ),
     9 => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -1279,6 +1291,9 @@ return array (
     ),
     'com' => 
     array (
+      'blogspot' => 
+      array (
+      ),
     ),
     'of' => 
     array (
@@ -1470,6 +1485,9 @@ return array (
     'mil' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   'cm' => 
   array (
@@ -1493,6 +1511,15 @@ return array (
     ),
     'com' => 
     array (
+      'amazonaws' => 
+      array (
+        'cn-north-1' => 
+        array (
+          's3' => 
+          array (
+          ),
+        ),
+      ),
     ),
     'edu' => 
     array (
@@ -1637,6 +1664,9 @@ return array (
     ),
     'com' => 
     array (
+      'blogspot' => 
+      array (
+      ),
     ),
     'edu' => 
     array (
@@ -1724,13 +1754,7 @@ return array (
       's3' => 
       array (
       ),
-      's3-us-west-2' => 
-      array (
-      ),
-      's3-us-west-1' => 
-      array (
-      ),
-      's3-eu-west-1' => 
+      's3-ap-northeast-1' => 
       array (
       ),
       's3-ap-southeast-1' => 
@@ -1739,7 +1763,19 @@ return array (
       's3-ap-southeast-2' => 
       array (
       ),
-      's3-ap-northeast-1' => 
+      's3-external-1' => 
+      array (
+      ),
+      's3-external-2' => 
+      array (
+      ),
+      's3-fips-us-gov-west-1' => 
+      array (
+      ),
+      's3-eu-central-1' => 
+      array (
+      ),
+      's3-eu-west-1' => 
       array (
       ),
       's3-sa-east-1' => 
@@ -1748,35 +1784,17 @@ return array (
       's3-us-gov-west-1' => 
       array (
       ),
-      's3-fips-us-gov-west-1' => 
+      's3-us-west-1' => 
       array (
       ),
-      's3-website-us-east-1' => 
+      's3-us-west-2' => 
       array (
       ),
-      's3-website-us-west-2' => 
+      'eu-central-1' => 
       array (
-      ),
-      's3-website-us-west-1' => 
-      array (
-      ),
-      's3-website-eu-west-1' => 
-      array (
-      ),
-      's3-website-ap-southeast-1' => 
-      array (
-      ),
-      's3-website-ap-southeast-2' => 
-      array (
-      ),
-      's3-website-ap-northeast-1' => 
-      array (
-      ),
-      's3-website-sa-east-1' => 
-      array (
-      ),
-      's3-website-us-gov-west-1' => 
-      array (
+        's3' => 
+        array (
+        ),
       ),
     ),
     'elasticbeanstalk' => 
@@ -2349,6 +2367,9 @@ return array (
     'herokussl' => 
     array (
     ),
+    '4u' => 
+    array (
+    ),
     'nfshost' => 
     array (
     ),
@@ -2356,6 +2377,9 @@ return array (
     array (
     ),
     'outsystemscloud' => 
+    array (
+    ),
+    'qa2' => 
     array (
     ),
     'rhcloud' => 
@@ -2457,7 +2481,46 @@ return array (
   ),
   'cy' => 
   array (
-    '*' => 
+    'ac' => 
+    array (
+    ),
+    'biz' => 
+    array (
+    ),
+    'com' => 
+    array (
+      'blogspot' => 
+      array (
+      ),
+    ),
+    'ekloges' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'ltd' => 
+    array (
+    ),
+    'name' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'parliament' => 
+    array (
+    ),
+    'press' => 
+    array (
+    ),
+    'pro' => 
+    array (
+    ),
+    'tm' => 
     array (
     ),
   ),
@@ -2642,6 +2705,9 @@ return array (
     ),
     'com' => 
     array (
+      'blogspot' => 
+      array (
+      ),
     ),
     'pri' => 
     array (
@@ -2660,6 +2726,9 @@ return array (
   array (
     'com' => 
     array (
+      'blogspot' => 
+      array (
+      ),
     ),
     'edu' => 
     array (
@@ -2734,6 +2803,9 @@ return array (
     array (
     ),
     'info' => 
+    array (
+    ),
+    'net' => 
     array (
     ),
   ),
@@ -2934,6 +3006,21 @@ return array (
   ),
   'gl' => 
   array (
+    'co' => 
+    array (
+    ),
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
   ),
   'gm' => 
   array (
@@ -3168,6 +3255,9 @@ return array (
     'com' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   'ht' => 
   array (
@@ -3332,6 +3422,9 @@ return array (
     ),
     'co' => 
     array (
+      'blogspot' => 
+      array (
+      ),
     ),
     'desa' => 
     array (
@@ -3501,6 +3594,9 @@ return array (
     'nid' => 
     array (
     ),
+    'sandcats' => 
+    array (
+    ),
   ),
   'iq' => 
   array (
@@ -3574,6 +3670,9 @@ return array (
     array (
     ),
     'cupcake' => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -10156,6 +10255,12 @@ return array (
     '*' => 
     array (
     ),
+    'co' => 
+    array (
+      'blogspot' => 
+      array (
+      ),
+    ),
   ),
   'kg' => 
   array (
@@ -10507,6 +10612,9 @@ return array (
   ),
   'li' => 
   array (
+    'blogspot' => 
+    array (
+    ),
   ),
   'lk' => 
   array (
@@ -10552,6 +10660,9 @@ return array (
     'hotel' => 
     array (
     ),
+    'ac' => 
+    array (
+    ),
   ),
   'lr' => 
   array (
@@ -10585,9 +10696,15 @@ return array (
     'gov' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   'lu' => 
   array (
+    'blogspot' => 
+    array (
+    ),
   ),
   'lv' => 
   array (
@@ -10681,6 +10798,9 @@ return array (
   ),
   'md' => 
   array (
+    'blogspot' => 
+    array (
+    ),
   ),
   'me' => 
   array (
@@ -10735,6 +10855,9 @@ return array (
     'com' => 
     array (
     ),
+    'co' => 
+    array (
+    ),
   ),
   'mh' => 
   array (
@@ -10763,6 +10886,9 @@ return array (
     array (
     ),
     'name' => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -10869,6 +10995,9 @@ return array (
   array (
     'com' => 
     array (
+      'blogspot' => 
+      array (
+      ),
     ),
     'edu' => 
     array (
@@ -12676,6 +12805,9 @@ return array (
     'name' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   'mz' => 
   array (
@@ -12787,6 +12919,15 @@ return array (
     ),
     'in' => 
     array (
+    ),
+    'cdn77-ssl' => 
+    array (
+    ),
+    'cdn77' => 
+    array (
+      'r' => 
+      array (
+      ),
     ),
     'at-band-camp' => 
     array (
@@ -12967,6 +13108,9 @@ return array (
   array (
     'com' => 
     array (
+      'blogspot' => 
+      array (
+      ),
     ),
     'edu' => 
     array (
@@ -15446,6 +15590,27 @@ return array (
     'us' => 
     array (
     ),
+    'cdn77' => 
+    array (
+      'c' => 
+      array (
+      ),
+      'rsc' => 
+      array (
+      ),
+    ),
+    'cdn77-secure' => 
+    array (
+      'origin' => 
+      array (
+        'ssl' => 
+        array (
+        ),
+      ),
+    ),
+    'duckdns' => 
+    array (
+    ),
     'dyndns' => 
     array (
       'go' => 
@@ -15602,6 +15767,177 @@ return array (
     'webhop' => 
     array (
     ),
+    'eu' => 
+    array (
+      'al' => 
+      array (
+      ),
+      'asso' => 
+      array (
+      ),
+      'at' => 
+      array (
+      ),
+      'au' => 
+      array (
+      ),
+      'be' => 
+      array (
+      ),
+      'bg' => 
+      array (
+      ),
+      'ca' => 
+      array (
+      ),
+      'cd' => 
+      array (
+      ),
+      'ch' => 
+      array (
+      ),
+      'cn' => 
+      array (
+      ),
+      'cy' => 
+      array (
+      ),
+      'cz' => 
+      array (
+      ),
+      'de' => 
+      array (
+      ),
+      'dk' => 
+      array (
+      ),
+      'edu' => 
+      array (
+      ),
+      'ee' => 
+      array (
+      ),
+      'es' => 
+      array (
+      ),
+      'fi' => 
+      array (
+      ),
+      'fr' => 
+      array (
+      ),
+      'gr' => 
+      array (
+      ),
+      'hr' => 
+      array (
+      ),
+      'hu' => 
+      array (
+      ),
+      'ie' => 
+      array (
+      ),
+      'il' => 
+      array (
+      ),
+      'in' => 
+      array (
+      ),
+      'int' => 
+      array (
+      ),
+      'is' => 
+      array (
+      ),
+      'it' => 
+      array (
+      ),
+      'jp' => 
+      array (
+      ),
+      'kr' => 
+      array (
+      ),
+      'lt' => 
+      array (
+      ),
+      'lu' => 
+      array (
+      ),
+      'lv' => 
+      array (
+      ),
+      'mc' => 
+      array (
+      ),
+      'me' => 
+      array (
+      ),
+      'mk' => 
+      array (
+      ),
+      'mt' => 
+      array (
+      ),
+      'my' => 
+      array (
+      ),
+      'net' => 
+      array (
+      ),
+      'ng' => 
+      array (
+      ),
+      'nl' => 
+      array (
+      ),
+      'no' => 
+      array (
+      ),
+      'nz' => 
+      array (
+      ),
+      'paris' => 
+      array (
+      ),
+      'pl' => 
+      array (
+      ),
+      'pt' => 
+      array (
+      ),
+      'q-a' => 
+      array (
+      ),
+      'ro' => 
+      array (
+      ),
+      'ru' => 
+      array (
+      ),
+      'se' => 
+      array (
+      ),
+      'si' => 
+      array (
+      ),
+      'sk' => 
+      array (
+      ),
+      'tr' => 
+      array (
+      ),
+      'uk' => 
+      array (
+      ),
+      'us' => 
+      array (
+      ),
+    ),
+    'bmoattachments' => 
+    array (
+    ),
     'hk' => 
     array (
     ),
@@ -15666,6 +16002,9 @@ return array (
     array (
     ),
     'net' => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -15770,42 +16109,6 @@ return array (
     'org' => 
     array (
     ),
-    'info' => 
-    array (
-    ),
-    'waw' => 
-    array (
-    ),
-    'gov' => 
-    array (
-      'uw' => 
-      array (
-      ),
-      'um' => 
-      array (
-      ),
-      'ug' => 
-      array (
-      ),
-      'upow' => 
-      array (
-      ),
-      'starostwo' => 
-      array (
-      ),
-      'so' => 
-      array (
-      ),
-      'sr' => 
-      array (
-      ),
-      'po' => 
-      array (
-      ),
-      'pa' => 
-      array (
-      ),
-    ),
     'aid' => 
     array (
     ),
@@ -15828,6 +16131,9 @@ return array (
     array (
     ),
     'gsm' => 
+    array (
+    ),
+    'info' => 
     array (
     ),
     'mail' => 
@@ -15892,6 +16198,150 @@ return array (
     ),
     'turystyka' => 
     array (
+    ),
+    'gov' => 
+    array (
+      'ap' => 
+      array (
+      ),
+      'ic' => 
+      array (
+      ),
+      'is' => 
+      array (
+      ),
+      'us' => 
+      array (
+      ),
+      'kmpsp' => 
+      array (
+      ),
+      'kppsp' => 
+      array (
+      ),
+      'kwpsp' => 
+      array (
+      ),
+      'psp' => 
+      array (
+      ),
+      'wskr' => 
+      array (
+      ),
+      'kwp' => 
+      array (
+      ),
+      'mw' => 
+      array (
+      ),
+      'ug' => 
+      array (
+      ),
+      'um' => 
+      array (
+      ),
+      'umig' => 
+      array (
+      ),
+      'ugim' => 
+      array (
+      ),
+      'upow' => 
+      array (
+      ),
+      'uw' => 
+      array (
+      ),
+      'starostwo' => 
+      array (
+      ),
+      'pa' => 
+      array (
+      ),
+      'po' => 
+      array (
+      ),
+      'psse' => 
+      array (
+      ),
+      'pup' => 
+      array (
+      ),
+      'rzgw' => 
+      array (
+      ),
+      'sa' => 
+      array (
+      ),
+      'so' => 
+      array (
+      ),
+      'sr' => 
+      array (
+      ),
+      'wsa' => 
+      array (
+      ),
+      'sko' => 
+      array (
+      ),
+      'uzs' => 
+      array (
+      ),
+      'wiih' => 
+      array (
+      ),
+      'winb' => 
+      array (
+      ),
+      'pinb' => 
+      array (
+      ),
+      'wios' => 
+      array (
+      ),
+      'witd' => 
+      array (
+      ),
+      'wzmiuw' => 
+      array (
+      ),
+      'piw' => 
+      array (
+      ),
+      'wiw' => 
+      array (
+      ),
+      'griw' => 
+      array (
+      ),
+      'wif' => 
+      array (
+      ),
+      'oum' => 
+      array (
+      ),
+      'sdn' => 
+      array (
+      ),
+      'zp' => 
+      array (
+      ),
+      'uppo' => 
+      array (
+      ),
+      'mup' => 
+      array (
+      ),
+      'wuoz' => 
+      array (
+      ),
+      'konsulat' => 
+      array (
+      ),
+      'oirm' => 
+      array (
+      ),
     ),
     'augustow' => 
     array (
@@ -16211,6 +16661,9 @@ return array (
     'warszawa' => 
     array (
     ),
+    'waw' => 
+    array (
+    ),
     'wegrow' => 
     array (
     ),
@@ -16499,6 +16952,9 @@ return array (
     'sch' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   're' => 
   array (
@@ -16572,6 +17028,9 @@ return array (
     array (
     ),
     'in' => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -17270,6 +17729,9 @@ return array (
   ),
   'si' => 
   array (
+    'blogspot' => 
+    array (
+    ),
   ),
   'sj' => 
   array (
@@ -17322,6 +17784,9 @@ return array (
     array (
     ),
     'univ' => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -18206,6 +18671,9 @@ return array (
     'zt' => 
     array (
     ),
+    'biz' => 
+    array (
+    ),
     'co' => 
     array (
     ),
@@ -18237,6 +18705,9 @@ return array (
     array (
     ),
     'org' => 
+    array (
+    ),
+    'blogspot' => 
     array (
     ),
   ),
@@ -18970,6 +19441,9 @@ return array (
   array (
     'com' => 
     array (
+      'blogspot' => 
+      array (
+      ),
     ),
     'edu' => 
     array (
@@ -19139,6 +19613,9 @@ return array (
     'health' => 
     array (
     ),
+    'blogspot' => 
+    array (
+    ),
   ),
   'vu' => 
   array (
@@ -19188,7 +19665,13 @@ return array (
   'xn--mgbaam7a8h' => 
   array (
   ),
+  'xn--y9a3aq' => 
+  array (
+  ),
   'xn--54b7fta0cc' => 
+  array (
+  ),
+  'xn--90ais' => 
   array (
   ),
   'xn--fiqs8s' => 
@@ -19204,6 +19687,9 @@ return array (
   array (
   ),
   'xn--node' => 
+  array (
+  ),
+  'xn--qxam' => 
   array (
   ),
   'xn--j6w193g' => 
@@ -19236,6 +19722,9 @@ return array (
   'xn--mgba3a4fra' => 
   array (
   ),
+  'xn--mgbtx2b' => 
+  array (
+  ),
   'xn--mgbayh7gpa' => 
   array (
   ),
@@ -19254,13 +19743,28 @@ return array (
   'xn--mgbc0a9azcg' => 
   array (
   ),
+  'xn--d1alf' => 
+  array (
+  ),
   'xn--l1acc' => 
+  array (
+  ),
+  'xn--mix891f' => 
+  array (
+  ),
+  'xn--mix082f' => 
   array (
   ),
   'xn--mgbx4cd0ab' => 
   array (
   ),
   'xn--mgb9awbf' => 
+  array (
+  ),
+  'xn--mgbai9azgqp6j' => 
+  array (
+  ),
+  'xn--mgbai9a5eva00b' => 
   array (
   ),
   'xn--ygbi2ammx' => 
@@ -19305,16 +19809,19 @@ return array (
   'xn--mgbqly7cvafr' => 
   array (
   ),
-  'xn--ogbpf8fl' => 
-  array (
-  ),
-  'xn--mgbtf8fl' => 
+  'xn--mgbpl2fh' => 
   array (
   ),
   'xn--yfro4i67o' => 
   array (
   ),
   'xn--clchc0ea0b2g2a9gcd' => 
+  array (
+  ),
+  'xn--ogbpf8fl' => 
+  array (
+  ),
+  'xn--mgbtf8fl' => 
   array (
   ),
   'xn--o3cw4h' => 
@@ -19349,7 +19856,58 @@ return array (
   ),
   'za' => 
   array (
-    '*' => 
+    'ac' => 
+    array (
+    ),
+    'agrica' => 
+    array (
+    ),
+    'alt' => 
+    array (
+    ),
+    'co' => 
+    array (
+      'blogspot' => 
+      array (
+      ),
+    ),
+    'edu' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'grondar' => 
+    array (
+    ),
+    'law' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'ngo' => 
+    array (
+    ),
+    'nis' => 
+    array (
+    ),
+    'nom' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'school' => 
+    array (
+    ),
+    'tm' => 
+    array (
+    ),
+    'web' => 
     array (
     ),
   ),
@@ -19365,13 +19923,34 @@ return array (
     array (
     ),
   ),
+  'aaa' => 
+  array (
+  ),
+  'aarp' => 
+  array (
+  ),
+  'abarth' => 
+  array (
+  ),
   'abb' => 
   array (
   ),
   'abbott' => 
   array (
   ),
+  'abbvie' => 
+  array (
+  ),
+  'abc' => 
+  array (
+  ),
+  'able' => 
+  array (
+  ),
   'abogado' => 
+  array (
+  ),
+  'abudhabi' => 
   array (
   ),
   'academy' => 
@@ -19395,10 +19974,22 @@ return array (
   'actor' => 
   array (
   ),
+  'adac' => 
+  array (
+  ),
   'ads' => 
   array (
   ),
   'adult' => 
+  array (
+  ),
+  'aeg' => 
+  array (
+  ),
+  'aetna' => 
+  array (
+  ),
+  'afamilycompany' => 
   array (
   ),
   'afl' => 
@@ -19407,16 +19998,34 @@ return array (
   'africa' => 
   array (
   ),
+  'africamagic' => 
+  array (
+  ),
+  'agakhan' => 
+  array (
+  ),
   'agency' => 
   array (
   ),
   'aig' => 
   array (
   ),
+  'aigo' => 
+  array (
+  ),
+  'airbus' => 
+  array (
+  ),
   'airforce' => 
   array (
   ),
   'airtel' => 
+  array (
+  ),
+  'akdn' => 
+  array (
+  ),
+  'alfaromeo' => 
   array (
   ),
   'alibaba' => 
@@ -19428,7 +20037,31 @@ return array (
   'allfinanz' => 
   array (
   ),
+  'allstate' => 
+  array (
+  ),
+  'ally' => 
+  array (
+  ),
   'alsace' => 
+  array (
+  ),
+  'alstom' => 
+  array (
+  ),
+  'americanexpress' => 
+  array (
+  ),
+  'americanfamily' => 
+  array (
+  ),
+  'amex' => 
+  array (
+  ),
+  'amfam' => 
+  array (
+  ),
+  'amica' => 
   array (
   ),
   'amsterdam' => 
@@ -19443,7 +20076,16 @@ return array (
   'anquan' => 
   array (
   ),
+  'anz' => 
+  array (
+  ),
   'apartments' => 
+  array (
+  ),
+  'app' => 
+  array (
+  ),
+  'apple' => 
   array (
   ),
   'aquarelle' => 
@@ -19461,7 +20103,13 @@ return array (
   'arte' => 
   array (
   ),
+  'asda' => 
+  array (
+  ),
   'associates' => 
+  array (
+  ),
+  'athleta' => 
   array (
   ),
   'attorney' => 
@@ -19470,7 +20118,16 @@ return array (
   'auction' => 
   array (
   ),
+  'audi' => 
+  array (
+  ),
+  'audible' => 
+  array (
+  ),
   'audio' => 
+  array (
+  ),
+  'auspost' => 
   array (
   ),
   'author' => 
@@ -19485,13 +20142,25 @@ return array (
   'avianca' => 
   array (
   ),
+  'aws' => 
+  array (
+  ),
   'axa' => 
   array (
   ),
   'azure' => 
   array (
   ),
+  'baby' => 
+  array (
+  ),
   'baidu' => 
+  array (
+  ),
+  'banamex' => 
+  array (
+  ),
+  'bananarepublic' => 
   array (
   ),
   'band' => 
@@ -19512,7 +20181,13 @@ return array (
   'barclays' => 
   array (
   ),
+  'barefoot' => 
+  array (
+  ),
   'bargains' => 
+  array (
+  ),
+  'basketball' => 
   array (
   ),
   'bauhaus' => 
@@ -19524,10 +20199,19 @@ return array (
   'bbc' => 
   array (
   ),
+  'bbt' => 
+  array (
+  ),
   'bbva' => 
   array (
   ),
+  'bcg' => 
+  array (
+  ),
   'bcn' => 
+  array (
+  ),
+  'beats' => 
   array (
   ),
   'beer' => 
@@ -19540,6 +20224,12 @@ return array (
   array (
   ),
   'best' => 
+  array (
+  ),
+  'bestbuy' => 
+  array (
+  ),
+  'bet' => 
   array (
   ),
   'bharti' => 
@@ -19569,6 +20259,15 @@ return array (
   'blackfriday' => 
   array (
   ),
+  'blanco' => 
+  array (
+  ),
+  'blockbuster' => 
+  array (
+  ),
+  'blog' => 
+  array (
+  ),
   'bloomberg' => 
   array (
   ),
@@ -19590,6 +20289,12 @@ return array (
   'boats' => 
   array (
   ),
+  'boehringer' => 
+  array (
+  ),
+  'bofa' => 
+  array (
+  ),
   'bom' => 
   array (
   ),
@@ -19599,7 +20304,16 @@ return array (
   'boo' => 
   array (
   ),
+  'booking' => 
+  array (
+  ),
   'boots' => 
+  array (
+  ),
+  'bosch' => 
+  array (
+  ),
+  'bostik' => 
   array (
   ),
   'bot' => 
@@ -19620,10 +20334,16 @@ return array (
   'broker' => 
   array (
   ),
+  'brother' => 
+  array (
+  ),
   'brussels' => 
   array (
   ),
   'budapest' => 
+  array (
+  ),
+  'bugatti' => 
   array (
   ),
   'build' => 
@@ -19647,10 +20367,16 @@ return array (
   'cab' => 
   array (
   ),
+  'cafe' => 
+  array (
+  ),
   'cal' => 
   array (
   ),
   'call' => 
+  array (
+  ),
+  'calvinklein' => 
   array (
   ),
   'camera' => 
@@ -19669,6 +20395,9 @@ return array (
   array (
   ),
   'capital' => 
+  array (
+  ),
+  'capitalone' => 
   array (
   ),
   'car' => 
@@ -19713,6 +20442,15 @@ return array (
   'cbn' => 
   array (
   ),
+  'cbre' => 
+  array (
+  ),
+  'cbs' => 
+  array (
+  ),
+  'ceb' => 
+  array (
+  ),
   'center' => 
   array (
   ),
@@ -19728,13 +20466,22 @@ return array (
   'cfd' => 
   array (
   ),
+  'chanel' => 
+  array (
+  ),
   'channel' => 
+  array (
+  ),
+  'chase' => 
   array (
   ),
   'chat' => 
   array (
   ),
   'cheap' => 
+  array (
+  ),
+  'chintai' => 
   array (
   ),
   'chloe' => 
@@ -19746,13 +20493,25 @@ return array (
   'chrome' => 
   array (
   ),
+  'chrysler' => 
+  array (
+  ),
   'church' => 
+  array (
+  ),
+  'cipriani' => 
   array (
   ),
   'circle' => 
   array (
   ),
   'cisco' => 
+  array (
+  ),
+  'citadel' => 
+  array (
+  ),
+  'citi' => 
   array (
   ),
   'citic' => 
@@ -19779,7 +20538,13 @@ return array (
   'clothing' => 
   array (
   ),
+  'cloud' => 
+  array (
+  ),
   'club' => 
+  array (
+  ),
+  'clubmed' => 
   array (
   ),
   'coach' => 
@@ -19795,6 +20560,9 @@ return array (
   array (
   ),
   'cologne' => 
+  array (
+  ),
+  'comcast' => 
   array (
   ),
   'commbank' => 
@@ -19830,6 +20598,9 @@ return array (
   'cooking' => 
   array (
   ),
+  'cookingchannel' => 
+  array (
+  ),
   'cool' => 
   array (
   ),
@@ -19837,6 +20608,12 @@ return array (
   array (
   ),
   'country' => 
+  array (
+  ),
+  'coupon' => 
+  array (
+  ),
+  'coupons' => 
   array (
   ),
   'courses' => 
@@ -19899,6 +20676,12 @@ return array (
   'dclk' => 
   array (
   ),
+  'dds' => 
+  array (
+  ),
+  'deal' => 
+  array (
+  ),
   'dealer' => 
   array (
   ),
@@ -19912,6 +20695,12 @@ return array (
   array (
   ),
   'dell' => 
+  array (
+  ),
+  'deloitte' => 
+  array (
+  ),
+  'delta' => 
   array (
   ),
   'democrat' => 
@@ -19932,6 +20721,9 @@ return array (
   'dev' => 
   array (
   ),
+  'dhl' => 
+  array (
+  ),
   'diamonds' => 
   array (
   ),
@@ -19950,10 +20742,19 @@ return array (
   'discount' => 
   array (
   ),
+  'discover' => 
+  array (
+  ),
+  'dish' => 
+  array (
+  ),
   'dnp' => 
   array (
   ),
   'docs' => 
+  array (
+  ),
+  'dodge' => 
   array (
   ),
   'dog' => 
@@ -19968,16 +20769,43 @@ return array (
   'doosan' => 
   array (
   ),
+  'dot' => 
+  array (
+  ),
   'download' => 
   array (
   ),
+  'drive' => 
+  array (
+  ),
+  'dstv' => 
+  array (
+  ),
+  'dtv' => 
+  array (
+  ),
   'dubai' => 
+  array (
+  ),
+  'duck' => 
+  array (
+  ),
+  'dunlop' => 
+  array (
+  ),
+  'duns' => 
+  array (
+  ),
+  'dupont' => 
   array (
   ),
   'durban' => 
   array (
   ),
   'dvag' => 
+  array (
+  ),
+  'dwg' => 
   array (
   ),
   'earth' => 
@@ -19998,6 +20826,9 @@ return array (
   'emerck' => 
   array (
   ),
+  'emerson' => 
+  array (
+  ),
   'energy' => 
   array (
   ),
@@ -20010,10 +20841,16 @@ return array (
   'enterprises' => 
   array (
   ),
+  'epost' => 
+  array (
+  ),
   'epson' => 
   array (
   ),
   'equipment' => 
+  array (
+  ),
+  'ericsson' => 
   array (
   ),
   'erni' => 
@@ -20023,6 +20860,9 @@ return array (
   array (
   ),
   'estate' => 
+  array (
+  ),
+  'esurance' => 
   array (
   ),
   'eurovision' => 
@@ -20046,6 +20886,12 @@ return array (
   'exposed' => 
   array (
   ),
+  'express' => 
+  array (
+  ),
+  'extraspace' => 
+  array (
+  ),
   'fage' => 
   array (
   ),
@@ -20058,6 +20904,9 @@ return array (
   'faith' => 
   array (
   ),
+  'family' => 
+  array (
+  ),
   'fan' => 
   array (
   ),
@@ -20067,16 +20916,34 @@ return array (
   'farm' => 
   array (
   ),
+  'farmers' => 
+  array (
+  ),
   'fashion' => 
   array (
   ),
   'fast' => 
   array (
   ),
+  'fedex' => 
+  array (
+  ),
   'feedback' => 
   array (
   ),
+  'ferrari' => 
+  array (
+  ),
   'ferrero' => 
+  array (
+  ),
+  'fiat' => 
+  array (
+  ),
+  'fidelity' => 
+  array (
+  ),
+  'fido' => 
   array (
   ),
   'film' => 
@@ -20089,6 +20956,9 @@ return array (
   array (
   ),
   'financial' => 
+  array (
+  ),
+  'fire' => 
   array (
   ),
   'firestone' => 
@@ -20109,7 +20979,13 @@ return array (
   'fitness' => 
   array (
   ),
+  'flickr' => 
+  array (
+  ),
   'flights' => 
+  array (
+  ),
+  'flir' => 
   array (
   ),
   'florist' => 
@@ -20127,6 +21003,9 @@ return array (
   'foo' => 
   array (
   ),
+  'foodnetwork' => 
+  array (
+  ),
   'football' => 
   array (
   ),
@@ -20139,13 +21018,34 @@ return array (
   'forsale' => 
   array (
   ),
+  'forum' => 
+  array (
+  ),
   'foundation' => 
+  array (
+  ),
+  'fresenius' => 
   array (
   ),
   'frl' => 
   array (
   ),
   'frogans' => 
+  array (
+  ),
+  'frontdoor' => 
+  array (
+  ),
+  'frontier' => 
+  array (
+  ),
+  'ftr' => 
+  array (
+  ),
+  'fujitsu' => 
+  array (
+  ),
+  'fujixerox' => 
   array (
   ),
   'fund' => 
@@ -20157,10 +21057,28 @@ return array (
   'futbol' => 
   array (
   ),
+  'fyi' => 
+  array (
+  ),
   'gal' => 
   array (
   ),
   'gallery' => 
+  array (
+  ),
+  'gallo' => 
+  array (
+  ),
+  'gallup' => 
+  array (
+  ),
+  'game' => 
+  array (
+  ),
+  'games' => 
+  array (
+  ),
+  'gap' => 
   array (
   ),
   'garden' => 
@@ -20178,6 +21096,12 @@ return array (
   'gent' => 
   array (
   ),
+  'genting' => 
+  array (
+  ),
+  'george' => 
+  array (
+  ),
   'ggee' => 
   array (
   ),
@@ -20191,6 +21115,9 @@ return array (
   array (
   ),
   'giving' => 
+  array (
+  ),
+  'glade' => 
   array (
   ),
   'glass' => 
@@ -20214,6 +21141,9 @@ return array (
   'gmx' => 
   array (
   ),
+  'godaddy' => 
+  array (
+  ),
   'gold' => 
   array (
   ),
@@ -20226,6 +21156,12 @@ return array (
   'goo' => 
   array (
   ),
+  'goodhands' => 
+  array (
+  ),
+  'goodyear' => 
+  array (
+  ),
   'goog' => 
   array (
   ),
@@ -20236,6 +21172,12 @@ return array (
   array (
   ),
   'got' => 
+  array (
+  ),
+  'gotv' => 
+  array (
+  ),
+  'grainger' => 
   array (
   ),
   'graphics' => 
@@ -20251,6 +21193,9 @@ return array (
   array (
   ),
   'group' => 
+  array (
+  ),
+  'guardian' => 
   array (
   ),
   'gucci' => 
@@ -20277,10 +21222,25 @@ return array (
   'haus' => 
   array (
   ),
+  'hbo' => 
+  array (
+  ),
+  'hdfc' => 
+  array (
+  ),
+  'hdfcbank' => 
+  array (
+  ),
+  'health' => 
+  array (
+  ),
   'healthcare' => 
   array (
   ),
   'help' => 
+  array (
+  ),
+  'helsinki' => 
   array (
   ),
   'here' => 
@@ -20289,7 +21249,13 @@ return array (
   'hermes' => 
   array (
   ),
+  'hgtv' => 
+  array (
+  ),
   'hiphop' => 
+  array (
+  ),
+  'hisamitsu' => 
   array (
   ),
   'hitachi' => 
@@ -20298,16 +21264,34 @@ return array (
   'hiv' => 
   array (
   ),
+  'hkt' => 
+  array (
+  ),
+  'hockey' => 
+  array (
+  ),
   'holdings' => 
   array (
   ),
   'holiday' => 
   array (
   ),
+  'homedepot' => 
+  array (
+  ),
+  'homegoods' => 
+  array (
+  ),
   'homes' => 
   array (
   ),
+  'homesense' => 
+  array (
+  ),
   'honda' => 
+  array (
+  ),
+  'honeywell' => 
   array (
   ),
   'horse' => 
@@ -20317,6 +21301,9 @@ return array (
   array (
   ),
   'hosting' => 
+  array (
+  ),
+  'hoteles' => 
   array (
   ),
   'hotmail' => 
@@ -20331,7 +21318,22 @@ return array (
   'hsbc' => 
   array (
   ),
+  'htc' => 
+  array (
+  ),
+  'hughes' => 
+  array (
+  ),
+  'hyatt' => 
+  array (
+  ),
+  'hyundai' => 
+  array (
+  ),
   'ibm' => 
+  array (
+  ),
+  'icbc' => 
   array (
   ),
   'ice' => 
@@ -20340,10 +21342,22 @@ return array (
   'icu' => 
   array (
   ),
+  'ieee' => 
+  array (
+  ),
   'ifm' => 
   array (
   ),
   'iinet' => 
+  array (
+  ),
+  'ikano' => 
+  array (
+  ),
+  'imamat' => 
+  array (
+  ),
+  'imdb' => 
   array (
   ),
   'immo' => 
@@ -20367,10 +21381,19 @@ return array (
   'institute' => 
   array (
   ),
+  'insurance' => 
+  array (
+  ),
   'insure' => 
   array (
   ),
+  'intel' => 
+  array (
+  ),
   'international' => 
+  array (
+  ),
+  'intuit' => 
   array (
   ),
   'investments' => 
@@ -20382,6 +21405,12 @@ return array (
   'irish' => 
   array (
   ),
+  'iselect' => 
+  array (
+  ),
+  'ismaili' => 
+  array (
+  ),
   'ist' => 
   array (
   ),
@@ -20389,6 +21418,9 @@ return array (
   array (
   ),
   'itau' => 
+  array (
+  ),
+  'itv' => 
   array (
   ),
   'iwc' => 
@@ -20403,10 +21435,31 @@ return array (
   'jcb' => 
   array (
   ),
+  'jcp' => 
+  array (
+  ),
+  'jeep' => 
+  array (
+  ),
   'jetzt' => 
   array (
   ),
+  'jewelry' => 
+  array (
+  ),
+  'jio' => 
+  array (
+  ),
   'jlc' => 
+  array (
+  ),
+  'jll' => 
+  array (
+  ),
+  'jmp' => 
+  array (
+  ),
+  'jnj' => 
   array (
   ),
   'joburg' => 
@@ -20418,10 +21471,16 @@ return array (
   'joy' => 
   array (
   ),
+  'jpmorgan' => 
+  array (
+  ),
   'jprs' => 
   array (
   ),
   'juegos' => 
+  array (
+  ),
+  'juniper' => 
   array (
   ),
   'kaufen' => 
@@ -20430,13 +21489,28 @@ return array (
   'kddi' => 
   array (
   ),
+  'kerryhotels' => 
+  array (
+  ),
+  'kerrylogistics' => 
+  array (
+  ),
+  'kerryproperties' => 
+  array (
+  ),
   'kfh' => 
+  array (
+  ),
+  'kia' => 
   array (
   ),
   'kim' => 
   array (
   ),
   'kinder' => 
+  array (
+  ),
+  'kindle' => 
   array (
   ),
   'kitchen' => 
@@ -20451,6 +21525,12 @@ return array (
   'komatsu' => 
   array (
   ),
+  'kosher' => 
+  array (
+  ),
+  'kpmg' => 
+  array (
+  ),
   'kpn' => 
   array (
   ),
@@ -20460,10 +21540,31 @@ return array (
   'kred' => 
   array (
   ),
+  'kuokgroup' => 
+  array (
+  ),
+  'kyknet' => 
+  array (
+  ),
   'kyoto' => 
   array (
   ),
   'lacaixa' => 
+  array (
+  ),
+  'ladbrokes' => 
+  array (
+  ),
+  'lamborghini' => 
+  array (
+  ),
+  'lancaster' => 
+  array (
+  ),
+  'lancia' => 
+  array (
+  ),
+  'lancome' => 
   array (
   ),
   'land' => 
@@ -20472,7 +21573,16 @@ return array (
   'landrover' => 
   array (
   ),
+  'lanxess' => 
+  array (
+  ),
+  'lasalle' => 
+  array (
+  ),
   'lat' => 
+  array (
+  ),
+  'latino' => 
   array (
   ),
   'latrobe' => 
@@ -20493,7 +21603,16 @@ return array (
   'leclerc' => 
   array (
   ),
+  'lefrak' => 
+  array (
+  ),
   'legal' => 
+  array (
+  ),
+  'lego' => 
+  array (
+  ),
+  'lexus' => 
   array (
   ),
   'lgbt' => 
@@ -20520,6 +21639,9 @@ return array (
   'like' => 
   array (
   ),
+  'lilly' => 
+  array (
+  ),
   'limited' => 
   array (
   ),
@@ -20535,13 +21657,34 @@ return array (
   'link' => 
   array (
   ),
+  'lipsy' => 
+  array (
+  ),
   'live' => 
+  array (
+  ),
+  'living' => 
+  array (
+  ),
+  'lixil' => 
   array (
   ),
   'loan' => 
   array (
   ),
   'loans' => 
+  array (
+  ),
+  'locker' => 
+  array (
+  ),
+  'locus' => 
+  array (
+  ),
+  'loft' => 
+  array (
+  ),
+  'lol' => 
   array (
   ),
   'london' => 
@@ -20556,10 +21699,19 @@ return array (
   'love' => 
   array (
   ),
+  'lpl' => 
+  array (
+  ),
+  'lplfinancial' => 
+  array (
+  ),
   'ltd' => 
   array (
   ),
   'ltda' => 
+  array (
+  ),
+  'lundbeck' => 
   array (
   ),
   'lupin' => 
@@ -20569,6 +21721,9 @@ return array (
   array (
   ),
   'luxury' => 
+  array (
+  ),
+  'macys' => 
   array (
   ),
   'madrid' => 
@@ -20604,6 +21759,30 @@ return array (
   'marriott' => 
   array (
   ),
+  'marshalls' => 
+  array (
+  ),
+  'maserati' => 
+  array (
+  ),
+  'mattel' => 
+  array (
+  ),
+  'mba' => 
+  array (
+  ),
+  'mcd' => 
+  array (
+  ),
+  'mcdonalds' => 
+  array (
+  ),
+  'mckinsey' => 
+  array (
+  ),
+  'med' => 
+  array (
+  ),
   'media' => 
   array (
   ),
@@ -20619,10 +21798,16 @@ return array (
   'memorial' => 
   array (
   ),
+  'men' => 
+  array (
+  ),
   'menu' => 
   array (
   ),
   'meo' => 
+  array (
+  ),
+  'metlife' => 
   array (
   ),
   'miami' => 
@@ -20634,7 +21819,25 @@ return array (
   'mini' => 
   array (
   ),
+  'mint' => 
+  array (
+  ),
+  'mit' => 
+  array (
+  ),
+  'mitsubishi' => 
+  array (
+  ),
+  'mlb' => 
+  array (
+  ),
+  'mls' => 
+  array (
+  ),
   'mma' => 
+  array (
+  ),
+  'mnet' => 
   array (
   ),
   'mobily' => 
@@ -20649,6 +21852,9 @@ return array (
   'moi' => 
   array (
   ),
+  'mom' => 
+  array (
+  ),
   'monash' => 
   array (
   ),
@@ -20656,6 +21862,9 @@ return array (
   array (
   ),
   'montblanc' => 
+  array (
+  ),
+  'mopar' => 
   array (
   ),
   'mormon' => 
@@ -20667,13 +21876,22 @@ return array (
   'moscow' => 
   array (
   ),
+  'moto' => 
+  array (
+  ),
   'motorcycles' => 
   array (
   ),
   'mov' => 
   array (
   ),
+  'movie' => 
+  array (
+  ),
   'movistar' => 
+  array (
+  ),
+  'msd' => 
   array (
   ),
   'mtn' => 
@@ -20682,19 +21900,52 @@ return array (
   'mtpc' => 
   array (
   ),
+  'mtr' => 
+  array (
+  ),
+  'multichoice' => 
+  array (
+  ),
+  'mutual' => 
+  array (
+  ),
+  'mutuelle' => 
+  array (
+  ),
+  'mzansimagic' => 
+  array (
+  ),
+  'nab' => 
+  array (
+  ),
   'nadex' => 
   array (
   ),
   'nagoya' => 
   array (
   ),
+  'naspers' => 
+  array (
+  ),
+  'nationwide' => 
+  array (
+  ),
+  'natura' => 
+  array (
+  ),
   'navy' => 
+  array (
+  ),
+  'nba' => 
   array (
   ),
   'nec' => 
   array (
   ),
   'netbank' => 
+  array (
+  ),
+  'netflix' => 
   array (
   ),
   'network' => 
@@ -20709,7 +21960,16 @@ return array (
   'news' => 
   array (
   ),
+  'next' => 
+  array (
+  ),
+  'nextdirect' => 
+  array (
+  ),
   'nexus' => 
+  array (
+  ),
+  'nfl' => 
   array (
   ),
   'ngo' => 
@@ -20721,6 +21981,12 @@ return array (
   'nico' => 
   array (
   ),
+  'nike' => 
+  array (
+  ),
+  'nikon' => 
+  array (
+  ),
   'ninja' => 
   array (
   ),
@@ -20730,10 +21996,19 @@ return array (
   'nokia' => 
   array (
   ),
+  'northwesternmutual' => 
+  array (
+  ),
   'norton' => 
   array (
   ),
+  'now' => 
+  array (
+  ),
   'nowruz' => 
+  array (
+  ),
+  'nowtv' => 
   array (
   ),
   'nra' => 
@@ -20751,7 +22026,28 @@ return array (
   'obi' => 
   array (
   ),
+  'observer' => 
+  array (
+  ),
+  'off' => 
+  array (
+  ),
+  'office' => 
+  array (
+  ),
   'okinawa' => 
+  array (
+  ),
+  'olayan' => 
+  array (
+  ),
+  'olayangroup' => 
+  array (
+  ),
+  'oldnavy' => 
+  array (
+  ),
+  'ollo' => 
   array (
   ),
   'omega' => 
@@ -20769,13 +22065,25 @@ return array (
   'online' => 
   array (
   ),
+  'onyourside' => 
+  array (
+  ),
   'ooo' => 
+  array (
+  ),
+  'open' => 
   array (
   ),
   'oracle' => 
   array (
   ),
+  'orange' => 
+  array (
+  ),
   'organic' => 
+  array (
+  ),
+  'orientexpress' => 
   array (
   ),
   'osaka' => 
@@ -20784,10 +22092,19 @@ return array (
   'otsuka' => 
   array (
   ),
+  'ott' => 
+  array (
+  ),
   'ovh' => 
   array (
   ),
   'page' => 
+  array (
+  ),
+  'pamperedchef' => 
+  array (
+  ),
+  'panasonic' => 
   array (
   ),
   'panerai' => 
@@ -20806,6 +22123,18 @@ return array (
   array (
   ),
   'party' => 
+  array (
+  ),
+  'passagens' => 
+  array (
+  ),
+  'payu' => 
+  array (
+  ),
+  'pccw' => 
+  array (
+  ),
+  'pet' => 
   array (
   ),
   'pharmacy' => 
@@ -20844,7 +22173,13 @@ return array (
   'pin' => 
   array (
   ),
+  'ping' => 
+  array (
+  ),
   'pink' => 
+  array (
+  ),
+  'pioneer' => 
   array (
   ),
   'pizza' => 
@@ -20853,7 +22188,19 @@ return array (
   'place' => 
   array (
   ),
+  'play' => 
+  array (
+  ),
+  'playstation' => 
+  array (
+  ),
   'plumbing' => 
+  array (
+  ),
+  'plus' => 
+  array (
+  ),
+  'pnc' => 
   array (
   ),
   'pohl' => 
@@ -20862,13 +22209,22 @@ return array (
   'poker' => 
   array (
   ),
+  'politie' => 
+  array (
+  ),
   'porn' => 
+  array (
+  ),
+  'pramerica' => 
   array (
   ),
   'praxi' => 
   array (
   ),
   'press' => 
+  array (
+  ),
+  'prime' => 
   array (
   ),
   'prod' => 
@@ -20880,6 +22236,9 @@ return array (
   'prof' => 
   array (
   ),
+  'progressive' => 
+  array (
+  ),
   'promo' => 
   array (
   ),
@@ -20887,6 +22246,15 @@ return array (
   array (
   ),
   'property' => 
+  array (
+  ),
+  'protection' => 
+  array (
+  ),
+  'pru' => 
+  array (
+  ),
+  'prudential' => 
   array (
   ),
   'pub' => 
@@ -20898,13 +22266,25 @@ return array (
   'quebec' => 
   array (
   ),
+  'quest' => 
+  array (
+  ),
+  'qvc' => 
+  array (
+  ),
   'racing' => 
+  array (
+  ),
+  'raid' => 
   array (
   ),
   'read' => 
   array (
   ),
   'realtor' => 
+  array (
+  ),
+  'realty' => 
   array (
   ),
   'recipes' => 
@@ -20914,6 +22294,9 @@ return array (
   array (
   ),
   'redstone' => 
+  array (
+  ),
+  'redumbrella' => 
   array (
   ),
   'rehab' => 
@@ -20926,6 +22309,9 @@ return array (
   array (
   ),
   'reit' => 
+  array (
+  ),
+  'reliance' => 
   array (
   ),
   'ren' => 
@@ -20958,10 +22344,22 @@ return array (
   'reviews' => 
   array (
   ),
+  'rexroth' => 
+  array (
+  ),
   'rich' => 
   array (
   ),
+  'richardli' => 
+  array (
+  ),
   'ricoh' => 
+  array (
+  ),
+  'rightathome' => 
+  array (
+  ),
+  'ril' => 
   array (
   ),
   'rio' => 
@@ -20979,6 +22377,9 @@ return array (
   'rodeo' => 
   array (
   ),
+  'rogers' => 
+  array (
+  ),
   'room' => 
   array (
   ),
@@ -20986,6 +22387,12 @@ return array (
   array (
   ),
   'ruhr' => 
+  array (
+  ),
+  'run' => 
+  array (
+  ),
+  'rwe' => 
   array (
   ),
   'ryukyu' => 
@@ -21009,6 +22416,9 @@ return array (
   'salon' => 
   array (
   ),
+  'samsclub' => 
+  array (
+  ),
   'samsung' => 
   array (
   ),
@@ -21030,7 +22440,16 @@ return array (
   'sarl' => 
   array (
   ),
+  'sas' => 
+  array (
+  ),
+  'save' => 
+  array (
+  ),
   'saxo' => 
+  array (
+  ),
+  'sbi' => 
   array (
   ),
   'sbs' => 
@@ -21040,6 +22459,9 @@ return array (
   array (
   ),
   'scb' => 
+  array (
+  ),
+  'schaeffler' => 
   array (
   ),
   'schmidt' => 
@@ -21060,6 +22482,9 @@ return array (
   'science' => 
   array (
   ),
+  'scjohnson' => 
+  array (
+  ),
   'scor' => 
   array (
   ),
@@ -21067,6 +22492,9 @@ return array (
   array (
   ),
   'seat' => 
+  array (
+  ),
+  'security' => 
   array (
   ),
   'seek' => 
@@ -21078,6 +22506,12 @@ return array (
   'services' => 
   array (
   ),
+  'ses' => 
+  array (
+  ),
+  'seven' => 
+  array (
+  ),
   'sew' => 
   array (
   ),
@@ -21087,7 +22521,16 @@ return array (
   'sexy' => 
   array (
   ),
+  'sfr' => 
+  array (
+  ),
   'sharp' => 
+  array (
+  ),
+  'shaw' => 
+  array (
+  ),
+  'shell' => 
   array (
   ),
   'shia' => 
@@ -21102,13 +22545,28 @@ return array (
   'shouji' => 
   array (
   ),
+  'show' => 
+  array (
+  ),
+  'showtime' => 
+  array (
+  ),
   'shriram' => 
+  array (
+  ),
+  'silk' => 
+  array (
+  ),
+  'sina' => 
   array (
   ),
   'singles' => 
   array (
   ),
   'site' => 
+  array (
+  ),
+  'ski' => 
   array (
   ),
   'skin' => 
@@ -21120,10 +22578,25 @@ return array (
   'skype' => 
   array (
   ),
+  'sling' => 
+  array (
+  ),
+  'smart' => 
+  array (
+  ),
   'smile' => 
   array (
   ),
+  'sncf' => 
+  array (
+  ),
+  'soccer' => 
+  array (
+  ),
   'social' => 
+  array (
+  ),
+  'softbank' => 
   array (
   ),
   'software' => 
@@ -21138,6 +22611,9 @@ return array (
   'solutions' => 
   array (
   ),
+  'song' => 
+  array (
+  ),
   'sony' => 
   array (
   ),
@@ -21150,13 +22626,34 @@ return array (
   'spiegel' => 
   array (
   ),
+  'spot' => 
+  array (
+  ),
   'spreadbetting' => 
+  array (
+  ),
+  'srl' => 
+  array (
+  ),
+  'srt' => 
   array (
   ),
   'stada' => 
   array (
   ),
+  'staples' => 
+  array (
+  ),
   'star' => 
+  array (
+  ),
+  'starhub' => 
+  array (
+  ),
+  'statebank' => 
+  array (
+  ),
+  'statefarm' => 
   array (
   ),
   'statoil' => 
@@ -21174,6 +22671,12 @@ return array (
   'storage' => 
   array (
   ),
+  'store' => 
+  array (
+  ),
+  'studio' => 
+  array (
+  ),
   'study' => 
   array (
   ),
@@ -21181,6 +22684,9 @@ return array (
   array (
   ),
   'sucks' => 
+  array (
+  ),
+  'supersport' => 
   array (
   ),
   'supplies' => 
@@ -21204,6 +22710,9 @@ return array (
   'swatch' => 
   array (
   ),
+  'swiftcover' => 
+  array (
+  ),
   'swiss' => 
   array (
   ),
@@ -21222,7 +22731,16 @@ return array (
   'taipei' => 
   array (
   ),
+  'talk' => 
+  array (
+  ),
   'taobao' => 
+  array (
+  ),
+  'target' => 
+  array (
+  ),
+  'tatamotors' => 
   array (
   ),
   'tatar' => 
@@ -21234,10 +22752,25 @@ return array (
   'tax' => 
   array (
   ),
+  'taxi' => 
+  array (
+  ),
   'tci' => 
   array (
   ),
+  'tdk' => 
+  array (
+  ),
+  'team' => 
+  array (
+  ),
+  'tech' => 
+  array (
+  ),
   'technology' => 
+  array (
+  ),
+  'telecity' => 
   array (
   ),
   'telefonica' => 
@@ -21249,7 +22782,31 @@ return array (
   'tennis' => 
   array (
   ),
+  'teva' => 
+  array (
+  ),
+  'thd' => 
+  array (
+  ),
+  'theater' => 
+  array (
+  ),
+  'theatre' => 
+  array (
+  ),
+  'theguardian' => 
+  array (
+  ),
+  'tiaa' => 
+  array (
+  ),
+  'tickets' => 
+  array (
+  ),
   'tienda' => 
+  array (
+  ),
+  'tiffany' => 
   array (
   ),
   'tips' => 
@@ -21259,6 +22816,15 @@ return array (
   array (
   ),
   'tirol' => 
+  array (
+  ),
+  'tjmaxx' => 
+  array (
+  ),
+  'tjx' => 
+  array (
+  ),
+  'tkmaxx' => 
   array (
   ),
   'tmall' => 
@@ -21282,10 +22848,16 @@ return array (
   'toshiba' => 
   array (
   ),
+  'total' => 
+  array (
+  ),
   'tours' => 
   array (
   ),
   'town' => 
+  array (
+  ),
+  'toyota' => 
   array (
   ),
   'toys' => 
@@ -21300,16 +22872,43 @@ return array (
   'training' => 
   array (
   ),
+  'travelchannel' => 
+  array (
+  ),
+  'travelers' => 
+  array (
+  ),
+  'travelersinsurance' => 
+  array (
+  ),
   'trust' => 
+  array (
+  ),
+  'trv' => 
+  array (
+  ),
+  'tube' => 
   array (
   ),
   'tui' => 
   array (
   ),
+  'tunes' => 
+  array (
+  ),
   'tushu' => 
   array (
   ),
+  'tvs' => 
+  array (
+  ),
+  'ubank' => 
+  array (
+  ),
   'ubs' => 
+  array (
+  ),
+  'uconnect' => 
   array (
   ),
   'university' => 
@@ -21319,6 +22918,9 @@ return array (
   array (
   ),
   'uol' => 
+  array (
+  ),
+  'ups' => 
   array (
   ),
   'vacations' => 
@@ -21333,6 +22935,9 @@ return array (
   'ventures' => 
   array (
   ),
+  'verisign' => 
+  array (
+  ),
   'versicherung' => 
   array (
   ),
@@ -21345,13 +22950,25 @@ return array (
   'video' => 
   array (
   ),
+  'vig' => 
+  array (
+  ),
+  'viking' => 
+  array (
+  ),
   'villas' => 
+  array (
+  ),
+  'vin' => 
   array (
   ),
   'vip' => 
   array (
   ),
   'virgin' => 
+  array (
+  ),
+  'visa' => 
   array (
   ),
   'vision' => 
@@ -21366,10 +22983,16 @@ return array (
   'viva' => 
   array (
   ),
+  'vivo' => 
+  array (
+  ),
   'vlaanderen' => 
   array (
   ),
   'vodka' => 
+  array (
+  ),
+  'volkswagen' => 
   array (
   ),
   'vote' => 
@@ -21384,7 +23007,13 @@ return array (
   'voyage' => 
   array (
   ),
+  'vuelos' => 
+  array (
+  ),
   'wales' => 
+  array (
+  ),
+  'walmart' => 
   array (
   ),
   'walter' => 
@@ -21396,6 +23025,9 @@ return array (
   'wanggou' => 
   array (
   ),
+  'warman' => 
+  array (
+  ),
   'watch' => 
   array (
   ),
@@ -21405,7 +23037,13 @@ return array (
   'weather' => 
   array (
   ),
+  'weatherchannel' => 
+  array (
+  ),
   'webcam' => 
+  array (
+  ),
+  'weber' => 
   array (
   ),
   'website' => 
@@ -21415,6 +23053,12 @@ return array (
   array (
   ),
   'wedding' => 
+  array (
+  ),
+  'weibo' => 
+  array (
+  ),
+  'weir' => 
   array (
   ),
   'whoswho' => 
@@ -21435,7 +23079,19 @@ return array (
   'windows' => 
   array (
   ),
+  'wine' => 
+  array (
+  ),
+  'winners' => 
+  array (
+  ),
   'wme' => 
+  array (
+  ),
+  'wolterskluwer' => 
+  array (
+  ),
+  'woodside' => 
   array (
   ),
   'work' => 
@@ -21459,6 +23115,9 @@ return array (
   'xerox' => 
   array (
   ),
+  'xfinity' => 
+  array (
+  ),
   'xihuan' => 
   array (
   ),
@@ -21466,6 +23125,9 @@ return array (
   array (
   ),
   'xn--11b4c3d' => 
+  array (
+  ),
+  'xn--1ck2e1b' => 
   array (
   ),
   'xn--1qqw23a' => 
@@ -21480,6 +23142,9 @@ return array (
   'xn--3ds443g' => 
   array (
   ),
+  'xn--3oq18vl8pn36a' => 
+  array (
+  ),
   'xn--3pxu8k' => 
   array (
   ),
@@ -21490,6 +23155,9 @@ return array (
   array (
   ),
   'xn--4gbrim' => 
+  array (
+  ),
+  'xn--4gq48lf9j' => 
   array (
   ),
   'xn--55qw42g' => 
@@ -21516,19 +23184,31 @@ return array (
   'xn--80aswg' => 
   array (
   ),
+  'xn--8y0a063a' => 
+  array (
+  ),
   'xn--9dbq2a' => 
   array (
   ),
   'xn--9et52u' => 
   array (
   ),
+  'xn--9krt00a' => 
+  array (
+  ),
   'xn--b4w605ferd' => 
+  array (
+  ),
+  'xn--bck1b9a5dre4c' => 
   array (
   ),
   'xn--c1avg' => 
   array (
   ),
   'xn--c2br7g' => 
+  array (
+  ),
+  'xn--cck2b3b' => 
   array (
   ),
   'xn--cg4bki' => 
@@ -21552,6 +23232,12 @@ return array (
   'xn--efvy88h' => 
   array (
   ),
+  'xn--estv75g' => 
+  array (
+  ),
+  'xn--fct429k' => 
+  array (
+  ),
   'xn--fhbei' => 
   array (
   ),
@@ -21565,6 +23251,15 @@ return array (
   array (
   ),
   'xn--flw351e' => 
+  array (
+  ),
+  'xn--fzys8d69uvgm' => 
+  array (
+  ),
+  'xn--g2xx48c' => 
+  array (
+  ),
+  'xn--gckr3f0f' => 
   array (
   ),
   'xn--hxt814e' => 
@@ -21585,6 +23280,9 @@ return array (
   'xn--jlq61u9w7b' => 
   array (
   ),
+  'xn--jvr189m' => 
+  array (
+  ),
   'xn--kcrx77d1x4a' => 
   array (
   ),
@@ -21597,10 +23295,16 @@ return array (
   'xn--mgba3a3ejt' => 
   array (
   ),
+  'xn--mgba7c0bbn0a' => 
+  array (
+  ),
   'xn--mgbab2bd' => 
   array (
   ),
   'xn--mgbb9fbpob' => 
+  array (
+  ),
+  'xn--mgbca7dzdo' => 
   array (
   ),
   'xn--mgbt3dhd' => 
@@ -21645,6 +23349,9 @@ return array (
   'xn--rhqv96g' => 
   array (
   ),
+  'xn--rovu88b' => 
+  array (
+  ),
   'xn--ses554g' => 
   array (
   ),
@@ -21669,16 +23376,28 @@ return array (
   'xn--vuq861b' => 
   array (
   ),
+  'xn--w4r85el8fhu5dnra' => 
+  array (
+  ),
+  'xn--w4rs40l' => 
+  array (
+  ),
   'xn--xhq521b' => 
   array (
   ),
   'xn--zfr164b' => 
   array (
   ),
+  'xperia' => 
+  array (
+  ),
   'xyz' => 
   array (
   ),
   'yachts' => 
+  array (
+  ),
+  'yahoo' => 
   array (
   ),
   'yamaxun' => 
@@ -21696,10 +23415,16 @@ return array (
   'yokohama' => 
   array (
   ),
+  'you' => 
+  array (
+  ),
   'youtube' => 
   array (
   ),
   'yun' => 
+  array (
+  ),
+  'zappos' => 
   array (
   ),
   'zara' => 
@@ -21709,6 +23434,9 @@ return array (
   array (
   ),
   'zip' => 
+  array (
+  ),
+  'zippo' => 
   array (
   ),
   'zone' => 

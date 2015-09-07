@@ -38,7 +38,6 @@ class CurlHttpAdapter implements HttpAdapterInterface
         curl_setopt($ch, CURLOPT_URL, $url);
 
         if ($ignoreSslPeer) {
-            echo "Set CURLOPT_SSL_VERIFYPEER to false\n";
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         }
         $content = curl_exec($ch);
