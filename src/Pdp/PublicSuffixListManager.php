@@ -11,6 +11,7 @@
 
 namespace Pdp;
 
+use Pdp\HttpAdapter\Exception\HttpAdapterException;
 use Pdp\HttpAdapter\HttpAdapterInterface;
 
 /**
@@ -69,18 +70,28 @@ class PublicSuffixListManager
         $publicSuffixListArray = $this->parseListToArray(
             $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE
         );
-        $this->writePhpCache($publicSuffixListArray);
+
+        // do not empty existing PHP cache file if source TXT is empty
+        if (is_array($publicSuffixListArray) && !empty($publicSuffixListArray)) {
+            $this->writePhpCache($publicSuffixListArray);
+        }
     }
 
     /**
      * Obtain Public Suffix List from its online source and write to cache dir.
      *
-     * @return int Number of bytes that were written to the file
+     * @return int|bool Number of bytes that were written to the file OR false in case of error
      */
     public function fetchListFromSource()
     {
-        $publicSuffixList = $this->getHttpAdapter()
-            ->getContent($this->publicSuffixListUrl);
+        try {
+            $publicSuffixList = $this->getHttpAdapter()
+                ->getContent($this->publicSuffixListUrl);
+        } catch (HttpAdapterException $e) {
+            // another one trying to get the list by ignoring HTTPS certificate of connection
+            $publicSuffixList = $this->getHttpAdapter()
+                ->getContent($this->publicSuffixListUrl, true);
+        }
 
         return $this->write(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
     }

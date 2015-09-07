@@ -11,6 +11,9 @@
 
 namespace Pdp\HttpAdapter;
 
+
+use Pdp\HttpAdapter\Exception;
+
 /**
  * cURL http adapter.
  *
@@ -27,12 +30,21 @@ class CurlHttpAdapter implements HttpAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getContent($url)
+    public function getContent($url, $ignoreSslPeer = false)
     {
+        echo sprintf("Get content (ignore HTTPS: %s)...\n", $ignoreSslPeer ? 'true' : 'false');
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
+
+        if ($ignoreSslPeer) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        }
         $content = curl_exec($ch);
+
+        if ($errNo = curl_errno($ch)) {
+            throw new Exception\CurlHttpAdapterException('Cannot fetch data from URL: ' . $url, $errNo);
+        }
         curl_close($ch);
 
         return $content;
