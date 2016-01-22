@@ -20,7 +20,7 @@
     <target name="php-cs-fixer" description="PHP Codings Standards fixer">
         <exec
             passthru="${passthru}"
-            command="./vendor/bin/php-cs-fixer --verbose fix" />
+            command="./vendor/bin/php-cs-fixer fix --config-file=.php_cs --verbose" />
     </target>
 
     <target name="phpdoc" description="Generate API documentation">
