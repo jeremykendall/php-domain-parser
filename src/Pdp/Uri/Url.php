@@ -22,42 +22,171 @@ class Url
     /**
      * @var string scheme
      */
-    private $scheme;
+    protected $scheme;
 
     /**
      * @var Host Host object
      */
-    private $host;
+    protected $host;
 
     /**
      * @var int port
      */
-    private $port;
+    protected $port;
 
     /**
      * @var string user
      */
-    private $user;
+    protected $user;
 
     /**
      * @var string pass
      */
-    private $pass;
+    protected $pass;
 
     /**
      * @var string path
      */
-    private $path;
+    protected $path;
 
     /**
      * @var string query
      */
-    private $query;
+    protected $query;
 
     /**
      * @var string fragment
      */
-    private $fragment;
+    protected $fragment;
+
+    /**
+     * @return string
+     */
+    public function getScheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * @param string $scheme
+     */
+    public function setScheme( $scheme )
+    {
+        $this->scheme = $scheme;
+    }
+
+    /**
+     * @return Host
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * @param Host $host
+     */
+    public function setHost( $host )
+    {
+        $this->host = $host;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * @param int $port
+     */
+    public function setPort( $port )
+    {
+        $this->port = $port;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param string $user
+     */
+    public function setUser( $user )
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPass()
+    {
+        return $this->pass;
+    }
+
+    /**
+     * @param string $pass
+     */
+    public function setPass( $pass )
+    {
+        $this->pass = $pass;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath( $path )
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
+     * @param string $query
+     */
+    public function setQuery( $query )
+    {
+        $this->query = $query;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFragment()
+    {
+        return $this->fragment;
+    }
+
+    /**
+     * @param string $fragment
+     */
+    public function setFragment( $fragment )
+    {
+        $this->fragment = $fragment;
+    }
+
 
     /**
      * Public constructor.
@@ -91,15 +220,6 @@ class Url
         $this->fragment = $fragment;
     }
 
-    /**
-     * Magic getter.
-     *
-     * @param mixed $name Property name to get
-     */
-    public function __get($name)
-    {
-        return $this->$name;
-    }
 
     /**
      * Gets schemeless url.
@@ -169,9 +289,9 @@ class Url
             'user' => $this->user,
             'pass' => $this->pass,
             'host' => $this->host->__toString(),
-            'subdomain' => $this->host->subdomain,
-            'registerableDomain' => $this->host->registerableDomain,
-            'publicSuffix' => $this->host->publicSuffix,
+            'subdomain' => $this->host->getSubdomain(),
+            'registrableDomain' => $this->host->getRegistrableDomain(),
+            'publicSuffix' => $this->host->getPublicSuffix(),
             'port' => $this->port,
             'path' => $this->path,
             'query' => $this->query,

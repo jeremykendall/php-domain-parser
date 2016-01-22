@@ -121,21 +121,21 @@ class Parser
         $host = mb_strtolower($host, 'UTF-8');
 
         $subdomain = null;
-        $registerableDomain = null;
+        $registrableDomain = null;
         $publicSuffix = null;
 
         // Fixes #22: Single label domains are set as Host::$host and all other
         // properties are null.
         // Fixes #43: Ip Addresses should not be parsed
-        if ($this->isMutliLabelDomain($host) || !$this->isIpv4Address($host)) {
+        if ($this->isMultiLabelDomain($host) || !$this->isIpv4Address($host)) {
             $subdomain = $this->getSubdomain($host);
-            $registerableDomain = $this->getRegisterableDomain($host);
+            $registrableDomain = $this->getRegistrableDomain($host);
             $publicSuffix = $this->getPublicSuffix($host);
         }
 
         return new Host(
             $subdomain,
-            $registerableDomain,
+            $registrableDomain,
             $publicSuffix,
             $host
         );
@@ -211,7 +211,7 @@ class Parser
         // Fixes #22: If a single label domain makes it this far (e.g.,
         // localhost, foo, etc.), this stops it from incorrectly being set as
         // the public suffix.
-        if (!$this->isMutliLabelDomain($host)) {
+        if (!$this->isMultiLabelDomain($host)) {
             return;
         }
 
@@ -246,7 +246,7 @@ class Parser
     }
 
     /**
-     * Returns registerable domain portion of provided host.
+     * Returns registrable domain portion of provided host.
      *
      * Per the test cases provided by Mozilla
      * (http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1),
@@ -254,9 +254,9 @@ class Parser
      *
      * @param string $host host
      *
-     * @return string registerable domain
+     * @return string registrable domain
      */
-    public function getRegisterableDomain($host)
+    public function getRegistrableDomain($host)
     {
         if (strpos($host, '.') === false) {
             return;
@@ -270,9 +270,9 @@ class Parser
 
         $publicSuffixParts = array_reverse(explode('.', $publicSuffix));
         $hostParts = array_reverse(explode('.', $host));
-        $registerableDomainParts = $publicSuffixParts + array_slice($hostParts, 0, count($publicSuffixParts) + 1);
+        $registrableDomainParts = $publicSuffixParts + array_slice($hostParts, 0, count($publicSuffixParts) + 1);
 
-        return implode('.', array_reverse($registerableDomainParts));
+        return implode('.', array_reverse($registrableDomainParts));
     }
 
     /**
@@ -284,18 +284,18 @@ class Parser
      */
     public function getSubdomain($host)
     {
-        $registerableDomain = $this->getRegisterableDomain($host);
+        $registrableDomain = $this->getRegistrableDomain($host);
 
-        if ($registerableDomain === null || $host === $registerableDomain) {
+        if ($registrableDomain === null || $host === $registrableDomain) {
             return;
         }
 
-        $registerableDomainParts = array_reverse(explode('.', $registerableDomain));
+        $registrableDomainParts = array_reverse(explode('.', $registrableDomain));
 
         $host = $this->normalize($host);
 
         $hostParts = array_reverse(explode('.', $host));
-        $subdomainParts = array_slice($hostParts, count($registerableDomainParts));
+        $subdomainParts = array_slice($hostParts, count($registrableDomainParts));
 
         $subdomain = implode('.', array_reverse($subdomainParts));
 
@@ -349,7 +349,7 @@ class Parser
      *
      * @return bool True if multi-label domain, false otherwise
      */
-    protected function isMutliLabelDomain($host)
+    protected function isMultiLabelDomain($host)
     {
         return strpos($host, '.') !== false;
     }
