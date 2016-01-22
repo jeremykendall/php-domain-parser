@@ -14,13 +14,13 @@
         <exec
             passthru="${passthru}"
             dir="${project.basedir}"
-            command="phpunit" />
+            command="./vendor/bin/phpunit" />
     </target>
 
     <target name="php-cs-fixer" description="PHP Codings Standards fixer">
         <exec
             passthru="${passthru}"
-            command="php-cs-fixer --verbose fix" />
+            command="./vendor/bin/php-cs-fixer --verbose fix" />
     </target>
 
     <target name="phpdoc" description="Generate API documentation">
@@ -39,6 +39,5 @@
         <phingCall target="clean" />
         <phingCall target="php-cs-fixer" />
         <phingCall target="phpunit" />
-        <phingCall target="phpdoc" />
     </target>
 </project>
