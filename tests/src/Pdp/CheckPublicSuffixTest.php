@@ -64,10 +64,10 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
         $this->checkPublicSuffix('a.b.example.uk.com', 'example.uk.com');
         $this->checkPublicSuffix('test.ac', 'test.ac');
         // TLD with only 1 (wildcard) rule.
-        $this->checkPublicSuffix('cy', null);
-        $this->checkPublicSuffix('c.cy', null);
-        $this->checkPublicSuffix('b.c.cy', 'b.c.cy');
-        $this->checkPublicSuffix('a.b.c.cy', 'b.c.cy');
+        $this->checkPublicSuffix('mm', null);
+        $this->checkPublicSuffix('c.mm', null);
+        $this->checkPublicSuffix('b.c.mm', 'b.c.mm');
+        $this->checkPublicSuffix('a.b.c.mm', 'b.c.mm');
         // More complex TLD.
         $this->checkPublicSuffix('jp', null);
         $this->checkPublicSuffix('test.jp', 'test.jp');
