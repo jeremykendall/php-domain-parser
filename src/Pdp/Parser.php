@@ -8,7 +8,6 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp;
 
 use Pdp\Uri\Url;
@@ -65,13 +64,13 @@ class Parser
     public function parseUrl($url)
     {
         $elem = array(
-            'scheme'   => null,
-            'user'     => null,
-            'pass'     => null,
-            'host'     => null,
-            'port'     => null,
-            'path'     => null,
-            'query'    => null,
+            'scheme' => null,
+            'user' => null,
+            'pass' => null,
+            'host' => null,
+            'port' => null,
+            'path' => null,
+            'query' => null,
             'fragment' => null,
         );
 

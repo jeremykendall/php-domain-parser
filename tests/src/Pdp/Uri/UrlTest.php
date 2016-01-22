@@ -151,7 +151,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Scheme should not be URL encoded
+     * Scheme should not be URL encoded.
      *
      * @group issue46
      * @group issue51
@@ -168,7 +168,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Scheme should be output in lowercase regardless of case of original arg
+     * Scheme should be output in lowercase regardless of case of original arg.
      *
      * @group issue51
      *

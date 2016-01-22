@@ -8,7 +8,6 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp\Uri;
 
 use Pdp\Parser;
@@ -81,13 +80,13 @@ class Url
         $query,
         $fragment
     ) {
-        $this->scheme   = mb_strtolower($scheme, 'UTF-8');
-        $this->user     = $user;
-        $this->pass     = $pass;
-        $this->host     = $host;
-        $this->port     = $port;
-        $this->path     = $path;
-        $this->query    = $query;
+        $this->scheme = mb_strtolower($scheme, 'UTF-8');
+        $this->user = $user;
+        $this->pass = $pass;
+        $this->host = $host;
+        $this->port = $port;
+        $this->path = $path;
+        $this->query = $query;
         $this->fragment = $fragment;
     }
 
