@@ -189,7 +189,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('cea-law.co.il', 'co.il', 'cea-law.co.il', null, 'cea-law.co.il'),
             array('http://edition.cnn.com/WORLD/', 'com', 'cnn.com', 'edition', 'edition.cnn.com'),
             array('http://en.wikipedia.org/', 'org', 'wikipedia.org', 'en', 'en.wikipedia.org'),
-            array('a.b.c.cy', 'c.cy', 'b.c.cy', 'a', 'a.b.c.cy'),
+            array('a.b.c.mm', 'c.mm', 'b.c.mm', 'a', 'a.b.c.mm'),
             array('https://test.k12.ak.us', 'k12.ak.us', 'test.k12.ak.us', null, 'test.k12.ak.us'),
             array('www.scottwills.co.uk', 'co.uk', 'scottwills.co.uk', 'www', 'www.scottwills.co.uk'),
             array('b.ide.kyoto.jp', 'ide.kyoto.jp', 'b.ide.kyoto.jp', null, 'b.ide.kyoto.jp'),
