@@ -50,12 +50,35 @@ class ParserTest extends \PHPUnit_Framework_TestCase
      */
     public function testParseBadUrlThrowsInvalidArgumentException()
     {
+        $url = 'http:///example.com';
+
         $this->setExpectedException(
-            '\InvalidArgumentException',
-            'Invalid url http:///example.com'
+            'Pdp\Exception\SeriouslyMalformedUrlException',
+            sprintf('"%s" is one seriously malformed url.', $url)
         );
 
-        $this->parser->parseUrl('http:///example.com');
+        $this->parser->parseUrl($url);
+    }
+
+    /**
+     * If an empty string is passed to the parser then the hacky scheme from 
+     * issue 49 should not appear in the Exception message.
+     *
+     * @group issue54
+     *
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/54
+     *
+     * @covers Pdp\Parser::parseUrl()
+     * @covers ::pdp_parse_url
+     */
+    public function testParseEmptyStringThrowsInvalidArgumentExceptionWithoutWackySchemeInMessage()
+    {
+        $this->setExpectedException(
+            'Pdp\Exception\SeriouslyMalformedUrlException',
+            '"" is one seriously malformed url.'
+        );
+
+        $this->parser->parseUrl('');
     }
 
     /**

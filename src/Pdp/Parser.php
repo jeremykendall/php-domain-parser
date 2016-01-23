@@ -10,6 +10,7 @@
  */
 namespace Pdp;
 
+use Pdp\Exception\SeriouslyMalformedUrlException;
 use Pdp\Uri\Url;
 use Pdp\Uri\Url\Host;
 
@@ -63,6 +64,7 @@ class Parser
      */
     public function parseUrl($url)
     {
+        $rawUrl = $url;
         $elem = array(
             'scheme' => null,
             'user' => null,
@@ -83,7 +85,7 @@ class Parser
         $parts = pdp_parse_url($url);
 
         if ($parts === false) {
-            throw new \InvalidArgumentException(sprintf('Invalid url %s', $url));
+            throw new SeriouslyMalformedUrlException($rawUrl);
         }
 
         if ($parts['scheme'] === 'php-lt-5.4.7-hack') {
