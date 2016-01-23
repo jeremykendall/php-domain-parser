@@ -204,19 +204,19 @@ class Parser
     public function getPublicSuffix($host)
     {
         if (strpos($host, '.') === 0) {
-            return null;
+            return;
         }
 
         // Fixes #22: If a single label domain makes it this far (e.g.,
         // localhost, foo, etc.), this stops it from incorrectly being set as
         // the public suffix.
         if (!$this->isMutliLabelDomain($host)) {
-            return null;
+            return;
         }
 
         // Fixes #43
         if ($this->isIpv4Address($host)) {
-            return null;
+            return;
         }
 
         $suffix = $this->getRawPublicSuffix($host);
@@ -258,13 +258,13 @@ class Parser
     public function getRegisterableDomain($host)
     {
         if (strpos($host, '.') === false) {
-            return null;
+            return;
         }
 
         $publicSuffix = $this->getPublicSuffix($host);
 
         if ($publicSuffix === null || $host == $publicSuffix) {
-            return null;
+            return;
         }
 
         $publicSuffixParts = array_reverse(explode('.', $publicSuffix));
@@ -286,7 +286,7 @@ class Parser
         $registerableDomain = $this->getRegisterableDomain($host);
 
         if ($registerableDomain === null || $host === $registerableDomain) {
-            return null;
+            return;
         }
 
         $registerableDomainParts = array_reverse(explode('.', $registerableDomain));
