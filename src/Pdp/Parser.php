@@ -8,7 +8,6 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp;
 
 use Pdp\Uri\Url;
@@ -65,13 +64,13 @@ class Parser
     public function parseUrl($url)
     {
         $elem = array(
-            'scheme'   => null,
-            'user'     => null,
-            'pass'     => null,
-            'host'     => null,
-            'port'     => null,
-            'path'     => null,
-            'query'    => null,
+            'scheme' => null,
+            'user' => null,
+            'pass' => null,
+            'host' => null,
+            'port' => null,
+            'path' => null,
+            'query' => null,
             'fragment' => null,
         );
 
@@ -254,7 +253,7 @@ class Parser
      *
      * @param string $host host
      *
-     * @return string registrable domain
+     * @return string|null registerable domain
      */
     public function getRegistrableDomain($host)
     {
@@ -280,7 +279,7 @@ class Parser
      *
      * @param string $host host
      *
-     * @return string subdomain
+     * @return string|null subdomain
      */
     public function getSubdomain($host)
     {

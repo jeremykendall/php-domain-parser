@@ -4,6 +4,9 @@ namespace Pdp;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Parser
+     */
     protected $parser;
 
     protected function setUp()
@@ -56,8 +59,14 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\Parser::parseUrl()
+     * @covers       Pdp\Parser::parseUrl()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function testParseUrl($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
@@ -66,9 +75,15 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\Parser::parseUrl()
-     * @covers Pdp\Parser::parseHost()
+     * @covers       Pdp\Parser::parseUrl()
+     * @covers       Pdp\Parser::parseHost()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function testParseHost($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
@@ -81,9 +96,15 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\Parser::parseUrl()
-     * @covers Pdp\Parser::getPublicSuffix()
+     * @covers       Pdp\Parser::parseUrl()
+     * @covers       Pdp\Parser::getPublicSuffix()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function testGetPublicSuffix($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
@@ -107,6 +128,12 @@ class ParserTest extends \PHPUnit_Framework_TestCase
      * @covers Pdp\Parser::parseUrl()
      * @covers Pdp\Parser::getRegistrableDomain()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function testGetRegistrableDomain($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
@@ -116,9 +143,15 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\Parser::parseUrl()
-     * @covers Pdp\Parser::getSubdomain()
+     * @covers       Pdp\Parser::parseUrl()
+     * @covers       Pdp\Parser::getSubdomain()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function testGetSubdomain($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
@@ -144,6 +177,12 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider parseDataProvider
      * @covers ::pdp_parse_url
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function testpdp_parse_urlCanReturnCorrectHost($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {

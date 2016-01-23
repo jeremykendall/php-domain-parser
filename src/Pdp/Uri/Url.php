@@ -8,7 +8,6 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp\Uri;
 
 use Pdp\Parser;
@@ -60,135 +59,6 @@ class Url
     protected $fragment;
 
     /**
-     * @return string
-     */
-    public function getScheme()
-    {
-        return $this->scheme;
-    }
-
-    /**
-     * @param string $scheme
-     */
-    public function setScheme( $scheme )
-    {
-        $this->scheme = $scheme;
-    }
-
-    /**
-     * @return Host
-     */
-    public function getHost()
-    {
-        return $this->host;
-    }
-
-    /**
-     * @param Host $host
-     */
-    public function setHost( $host )
-    {
-        $this->host = $host;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPort()
-    {
-        return $this->port;
-    }
-
-    /**
-     * @param int $port
-     */
-    public function setPort( $port )
-    {
-        $this->port = $port;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param string $user
-     */
-    public function setUser( $user )
-    {
-        $this->user = $user;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPass()
-    {
-        return $this->pass;
-    }
-
-    /**
-     * @param string $pass
-     */
-    public function setPass( $pass )
-    {
-        $this->pass = $pass;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param string $path
-     */
-    public function setPath( $path )
-    {
-        $this->path = $path;
-    }
-
-    /**
-     * @return string
-     */
-    public function getQuery()
-    {
-        return $this->query;
-    }
-
-    /**
-     * @param string $query
-     */
-    public function setQuery( $query )
-    {
-        $this->query = $query;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFragment()
-    {
-        return $this->fragment;
-    }
-
-    /**
-     * @param string $fragment
-     */
-    public function setFragment( $fragment )
-    {
-        $this->fragment = $fragment;
-    }
-
-
-    /**
      * Public constructor.
      *
      * @param string $scheme   The URL scheme (e.g. `http`).
@@ -210,13 +80,13 @@ class Url
         $query,
         $fragment
     ) {
-        $this->scheme   = mb_strtolower($scheme, 'UTF-8');
-        $this->user     = $user;
-        $this->pass     = $pass;
-        $this->host     = $host;
-        $this->port     = $port;
-        $this->path     = $path;
-        $this->query    = $query;
+        $this->scheme = mb_strtolower($scheme, 'UTF-8');
+        $this->user = $user;
+        $this->pass = $pass;
+        $this->host = $host;
+        $this->port = $port;
+        $this->path = $path;
+        $this->query = $query;
         $this->fragment = $fragment;
     }
 
@@ -297,5 +167,85 @@ class Url
             'query' => $this->query,
             'fragment' => $this->fragment,
         );
+    }
+
+    /**
+     * Get Scheme.
+     *
+     * @return string
+     */
+    public function getScheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * Get User.
+     *
+     * @return string
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Get Pass.
+     *
+     * @return string
+     */
+    public function getPass()
+    {
+        return $this->pass;
+    }
+
+    /**
+     * Get Host object.
+     *
+     * @return Host
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * Get Port.
+     *
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * Get Path.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Get Query.
+     *
+     * @return string
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
+     * Get Fragment.
+     *
+     * @return string
+     */
+    public function getFragment()
+    {
+        return $this->fragment;
     }
 }

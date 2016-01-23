@@ -8,9 +8,7 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp;
-
 
 /**
  * Public Suffix List Manager.

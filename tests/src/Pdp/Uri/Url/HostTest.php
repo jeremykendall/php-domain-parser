@@ -6,6 +6,11 @@ class HostTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider hostDataProvider
+     *
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function test__toString($publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
@@ -32,6 +37,11 @@ class HostTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider hostDataProvider
+     *
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function test__get($publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
@@ -57,6 +67,11 @@ class HostTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider hostDataProvider
+     *
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
     public function testToArray($publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {

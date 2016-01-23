@@ -8,7 +8,6 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp\Uri\Url;
 
 /**
@@ -52,9 +51,10 @@ class Host
         $this->host               = $host;
     }
 
-
     /**
-     * @return string
+     * Get Subdomain.
+     *
+     * @return string|null
      */
     public function getSubdomain()
     {
@@ -64,7 +64,7 @@ class Host
     /**
      * @param string $subdomain
      */
-    public function setSubdomain( $subdomain )
+    public function setSubdomain ( $subdomain )
     {
         $this->subdomain = $subdomain;
     }
@@ -86,7 +86,9 @@ class Host
     }
 
     /**
-     * @return string
+     * Get Public suffix.
+     *
+     * @return string|null
      */
     public function getPublicSuffix()
     {
@@ -102,7 +104,9 @@ class Host
     }
 
     /**
-     * @return string
+     * Get Entire host part.
+     *
+     * @return string|null
      */
     public function getHost()
     {
@@ -116,7 +120,6 @@ class Host
     {
         $this->host = $host;
     }
-
 
     /**
      * Get string representation of host.
