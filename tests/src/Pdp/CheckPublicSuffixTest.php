@@ -142,6 +142,6 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
      */
     public function checkPublicSuffix($input, $expected)
     {
-        $this->assertSame($expected, $this->parser->getRegisterableDomain($input));
+        $this->assertSame($expected, $this->parser->getRegistrableDomain($input));
     }
 }

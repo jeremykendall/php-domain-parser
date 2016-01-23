@@ -8,15 +8,15 @@ class HostTest extends \PHPUnit_Framework_TestCase
      * @dataProvider hostDataProvider
      *
      * @param $publicSuffix
-     * @param $registerableDomain
+     * @param $registrableDomain
      * @param $subdomain
      * @param $hostPart
      */
-    public function test__toString($publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function test__toString($publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $host = new Host(
             $subdomain,
-            $registerableDomain,
+            $registrableDomain,
             $publicSuffix,
             $hostPart
         );
@@ -39,29 +39,29 @@ class HostTest extends \PHPUnit_Framework_TestCase
      * @dataProvider hostDataProvider
      *
      * @param $publicSuffix
-     * @param $registerableDomain
+     * @param $registrableDomain
      * @param $subdomain
      * @param $hostPart
      */
-    public function test__get($publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function test__get($publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $parts = array(
             'subdomain' => $subdomain,
-            'registerableDomain' => $registerableDomain,
+            'registrableDomain' => $registrableDomain,
             'publicSuffix' => $publicSuffix,
             'host' => $hostPart,
         );
 
         $host = new Host(
             $parts['subdomain'],
-            $parts['registerableDomain'],
+            $parts['registrableDomain'],
             $parts['publicSuffix'],
             $parts['host']
         );
 
         $this->assertSame($hostPart, $host->getHost());
         $this->assertSame($parts['subdomain'], $host->getSubdomain());
-        $this->assertEquals($parts['registerableDomain'], $host->getRegisterableDomain());
+        $this->assertEquals($parts['registrableDomain'], $host->getRegistrableDomain());
         $this->assertEquals($parts['publicSuffix'], $host->getPublicSuffix());
     }
 
@@ -69,22 +69,22 @@ class HostTest extends \PHPUnit_Framework_TestCase
      * @dataProvider hostDataProvider
      *
      * @param $publicSuffix
-     * @param $registerableDomain
+     * @param $registrableDomain
      * @param $subdomain
      * @param $hostPart
      */
-    public function testToArray($publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testToArray($publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $parts = array(
             'subdomain' => $subdomain,
-            'registerableDomain' => $registerableDomain,
+            'registrableDomain' => $registrableDomain,
             'publicSuffix' => $publicSuffix,
             'host' => $hostPart,
         );
 
         $host = new Host(
             $parts['subdomain'],
-            $parts['registerableDomain'],
+            $parts['registrableDomain'],
             $parts['publicSuffix'],
             $parts['host']
         );
@@ -94,7 +94,7 @@ class HostTest extends \PHPUnit_Framework_TestCase
 
     public function hostDataProvider()
     {
-        // $publicSuffix, $registerableDomain, $subdomain, $hostPart
+        // $publicSuffix, $registrableDomain, $subdomain, $hostPart
         return array(
             array('com.au', 'waxaudio.com.au', 'www', 'www.waxaudio.com.au'),
             array('com', 'example.com', null, 'example.com'),
