@@ -80,7 +80,9 @@ class Url
         $query,
         $fragment
     ) {
-        $this->scheme = mb_strtolower($scheme, 'UTF-8');
+        // Ensure scheme is either a legit scheme or null, never an empty string.
+        // @see https://github.com/jeremykendall/php-domain-parser/issues/53
+        $this->scheme = mb_strtolower($scheme, 'UTF-8') ?: null;
         $this->user = $user;
         $this->pass = $pass;
         $this->host = $host;
