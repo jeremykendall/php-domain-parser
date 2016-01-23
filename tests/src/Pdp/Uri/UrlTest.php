@@ -105,7 +105,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
             'pass' => 'guest',
             'host' => 'example.com',
             'subdomain' => null,
-            'registerableDomain' => 'example.com',
+            'registrableDomain' => 'example.com',
             'publicSuffix' => 'com',
             'port' => 8080,
             'path' => '/path/to/index.php/foo/bar.xml',

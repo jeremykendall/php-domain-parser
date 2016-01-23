@@ -11,10 +11,10 @@ domain parser implemented in PHP.
 
 While there are plenty of excellent URL parsers and builders available, there
 are very few projects that can accurately parse a url into its component
-subdomain, registerable domain, and public suffix parts.
+subdomain, registrable domain, and public suffix parts.
 
 Consider the domain www.pref.okinawa.jp.  In this domain, the
-*public suffix* portion is **okinawa.jp**, the *registerable domain* is
+*public suffix* portion is **okinawa.jp**, the *registrable domain* is
 **pref.okinawa.jp**, and the *subdomain* is **www**. You can't regex that.
 
 Other similar libraries focus primarily on URL building, parsing, and
@@ -77,7 +77,7 @@ class Pdp\Uri\Url#6 (8) {
     class Pdp\Uri\Url\Host#5 (3) {
         private $subdomain =>
         string(3) "www"
-        private $registerableDomain =>
+        private $registrableDomain =>
         string(15) "pref.okinawa.jp"
         private $publicSuffix =>
         string(10) "okinawa.jp"
@@ -139,7 +139,7 @@ class Pdp\Uri\Url#6 (8) {
   class Pdp\Uri\Url\Host#5 (4) {
     private $subdomain =>
     NULL
-    private $registerableDomain =>
+    private $registrableDomain =>
     string(17) "яндекс.рф"
     private $publicSuffix =>
     string(4) "рф"
@@ -175,7 +175,7 @@ class Pdp\Uri\Url#6 (8) {
   class Pdp\Uri\Url\Host#5 (4) {
     private $subdomain =>
     NULL
-    private $registerableDomain =>
+    private $registrableDomain =>
     string(22) "xn--d1acpjx3f.xn--p1ai"
     private $publicSuffix =>
     string(8) "xn--p1ai"
@@ -211,7 +211,7 @@ class Pdp\Uri\Url#6 (8) {
   class Pdp\Uri\Url\Host#5 (4) {
     private $subdomain =>
     NULL
-    private $registerableDomain =>
+    private $registrableDomain =>
     NULL
     private $publicSuffix =>
     NULL
@@ -257,7 +257,7 @@ The above will output:
 class Pdp\Uri\Url\Host#7 (3) {
     private $subdomain =>
     string(1) "a"
-    private $registerableDomain =>
+    private $registrableDomain =>
     string(6) "b.c.cy"
     private $publicSuffix =>
     string(4) "c.cy"
@@ -292,7 +292,7 @@ retrieve only the component you're interested in
 <?php
 
 var_dump($parser->getSubdomain('www.scottwills.co.uk'));
-var_dump($parser->getRegisterableDomain('www.scottwills.co.uk'));
+var_dump($parser->getRegistrableDomain('www.scottwills.co.uk'));
 var_dump($parser->getPublicSuffix('www.scottwills.co.uk'));
 ```
 
@@ -331,7 +331,7 @@ Array
     [pass] =>
     [host] => www.waxaudio.com.au
     [subdomain] => www
-    [registerableDomain] => waxaudio.com.au
+    [registrableDomain] => waxaudio.com.au
     [publicSuffix] => com.au
     [port] =>
     [path] => /

@@ -21,42 +21,42 @@ class Url
     /**
      * @var string scheme
      */
-    private $scheme;
+    protected $scheme;
 
     /**
      * @var Host Host object
      */
-    private $host;
+    protected $host;
 
     /**
      * @var int port
      */
-    private $port;
+    protected $port;
 
     /**
      * @var string user
      */
-    private $user;
+    protected $user;
 
     /**
      * @var string pass
      */
-    private $pass;
+    protected $pass;
 
     /**
      * @var string path
      */
-    private $path;
+    protected $path;
 
     /**
      * @var string query
      */
-    private $query;
+    protected $query;
 
     /**
      * @var string fragment
      */
-    private $fragment;
+    protected $fragment;
 
     /**
      * Public constructor.
@@ -92,15 +92,6 @@ class Url
         $this->fragment = $fragment;
     }
 
-    /**
-     * Magic getter.
-     *
-     * @param mixed $name Property name to get
-     */
-    public function __get($name)
-    {
-        return $this->$name;
-    }
 
     /**
      * Gets schemeless url.
@@ -171,7 +162,7 @@ class Url
             'pass' => $this->pass,
             'host' => $this->host->__toString(),
             'subdomain' => $this->host->getSubdomain(),
-            'registerableDomain' => $this->host->getRegisterableDomain(),
+            'registrableDomain' => $this->host->getRegistrableDomain(),
             'publicSuffix' => $this->host->getPublicSuffix(),
             'port' => $this->port,
             'path' => $this->path,
