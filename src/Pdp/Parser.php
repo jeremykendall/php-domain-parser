@@ -255,7 +255,7 @@ class Parser
      *
      * @param string $host host
      *
-     * @return string|null registerable domain
+     * @return string|null registrable domain
      */
     public function getRegistrableDomain($host)
     {
