@@ -168,13 +168,93 @@ class Url
             'user' => $this->user,
             'pass' => $this->pass,
             'host' => $this->host->__toString(),
-            'subdomain' => $this->host->subdomain,
-            'registerableDomain' => $this->host->registerableDomain,
-            'publicSuffix' => $this->host->publicSuffix,
+            'subdomain' => $this->host->getSubdomain(),
+            'registerableDomain' => $this->host->getRegisterableDomain(),
+            'publicSuffix' => $this->host->getPublicSuffix(),
             'port' => $this->port,
             'path' => $this->path,
             'query' => $this->query,
             'fragment' => $this->fragment,
         );
+    }
+
+    /**
+     * Get Scheme.
+     *
+     * @return string
+     */
+    public function getScheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * Get User.
+     *
+     * @return string
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Get Pass.
+     *
+     * @return string
+     */
+    public function getPass()
+    {
+        return $this->pass;
+    }
+
+    /**
+     * Get Host object.
+     *
+     * @return Host
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * Get Port.
+     *
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * Get Path.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Get Query.
+     *
+     * @return string
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
+     * Get Fragment.
+     *
+     * @return string
+     */
+    public function getFragment()
+    {
+        return $this->fragment;
     }
 }

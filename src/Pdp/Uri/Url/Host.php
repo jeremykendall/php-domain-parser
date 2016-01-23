@@ -97,4 +97,44 @@ class Host
     {
         return $this->$name;
     }
+
+    /**
+     * Get Subdomain.
+     *
+     * @return null|string
+     */
+    public function getSubdomain()
+    {
+        return $this->subdomain;
+    }
+
+    /**
+     * Get Registerable domain.
+     *
+     * @return null|string
+     */
+    public function getRegisterableDomain()
+    {
+        return $this->registerableDomain;
+    }
+
+    /**
+     * Get Public suffix.
+     *
+     * @return null|string
+     */
+    public function getPublicSuffix()
+    {
+        return $this->publicSuffix;
+    }
+
+    /**
+     * Get Entire host part.
+     *
+     * @return null|string
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
 }

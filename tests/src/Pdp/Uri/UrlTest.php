@@ -87,14 +87,14 @@ class UrlTest extends \PHPUnit_Framework_TestCase
             'fragment' => 'anchor',
         );
 
-        $this->assertEquals($expected['scheme'], $this->url->scheme);
-        $this->assertEquals($expected['user'], $this->url->user);
-        $this->assertEquals($expected['pass'], $this->url->pass);
-        $this->assertEquals($expected['host'], $this->url->host->__toString());
-        $this->assertEquals($expected['port'], $this->url->port);
-        $this->assertEquals($expected['path'], $this->url->path);
-        $this->assertEquals($expected['query'], $this->url->query);
-        $this->assertEquals($expected['fragment'], $this->url->fragment);
+        $this->assertEquals($expected['scheme'], $this->url->getScheme());
+        $this->assertEquals($expected['user'], $this->url->getUser());
+        $this->assertEquals($expected['pass'], $this->url->getPass());
+        $this->assertEquals($expected['host'], $this->url->getHost()->__toString());
+        $this->assertEquals($expected['port'], $this->url->getPort());
+        $this->assertEquals($expected['path'], $this->url->getPath());
+        $this->assertEquals($expected['query'], $this->url->getQuery());
+        $this->assertEquals($expected['fragment'], $this->url->getFragment());
     }
 
     public function testToArray()
