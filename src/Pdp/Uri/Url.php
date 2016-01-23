@@ -156,17 +156,17 @@ class Url
     public function toArray()
     {
         return array(
-            'scheme' => $this->scheme,
-            'user' => $this->user,
-            'pass' => $this->pass,
-            'host' => $this->host->__toString(),
-            'subdomain' => $this->host->getSubdomain(),
-            'registrableDomain' => $this->host->getRegistrableDomain(),
-            'publicSuffix' => $this->host->getPublicSuffix(),
-            'port' => $this->port,
-            'path' => $this->path,
-            'query' => $this->query,
-            'fragment' => $this->fragment,
+            'scheme' => $this->getScheme(),
+            'user' => $this->getUser(),
+            'pass' => $this->getPass(),
+            'host' => $this->getHost()->__toString(),
+            'subdomain' => $this->getHost()->getSubdomain(),
+            'registrableDomain' => $this->getHost()->getRegistrableDomain(),
+            'publicSuffix' => $this->getHost()->getPublicSuffix(),
+            'port' => $this->getPort(),
+            'path' => $this->getPath(),
+            'query' => $this->getQuery(),
+            'fragment' => $this->getFragment(),
         );
     }
 

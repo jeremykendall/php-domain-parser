@@ -43,36 +43,6 @@ class HostTest extends \PHPUnit_Framework_TestCase
      * @param $subdomain
      * @param $hostPart
      */
-    public function test__get($publicSuffix, $registrableDomain, $subdomain, $hostPart)
-    {
-        $parts = array(
-            'subdomain' => $subdomain,
-            'registrableDomain' => $registrableDomain,
-            'publicSuffix' => $publicSuffix,
-            'host' => $hostPart,
-        );
-
-        $host = new Host(
-            $parts['subdomain'],
-            $parts['registrableDomain'],
-            $parts['publicSuffix'],
-            $parts['host']
-        );
-
-        $this->assertSame($hostPart, $host->getHost());
-        $this->assertSame($parts['subdomain'], $host->getSubdomain());
-        $this->assertEquals($parts['registrableDomain'], $host->getRegistrableDomain());
-        $this->assertEquals($parts['publicSuffix'], $host->getPublicSuffix());
-    }
-
-    /**
-     * @dataProvider hostDataProvider
-     *
-     * @param $publicSuffix
-     * @param $registrableDomain
-     * @param $subdomain
-     * @param $hostPart
-     */
     public function testToArray($publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $parts = array(

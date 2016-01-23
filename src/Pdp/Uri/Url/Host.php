@@ -62,27 +62,11 @@ class Host
     }
 
     /**
-     * @param string $subdomain
-     */
-    public function setSubdomain($subdomain)
-    {
-        $this->subdomain = $subdomain;
-    }
-
-    /**
      * @return string
      */
     public function getRegistrableDomain()
     {
         return $this->registrableDomain;
-    }
-
-    /**
-     * @param string $registrableDomain
-     */
-    public function setRegistrableDomain($registrableDomain)
-    {
-        $this->registrableDomain = $registrableDomain;
     }
 
     /**
@@ -96,14 +80,6 @@ class Host
     }
 
     /**
-     * @param string $publicSuffix
-     */
-    public function setPublicSuffix($publicSuffix)
-    {
-        $this->publicSuffix = $publicSuffix;
-    }
-
-    /**
      * Get Entire host part.
      *
      * @return string|null
@@ -111,14 +87,6 @@ class Host
     public function getHost()
     {
         return $this->host;
-    }
-
-    /**
-     * @param string $host
-     */
-    public function setHost($host)
-    {
-        $this->host = $host;
     }
 
     /**
@@ -149,10 +117,10 @@ class Host
     public function toArray()
     {
         return array(
-            'subdomain' => $this->subdomain,
-            'registrableDomain' => $this->registrableDomain,
-            'publicSuffix' => $this->publicSuffix,
-            'host' => $this->host,
+            'subdomain' => $this->getSubdomain(),
+            'registrableDomain' => $this->getRegistrableDomain(),
+            'publicSuffix' => $this->getPublicSuffix(),
+            'host' => $this->getHost(),
         );
     }
 }

@@ -74,29 +74,6 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($schemeless, $this->url->getSchemeless());
     }
 
-    public function test__getProperties()
-    {
-        $expected = array(
-            'scheme' => 'http',
-            'user' => 'anonymous',
-            'pass' => 'guest',
-            'host' => 'example.com',
-            'port' => 8080,
-            'path' => '/path/to/index.php/foo/bar.xml',
-            'query' => 'baz=dib',
-            'fragment' => 'anchor',
-        );
-
-        $this->assertEquals($expected['scheme'], $this->url->getScheme());
-        $this->assertEquals($expected['user'], $this->url->getUser());
-        $this->assertEquals($expected['pass'], $this->url->getPass());
-        $this->assertEquals($expected['host'], $this->url->getHost()->__toString());
-        $this->assertEquals($expected['port'], $this->url->getPort());
-        $this->assertEquals($expected['path'], $this->url->getPath());
-        $this->assertEquals($expected['query'], $this->url->getQuery());
-        $this->assertEquals($expected['fragment'], $this->url->getFragment());
-    }
-
     public function testToArray()
     {
         $expected = array(
