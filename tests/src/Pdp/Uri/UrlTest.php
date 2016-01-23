@@ -181,4 +181,18 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $url = $this->parser->parseUrl($spec);
         $this->assertEquals($expected, $url->__toString());
     }
+
+    /**
+     * Scheme should return null when scheme is not provided.
+     *
+     * @group issue53
+     *
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/53
+     */
+    public function testSchemeReturnsNullIfNotProvidedToParser()
+    {
+        $spec = 'google.com';
+        $url = $this->parser->parseUrl($spec);
+        $this->assertNull($url->getScheme());
+    }
 }
