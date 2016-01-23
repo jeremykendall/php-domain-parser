@@ -92,7 +92,6 @@ class Url
         $this->fragment = $fragment;
     }
 
-
     /**
      * Gets schemeless url.
      *

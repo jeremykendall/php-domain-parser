@@ -38,17 +38,17 @@ class Host
     /**
      * Public constructor.
      *
-     * @param string|null $subdomain Subdomain portion of host
+     * @param string|null $subdomain         Subdomain portion of host
      * @param string|null $registrableDomain Registrable domain portion of host
-     * @param string|null $publicSuffix Public suffix portion of host
-     * @param string $host OPTIONAL Entire host part
+     * @param string|null $publicSuffix      Public suffix portion of host
+     * @param string      $host              OPTIONAL Entire host part
      */
-    public function __construct( $subdomain, $registrableDomain, $publicSuffix, $host = null )
+    public function __construct($subdomain, $registrableDomain, $publicSuffix, $host = null)
     {
-        $this->subdomain          = $subdomain;
-        $this->registrableDomain  = $registrableDomain;
-        $this->publicSuffix       = $publicSuffix;
-        $this->host               = $host;
+        $this->subdomain = $subdomain;
+        $this->registrableDomain = $registrableDomain;
+        $this->publicSuffix = $publicSuffix;
+        $this->host = $host;
     }
 
     /**
@@ -64,7 +64,7 @@ class Host
     /**
      * @param string $subdomain
      */
-    public function setSubdomain ( $subdomain )
+    public function setSubdomain($subdomain)
     {
         $this->subdomain = $subdomain;
     }
@@ -80,7 +80,7 @@ class Host
     /**
      * @param string $registrableDomain
      */
-    public function setRegistrableDomain( $registrableDomain )
+    public function setRegistrableDomain($registrableDomain)
     {
         $this->registrableDomain = $registrableDomain;
     }
@@ -98,7 +98,7 @@ class Host
     /**
      * @param string $publicSuffix
      */
-    public function setPublicSuffix( $publicSuffix )
+    public function setPublicSuffix($publicSuffix)
     {
         $this->publicSuffix = $publicSuffix;
     }
@@ -116,7 +116,7 @@ class Host
     /**
      * @param string $host
      */
-    public function setHost( $host )
+    public function setHost($host)
     {
         $this->host = $host;
     }
@@ -128,18 +128,17 @@ class Host
      */
     public function __toString()
     {
-        if( $this->host !== null )
-        {
+        if ($this->host !== null) {
             return $this->host;
         }
 
         // retain only the elements that are not empty
         $str = array_filter(
-            array( $this->subdomain, $this->registrableDomain ),
+            array($this->subdomain, $this->registrableDomain),
             'strlen'
         );
 
-        return implode( '.', $str );
+        return implode('.', $str);
     }
 
     /**
@@ -150,10 +149,10 @@ class Host
     public function toArray()
     {
         return array(
-            'subdomain'          => $this->subdomain,
-            'registrableDomain'  => $this->registrableDomain,
-            'publicSuffix'       => $this->publicSuffix,
-            'host'               => $this->host,
+            'subdomain' => $this->subdomain,
+            'registrableDomain' => $this->registrableDomain,
+            'publicSuffix' => $this->publicSuffix,
+            'host' => $this->host,
         );
     }
 }
