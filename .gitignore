@@ -1,8 +1,8 @@
 tags
-data/*.txt
 composer.lock
 vendor
 *.swp
 docs
 *~
 build
+.idea

@@ -74,29 +74,6 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($schemeless, $this->url->getSchemeless());
     }
 
-    public function test__getProperties()
-    {
-        $expected = array(
-            'scheme' => 'http',
-            'user' => 'anonymous',
-            'pass' => 'guest',
-            'host' => 'example.com',
-            'port' => 8080,
-            'path' => '/path/to/index.php/foo/bar.xml',
-            'query' => 'baz=dib',
-            'fragment' => 'anchor',
-        );
-
-        $this->assertEquals($expected['scheme'], $this->url->scheme);
-        $this->assertEquals($expected['user'], $this->url->user);
-        $this->assertEquals($expected['pass'], $this->url->pass);
-        $this->assertEquals($expected['host'], $this->url->host->__toString());
-        $this->assertEquals($expected['port'], $this->url->port);
-        $this->assertEquals($expected['path'], $this->url->path);
-        $this->assertEquals($expected['query'], $this->url->query);
-        $this->assertEquals($expected['fragment'], $this->url->fragment);
-    }
-
     public function testToArray()
     {
         $expected = array(
@@ -105,7 +82,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
             'pass' => 'guest',
             'host' => 'example.com',
             'subdomain' => null,
-            'registerableDomain' => 'example.com',
+            'registrableDomain' => 'example.com',
             'publicSuffix' => 'com',
             'port' => 8080,
             'path' => '/path/to/index.php/foo/bar.xml',
@@ -151,7 +128,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Scheme should not be URL encoded
+     * Scheme should not be URL encoded.
      *
      * @group issue46
      * @group issue51
@@ -168,7 +145,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Scheme should be output in lowercase regardless of case of original arg
+     * Scheme should be output in lowercase regardless of case of original arg.
      *
      * @group issue51
      *
@@ -180,5 +157,19 @@ class UrlTest extends \PHPUnit_Framework_TestCase
         $expected = 'https://www.google.com';
         $url = $this->parser->parseUrl($spec);
         $this->assertEquals($expected, $url->__toString());
+    }
+
+    /**
+     * Scheme should return null when scheme is not provided.
+     *
+     * @group issue53
+     *
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/53
+     */
+    public function testSchemeReturnsNullIfNotProvidedToParser()
+    {
+        $spec = 'google.com';
+        $url = $this->parser->parseUrl($spec);
+        $this->assertNull($url->getScheme());
     }
 }

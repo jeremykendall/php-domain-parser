@@ -23,13 +23,13 @@ try {
     $manager = new \Pdp\PublicSuffixListManager();
     $parser = new Pdp\Parser($manager->getList());
     $url = $parser->parseUrl($domain);
-    $suffixValid = ($parser->isSuffixValid((string) $url->host)) ? 'IS' : 'IS NOT';
+    $suffixValid = ($parser->isSuffixValid((string) $url->getHost())) ? 'IS' : 'IS NOT';
 
     print_r($url->toArray());
     echo sprintf('Host: %s', $url) . PHP_EOL;
     echo sprintf(
         "'%s' %s a valid public suffix.",
-        $url->host->publicSuffix,
+        $url->getHost()->getPublicSuffix(),
         $suffixValid
     ) . PHP_EOL;
 } catch (\Exception $e) {

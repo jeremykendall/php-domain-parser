@@ -4,6 +4,9 @@ namespace Pdp;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Parser
+     */
     protected $parser;
 
     protected function setUp()
@@ -47,33 +50,68 @@ class ParserTest extends \PHPUnit_Framework_TestCase
      */
     public function testParseBadUrlThrowsInvalidArgumentException()
     {
+        $url = 'http:///example.com';
+
         $this->setExpectedException(
-            '\InvalidArgumentException',
-            'Invalid url http:///example.com'
+            'Pdp\Exception\SeriouslyMalformedUrlException',
+            sprintf('"%s" is one seriously malformed url.', $url)
         );
 
-        $this->parser->parseUrl('http:///example.com');
+        $this->parser->parseUrl($url);
     }
 
     /**
+     * If an empty string is passed to the parser then the hacky scheme from 
+     * issue 49 should not appear in the Exception message.
+     *
+     * @group issue54
+     *
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/54
+     *
      * @covers Pdp\Parser::parseUrl()
-     * @dataProvider parseDataProvider
+     * @covers ::pdp_parse_url
      */
-    public function testParseUrl($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testParseEmptyStringThrowsInvalidArgumentExceptionWithoutWackySchemeInMessage()
+    {
+        $this->setExpectedException(
+            'Pdp\Exception\SeriouslyMalformedUrlException',
+            '"" is one seriously malformed url.'
+        );
+
+        $this->parser->parseUrl('');
+    }
+
+    /**
+     * @covers       Pdp\Parser::parseUrl()
+     * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
+     */
+    public function testParseUrl($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $pdpUrl = $this->parser->parseUrl($url);
         $this->assertInstanceOf('\Pdp\Uri\Url', $pdpUrl);
     }
 
     /**
-     * @covers Pdp\Parser::parseUrl()
-     * @covers Pdp\Parser::parseHost()
+     * @covers       Pdp\Parser::parseUrl()
+     * @covers       Pdp\Parser::parseHost()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
-    public function testParseHost($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testParseHost($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $pdpUrl = $this->parser->parseUrl($url);
-        $this->assertEquals($hostPart, $pdpUrl->host);
+        $this->assertEquals($hostPart, $pdpUrl->getHost());
 
         $pdpHost = $this->parser->parseHost($hostPart);
         $this->assertInstanceOf('\Pdp\Uri\Url\Host', $pdpHost);
@@ -81,14 +119,20 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Pdp\Parser::parseUrl()
-     * @covers Pdp\Parser::getPublicSuffix()
+     * @covers       Pdp\Parser::parseUrl()
+     * @covers       Pdp\Parser::getPublicSuffix()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
-    public function testGetPublicSuffix($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testGetPublicSuffix($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $pdpUrl = $this->parser->parseUrl($url);
-        $this->assertSame($publicSuffix, $pdpUrl->host->publicSuffix);
+        $this->assertSame($publicSuffix, $pdpUrl->getHost()->getPublicSuffix());
         $this->assertSame($publicSuffix, $this->parser->getPublicSuffix($hostPart));
     }
 
@@ -105,25 +149,37 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Pdp\Parser::parseUrl()
-     * @covers Pdp\Parser::getRegisterableDomain()
+     * @covers Pdp\Parser::getRegistrableDomain()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
-    public function testGetRegisterableDomain($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testGetRegistrableDomain($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $pdpUrl = $this->parser->parseUrl($url);
-        $this->assertSame($registerableDomain, $pdpUrl->host->registerableDomain);
-        $this->assertSame($registerableDomain, $this->parser->getRegisterableDomain($hostPart));
+        $this->assertSame($registrableDomain, $pdpUrl->getHost()->getRegistrableDomain());
+        $this->assertSame($registrableDomain, $this->parser->getRegistrableDomain($hostPart));
     }
 
     /**
-     * @covers Pdp\Parser::parseUrl()
-     * @covers Pdp\Parser::getSubdomain()
+     * @covers       Pdp\Parser::parseUrl()
+     * @covers       Pdp\Parser::getSubdomain()
      * @dataProvider parseDataProvider
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
-    public function testGetSubdomain($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testGetSubdomain($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $pdpUrl = $this->parser->parseUrl($url);
-        $this->assertSame($subdomain, $pdpUrl->host->subdomain);
+        $this->assertSame($subdomain, $pdpUrl->getHost()->getSubdomain());
         $this->assertSame($subdomain, $this->parser->getSubdomain($hostPart));
     }
 
@@ -137,15 +193,21 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $subdomain = 'www';
         $pdpUrl = $this->parser->parseUrl($url);
 
-        $this->assertSame($subdomain, $pdpUrl->host->subdomain);
+        $this->assertSame($subdomain, $pdpUrl->getHost()->getSubdomain());
         $this->assertSame($subdomain, $this->parser->getSubdomain($hostPart));
     }
 
     /**
      * @dataProvider parseDataProvider
      * @covers ::pdp_parse_url
+     *
+     * @param $url
+     * @param $publicSuffix
+     * @param $registrableDomain
+     * @param $subdomain
+     * @param $hostPart
      */
-    public function testpdp_parse_urlCanReturnCorrectHost($url, $publicSuffix, $registerableDomain, $subdomain, $hostPart)
+    public function testpdp_parse_urlCanReturnCorrectHost($url, $publicSuffix, $registrableDomain, $subdomain, $hostPart)
     {
         $this->assertEquals(
             $hostPart,
@@ -182,14 +244,14 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     public function parseDataProvider()
     {
         return array(
-            // url, public suffix, registerable domain, subdomain, host part
+            // url, public suffix, registrable domain, subdomain, host part
             array('http://www.waxaudio.com.au/audio/albums/the_mashening', 'com.au', 'waxaudio.com.au', 'www', 'www.waxaudio.com.au'),
             array('example.COM', 'com', 'example.com', null, 'example.com'),
             array('giant.yyyy', 'yyyy', 'giant.yyyy', null, 'giant.yyyy'),
             array('cea-law.co.il', 'co.il', 'cea-law.co.il', null, 'cea-law.co.il'),
             array('http://edition.cnn.com/WORLD/', 'com', 'cnn.com', 'edition', 'edition.cnn.com'),
             array('http://en.wikipedia.org/', 'org', 'wikipedia.org', 'en', 'en.wikipedia.org'),
-            array('a.b.c.cy', 'c.cy', 'b.c.cy', 'a', 'a.b.c.cy'),
+            array('a.b.c.mm', 'c.mm', 'b.c.mm', 'a', 'a.b.c.mm'),
             array('https://test.k12.ak.us', 'k12.ak.us', 'test.k12.ak.us', null, 'test.k12.ak.us'),
             array('www.scottwills.co.uk', 'co.uk', 'scottwills.co.uk', 'www', 'www.scottwills.co.uk'),
             array('b.ide.kyoto.jp', 'ide.kyoto.jp', 'b.ide.kyoto.jp', null, 'b.ide.kyoto.jp'),
@@ -240,7 +302,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             array('http://[fe80::1%2511]', null, null, null, '[fe80::1%2511]'),
             array('http://www.example.dev', 'dev', 'example.dev', 'www', 'www.example.dev'),
             array('http://example.faketld', 'faketld', 'example.faketld', null, 'example.faketld'),
-            // url, public suffix, registerable domain, subdomain, host part
+            // url, public suffix, registrable domain, subdomain, host part
         );
     }
 }
