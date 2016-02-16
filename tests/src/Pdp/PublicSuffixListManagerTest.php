@@ -146,7 +146,7 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteThrowsExceptionIfCanNotWrite()
     {
-        $this->setExpectedException('\Exception', "Cannot open '/does/not/exist/public-suffix-list.php' for writing");
+        $this->setExpectedException('\Exception', "Cannot write to '/does/not/exist/public-suffix-list.php'");
         $manager = new PublicSuffixListManager('/does/not/exist');
         $manager->writePhpCache(array());
     }
@@ -157,6 +157,14 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
             $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
         );
         $this->assertInternalType('array', $publicSuffixList);
+    }
+
+    public function testParseListToArrayThrowsExceptionIfCanNotRead()
+    {
+        $this->setExpectedException('\Exception', "Cannot read '/does/not/exist/public-suffix-list.txt'");
+        $publicSuffixList = $this->listManager->parseListToArray(
+            '/does/not/exist/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
+        );
     }
 
     public function testGetList()
@@ -213,5 +221,13 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
+    }
+
+    public function testgetListFromFileThrowsExceptionIfCanNotRead()
+    {
+        $this->setExpectedException('\Exception', "Cannot read '/does/not/exist/public-suffix-list.php'");
+        $publicSuffixList = $this->listManager->getListFromFile(
+            '/does/not/exist/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+        );
     }
 }

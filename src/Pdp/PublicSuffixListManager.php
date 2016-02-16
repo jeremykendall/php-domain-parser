@@ -100,13 +100,9 @@ class PublicSuffixListManager
      */
     public function parseListToArray($textFile)
     {
-        if (false === $fp = @fopen($textFile, 'r')) {
-            throw new \Exception("Cannot open '$textFile' for reading");
-        }
-
-        if (false === @flock($fp, LOCK_SH)) {
-            fclose($fp);
-            throw new \Exception("Unable to obtain shared lock on '$textFile'");
+        $fp = @fopen($textFile, 'r');
+        if (!$fp || !flock($fp, LOCK_SH)) {
+            throw new \Exception("Cannot read '$textFile'");
         }
 
         $data = file(
@@ -204,23 +200,33 @@ class PublicSuffixListManager
             $this->refreshPublicSuffixList();
         }
 
-        if (false === $fp = @fopen($phpFile, 'r')) {
-            throw new \Exception("Cannot open '$phpFile' for reading");
+        $this->list = $this->getListFromFile($phpFile);
+
+        return $this->list;
+    }
+
+    /**
+     * Retrieves public suffix list from file after obtaining a shared lock.
+     *
+     * @return PublicSuffixList Instance of Public Suffix List
+     *
+     * @throws \Exception Throws \Exception if unable to read file
+     */
+    public function getListFromFile($phpFile)
+    {
+        $fp = @fopen($phpFile, 'r');
+        if (!$fp || !flock($fp, LOCK_SH)) {
+            throw new \Exception("Cannot read '$phpFile'");
         }
 
-        if (false === @flock($fp, LOCK_SH)) {
-            fclose($fp);
-            throw new \Exception("Unable to obtain shared lock on '$phpFile'");
-        }
-
-        $this->list = new PublicSuffixList(
+        $list = new PublicSuffixList(
             include $phpFile
         );
 
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        return $this->list;
+        return $list;
     }
 
     /**
@@ -235,25 +241,20 @@ class PublicSuffixListManager
      */
     protected function write($filename, $data)
     {
-        $filepath = $this->cacheDir . '/' . $filename;
+        $filePath = $this->cacheDir . '/' . $filename;
 
         // open with 'c' and truncate file only after obtaining a lock
-        if (false === $fp = @fopen($filepath, 'c')) {
-            throw new \Exception("Cannot open '$filepath' for writing");
-        }
+        $fp = @fopen($filePath, 'c');
 
-        if (false === @flock($fp, LOCK_EX)) {
-            fclose($fp);
-            throw new \Exception("Unable to obtain exclusive lock on '$filepath'");
-        }
-
-        $result = ftruncate($fp, 0)
+        $result = $fp
+            && flock($fp, LOCK_EX)
+            && @ftruncate($fp, 0)
             && fwrite($fp, $data) !== false
             && fflush($fp);
 
-        if ($result === false) {
-            fclose($fp);
-            throw new \Exception("Cannot write to '$filepath'");
+        if (!$result) {
+            $fp && fclose($fp);
+            throw new \Exception("Cannot write to '$filePath'");
         }
 
         flock($fp, LOCK_UN);
