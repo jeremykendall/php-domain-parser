@@ -248,7 +248,7 @@ class PublicSuffixListManager
 
         $result = $fp
             && flock($fp, LOCK_EX)
-            && @ftruncate($fp, 0)
+            && ftruncate($fp, 0)
             && fwrite($fp, $data) !== false
             && fflush($fp);
 

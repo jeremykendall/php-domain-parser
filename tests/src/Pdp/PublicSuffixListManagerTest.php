@@ -5,6 +5,12 @@ namespace Pdp;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
+// work around PHP 5.3 quirky behavior with ftruncate() and streams
+// @see https://bugs.php.net/bug.php?id=53888
+if (version_compare(PHP_VERSION, '5.4.0') < 0) {
+    function ftruncate($fp, $size) { return @\ftruncate($fp, $size) || true; }
+}
+
 class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
 {
     /**
