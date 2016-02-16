@@ -146,7 +146,7 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteThrowsExceptionIfCanNotWrite()
     {
-        $this->setExpectedException('\Exception', "Cannot write '/does/not/exist/public-suffix-list.php'");
+        $this->setExpectedException('\Exception', "Cannot open '/does/not/exist/public-suffix-list.php' for writing");
         $manager = new PublicSuffixListManager('/does/not/exist');
         $manager->writePhpCache(array());
     }

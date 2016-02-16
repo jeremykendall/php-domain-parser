@@ -95,13 +95,27 @@ class PublicSuffixListManager
      *
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
+     *
+     * @throws \Exception Throws \Exception if unable to read file
      */
     public function parseListToArray($textFile)
     {
+        if (false === $fp = @fopen($textFile, 'r')) {
+            throw new \Exception("Cannot open '$textFile' for reading");
+        }
+
+        if (false === @flock($fp, LOCK_SH)) {
+            fclose($fp);
+            throw new \Exception("Unable to obtain shared lock on '$textFile'");
+        }
+
         $data = file(
             $textFile,
             FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
         );
+
+        flock($fp, LOCK_UN);
+        fclose($fp);
 
         $data = array_filter($data, function ($line) {
             return strstr($line, '//') === false;
@@ -179,22 +193,38 @@ class PublicSuffixListManager
      * Gets Public Suffix List.
      *
      * @return PublicSuffixList Instance of Public Suffix List
+     *
+     * @throws \Exception Throws \Exception if unable to read file
      */
     public function getList()
     {
-        if (!file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE)) {
+        $phpFile = $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
+
+        if (!file_exists($phpFile)) {
             $this->refreshPublicSuffixList();
         }
 
+        if (false === $fp = @fopen($phpFile, 'r')) {
+            throw new \Exception("Cannot open '$phpFile' for reading");
+        }
+
+        if (false === @flock($fp, LOCK_SH)) {
+            fclose($fp);
+            throw new \Exception("Unable to obtain shared lock on '$phpFile'");
+        }
+
         $this->list = new PublicSuffixList(
-            include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE
+            include $phpFile
         );
+
+        flock($fp, LOCK_UN);
+        fclose($fp);
 
         return $this->list;
     }
 
     /**
-     * Writes to file.
+     * Writes to file after obtaining an exclusive lock.
      *
      * @param string $filename Filename in cache dir where data will be written
      * @param mixed  $data     Data to write
@@ -205,11 +235,29 @@ class PublicSuffixListManager
      */
     protected function write($filename, $data)
     {
-        $result = @file_put_contents($this->cacheDir . '/' . $filename, $data);
+        $filepath = $this->cacheDir . '/' . $filename;
+
+        // open with 'c' and truncate file only after obtaining a lock
+        if (false === $fp = @fopen($filepath, 'c')) {
+            throw new \Exception("Cannot open '$filepath' for writing");
+        }
+
+        if (false === @flock($fp, LOCK_EX)) {
+            fclose($fp);
+            throw new \Exception("Unable to obtain exclusive lock on '$filepath'");
+        }
+
+        $result = ftruncate($fp, 0)
+            && fwrite($fp, $data) !== false
+            && fflush($fp);
 
         if ($result === false) {
-            throw new \Exception("Cannot write '" . $this->cacheDir . '/' . "$filename'");
+            fclose($fp);
+            throw new \Exception("Cannot write to '$filepath'");
         }
+
+        flock($fp, LOCK_UN);
+        fclose($fp);
 
         return $result;
     }
