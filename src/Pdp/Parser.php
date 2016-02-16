@@ -259,7 +259,7 @@ class Parser
      */
     public function getRegistrableDomain($host)
     {
-        if (strpos($host, '.') === false) {
+        if (!$this->isMultiLabelDomain($host)) {
             return;
         }
 
