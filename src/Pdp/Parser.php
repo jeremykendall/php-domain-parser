@@ -121,23 +121,10 @@ class Parser
     {
         $host = mb_strtolower($host, 'UTF-8');
 
-        $subdomain = null;
-        $registrableDomain = null;
-        $publicSuffix = null;
-
-        // Fixes #22: Single label domains are set as Host::$host and all other
-        // properties are null.
-        // Fixes #43: Ip Addresses should not be parsed
-        if ($this->isMultiLabelDomain($host) || !$this->isIpv4Address($host)) {
-            $subdomain = $this->getSubdomain($host);
-            $registrableDomain = $this->getRegistrableDomain($host);
-            $publicSuffix = $this->getPublicSuffix($host);
-        }
-
         return new Host(
-            $subdomain,
-            $registrableDomain,
-            $publicSuffix,
+            $this->getSubdomain($host),
+            $this->getRegistrableDomain($host),
+            $this->getPublicSuffix($host),
             $host
         );
     }
