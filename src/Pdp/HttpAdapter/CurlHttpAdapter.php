@@ -29,20 +29,23 @@ class CurlHttpAdapter implements HttpAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getContent($url, $ignoreSslPeer = false)
+    public function getContent($url)
     {
-        echo sprintf("Get content (ignore HTTPS: %s)...\n", $ignoreSslPeer ? 'true' : 'false');
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_URL, $url);
 
-        if ($ignoreSslPeer) {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        }
         $content = curl_exec($ch);
 
         if ($errNo = curl_errno($ch)) {
-            throw new Exception\CurlHttpAdapterException('Cannot fetch data from URL: ' . $url, $errNo);
+            throw new Exception\CurlHttpAdapterException("CURL error [{$errNo}]: " . curl_error($ch), $errNo);
+        }
+
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($responseCode !== 200) {
+            throw new Exception\CurlHttpAdapterException('Wrong HTTP response code: ' . $responseCode, $responseCode);
         }
         curl_close($ch);
 
