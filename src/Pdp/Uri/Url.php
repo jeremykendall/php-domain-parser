@@ -8,7 +8,6 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
-
 namespace Pdp\Uri;
 
 use Pdp\Parser;
@@ -22,42 +21,42 @@ class Url
     /**
      * @var string scheme
      */
-    private $scheme;
+    protected $scheme;
 
     /**
      * @var Host Host object
      */
-    private $host;
+    protected $host;
 
     /**
      * @var int port
      */
-    private $port;
+    protected $port;
 
     /**
      * @var string user
      */
-    private $user;
+    protected $user;
 
     /**
      * @var string pass
      */
-    private $pass;
+    protected $pass;
 
     /**
      * @var string path
      */
-    private $path;
+    protected $path;
 
     /**
      * @var string query
      */
-    private $query;
+    protected $query;
 
     /**
      * @var string fragment
      */
-    private $fragment;
+    protected $fragment;
 
     /**
      * Public constructor.
@@ -81,24 +80,16 @@ class Url
         $query,
         $fragment
     ) {
-        $this->scheme   = mb_strtolower($scheme, 'UTF-8');
-        $this->user     = $user;
-        $this->pass     = $pass;
-        $this->host     = $host;
-        $this->port     = $port;
-        $this->path     = $path;
-        $this->query    = $query;
+        // Ensure scheme is either a legit scheme or null, never an empty string.
+        // @see https://github.com/jeremykendall/php-domain-parser/issues/53
+        $this->scheme = mb_strtolower($scheme, 'UTF-8') ?: null;
+        $this->user = $user;
+        $this->pass = $pass;
+        $this->host = $host;
+        $this->port = $port;
+        $this->path = $path;
+        $this->query = $query;
         $this->fragment = $fragment;
-    }
-
-    /**
-     * Magic getter.
-     *
-     * @param mixed $name Property name to get
-     */
-    public function __get($name)
-    {
-        return $this->$name;
     }
 
     /**
@@ -165,17 +156,97 @@ class Url
     public function toArray()
     {
         return array(
-            'scheme' => $this->scheme,
-            'user' => $this->user,
-            'pass' => $this->pass,
-            'host' => $this->host->__toString(),
-            'subdomain' => $this->host->subdomain,
-            'registerableDomain' => $this->host->registerableDomain,
-            'publicSuffix' => $this->host->publicSuffix,
-            'port' => $this->port,
-            'path' => $this->path,
-            'query' => $this->query,
-            'fragment' => $this->fragment,
+            'scheme' => $this->getScheme(),
+            'user' => $this->getUser(),
+            'pass' => $this->getPass(),
+            'host' => $this->getHost()->__toString(),
+            'subdomain' => $this->getHost()->getSubdomain(),
+            'registrableDomain' => $this->getHost()->getRegistrableDomain(),
+            'publicSuffix' => $this->getHost()->getPublicSuffix(),
+            'port' => $this->getPort(),
+            'path' => $this->getPath(),
+            'query' => $this->getQuery(),
+            'fragment' => $this->getFragment(),
         );
+    }
+
+    /**
+     * Get Scheme.
+     *
+     * @return string
+     */
+    public function getScheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * Get User.
+     *
+     * @return string
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Get Pass.
+     *
+     * @return string
+     */
+    public function getPass()
+    {
+        return $this->pass;
+    }
+
+    /**
+     * Get Host object.
+     *
+     * @return Host
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * Get Port.
+     *
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * Get Path.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Get Query.
+     *
+     * @return string
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
+     * Get Fragment.
+     *
+     * @return string
+     */
+    public function getFragment()
+    {
+        return $this->fragment;
     }
 }

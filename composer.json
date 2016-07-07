@@ -34,9 +34,11 @@
         "ext-mbstring": "*"
     },
     "require-dev": {
-        "mikey179/vfsStream": "~1.4",
-        "phpunit/phpunit": "~4.4",
-        "jeremykendall/debug-die": "0.0.1.*"
+        "mikey179/vfsStream": "~1.6",
+        "phpunit/phpunit": "~4.8",
+        "jeremykendall/debug-die": "0.0.1.*",
+        "phing/phing": "^2.13",
+        "fabpot/php-cs-fixer": "^1.11"
     },
     "autoload": {
         "psr-0": {

@@ -80,7 +80,7 @@ class PublicSuffixListManager
     /**
      * Obtain Public Suffix List from its online source and write to cache dir.
      *
-     * @return int|bool Number of bytes that were written to the file OR false in case of error
+     * @return int Number of bytes that were written to the file
      */
     public function fetchListFromSource()
     {

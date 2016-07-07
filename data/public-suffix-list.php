@@ -233,9 +233,6 @@ return array (
     'maintenance' => 
     array (
     ),
-    'marketplace' => 
-    array (
-    ),
     'media' => 
     array (
     ),
@@ -300,9 +297,6 @@ return array (
     array (
     ),
     'student' => 
-    array (
-    ),
-    'taxi' => 
     array (
     ),
     'trader' => 
@@ -402,21 +396,6 @@ return array (
   'am' => 
   array (
     'blogspot' => 
-    array (
-    ),
-  ),
-  'an' => 
-  array (
-    'com' => 
-    array (
-    ),
-    'net' => 
-    array (
-    ),
-    'org' => 
-    array (
-    ),
-    'edu' => 
     array (
     ),
   ),
@@ -942,6 +921,9 @@ return array (
     array (
     ),
     'webhop' => 
+    array (
+    ),
+    'dscloud' => 
     array (
     ),
   ),
@@ -1878,6 +1860,9 @@ return array (
     'dreamhosters' => 
     array (
     ),
+    'mydrobo' => 
+    array (
+    ),
     'dyndns-at-home' => 
     array (
     ),
@@ -2361,6 +2346,9 @@ return array (
     'withgoogle' => 
     array (
     ),
+    'withyoutube' => 
+    array (
+    ),
     'herokuapp' => 
     array (
     ),
@@ -2379,7 +2367,22 @@ return array (
     'outsystemscloud' => 
     array (
     ),
+    'pagefrontapp' => 
+    array (
+    ),
+    'gotpantheon' => 
+    array (
+    ),
+    'prgmr' => 
+    array (
+      'xen' => 
+      array (
+      ),
+    ),
     'qa2' => 
+    array (
+    ),
+    'rackmaze' => 
     array (
     ),
     'rhcloud' => 
@@ -2392,6 +2395,12 @@ return array (
     array (
     ),
     '1kapp' => 
+    array (
+    ),
+    'dsmynas' => 
+    array (
+    ),
+    'familyds' => 
     array (
     ),
     'hk' => 
@@ -2526,6 +2535,9 @@ return array (
   ),
   'cz' => 
   array (
+    'co' => 
+    array (
+    ),
     'blogspot' => 
     array (
     ),
@@ -3138,7 +3150,16 @@ return array (
     'com' => 
     array (
     ),
+    'edu' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
     'net' => 
+    array (
+    ),
+    'org' => 
     array (
     ),
   ),
@@ -3462,7 +3483,7 @@ return array (
   ),
   'il' => 
   array (
-    '*' => 
+    'ac' => 
     array (
     ),
     'co' => 
@@ -3470,6 +3491,24 @@ return array (
       'blogspot' => 
       array (
       ),
+    ),
+    'gov' => 
+    array (
+    ),
+    'idf' => 
+    array (
+    ),
+    'k12' => 
+    array (
+    ),
+    'muni' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
     ),
   ),
   'im' => 
@@ -3591,7 +3630,13 @@ return array (
     'github' => 
     array (
     ),
+    'ngrok' => 
+    array (
+    ),
     'nid' => 
+    array (
+    ),
+    'pantheon' => 
     array (
     ),
     'sandcats' => 
@@ -10828,6 +10873,21 @@ return array (
     'priv' => 
     array (
     ),
+    'diskstation' => 
+    array (
+    ),
+    'dscloud' => 
+    array (
+    ),
+    'i234' => 
+    array (
+    ),
+    'myds' => 
+    array (
+    ),
+    'synology' => 
+    array (
+    ),
   ),
   'mg' => 
   array (
@@ -10957,6 +11017,9 @@ return array (
   ),
   'mobi' => 
   array (
+    'dscloud' => 
+    array (
+    ),
   ),
   'mp' => 
   array (
@@ -13058,6 +13121,9 @@ return array (
         ),
       ),
     ),
+    'cloudfunctions' => 
+    array (
+    ),
     'azurewebsites' => 
     array (
     ),
@@ -13065,6 +13131,15 @@ return array (
     array (
     ),
     'cloudapp' => 
+    array (
+    ),
+    'rackmaze' => 
+    array (
+    ),
+    'dsmynas' => 
+    array (
+    ),
+    'familyds' => 
     array (
     ),
     'za' => 
@@ -13115,6 +13190,18 @@ return array (
     'edu' => 
     array (
     ),
+    'gov' => 
+    array (
+    ),
+    'i' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'mobi' => 
+    array (
+    ),
     'name' => 
     array (
     ),
@@ -13127,19 +13214,49 @@ return array (
     'sch' => 
     array (
     ),
-    'gov' => 
+  ),
+  'ni' => 
+  array (
+    'com' => 
+    array (
+    ),
+    'gob' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'nom' => 
+    array (
+    ),
+    'net' => 
     array (
     ),
     'mil' => 
     array (
     ),
-    'mobi' => 
+    'co' => 
     array (
     ),
-  ),
-  'ni' => 
-  array (
-    '*' => 
+    'biz' => 
+    array (
+    ),
+    'web' => 
+    array (
+    ),
+    'int' => 
+    array (
+    ),
+    'ac' => 
+    array (
+    ),
+    'in' => 
+    array (
+    ),
+    'info' => 
     array (
     ),
   ),
@@ -15938,6 +16055,12 @@ return array (
     'bmoattachments' => 
     array (
     ),
+    'dsmynas' => 
+    array (
+    ),
+    'familyds' => 
+    array (
+    ),
     'hk' => 
     array (
     ),
@@ -16958,10 +17081,10 @@ return array (
   ),
   're' => 
   array (
-    'com' => 
+    'asso' => 
     array (
     ),
-    'asso' => 
+    'com' => 
     array (
     ),
     'nom' => 
@@ -16973,34 +17096,34 @@ return array (
   ),
   'ro' => 
   array (
-    'com' => 
-    array (
-    ),
-    'org' => 
-    array (
-    ),
-    'tm' => 
-    array (
-    ),
-    'nt' => 
-    array (
-    ),
-    'nom' => 
-    array (
-    ),
-    'info' => 
-    array (
-    ),
-    'rec' => 
-    array (
-    ),
     'arts' => 
+    array (
+    ),
+    'com' => 
     array (
     ),
     'firm' => 
     array (
     ),
+    'info' => 
+    array (
+    ),
+    'nom' => 
+    array (
+    ),
+    'nt' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'rec' => 
+    array (
+    ),
     'store' => 
+    array (
+    ),
+    'tm' => 
     array (
     ),
     'www' => 
@@ -17012,22 +17135,22 @@ return array (
   ),
   'rs' => 
   array (
+    'ac' => 
+    array (
+    ),
     'co' => 
     array (
     ),
-    'org' => 
-    array (
-    ),
     'edu' => 
-    array (
-    ),
-    'ac' => 
     array (
     ),
     'gov' => 
     array (
     ),
     'in' => 
+    array (
+    ),
+    'org' => 
     array (
     ),
     'blogspot' => 
@@ -17384,9 +17507,6 @@ return array (
     'kuzbass' => 
     array (
     ),
-    'magnitka' => 
-    array (
-    ),
     'mytis' => 
     array (
     ),
@@ -17725,6 +17845,9 @@ return array (
       '*' => 
       array (
       ),
+    ),
+    'hashbang' => 
+    array (
     ),
   ),
   'si' => 
@@ -18209,9 +18332,6 @@ return array (
     'mil' => 
     array (
     ),
-  ),
-  'tp' => 
-  array (
   ),
   'tr' => 
   array (
@@ -19859,7 +19979,7 @@ return array (
     'ac' => 
     array (
     ),
-    'agrica' => 
+    'agric' => 
     array (
     ),
     'alt' => 
@@ -20079,6 +20199,9 @@ return array (
   'anz' => 
   array (
   ),
+  'aol' => 
+  array (
+  ),
   'apartments' => 
   array (
   ),
@@ -20089,6 +20212,9 @@ return array (
   array (
   ),
   'aquarelle' => 
+  array (
+  ),
+  'arab' => 
   array (
   ),
   'aramco' => 
@@ -20187,6 +20313,9 @@ return array (
   'bargains' => 
   array (
   ),
+  'baseball' => 
+  array (
+  ),
   'basketball' => 
   array (
   ),
@@ -20212,6 +20341,9 @@ return array (
   array (
   ),
   'beats' => 
+  array (
+  ),
+  'beauty' => 
   array (
   ),
   'beer' => 
@@ -20304,6 +20436,9 @@ return array (
   'boo' => 
   array (
   ),
+  'book' => 
+  array (
+  ),
   'booking' => 
   array (
   ),
@@ -20316,10 +20451,16 @@ return array (
   'bostik' => 
   array (
   ),
+  'boston' => 
+  array (
+  ),
   'bot' => 
   array (
   ),
   'boutique' => 
+  array (
+  ),
+  'box' => 
   array (
   ),
   'bradesco' => 
@@ -20427,6 +20568,12 @@ return array (
   'casa' => 
   array (
   ),
+  'case' => 
+  array (
+  ),
+  'caseih' => 
+  array (
+  ),
   'cash' => 
   array (
   ),
@@ -20434,6 +20581,9 @@ return array (
   array (
   ),
   'catering' => 
+  array (
+  ),
+  'catholic' => 
   array (
   ),
   'cba' => 
@@ -20535,6 +20685,9 @@ return array (
   'clinic' => 
   array (
   ),
+  'clinique' => 
+  array (
+  ),
   'clothing' => 
   array (
   ),
@@ -20572,6 +20725,9 @@ return array (
   array (
   ),
   'company' => 
+  array (
+  ),
+  'compare' => 
   array (
   ),
   'computer' => 
@@ -20635,6 +20791,9 @@ return array (
   array (
   ),
   'crs' => 
+  array (
+  ),
+  'cruise' => 
   array (
   ),
   'cruises' => 
@@ -20746,6 +20905,9 @@ return array (
   array (
   ),
   'dish' => 
+  array (
+  ),
+  'diy' => 
   array (
   ),
   'dnp' => 
@@ -20863,6 +21025,9 @@ return array (
   array (
   ),
   'esurance' => 
+  array (
+  ),
+  'etisalat' => 
   array (
   ),
   'eurovision' => 
@@ -21022,6 +21187,12 @@ return array (
   array (
   ),
   'foundation' => 
+  array (
+  ),
+  'fox' => 
+  array (
+  ),
+  'free' => 
   array (
   ),
   'fresenius' => 
@@ -21213,6 +21384,9 @@ return array (
   'guru' => 
   array (
   ),
+  'hair' => 
+  array (
+  ),
   'hamburg' => 
   array (
   ),
@@ -21301,6 +21475,9 @@ return array (
   array (
   ),
   'hosting' => 
+  array (
+  ),
+  'hot' => 
   array (
   ),
   'hoteles' => 
@@ -21421,6 +21598,9 @@ return array (
   array (
   ),
   'itv' => 
+  array (
+  ),
+  'iveco' => 
   array (
   ),
   'iwc' => 
@@ -21556,6 +21736,9 @@ return array (
   array (
   ),
   'lamborghini' => 
+  array (
+  ),
+  'lamer' => 
   array (
   ),
   'lancaster' => 
@@ -21861,6 +22044,9 @@ return array (
   'money' => 
   array (
   ),
+  'monster' => 
+  array (
+  ),
   'montblanc' => 
   array (
   ),
@@ -21957,6 +22143,9 @@ return array (
   'new' => 
   array (
   ),
+  'newholland' => 
+  array (
+  ),
   'news' => 
   array (
   ),
@@ -21991,6 +22180,9 @@ return array (
   array (
   ),
   'nissan' => 
+  array (
+  ),
+  'nissay' => 
   array (
   ),
   'nokia' => 
@@ -22086,6 +22278,9 @@ return array (
   'orientexpress' => 
   array (
   ),
+  'origins' => 
+  array (
+  ),
   'osaka' => 
   array (
   ),
@@ -22128,6 +22323,9 @@ return array (
   'passagens' => 
   array (
   ),
+  'pay' => 
+  array (
+  ),
   'payu' => 
   array (
   ),
@@ -22135,6 +22333,9 @@ return array (
   array (
   ),
   'pet' => 
+  array (
+  ),
+  'pfizer' => 
   array (
   ),
   'pharmacy' => 
@@ -22260,6 +22461,9 @@ return array (
   'pub' => 
   array (
   ),
+  'pwc' => 
+  array (
+  ),
   'qpon' => 
   array (
   ),
@@ -22279,6 +22483,9 @@ return array (
   array (
   ),
   'read' => 
+  array (
+  ),
+  'realestate' => 
   array (
   ),
   'realtor' => 
@@ -22366,6 +22573,9 @@ return array (
   array (
   ),
   'rip' => 
+  array (
+  ),
+  'rmit' => 
   array (
   ),
   'rocher' => 
@@ -22494,10 +22704,16 @@ return array (
   'seat' => 
   array (
   ),
+  'secure' => 
+  array (
+  ),
   'security' => 
   array (
   ),
   'seek' => 
+  array (
+  ),
+  'select' => 
   array (
   ),
   'sener' => 
@@ -22522,6 +22738,9 @@ return array (
   array (
   ),
   'sfr' => 
+  array (
+  ),
+  'shangrila' => 
   array (
   ),
   'sharp' => 
@@ -22911,6 +23130,9 @@ return array (
   'uconnect' => 
   array (
   ),
+  'unicom' => 
+  array (
+  ),
   'university' => 
   array (
   ),
@@ -22927,6 +23149,9 @@ return array (
   array (
   ),
   'vana' => 
+  array (
+  ),
+  'vanguard' => 
   array (
   ),
   'vegas' => 
@@ -22993,6 +23218,9 @@ return array (
   array (
   ),
   'volkswagen' => 
+  array (
+  ),
+  'volvo' => 
   array (
   ),
   'vote' => 
@@ -23103,6 +23331,9 @@ return array (
   'world' => 
   array (
   ),
+  'wow' => 
+  array (
+  ),
   'wtc' => 
   array (
   ),
@@ -23166,6 +23397,9 @@ return array (
   'xn--55qx5d' => 
   array (
   ),
+  'xn--5su34j936bgsg' => 
+  array (
+  ),
   'xn--5tzm5g' => 
   array (
   ),
@@ -23176,6 +23410,9 @@ return array (
   array (
   ),
   'xn--80adxhks' => 
+  array (
+  ),
+  'xn--80aqecdr1a' => 
   array (
   ),
   'xn--80asehdb' => 
@@ -23262,6 +23499,9 @@ return array (
   'xn--gckr3f0f' => 
   array (
   ),
+  'xn--gk3at1e' => 
+  array (
+  ),
   'xn--hxt814e' => 
   array (
   ),
@@ -23298,6 +23538,9 @@ return array (
   'xn--mgba7c0bbn0a' => 
   array (
   ),
+  'xn--mgbaakc7dvf' => 
+  array (
+  ),
   'xn--mgbab2bd' => 
   array (
   ),
@@ -23305,6 +23548,9 @@ return array (
   array (
   ),
   'xn--mgbca7dzdo' => 
+  array (
+  ),
+  'xn--mgbi4ecexp' => 
   array (
   ),
   'xn--mgbt3dhd' => 
@@ -23320,6 +23566,9 @@ return array (
   array (
   ),
   'xn--ngbe9e0a' => 
+  array (
+  ),
+  'xn--ngbrx' => 
   array (
   ),
   'xn--nqv7f' => 
@@ -23359,6 +23608,9 @@ return array (
   array (
   ),
   'xn--tckwe' => 
+  array (
+  ),
+  'xn--tiq49xqyj' => 
   array (
   ),
   'xn--unup4y' => 

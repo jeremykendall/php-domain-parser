@@ -11,6 +11,9 @@ namespace Pdp;
  */
 class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Parser
+     */
     protected $parser;
 
     protected function setUp()
@@ -64,10 +67,10 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
         $this->checkPublicSuffix('a.b.example.uk.com', 'example.uk.com');
         $this->checkPublicSuffix('test.ac', 'test.ac');
         // TLD with only 1 (wildcard) rule.
-        $this->checkPublicSuffix('cy', null);
-        $this->checkPublicSuffix('c.cy', 'c.cy');
-        $this->checkPublicSuffix('b.c.cy', 'c.cy');
-        $this->checkPublicSuffix('a.b.c.cy', 'c.cy');
+        $this->checkPublicSuffix('mm', null);
+        $this->checkPublicSuffix('c.mm', null);
+        $this->checkPublicSuffix('b.c.mm', 'b.c.mm');
+        $this->checkPublicSuffix('a.b.c.mm', 'b.c.mm');
         // More complex TLD.
         $this->checkPublicSuffix('jp', null);
         $this->checkPublicSuffix('test.jp', 'test.jp');
@@ -139,6 +142,6 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
      */
     public function checkPublicSuffix($input, $expected)
     {
-        $this->assertSame($expected, $this->parser->getRegisterableDomain($input));
+        $this->assertSame($expected, $this->parser->getRegistrableDomain($input));
     }
 }
