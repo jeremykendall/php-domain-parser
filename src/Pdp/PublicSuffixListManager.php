@@ -190,13 +190,20 @@ class PublicSuffixListManager
      */
     public function getList()
     {
-        if (!file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE)) {
-            $this->refreshPublicSuffixList();
+        $filename = $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
+
+        if (file_exists($filename)) {
+            $data = include $filename;
+        } else {
+            try {
+                $this->refreshPublicSuffixList();
+                $data = include $filename;
+            } catch (\Exception $e) {
+                $data = [];
+            }
         }
 
-        $this->list = new PublicSuffixList(
-            include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE
-        );
+        $this->list = new PublicSuffixList((array) $data);
 
         return $this->list;
     }
