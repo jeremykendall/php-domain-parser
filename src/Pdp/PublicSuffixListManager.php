@@ -84,14 +84,8 @@ class PublicSuffixListManager
      */
     public function fetchListFromSource()
     {
-        try {
-            $publicSuffixList = $this->getHttpAdapter()
-                ->getContent($this->publicSuffixListUrl);
-        } catch (HttpAdapterException $e) {
-            // another one trying to get the list by ignoring HTTPS certificate of connection
-            $publicSuffixList = $this->getHttpAdapter()
-                ->getContent($this->publicSuffixListUrl, true);
-        }
+        $publicSuffixList = $this->getHttpAdapter()
+            ->getContent($this->publicSuffixListUrl);
 
         return $this->write(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
     }
