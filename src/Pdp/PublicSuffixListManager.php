@@ -220,10 +220,16 @@ class PublicSuffixListManager
      */
     protected function write($filename, $data)
     {
-        $result = @file_put_contents($this->cacheDir . '/' . $filename, $data);
+        $data = trim($data);
+        $filename = $this->cacheDir . '/' . $filename;
 
+        if (empty($data)) {
+            throw new \Exception("No data to write into '{$filename}'");
+        }
+
+        $result = @file_put_contents($filename, $data . PHP_EOL);
         if ($result === false) {
-            throw new \Exception("Cannot write '" . $this->cacheDir . '/' . "$filename'");
+            throw new \Exception("Cannot write '{$filename}'");
         }
 
         return $result;
