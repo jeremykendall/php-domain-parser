@@ -36,13 +36,6 @@ class CurlHttpAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('google', $content);
     }
 
-    public function testGetContentIgnoringSsl()
-    {
-        $content = $this->adapter->getContent('https://www.google.com', true);
-        $this->assertNotNull($content);
-        $this->assertContains('google', $content);
-    }
-
     public function testExceptionBadUrl()
     {
         $this->setExpectedException('Pdp\HttpAdapter\Exception\HttpAdapterException', '', CURLE_COULDNT_RESOLVE_HOST);
