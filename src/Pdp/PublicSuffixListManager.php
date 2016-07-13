@@ -199,7 +199,7 @@ class PublicSuffixListManager
                 $this->refreshPublicSuffixList();
                 $data = include $filename;
             } catch (\Exception $e) {
-                $data = [];
+                $data = array();
             }
         }
 
