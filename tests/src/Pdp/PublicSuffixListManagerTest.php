@@ -214,4 +214,20 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
     }
+
+    public function testGetDifferentPublicList()
+    {
+        $listManager = new PublicSuffixListManager();
+        $publicSuffixList = $listManager->getList();
+        $icannSuffixList = $listManager->getList(PublicSuffixListManager::ICANN_SECTION);
+        $privateSuffixList = $listManager->getList(PublicSuffixListManager::PRIVATE_SECTION);
+        $invalidSuffixList = $listManager->getList('invalid type');
+        $this->assertInstanceOf('\Pdp\PublicSuffixList', $icannSuffixList);
+        $this->assertInstanceOf('\Pdp\PublicSuffixList', $privateSuffixList);
+        $this->assertInstanceOf('\Pdp\PublicSuffixList', $invalidSuffixList);
+        $this->assertEquals($invalidSuffixList, $publicSuffixList);
+        $this->assertNotEquals($privateSuffixList, $icannSuffixList);
+        $this->assertNotEquals($publicSuffixList, $icannSuffixList);
+        $this->assertNotEquals($publicSuffixList, $privateSuffixList);
+    }
 }

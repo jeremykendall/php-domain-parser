@@ -20,6 +20,13 @@ class PublicSuffixListManager
 {
     const PDP_PSL_TEXT_FILE = 'public-suffix-list.txt';
     const PDP_PSL_PHP_FILE = 'public-suffix-list.php';
+
+    const ICANN_SECTION = 'ICANN';
+    const ICANN_PSL_PHP_FILE = 'icann-public-suffix-list.php';
+
+    const PRIVATE_SECTION = 'PRIVATE';
+    const PRIVATE_PSL_PHP_FILE = 'private-public-suffix-list.php';
+
     /**
      * @var string Public Suffix List URL
      */
@@ -63,10 +70,22 @@ class PublicSuffixListManager
     public function refreshPublicSuffixList()
     {
         $this->fetchListFromSource();
-        $publicSuffixListArray = $this->parseListToArray(
-            $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE
+        $cacheFile = $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE;
+
+        $this->varExportToFile(
+            self::PDP_PSL_PHP_FILE,
+            $this->parseListToArray($cacheFile)
         );
-        $this->writePhpCache($publicSuffixListArray);
+
+        $this->varExportToFile(
+            self::ICANN_PSL_PHP_FILE,
+            $this->parseSectionToArray(self::ICANN_SECTION, $cacheFile)
+        );
+
+        $this->varExportToFile(
+            self::PRIVATE_PSL_PHP_FILE,
+            $this->parseSectionToArray(self::PRIVATE_SECTION, $cacheFile)
+        );
     }
 
     /**
@@ -98,23 +117,63 @@ class PublicSuffixListManager
      */
     public function parseListToArray($textFile)
     {
-        $data = file(
-            $textFile,
-            FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
-        );
+        return $this->parseSectionToArray('', $textFile);
+    }
 
-        $data = array_filter($data, function ($line) {
-            return strstr($line, '//') === false;
-        });
-
+    /**
+     * Parses text representation of the Public suffix list to associative, multidimensional array.
+     *
+     * This method is based heavily on the code found in generateEffectiveTLDs.php
+     *
+     * @link https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
+     * A copy of the Apache License, Version 2.0, is provided with this
+     * distribution
+     *
+     * @param string $section  Public Suffix List section name
+     * @param string $textFile Public Suffix List text filename
+     *
+     * @return array Associative, multidimensional array representation of the
+     *               public suffx list
+     */
+    protected function parseSectionToArray($section, $textFile)
+    {
         $publicSuffixListArray = array();
-
-        foreach ($data as $line) {
+        $data = file($textFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $filter = $this->getLineFilter($section);
+        foreach (array_filter($data, $filter) as $line) {
             $ruleParts = explode('.', $line);
             $this->buildArray($publicSuffixListArray, $ruleParts);
         }
 
         return $publicSuffixListArray;
+    }
+
+    /**
+     * Return the PSL line filter.
+     *
+     * @param string $section Public Suffix List section name
+     *
+     * @return Closure
+     */
+    protected function getLineFilter($section)
+    {
+        $section = trim($section);
+        $add = empty($section);
+        if ($add) {
+            return function ($line) {
+                return strstr($line, '//') === false;
+            };
+        }
+
+        return function ($line) use (&$add, $section) {
+            if (!$add && 0 === strpos($line, '// ===BEGIN ' . $section . ' DOMAINS===')) {
+                $add = true;
+            } elseif ($add && 0 === strpos($line, '// ===END ' . $section . ' DOMAINS===')) {
+                $add = false;
+            }
+
+            return $add && strstr($line, '//') === false;
+        };
     }
 
     /**
@@ -170,25 +229,45 @@ class PublicSuffixListManager
      */
     public function writePhpCache(array $publicSuffixList)
     {
-        $data = '<?php' . PHP_EOL . 'return ' . var_export($publicSuffixList, true) . ';';
+        return $this->varExportToFile(self::PDP_PSL_PHP_FILE, $publicSuffixList);
+    }
 
-        return $this->write(self::PDP_PSL_PHP_FILE, $data);
+    /**
+     * Writes php array representation to disk.
+     *
+     * @param string $basename file path
+     * @param array  $input    input data
+     *
+     * @return int Number of bytes that were written to the file
+     */
+    protected function varExportToFile($basename, array $input)
+    {
+        $data = '<?php' . PHP_EOL . 'return ' . var_export($input, true) . ';';
+
+        return $this->write($basename, $data);
     }
 
     /**
      * Gets Public Suffix List.
      *
+     * @param string|null $section the Public Suffix List type
+     *
      * @return PublicSuffixList Instance of Public Suffix List
      */
-    public function getList()
+    public function getList($section = null)
     {
-        if (!file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE)) {
+        $sectionList = array(
+            self::ICANN_SECTION => self::ICANN_PSL_PHP_FILE,
+            self::PRIVATE_SECTION => self::PRIVATE_PSL_PHP_FILE,
+        );
+
+        $cacheBasename = isset($sectionList[$section]) ? $sectionList[$section] : self::PDP_PSL_PHP_FILE;
+        $psl_php_file = $this->cacheDir . '/' . $cacheBasename;
+        if (!file_exists($psl_php_file)) {
             $this->refreshPublicSuffixList();
         }
 
-        $this->list = new PublicSuffixList(
-            include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE
-        );
+        $this->list = new PublicSuffixList($psl_php_file);
 
         return $this->list;
     }
@@ -205,13 +284,16 @@ class PublicSuffixListManager
      */
     protected function write($filename, $data)
     {
-        $result = @file_put_contents($this->cacheDir . '/' . $filename, $data);
-
-        if ($result === false) {
-            throw new \Exception("Cannot write '" . $this->cacheDir . '/' . "$filename'");
+        $path = $this->cacheDir . '/' . $filename;
+        $level = error_reporting(0);
+        $result = file_put_contents($path, $data);
+        error_reporting($level);
+        if ($result !== false) {
+            return $result;
         }
+        $error = error_get_last();
 
-        return $result;
+        throw new \Exception(sprintf("Cannot write '%s' : %s", $path, $error['message']));
     }
 
     /**
