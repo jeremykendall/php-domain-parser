@@ -218,16 +218,24 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
     public function testGetDifferentPublicList()
     {
         $listManager = new PublicSuffixListManager();
-        $publicSuffixList = $listManager->getList();
-        $icannSuffixList = $listManager->getList(PublicSuffixListManager::ICANN_SECTION);
-        $privateSuffixList = $listManager->getList(PublicSuffixListManager::PRIVATE_SECTION);
-        $invalidSuffixList = $listManager->getList('invalid type');
-        $this->assertInstanceOf('\Pdp\PublicSuffixList', $icannSuffixList);
-        $this->assertInstanceOf('\Pdp\PublicSuffixList', $privateSuffixList);
-        $this->assertInstanceOf('\Pdp\PublicSuffixList', $invalidSuffixList);
-        $this->assertEquals($invalidSuffixList, $publicSuffixList);
-        $this->assertNotEquals($privateSuffixList, $icannSuffixList);
-        $this->assertNotEquals($publicSuffixList, $icannSuffixList);
-        $this->assertNotEquals($publicSuffixList, $privateSuffixList);
+        $publicList = $listManager->getList();
+        $invalidList = $listManager->getList('invalid type');
+        $this->assertEquals($publicList, $invalidList);
+    }
+
+    public function testParserWithDifferentPublicList()
+    {
+        $listManager = new PublicSuffixListManager();
+        $icannList = $listManager->getList(PublicSuffixListManager::ICANN_DOMAINS);
+        $privateList = $listManager->getList(PublicSuffixListManager::PRIVATE_DOMAINS);
+        $host = 'thephpleague.github.io';
+
+        $icannParser = new Parser($icannList);
+        $icannSubdomain = $icannParser->parseHost($host)->getSubdomain();
+        $this->assertSame('thephpleague', $icannSubdomain);
+
+        $privateParser = new Parser($privateList);
+        $privateSubdomain = $privateParser->parseHost($host)->getSubdomain();
+        $this->assertSame(null, $privateSubdomain);
     }
 }

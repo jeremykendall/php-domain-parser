@@ -10,6 +10,8 @@
  */
 namespace Pdp;
 
+use SplFileObject;
+
 /**
  * Public Suffix List Manager.
  *
@@ -18,13 +20,14 @@ namespace Pdp;
  */
 class PublicSuffixListManager
 {
+    const ALL_DOMAINS = 'ALL';
     const PDP_PSL_TEXT_FILE = 'public-suffix-list.txt';
     const PDP_PSL_PHP_FILE = 'public-suffix-list.php';
 
-    const ICANN_SECTION = 'ICANN';
+    const ICANN_DOMAINS = 'ICANN';
     const ICANN_PSL_PHP_FILE = 'icann-public-suffix-list.php';
 
-    const PRIVATE_SECTION = 'PRIVATE';
+    const PRIVATE_DOMAINS = 'PRIVATE';
     const PRIVATE_PSL_PHP_FILE = 'private-public-suffix-list.php';
 
     /**
@@ -40,7 +43,11 @@ class PublicSuffixListManager
     /**
      * @var PublicSuffixList Public Suffix List
      */
-    protected $list;
+    protected static $domainList = array(
+        self::ALL_DOMAINS => self::PDP_PSL_PHP_FILE,
+        self::ICANN_DOMAINS => self::ICANN_PSL_PHP_FILE,
+        self::PRIVATE_DOMAINS => self::PRIVATE_PSL_PHP_FILE,
+    );
 
     /**
      * @var \Pdp\HttpAdapter\HttpAdapterInterface Http adapter
@@ -71,21 +78,10 @@ class PublicSuffixListManager
     {
         $this->fetchListFromSource();
         $cacheFile = $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE;
-
-        $this->varExportToFile(
-            self::PDP_PSL_PHP_FILE,
-            $this->parseListToArray($cacheFile)
-        );
-
-        $this->varExportToFile(
-            self::ICANN_PSL_PHP_FILE,
-            $this->parseSectionToArray(self::ICANN_SECTION, $cacheFile)
-        );
-
-        $this->varExportToFile(
-            self::PRIVATE_PSL_PHP_FILE,
-            $this->parseSectionToArray(self::PRIVATE_SECTION, $cacheFile)
-        );
+        $publicSuffixListArray = $this->convertListToArray($cacheFile);
+        foreach ($publicSuffixListArray as $domain => $data) {
+            $this->varExportToFile(self::$domainList[$domain], $data);
+        }
     }
 
     /**
@@ -104,8 +100,105 @@ class PublicSuffixListManager
     /**
      * Parses text representation of list to associative, multidimensional array.
      *
+     * @param string $textFile Public Suffix List text filename
+     *
+     * @return array Associative, multidimensional array representation of the
+     *               public suffx list
+     */
+    protected function convertListToArray($textFile)
+    {
+        $addDomain = array(
+            self::ICANN_DOMAINS => false,
+            self::PRIVATE_DOMAINS => false,
+        );
+
+        $publicSuffixListArray = array(
+            self::ALL_DOMAINS => array(),
+            self::ICANN_DOMAINS => array(),
+            self::PRIVATE_DOMAINS => array(),
+        );
+
+        $data = new SplFileObject($textFile);
+        $data->setFlags(SplFileObject::DROP_NEW_LINE | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        foreach ($data as $line) {
+            $addDomain = $this->validateDomainAddition($line, $addDomain);
+            if (strstr($line, '//') !== false) {
+                continue;
+            }
+            $publicSuffixListArray = $this->convertLineToArray($line, $publicSuffixListArray, $addDomain);
+        }
+
+        return $publicSuffixListArray;
+    }
+
+    /**
+     * Update the addition status for a given line against the domain list (ICANN and PRIVATE).
+     *
+     * @param string $line      the current file line
+     * @param array  $addDomain the domain addition status
+     */
+    protected function validateDomainAddition($line, array $addDomain)
+    {
+        foreach ($addDomain as $section => $status) {
+            $addDomain[$section] = $this->isValidSection($status, $line, $section);
+        }
+
+        return $addDomain;
+    }
+
+    /**
+     * Tell whether the line can be converted for a given domain.
+     *
+     * @param bool   $previousStatus the previous status
+     * @param string $line           the current file line
+     * @param string $section        the section to be considered
+     *
+     * @return bool
+     */
+    protected function isValidSection($previousStatus, $line, $section)
+    {
+        if (!$previousStatus && 0 === strpos($line, '// ===BEGIN ' . $section . ' DOMAINS===')) {
+            return true;
+        }
+
+        if ($previousStatus && 0 === strpos($line, '// ===END ' . $section . ' DOMAINS===')) {
+            return false;
+        }
+
+        return $previousStatus;
+    }
+
+    /**
+     * Convert a line from the Public Suffix list.
+     *
+     * @param string $textLine              Public Suffix List text line
+     * @param array  $publicSuffixListArray Associative, multidimensional array representation of the
+     *                                      public suffx list
+     * @param array  $addDomain             Tell which section should be converted
+     *
+     * @return array Associative, multidimensional array representation of the
+     *               public suffx list
+     */
+    protected function convertLineToArray($textLine, array $publicSuffixListArray, array $addDomain)
+    {
+        $ruleParts = explode('.', $textLine);
+        $this->buildArray($publicSuffixListArray[self::ALL_DOMAINS], $ruleParts);
+        $domainNames = array_keys(array_filter($addDomain));
+        foreach ($domainNames as $domainName) {
+            $this->buildArray($publicSuffixListArray[$domainName], $ruleParts);
+        }
+
+        return $publicSuffixListArray;
+    }
+
+    /**
+     * Parses text representation of list to associative, multidimensional array.
+     *
      * This method is based heavily on the code found in generateEffectiveTLDs.php
      *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 3.1.0
      * @link https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
@@ -117,63 +210,18 @@ class PublicSuffixListManager
      */
     public function parseListToArray($textFile)
     {
-        return $this->parseSectionToArray('', $textFile);
-    }
-
-    /**
-     * Parses text representation of the Public suffix list to associative, multidimensional array.
-     *
-     * This method is based heavily on the code found in generateEffectiveTLDs.php
-     *
-     * @link https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
-     * A copy of the Apache License, Version 2.0, is provided with this
-     * distribution
-     *
-     * @param string $section  Public Suffix List section name
-     * @param string $textFile Public Suffix List text filename
-     *
-     * @return array Associative, multidimensional array representation of the
-     *               public suffx list
-     */
-    protected function parseSectionToArray($section, $textFile)
-    {
-        $publicSuffixListArray = array();
         $data = file($textFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $filter = $this->getLineFilter($section);
+        $filter = function ($line) {
+            return strstr($line, '//') === false;
+        };
+
+        $publicSuffixListArray = array();
         foreach (array_filter($data, $filter) as $line) {
             $ruleParts = explode('.', $line);
             $this->buildArray($publicSuffixListArray, $ruleParts);
         }
 
         return $publicSuffixListArray;
-    }
-
-    /**
-     * Return the PSL line filter.
-     *
-     * @param string $section Public Suffix List section name
-     *
-     * @return Closure
-     */
-    protected function getLineFilter($section)
-    {
-        $section = trim($section);
-        $add = empty($section);
-        if ($add) {
-            return function ($line) {
-                return strstr($line, '//') === false;
-            };
-        }
-
-        return function ($line) use (&$add, $section) {
-            if (!$add && 0 === strpos($line, '// ===BEGIN ' . $section . ' DOMAINS===')) {
-                $add = true;
-            } elseif ($add && 0 === strpos($line, '// ===END ' . $section . ' DOMAINS===')) {
-                $add = false;
-            }
-
-            return $add && strstr($line, '//') === false;
-        };
     }
 
     /**
@@ -250,26 +298,19 @@ class PublicSuffixListManager
     /**
      * Gets Public Suffix List.
      *
-     * @param string|null $section the Public Suffix List type
+     * @param string $list the Public Suffix List type
      *
      * @return PublicSuffixList Instance of Public Suffix List
      */
-    public function getList($section = null)
+    public function getList($list = self::ALL_DOMAINS)
     {
-        $sectionList = array(
-            self::ICANN_SECTION => self::ICANN_PSL_PHP_FILE,
-            self::PRIVATE_SECTION => self::PRIVATE_PSL_PHP_FILE,
-        );
-
-        $cacheBasename = isset($sectionList[$section]) ? $sectionList[$section] : self::PDP_PSL_PHP_FILE;
-        $psl_php_file = $this->cacheDir . '/' . $cacheBasename;
-        if (!file_exists($psl_php_file)) {
+        $cacheBasename = isset(self::$domainList[$list]) ? self::$domainList[$list] : self::PDP_PSL_PHP_FILE;
+        $cacheFile = $this->cacheDir . '/' . $cacheBasename;
+        if (!file_exists($cacheFile)) {
             $this->refreshPublicSuffixList();
         }
 
-        $this->list = new PublicSuffixList($psl_php_file);
-
-        return $this->list;
+        return new PublicSuffixList($cacheFile);
     }
 
     /**
@@ -285,15 +326,12 @@ class PublicSuffixListManager
     protected function write($filename, $data)
     {
         $path = $this->cacheDir . '/' . $filename;
-        $level = error_reporting(0);
-        $result = file_put_contents($path, $data);
-        error_reporting($level);
+        $result = @file_put_contents($path, $data);
         if ($result !== false) {
             return $result;
         }
-        $error = error_get_last();
 
-        throw new \Exception(sprintf("Cannot write '%s' : %s", $path, $error['message']));
+        throw new \Exception(sprintf("Cannot write '%s'", $path));
     }
 
     /**
