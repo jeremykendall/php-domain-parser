@@ -84,7 +84,7 @@ class Parser
 
         $parts = pdp_parse_url($url);
 
-        if ($parts === false) {
+        if ($parts === false || !isset($parts['host'])) {
             throw new SeriouslyMalformedUrlException($rawUrl);
         }
 
