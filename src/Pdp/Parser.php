@@ -303,7 +303,7 @@ class Parser
         $punycoded = (strpos($part, 'xn--') !== false);
 
         if ($punycoded === false) {
-            $part = idn_to_ascii($part);
+            $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
             $this->isNormalized = true;
         }
 
