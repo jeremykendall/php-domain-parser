@@ -141,7 +141,11 @@ class PublicSuffixListManager
         // of https://publicsuffix.org/list/
         // "The domain and all rules must be canonicalized in the normal way
         // for hostnames - lower-case, Punycode (RFC 3492)."
-        $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
+        if (defined('INTL_IDNA_VARIANT_UTS46')) {
+            $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
+        } else {
+            $part = idn_to_ascii($part);
+        }
 
         if (strpos($part, '!') === 0) {
             $part = substr($part, 1);
