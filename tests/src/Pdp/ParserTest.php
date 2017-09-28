@@ -150,6 +150,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Pdp\Parser::parseUrl()
      * @covers Pdp\Parser::getRegistrableDomain()
+     * @covers Pdp\Parser::getRegisterableDomain()
      * @dataProvider parseDataProvider
      *
      * @param $url
@@ -162,7 +163,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     {
         $pdpUrl = $this->parser->parseUrl($url);
         $this->assertSame($registrableDomain, $pdpUrl->getHost()->getRegistrableDomain());
-        $this->assertSame($registrableDomain, $this->parser->getRegistrableDomain($hostPart));
+        $this->assertSame($registrableDomain, $this->parser->getRegisterableDomain($hostPart));
+        $this->assertSame($registrableDomain, $pdpUrl->getHost()->getRegistrableDomain());
+        $this->assertSame($registrableDomain, $this->parser->getRegisterableDomain($hostPart));
     }
 
     /**

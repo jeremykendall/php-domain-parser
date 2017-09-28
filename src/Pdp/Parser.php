@@ -264,6 +264,18 @@ class Parser
     }
 
     /**
+     * @see Parser::getRegistrableDomain
+     *
+     * @param string $host host
+     *
+     * @return string|null registrable domain
+     */
+    public function getRegisterableDomain($host)
+    {
+        return $this->getRegistrableDomain($host);
+    }
+
+    /**
      * Returns the subdomain portion of provided host.
      *
      * @param string $host host
