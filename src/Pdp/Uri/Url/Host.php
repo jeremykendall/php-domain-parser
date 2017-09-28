@@ -70,6 +70,16 @@ class Host
     }
 
     /**
+     * @see Host::getRegistrableDomain
+     *
+     * @return string
+     */
+    public function getRegisterableDomain()
+    {
+        return $this->getRegistrableDomain();
+    }
+
+    /**
      * Get Public suffix.
      *
      * @return string|null
@@ -116,9 +126,12 @@ class Host
      */
     public function toArray()
     {
+        $registrableDomain = $this->getRegistrableDomain();
+
         return array(
             'subdomain' => $this->getSubdomain(),
-            'registrableDomain' => $this->getRegistrableDomain(),
+            'registrableDomain' => $registrableDomain,
+            'registerableDomain' => $registrableDomain,
             'publicSuffix' => $this->getPublicSuffix(),
             'host' => $this->getHost(),
         );

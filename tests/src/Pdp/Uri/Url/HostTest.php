@@ -48,6 +48,7 @@ class HostTest extends \PHPUnit_Framework_TestCase
         $parts = array(
             'subdomain' => $subdomain,
             'registrableDomain' => $registrableDomain,
+            'registerableDomain' => $registrableDomain,
             'publicSuffix' => $publicSuffix,
             'host' => $hostPart,
         );
