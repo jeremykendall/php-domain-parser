@@ -337,7 +337,11 @@ class Parser
     protected function denormalize($part)
     {
         if ($this->isNormalized === true) {
-            $part = idn_to_utf8($part);
+            if (defined('INTL_IDNA_VARIANT_UTS46')) {
+                $part = idn_to_utf8($part, 0, INTL_IDNA_VARIANT_UTS46);
+            } else {
+                $part = idn_to_utf8($part);
+            }
             $this->isNormalized = false;
         }
 
