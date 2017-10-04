@@ -662,10 +662,7 @@ return array (
   ),
   'ba' => 
   array (
-    'org' => 
-    array (
-    ),
-    'net' => 
+    'com' => 
     array (
     ),
     'edu' => 
@@ -677,19 +674,10 @@ return array (
     'mil' => 
     array (
     ),
-    'unsa' => 
+    'net' => 
     array (
     ),
-    'unbi' => 
-    array (
-    ),
-    'co' => 
-    array (
-    ),
-    'com' => 
-    array (
-    ),
-    'rs' => 
+    'org' => 
     array (
     ),
     'blogspot' => 
@@ -921,6 +909,15 @@ return array (
     array (
     ),
     'webhop' => 
+    array (
+    ),
+    'mmafan' => 
+    array (
+    ),
+    'myftp' => 
+    array (
+    ),
+    'no-ip' => 
     array (
     ),
     'dscloud' => 
@@ -1355,6 +1352,9 @@ return array (
     'blogspot' => 
     array (
     ),
+    'no-ip' => 
+    array (
+    ),
   ),
   'cat' => 
   array (
@@ -1371,6 +1371,9 @@ return array (
     array (
     ),
     'scrapping' => 
+    array (
+    ),
+    'fantasyleague' => 
     array (
     ),
   ),
@@ -1392,6 +1395,9 @@ return array (
   'ch' => 
   array (
     'blogspot' => 
+    array (
+    ),
+    'gotdns' => 
     array (
     ),
   ),
@@ -1495,6 +1501,12 @@ return array (
     array (
       'amazonaws' => 
       array (
+        'compute' => 
+        array (
+          'cn-north-1' => 
+          array (
+          ),
+        ),
         'cn-north-1' => 
         array (
           's3' => 
@@ -1629,15 +1641,6 @@ return array (
     'tw' => 
     array (
     ),
-    'amazonaws' => 
-    array (
-      'compute' => 
-      array (
-        'cn-north-1' => 
-        array (
-        ),
-      ),
-    ),
   ),
   'co' => 
   array (
@@ -1693,16 +1696,19 @@ return array (
         'ap-northeast-1' => 
         array (
         ),
+        'ap-northeast-2' => 
+        array (
+        ),
         'ap-southeast-1' => 
         array (
         ),
         'ap-southeast-2' => 
         array (
         ),
-        'eu-west-1' => 
+        'eu-central-1' => 
         array (
         ),
-        'eu-central-1' => 
+        'eu-west-1' => 
         array (
         ),
         'sa-east-1' => 
@@ -1739,10 +1745,19 @@ return array (
       's3-ap-northeast-1' => 
       array (
       ),
+      's3-ap-northeast-2' => 
+      array (
+      ),
       's3-ap-southeast-1' => 
       array (
       ),
       's3-ap-southeast-2' => 
+      array (
+      ),
+      's3-eu-central-1' => 
+      array (
+      ),
+      's3-eu-west-1' => 
       array (
       ),
       's3-external-1' => 
@@ -1752,12 +1767,6 @@ return array (
       array (
       ),
       's3-fips-us-gov-west-1' => 
-      array (
-      ),
-      's3-eu-central-1' => 
-      array (
-      ),
-      's3-eu-west-1' => 
       array (
       ),
       's3-sa-east-1' => 
@@ -1772,6 +1781,12 @@ return array (
       's3-us-west-2' => 
       array (
       ),
+      'ap-northeast-2' => 
+      array (
+        's3' => 
+        array (
+        ),
+      ),
       'eu-central-1' => 
       array (
         's3' => 
@@ -1780,6 +1795,12 @@ return array (
       ),
     ),
     'elasticbeanstalk' => 
+    array (
+    ),
+    'on-aptible' => 
+    array (
+    ),
+    'myasustor' => 
     array (
     ),
     'betainabox' => 
@@ -1849,6 +1870,9 @@ return array (
     array (
     ),
     'co' => 
+    array (
+    ),
+    'xenapponazure' => 
     array (
     ),
     'cloudcontrolled' => 
@@ -2313,17 +2337,74 @@ return array (
     'writesthisblog' => 
     array (
     ),
+    'evennode' => 
+    array (
+      'eu-1' => 
+      array (
+      ),
+      'eu-2' => 
+      array (
+      ),
+      'us-1' => 
+      array (
+      ),
+      'us-2' => 
+      array (
+      ),
+    ),
+    'fbsbx' => 
+    array (
+      'apps' => 
+      array (
+      ),
+    ),
     'firebaseapp' => 
     array (
     ),
     'flynnhub' => 
     array (
     ),
+    'freebox-os' => 
+    array (
+    ),
+    'freeboxos' => 
+    array (
+    ),
     'githubusercontent' => 
     array (
     ),
+    'githubcloud' => 
+    array (
+      'api' => 
+      array (
+        '*' => 
+        array (
+        ),
+      ),
+      'ext' => 
+      array (
+        '*' => 
+        array (
+        ),
+      ),
+      'gist' => 
+      array (
+      ),
+    ),
+    'githubcloudusercontent' => 
+    array (
+      '*' => 
+      array (
+      ),
+    ),
     'ro' => 
     array (
+    ),
+    '0emm' => 
+    array (
+      '*' => 
+      array (
+      ),
     ),
     'appspot' => 
     array (
@@ -2355,16 +2436,148 @@ return array (
     'herokussl' => 
     array (
     ),
+    'joyent' => 
+    array (
+      'cns' => 
+      array (
+        '*' => 
+        array (
+        ),
+      ),
+    ),
+    'meteorapp' => 
+    array (
+      'eu' => 
+      array (
+      ),
+    ),
     '4u' => 
     array (
     ),
     'nfshost' => 
     array (
     ),
+    'blogsyte' => 
+    array (
+    ),
+    'ciscofreak' => 
+    array (
+    ),
+    'damnserver' => 
+    array (
+    ),
+    'ditchyourip' => 
+    array (
+    ),
+    'dnsiskinky' => 
+    array (
+    ),
+    'dynns' => 
+    array (
+    ),
+    'geekgalaxy' => 
+    array (
+    ),
+    'health-carereform' => 
+    array (
+    ),
+    'homesecuritymac' => 
+    array (
+    ),
+    'homesecuritypc' => 
+    array (
+    ),
+    'myactivedirectory' => 
+    array (
+    ),
+    'mysecuritycamera' => 
+    array (
+    ),
+    'net-freaks' => 
+    array (
+    ),
+    'onthewifi' => 
+    array (
+    ),
+    'point2this' => 
+    array (
+    ),
+    'quicksytes' => 
+    array (
+    ),
+    'securitytactics' => 
+    array (
+    ),
+    'serveexchange' => 
+    array (
+    ),
+    'servehumour' => 
+    array (
+    ),
+    'servep2p' => 
+    array (
+    ),
+    'servesarcasm' => 
+    array (
+    ),
+    'stufftoread' => 
+    array (
+    ),
+    'unusualperson' => 
+    array (
+    ),
+    'workisboring' => 
+    array (
+    ),
+    '3utilities' => 
+    array (
+    ),
+    'ddnsking' => 
+    array (
+    ),
+    'myvnc' => 
+    array (
+    ),
+    'servebeer' => 
+    array (
+    ),
+    'servecounterstrike' => 
+    array (
+    ),
+    'serveftp' => 
+    array (
+    ),
+    'servegame' => 
+    array (
+    ),
+    'servehalflife' => 
+    array (
+    ),
+    'servehttp' => 
+    array (
+    ),
+    'serveirc' => 
+    array (
+    ),
+    'servemp3' => 
+    array (
+    ),
+    'servepics' => 
+    array (
+    ),
+    'servequake' => 
+    array (
+    ),
     'operaunite' => 
     array (
     ),
     'outsystemscloud' => 
+    array (
+    ),
+    'ownprovider' => 
+    array (
+    ),
+    'pgfog' => 
     array (
     ),
     'pagefrontapp' => 
@@ -2382,10 +2595,25 @@ return array (
     'qa2' => 
     array (
     ),
+    'dev-myqnapcloud' => 
+    array (
+    ),
+    'alpha-myqnapcloud' => 
+    array (
+    ),
+    'myqnapcloud' => 
+    array (
+    ),
     'rackmaze' => 
     array (
     ),
     'rhcloud' => 
+    array (
+    ),
+    'logoip' => 
+    array (
+    ),
+    'myshopblocks' => 
     array (
     ),
     'sinaapp' => 
@@ -2397,10 +2625,25 @@ return array (
     '1kapp' => 
     array (
     ),
+    'bounty-full' => 
+    array (
+      'alpha' => 
+      array (
+      ),
+      'beta' => 
+      array (
+      ),
+    ),
     'dsmynas' => 
     array (
     ),
     'familyds' => 
+    array (
+    ),
+    'bloxcms' => 
+    array (
+    ),
+    'townnews-staging' => 
     array (
     ),
     'hk' => 
@@ -2538,6 +2781,12 @@ return array (
     'co' => 
     array (
     ),
+    'realm' => 
+    array (
+    ),
+    'e4' => 
+    array (
+    ),
     'blogspot' => 
     array (
     ),
@@ -2545,6 +2794,9 @@ return array (
   'de' => 
   array (
     'com' => 
+    array (
+    ),
+    'dnshome' => 
     array (
     ),
     'fuettertdasnetz' => 
@@ -2565,7 +2817,13 @@ return array (
     'traeumtgerade' => 
     array (
     ),
+    'goip' => 
+    array (
+    ),
     'blogspot' => 
+    array (
+    ),
+    'logoip' => 
     array (
     ),
   ),
@@ -2574,6 +2832,21 @@ return array (
   ),
   'dk' => 
   array (
+    'biz' => 
+    array (
+    ),
+    'co' => 
+    array (
+    ),
+    'firm' => 
+    array (
+    ),
+    'reg' => 
+    array (
+    ),
+    'store' => 
+    array (
+    ),
     'blogspot' => 
     array (
     ),
@@ -2823,10 +3096,16 @@ return array (
   ),
   'eu' => 
   array (
+    'mycd' => 
+    array (
+    ),
   ),
   'fi' => 
   array (
     'aland' => 
+    array (
+    ),
+    'dy' => 
     array (
     ),
     'blogspot' => 
@@ -2925,7 +3204,22 @@ return array (
     'veterinaire' => 
     array (
     ),
+    'fbx-os' => 
+    array (
+    ),
+    'fbxos' => 
+    array (
+    ),
+    'freebox-os' => 
+    array (
+    ),
+    'freeboxos' => 
+    array (
+    ),
     'blogspot' => 
+    array (
+    ),
+    'chirurgiens-dentistes-en-france' => 
     array (
     ),
   ),
@@ -3540,6 +3834,9 @@ return array (
     'tv' => 
     array (
     ),
+    'ro' => 
+    array (
+    ),
   ),
   'in' => 
   array (
@@ -3615,6 +3912,18 @@ return array (
     'webhop' => 
     array (
     ),
+    'nsupdate' => 
+    array (
+    ),
+    'dvrcam' => 
+    array (
+    ),
+    'ilovecollege' => 
+    array (
+    ),
+    'no-ip' => 
+    array (
+    ),
   ),
   'int' => 
   array (
@@ -3627,7 +3936,28 @@ return array (
     'com' => 
     array (
     ),
+    'backplaneapp' => 
+    array (
+    ),
+    'boxfuse' => 
+    array (
+    ),
+    'browsersafetymark' => 
+    array (
+    ),
+    'dedyn' => 
+    array (
+    ),
+    'drud' => 
+    array (
+    ),
     'github' => 
+    array (
+    ),
+    'gitlab' => 
+    array (
+    ),
+    'hasura-app' => 
     array (
     ),
     'ngrok' => 
@@ -3636,10 +3966,19 @@ return array (
     'nid' => 
     array (
     ),
-    'pantheon' => 
+    'pantheonsite' => 
+    array (
+    ),
+    'protonet' => 
+    array (
+    ),
+    'hzc' => 
     array (
     ),
     'sandcats' => 
+    array (
+    ),
+    'spacekit' => 
     array (
     ),
   ),
@@ -7391,9 +7730,6 @@ return array (
       'kikuchi' => 
       array (
       ),
-      'kosa' => 
-      array (
-      ),
       'kumamoto' => 
       array (
       ),
@@ -7653,9 +7989,6 @@ return array (
       array (
       ),
       'kawasaki' => 
-      array (
-      ),
-      'kesennuma' => 
       array (
       ),
       'marumori' => 
@@ -10612,6 +10945,9 @@ return array (
     'org' => 
     array (
     ),
+    'bnr' => 
+    array (
+    ),
     'c' => 
     array (
     ),
@@ -10652,6 +10988,9 @@ return array (
     array (
     ),
     'gov' => 
+    array (
+    ),
+    'oy' => 
     array (
     ),
   ),
@@ -10871,6 +11210,30 @@ return array (
     array (
     ),
     'priv' => 
+    array (
+    ),
+    'daplie' => 
+    array (
+    ),
+    'brasilia' => 
+    array (
+    ),
+    'ddns' => 
+    array (
+    ),
+    'dnsfor' => 
+    array (
+    ),
+    'hopto' => 
+    array (
+    ),
+    'loginto' => 
+    array (
+    ),
+    'noip' => 
+    array (
+    ),
+    'webhop' => 
     array (
     ),
     'diskstation' => 
@@ -12874,12 +13237,29 @@ return array (
   ),
   'mz' => 
   array (
-    '*' => 
+    'ac' => 
     array (
     ),
-    'teledata' => 
+    'adv' => 
     array (
-      '!' => '',
+    ),
+    'co' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
     ),
   ),
   'na' => 
@@ -12965,6 +13345,9 @@ return array (
     'cloudfront' => 
     array (
     ),
+    'myfritz' => 
+    array (
+    ),
     'gb' => 
     array (
     ),
@@ -12989,6 +13372,12 @@ return array (
     'cdn77' => 
     array (
       'r' => 
+      array (
+      ),
+    ),
+    'cryptonomic' => 
+    array (
+      '*' => 
       array (
       ),
     ),
@@ -13097,6 +13486,9 @@ return array (
     'webhop' => 
     array (
     ),
+    'dynv6' => 
+    array (
+    ),
     'fastly' => 
     array (
       'ssl' => 
@@ -13131,6 +13523,54 @@ return array (
     array (
     ),
     'cloudapp' => 
+    array (
+    ),
+    'eating-organic' => 
+    array (
+    ),
+    'mydissent' => 
+    array (
+    ),
+    'myeffect' => 
+    array (
+    ),
+    'mymediapc' => 
+    array (
+    ),
+    'mypsx' => 
+    array (
+    ),
+    'mysecuritycamera' => 
+    array (
+    ),
+    'nhlfan' => 
+    array (
+    ),
+    'no-ip' => 
+    array (
+    ),
+    'pgafan' => 
+    array (
+    ),
+    'privatizehealthinsurance' => 
+    array (
+    ),
+    'bounceme' => 
+    array (
+    ),
+    'ddns' => 
+    array (
+    ),
+    'redirectme' => 
+    array (
+    ),
+    'serveblog' => 
+    array (
+    ),
+    'serveminecraft' => 
+    array (
+    ),
+    'sytes' => 
     array (
     ),
     'rackmaze' => 
@@ -13263,6 +13703,9 @@ return array (
   'nl' => 
   array (
     'bv' => 
+    array (
+    ),
+    'virtueeldomein' => 
     array (
     ),
     'co' => 
@@ -15701,10 +16144,25 @@ return array (
   ),
   'org' => 
   array (
+    'pimienta' => 
+    array (
+    ),
+    'poivron' => 
+    array (
+    ),
+    'potager' => 
+    array (
+    ),
+    'sweetpepper' => 
+    array (
+    ),
     'ae' => 
     array (
     ),
     'us' => 
+    array (
+    ),
+    'certmgr' => 
     array (
     ),
     'cdn77' => 
@@ -15726,6 +16184,9 @@ return array (
       ),
     ),
     'duckdns' => 
+    array (
+    ),
+    'tunk' => 
     array (
     ),
     'dyndns' => 
@@ -16052,7 +16513,49 @@ return array (
       array (
       ),
     ),
+    'hepforge' => 
+    array (
+    ),
+    'js' => 
+    array (
+    ),
     'bmoattachments' => 
+    array (
+    ),
+    'cable-modem' => 
+    array (
+    ),
+    'collegefan' => 
+    array (
+    ),
+    'couchpotatofries' => 
+    array (
+    ),
+    'mlbfan' => 
+    array (
+    ),
+    'mysecuritycamera' => 
+    array (
+    ),
+    'nflfan' => 
+    array (
+    ),
+    'read-books' => 
+    array (
+    ),
+    'ufcfan' => 
+    array (
+    ),
+    'hopto' => 
+    array (
+    ),
+    'myftp' => 
+    array (
+    ),
+    'no-ip' => 
+    array (
+    ),
+    'zapto' => 
     array (
     ),
     'dsmynas' => 
@@ -16061,7 +16564,13 @@ return array (
     'familyds' => 
     array (
     ),
+    'tuxfamily' => 
+    array (
+    ),
     'hk' => 
+    array (
+    ),
+    'wmflabs' => 
     array (
     ),
     'za' => 
@@ -16823,6 +17332,9 @@ return array (
     'zgorzelec' => 
     array (
     ),
+    'beep' => 
+    array (
+    ),
     'co' => 
     array (
     ),
@@ -16928,13 +17440,25 @@ return array (
   ),
   'pro' => 
   array (
+    'aaa' => 
+    array (
+    ),
     'aca' => 
+    array (
+    ),
+    'acct' => 
+    array (
+    ),
+    'avocat' => 
     array (
     ),
     'bar' => 
     array (
     ),
     'cpa' => 
+    array (
+    ),
+    'eng' => 
     array (
     ),
     'jur' => 
@@ -16946,7 +17470,7 @@ return array (
     'med' => 
     array (
     ),
-    'eng' => 
+    'recht' => 
     array (
     ),
   ),
@@ -17127,6 +17651,9 @@ return array (
     array (
     ),
     'www' => 
+    array (
+    ),
+    'shop' => 
     array (
     ),
     'blogspot' => 
@@ -18841,6 +19368,9 @@ return array (
       'blogspot' => 
       array (
       ),
+      'no-ip' => 
+      array (
+      ),
     ),
     'gov' => 
     array (
@@ -19547,6 +20077,9 @@ return array (
       array (
       ),
     ),
+    'drud' => 
+    array (
+    ),
     'is-by' => 
     array (
     ),
@@ -19554,6 +20087,15 @@ return array (
     array (
     ),
     'stuff-4-sale' => 
+    array (
+    ),
+    'golffan' => 
+    array (
+    ),
+    'noip' => 
+    array (
+    ),
+    'pointto' => 
     array (
     ),
   ),
@@ -19806,6 +20348,9 @@ return array (
   'xn--wgbh1c' => 
   array (
   ),
+  'xn--e1a4c' => 
+  array (
+  ),
   'xn--node' => 
   array (
   ),
@@ -20033,7 +20578,37 @@ return array (
   ),
   'zm' => 
   array (
-    '*' => 
+    'ac' => 
+    array (
+    ),
+    'biz' => 
+    array (
+    ),
+    'co' => 
+    array (
+    ),
+    'com' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
+    'gov' => 
+    array (
+    ),
+    'info' => 
+    array (
+    ),
+    'mil' => 
+    array (
+    ),
+    'net' => 
+    array (
+    ),
+    'org' => 
+    array (
+    ),
+    'sch' => 
     array (
     ),
   ),
@@ -20116,9 +20691,6 @@ return array (
   array (
   ),
   'africa' => 
-  array (
-  ),
-  'africamagic' => 
   array (
   ),
   'agakhan' => 
@@ -20224,6 +20796,9 @@ return array (
   array (
   ),
   'army' => 
+  array (
+  ),
+  'art' => 
   array (
   ),
   'arte' => 
@@ -20520,6 +21095,9 @@ return array (
   'calvinklein' => 
   array (
   ),
+  'cam' => 
+  array (
+  ),
   'camera' => 
   array (
   ),
@@ -20693,6 +21271,12 @@ return array (
   ),
   'cloud' => 
   array (
+    'magentosite' => 
+    array (
+      '*' => 
+      array (
+      ),
+    ),
   ),
   'club' => 
   array (
@@ -20820,6 +21404,9 @@ return array (
   'dance' => 
   array (
   ),
+  'data' => 
+  array (
+  ),
   'date' => 
   array (
   ),
@@ -20916,6 +21503,9 @@ return array (
   'docs' => 
   array (
   ),
+  'doctor' => 
+  array (
+  ),
   'dodge' => 
   array (
   ),
@@ -20928,9 +21518,6 @@ return array (
   'domains' => 
   array (
   ),
-  'doosan' => 
-  array (
-  ),
   'dot' => 
   array (
   ),
@@ -20938,9 +21525,6 @@ return array (
   array (
   ),
   'drive' => 
-  array (
-  ),
-  'dstv' => 
   array (
   ),
   'dtv' => 
@@ -20967,6 +21551,9 @@ return array (
   'dvag' => 
   array (
   ),
+  'dvr' => 
+  array (
+  ),
   'dwg' => 
   array (
   ),
@@ -20974,6 +21561,9 @@ return array (
   array (
   ),
   'eat' => 
+  array (
+  ),
+  'eco' => 
   array (
   ),
   'edeka' => 
@@ -21023,6 +21613,12 @@ return array (
   ),
   'estate' => 
   array (
+    'compute' => 
+    array (
+      '*' => 
+      array (
+      ),
+    ),
   ),
   'esurance' => 
   array (
@@ -21159,13 +21755,13 @@ return array (
   'flowers' => 
   array (
   ),
-  'flsmidth' => 
-  array (
-  ),
   'fly' => 
   array (
   ),
   'foo' => 
+  array (
+  ),
+  'food' => 
   array (
   ),
   'foodnetwork' => 
@@ -21217,6 +21813,9 @@ return array (
   array (
   ),
   'fujixerox' => 
+  array (
+  ),
+  'fun' => 
   array (
   ),
   'fund' => 
@@ -21306,6 +21905,9 @@ return array (
   'gmail' => 
   array (
   ),
+  'gmbh' => 
+  array (
+  ),
   'gmo' => 
   array (
   ),
@@ -21345,9 +21947,6 @@ return array (
   'got' => 
   array (
   ),
-  'gotv' => 
-  array (
-  ),
   'grainger' => 
   array (
   ),
@@ -21361,6 +21960,9 @@ return array (
   array (
   ),
   'gripe' => 
+  array (
+  ),
+  'grocery' => 
   array (
   ),
   'group' => 
@@ -21481,6 +22083,9 @@ return array (
   array (
   ),
   'hoteles' => 
+  array (
+  ),
+  'hotels' => 
   array (
   ),
   'hotmail' => 
@@ -21716,14 +22321,17 @@ return array (
   ),
   'krd' => 
   array (
+    'co' => 
+    array (
+    ),
+    'edu' => 
+    array (
+    ),
   ),
   'kred' => 
   array (
   ),
   'kuokgroup' => 
-  array (
-  ),
-  'kyknet' => 
   array (
   ),
   'kyoto' => 
@@ -21752,6 +22360,15 @@ return array (
   ),
   'land' => 
   array (
+    'static' => 
+    array (
+      'dev' => 
+      array (
+      ),
+      'sites' => 
+      array (
+      ),
+    ),
   ),
   'landrover' => 
   array (
@@ -21839,6 +22456,12 @@ return array (
   ),
   'link' => 
   array (
+    'cyon' => 
+    array (
+    ),
+    'mypep' => 
+    array (
+    ),
   ),
   'lipsy' => 
   array (
@@ -21926,8 +22549,14 @@ return array (
   ),
   'management' => 
   array (
+    'router' => 
+    array (
+    ),
   ),
   'mango' => 
+  array (
+  ),
+  'map' => 
   array (
   ),
   'market' => 
@@ -21990,6 +22619,9 @@ return array (
   'meo' => 
   array (
   ),
+  'merckmsd' => 
+  array (
+  ),
   'metlife' => 
   array (
   ),
@@ -22020,7 +22652,7 @@ return array (
   'mma' => 
   array (
   ),
-  'mnet' => 
+  'mobile' => 
   array (
   ),
   'mobily' => 
@@ -22089,16 +22721,10 @@ return array (
   'mtr' => 
   array (
   ),
-  'multichoice' => 
-  array (
-  ),
   'mutual' => 
   array (
   ),
   'mutuelle' => 
-  array (
-  ),
-  'mzansimagic' => 
   array (
   ),
   'nab' => 
@@ -22108,9 +22734,6 @@ return array (
   array (
   ),
   'nagoya' => 
-  array (
-  ),
-  'naspers' => 
   array (
   ),
   'nationwide' => 
@@ -22136,6 +22759,12 @@ return array (
   ),
   'network' => 
   array (
+    'alces' => 
+    array (
+      '*' => 
+      array (
+      ),
+    ),
   ),
   'neustar' => 
   array (
@@ -22292,6 +22921,9 @@ return array (
   ),
   'ovh' => 
   array (
+    'nerdpol' => 
+    array (
+    ),
   ),
   'page' => 
   array (
@@ -22326,9 +22958,6 @@ return array (
   'pay' => 
   array (
   ),
-  'payu' => 
-  array (
-  ),
   'pccw' => 
   array (
   ),
@@ -22341,7 +22970,13 @@ return array (
   'pharmacy' => 
   array (
   ),
+  'phd' => 
+  array (
+  ),
   'philips' => 
+  array (
+  ),
+  'phone' => 
   array (
   ),
   'photo' => 
@@ -22477,6 +23112,9 @@ return array (
   array (
   ),
   'racing' => 
+  array (
+  ),
+  'radio' => 
   array (
   ),
   'raid' => 
@@ -22701,6 +23339,9 @@ return array (
   'scot' => 
   array (
   ),
+  'search' => 
+  array (
+  ),
   'seat' => 
   array (
   ),
@@ -22761,6 +23402,12 @@ return array (
   'shoes' => 
   array (
   ),
+  'shop' => 
+  array (
+  ),
+  'shopping' => 
+  array (
+  ),
   'shouji' => 
   array (
   ),
@@ -22784,6 +23431,9 @@ return array (
   ),
   'site' => 
   array (
+    'cyon' => 
+    array (
+    ),
   ),
   'ski' => 
   array (
@@ -22841,6 +23491,9 @@ return array (
   ),
   'space' => 
   array (
+    'stackspace' => 
+    array (
+    ),
   ),
   'spiegel' => 
   array (
@@ -22893,6 +23546,9 @@ return array (
   'store' => 
   array (
   ),
+  'stream' => 
+  array (
+  ),
   'studio' => 
   array (
   ),
@@ -22903,9 +23559,6 @@ return array (
   array (
   ),
   'sucks' => 
-  array (
-  ),
-  'supersport' => 
   array (
   ),
   'supplies' => 
@@ -23645,6 +24298,9 @@ return array (
   ),
   'xyz' => 
   array (
+    'fhapp' => 
+    array (
+    ),
   ),
   'yachts' => 
   array (
@@ -23693,6 +24349,12 @@ return array (
   ),
   'zone' => 
   array (
+    'triton' => 
+    array (
+      '*' => 
+      array (
+      ),
+    ),
   ),
   'zuerich' => 
   array (

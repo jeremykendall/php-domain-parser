@@ -214,4 +214,28 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
     }
+
+    public function testGetDifferentPublicList()
+    {
+        $listManager = new PublicSuffixListManager();
+        $publicList = $listManager->getList();
+        $invalidList = $listManager->getList('invalid type');
+        $this->assertEquals($publicList, $invalidList);
+    }
+
+    public function testParserWithDifferentPublicList()
+    {
+        $listManager = new PublicSuffixListManager();
+        $icannList = $listManager->getList(PublicSuffixListManager::ICANN_DOMAINS);
+        $privateList = $listManager->getList(PublicSuffixListManager::PRIVATE_DOMAINS);
+        $host = 'thephpleague.github.io';
+
+        $icannParser = new Parser($icannList);
+        $icannSubdomain = $icannParser->parseHost($host)->getSubdomain();
+        $this->assertSame('thephpleague', $icannSubdomain);
+
+        $privateParser = new Parser($privateList);
+        $privateSubdomain = $privateParser->parseHost($host)->getSubdomain();
+        $this->assertSame(null, $privateSubdomain);
+    }
 }
