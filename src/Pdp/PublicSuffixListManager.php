@@ -1,21 +1,20 @@
 <?php
-
 /**
- * PHP Domain Parser: Public Suffix List based URL parsing.
+ * Public Suffix List PHP: Public Suffix List based URL parsing.
  *
- * @link      http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ * @see http://github.com/jeremykendall/publicsuffixlist-php for the canonical source repository
  *
- * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
- * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+ * @license   http://github.com/jeremykendall/publicsuffixlist-php/blob/master/LICENSE MIT License
  */
+declare(strict_types=1);
+
 namespace Pdp;
 
-/**
- * Public Suffix List Manager.
- *
- * This class obtains, writes, caches, and returns text and PHP representations
- * of the Public Suffix List
- */
+use Exception;
+use Pdp\HttpAdapter\CurlHttpAdapter;
+use Pdp\HttpAdapter\HttpAdapterInterface;
+
 class PublicSuffixListManager
 {
     const PDP_PSL_TEXT_FILE = 'public-suffix-list.txt';
@@ -31,12 +30,7 @@ class PublicSuffixListManager
     protected $cacheDir;
 
     /**
-     * @var PublicSuffixList Public Suffix List
-     */
-    protected $list;
-
-    /**
-     * @var \Pdp\HttpAdapter\HttpAdapterInterface Http adapter
+     * @var HttpAdapterInterface Http adapter
      */
     protected $httpAdapter;
 
@@ -45,15 +39,9 @@ class PublicSuffixListManager
      *
      * @param string $cacheDir Optional cache directory
      */
-    public function __construct($cacheDir = null)
+    public function __construct(string $cacheDir = null)
     {
-        if (is_null($cacheDir)) {
-            $cacheDir = realpath(
-                dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'data'
-            );
-        }
-
-        $this->cacheDir = $cacheDir;
+         $this->cacheDir =$cacheDir ?? realpath(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'data');
     }
 
     /**
@@ -63,9 +51,7 @@ class PublicSuffixListManager
     public function refreshPublicSuffixList()
     {
         $this->fetchListFromSource();
-        $publicSuffixListArray = $this->parseListToArray(
-            $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE
-        );
+        $publicSuffixListArray = $this->parseListToArray($this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE);
         $this->writePhpCache($publicSuffixListArray);
     }
 
@@ -74,10 +60,9 @@ class PublicSuffixListManager
      *
      * @return int Number of bytes that were written to the file
      */
-    public function fetchListFromSource()
+    public function fetchListFromSource(): int
     {
-        $publicSuffixList = $this->getHttpAdapter()
-            ->getContent($this->publicSuffixListUrl);
+        $publicSuffixList = $this->getHttpAdapter()->getContent($this->publicSuffixListUrl);
 
         return $this->write(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
     }
@@ -96,13 +81,9 @@ class PublicSuffixListManager
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
      */
-    public function parseListToArray($textFile)
+    public function parseListToArray(string $textFile): array
     {
-        $data = file(
-            $textFile,
-            FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
-        );
-
+        $data = file($textFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $data = array_filter($data, function ($line) {
             return strstr($line, '//') === false;
         });
@@ -141,26 +122,18 @@ class PublicSuffixListManager
         // of https://publicsuffix.org/list/
         // "The domain and all rules must be canonicalized in the normal way
         // for hostnames - lower-case, Punycode (RFC 3492)."
-        if (defined('INTL_IDNA_VARIANT_UTS46')) {
-            $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
-        } else {
-            $part = idn_to_ascii($part);
-        }
 
+        $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
         if (strpos($part, '!') === 0) {
             $part = substr($part, 1);
             $isDomain = false;
         }
 
         if (!array_key_exists($part, $publicSuffixListArray)) {
-            if ($isDomain) {
-                $publicSuffixListArray[$part] = array();
-            } else {
-                $publicSuffixListArray[$part] = array('!' => '');
-            }
+            $publicSuffixListArray[$part] = $isDomain ? [] : ['!' => ''];
         }
 
-        if ($isDomain && count($ruleParts) > 0) {
+        if ($isDomain && !empty($ruleParts)) {
             $this->buildArray($publicSuffixListArray[$part], $ruleParts);
         }
     }
@@ -172,7 +145,7 @@ class PublicSuffixListManager
      *
      * @return int Number of bytes that were written to the file
      */
-    public function writePhpCache(array $publicSuffixList)
+    public function writePhpCache(array $publicSuffixList): int
     {
         $data = '<?php' . PHP_EOL . 'return ' . var_export($publicSuffixList, true) . ';';
 
@@ -184,17 +157,13 @@ class PublicSuffixListManager
      *
      * @return PublicSuffixList Instance of Public Suffix List
      */
-    public function getList()
+    public function getList(): PublicSuffixList
     {
         if (!file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE)) {
             $this->refreshPublicSuffixList();
         }
 
-        $this->list = new PublicSuffixList(
-            include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE
-        );
-
-        return $this->list;
+        return new PublicSuffixList(include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE);
     }
 
     /**
@@ -205,14 +174,14 @@ class PublicSuffixListManager
      *
      * @return int Number of bytes that were written to the file
      *
-     * @throws \Exception Throws \Exception if unable to write file
+     * @throws Exception if unable to write file
      */
-    protected function write($filename, $data)
+    protected function write($filename, $data): int
     {
         $result = @file_put_contents($this->cacheDir . '/' . $filename, $data);
 
         if ($result === false) {
-            throw new \Exception("Cannot write '" . $this->cacheDir . '/' . "$filename'");
+            throw new Exception("Cannot write '" . $this->cacheDir . '/' . "$filename'");
         }
 
         return $result;
@@ -221,13 +190,11 @@ class PublicSuffixListManager
     /**
      * Returns http adapter. Returns default http adapter if one is not set.
      *
-     * @return \Pdp\HttpAdapter\HttpAdapterInterface Http adapter
+     * @return HttpAdapterInterface Http adapter
      */
-    public function getHttpAdapter()
+    public function getHttpAdapter(): HttpAdapterInterface
     {
-        if ($this->httpAdapter === null) {
-            $this->httpAdapter = new HttpAdapter\CurlHttpAdapter();
-        }
+        $this->httpAdapter = $this->httpAdapter ?? new CurlHttpAdapter();
 
         return $this->httpAdapter;
     }
@@ -235,9 +202,9 @@ class PublicSuffixListManager
     /**
      * Sets http adapter.
      *
-     * @param \Pdp\HttpAdapter\HttpAdapterInterface $httpAdapter
+     * @param HttpAdapterInterface $httpAdapter
      */
-    public function setHttpAdapter(HttpAdapter\HttpAdapterInterface $httpAdapter)
+    public function setHttpAdapter(HttpAdapterInterface $httpAdapter)
     {
         $this->httpAdapter = $httpAdapter;
     }

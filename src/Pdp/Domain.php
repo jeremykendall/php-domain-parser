@@ -1,6 +1,4 @@
 <?php
-declare(strict_types=1);
-
 /**
  * Public Suffix List PHP: Public Suffix List based URL parsing.
  *
@@ -9,6 +7,7 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
  * @license   http://github.com/jeremykendall/publicsuffixlist-php/blob/master/LICENSE MIT License
  */
+declare(strict_types=1);
 
 namespace Pdp;
 

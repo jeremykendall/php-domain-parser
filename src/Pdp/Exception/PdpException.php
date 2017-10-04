@@ -1,13 +1,14 @@
 <?php
-
 /**
- * PHP Domain Parser: Public Suffix List based URL parsing.
+ * Public Suffix List PHP: Public Suffix List based URL parsing.
  *
- * @link      http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ * @see http://github.com/jeremykendall/publicsuffixlist-php for the canonical source repository
  *
- * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
- * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+ * @license   http://github.com/jeremykendall/publicsuffixlist-php/blob/master/LICENSE MIT License
  */
+declare(strict_types=1);
+
 namespace Pdp\Exception;
 
 interface PdpException

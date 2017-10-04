@@ -12,6 +12,7 @@ declare(strict_types=1);
  */
 namespace Pdp;
 
+use Pdp\PublicSuffixListManager;
 use PHPUnit\Framework\TestCase;
 
 class PublicSuffixListTest extends TestCase
@@ -21,10 +22,18 @@ class PublicSuffixListTest extends TestCase
      */
     private $list;
 
+    private $dataDir;
+
     protected function setUp()
     {
         parent::setUp();
         $this->list = new PublicSuffixList();
+        $this->dataDir = realpath(dirname(__DIR__) . '/../../data');
+    }
+
+    public function testConstructorWithFilePath()
+    {
+        $this->assertEquals($this->list, new PublicSuffixList($this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
     }
 
     public function testNullWillReturnNullDomain()
@@ -48,10 +57,25 @@ class PublicSuffixListTest extends TestCase
         $this->assertInstanceOf(MatchedDomain::class, $domain);
     }
 
+    public function testIsSuffixValidFalseWithPunycoded()
+    {
+        $domain = $this->list->query('www.example.xn--85x722f');
+        $this->assertFalse($domain->isValid());
+        $this->assertInstanceOf(UnmatchedDomain::class, $domain);
+        $this->assertSame('xn--85x722f', $domain->getPublicSuffix());
+    }
+
+    public function testRegistrableDomainIsNullWithNoMatchedDomain()
+    {
+        $domain = new UnmatchedDomain('xn--85x722f', 'xn--85x722f');
+        $this->assertFalse($domain->isValid());
+        $this->assertNull($domain->getRegistrableDomain());
+    }
+
     /**
      * @dataProvider parseDataProvider
      */
-    public function testGetRegistrableDomain($publicSuffix, $registrableDomain, $domain)
+    public function testGetRegistrableDomain($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
         $this->assertSame($registrableDomain, $this->list->query($domain)->getRegistrableDomain());
     }
@@ -59,9 +83,42 @@ class PublicSuffixListTest extends TestCase
     /**
      * @dataProvider parseDataProvider
      */
-    public function testGetPublicSuffix($publicSuffix, $registrableDomain, $domain)
+    public function testGetPublicSuffix($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
         $this->assertSame($publicSuffix, $this->list->query($domain)->getPublicSuffix());
+    }
+
+    /**
+     * @dataProvider parseDataProvider
+     */
+    public function testGetDomain($publicSuffix, $registrableDomain, $domain, $expectedDomain)
+    {
+        $this->assertSame($expectedDomain, $this->list->query($domain)->getDomain());
+    }
+
+    public function parseDataProvider()
+    {
+        return [
+            // public suffix, registrable domain, domain
+            // BEGIN https://github.com/jeremykendall/php-domain-parser/issues/16
+            'com tld' => ['com', 'example.com', 'us.example.com', 'us.example.com'],
+            'na tld' => ['na', 'example.na', 'us.example.na', 'us.example.na'],
+            'us.na tld' => ['us.na', 'example.us.na', 'www.example.us.na', 'www.example.us.na'],
+            'org tld' => ['org', 'example.org', 'us.example.org', 'us.example.org'],
+            'biz tld (1)' => ['biz', 'broken.biz', 'webhop.broken.biz', 'webhop.broken.biz'],
+            'biz tld (2)' => ['webhop.biz', 'broken.webhop.biz', 'www.broken.webhop.biz', 'www.broken.webhop.biz'],
+            // END https://github.com/jeremykendall/php-domain-parser/issues/16
+            // Test ipv6 URL
+            'IP (1)' => [null, null, '[::1]', null],
+            'IP (2)' => [null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]', null],
+            'IP (3)' => [null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]', null],
+            // Test IP address: Fixes #43
+            'IP (4)' => [null, null, '192.168.1.2', null],
+            // Link-local addresses and zone indices
+            'IP (5)' => [null, null, '[fe80::3%25eth0]', null],
+            'IP (6)' => [null, null, '[fe80::1%2511]', null],
+            'fake tld' => ['faketld', 'example.faketld', 'example.faketld', 'example.faketld'],
+        ];
     }
 
     public function testGetPublicSuffixHandlesWrongCaseProperly()
@@ -170,31 +227,6 @@ class PublicSuffixListTest extends TestCase
         $this->checkPublicSuffix('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s');
         $this->checkPublicSuffix('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s');
         $this->checkPublicSuffix('xn--fiqs8s', null);
-    }
-
-    public function parseDataProvider()
-    {
-        return [
-            // public suffix, registrable domain, domain
-            // BEGIN https://github.com/jeremykendall/php-domain-parser/issues/16
-            ['com', 'example.com', 'us.example.com'],
-            ['na', 'example.na', 'us.example.na'],
-            ['us.na', 'example.us.na', 'www.example.us.na'],
-            ['org', 'example.org', 'us.example.org'],
-            ['biz', 'broken.biz', 'webhop.broken.biz'],
-            ['webhop.biz', 'broken.webhop.biz', 'www.broken.webhop.biz'],
-            // END https://github.com/jeremykendall/php-domain-parser/issues/16
-            // Test ipv6 URL
-            [null, null, '[::1]'],
-            [null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]'],
-            [null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]'],
-            // Test IP address: Fixes #43
-            [null, null, '192.168.1.2'],
-            // Link-local addresses and zone indices
-            [null, null, '[fe80::3%25eth0]'],
-            [null, null, '[fe80::1%2511]'],
-            ['faketld', 'example.faketld', 'example.faketld'],
-        ];
     }
 
     /**
