@@ -2,12 +2,14 @@
 
 namespace Pdp\Exception;
 
-class SeriouslyMalformedUrlExceptionTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SeriouslyMalformedUrlExceptionTest extends TestCase
 {
     public function testInstanceOfPdpException()
     {
         $this->assertInstanceOf(
-            'Pdp\Exception\PdpException',
+            PdpException::class,
             new SeriouslyMalformedUrlException()
         );
     }
@@ -23,10 +25,8 @@ class SeriouslyMalformedUrlExceptionTest extends \PHPUnit_Framework_TestCase
     public function testMessage()
     {
         $url = 'http:///example.com';
-        $this->setExpectedException(
-            'Pdp\Exception\SeriouslyMalformedUrlException',
-            sprintf('"%s" is one seriously malformed url.', $url)
-        );
+        $this->expectException(SeriouslyMalformedUrlException::class);
+        $this->expectExceptionMessage(sprintf('"%s" is one seriously malformed url.', $url));
 
         throw new SeriouslyMalformedUrlException($url);
     }

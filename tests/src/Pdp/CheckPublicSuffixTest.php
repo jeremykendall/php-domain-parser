@@ -2,6 +2,8 @@
 
 namespace Pdp;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * This test case is based on the test data linked at
  * http://publicsuffix.org/list/ and provided by Rob Strading of Comodo.
@@ -9,22 +11,16 @@ namespace Pdp;
  * @link
  * http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1
  */
-class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
+class CheckPublicSuffixTest extends TestCase
 {
     /**
-     * @var Parser
+     * @var PublicSuffixList
      */
-    protected $parser;
+    private $list;
 
     protected function setUp()
     {
-        $file = realpath(dirname(__DIR__) . '/../../data/public-suffix-list.php');
-        $this->parser = new Parser(new PublicSuffixList($file));
-    }
-
-    protected function tearDown()
-    {
-        $this->parser = null;
+        $this->list = new PublicSuffixList();
     }
 
     public function testPublicSuffixSpec()
@@ -142,6 +138,6 @@ class CheckPublicSuffixTest extends \PHPUnit_Framework_TestCase
      */
     public function checkPublicSuffix($input, $expected)
     {
-        $this->assertSame($expected, $this->parser->getRegistrableDomain($input));
+        $this->assertSame($expected, $this->list->query($input)->getRegistrableDomain());
     }
 }

@@ -2,10 +2,12 @@
 
 namespace Pdp\HttpAdapter;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * @group internet
  */
-class CurlHttpAdapterTest extends \PHPUnit_Framework_TestCase
+class CurlHttpAdapterTest extends TestCase
 {
     /**
      * @var HttpAdapterInterface
