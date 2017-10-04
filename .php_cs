@@ -1,18 +1,28 @@
 <?php
 
-require_once './vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-$finder = \Symfony\CS\Finder\DefaultFinder::create()
-    ->in('src/')
-    ->in('tests/');
+$finder = PhpCsFixer\Finder::create()
+    ->in('src')
+    ->in('tests');
 
-return \Symfony\CS\Config\Config::create()
+return PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
     ->setUsingCache(true)
-    ->fixers([
-        '-pre_increment',
-        '-concat_without_spaces',
-        'concat_with_spaces',
-        'ordered_use',
-        'long_array_syntax',
+    ->setRules([
+        '@PSR2' => true,
+        '@Symfony' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'concat_space' => ['spacing' => 'one'],
+        'yoda_style' => false,
+        'is_null' => true,
+        'modernize_types_casting' => true,
+        'no_alias_functions' => true,
+        'ordered_imports' => true,
+        'phpdoc_order' => true,
+        'pre_increment' => false,
+        'psr4' => true,
+        'random_api_migration' => true,
+        'single_blank_line_before_namespace' => false,
     ])
-    ->finder($finder);
+    ->setFinder($finder);
