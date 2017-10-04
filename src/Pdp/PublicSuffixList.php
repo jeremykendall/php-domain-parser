@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use InvalidArgumentException;
+use TypeError;
+
 final class PublicSuffixList
 {
     use LabelsTrait;
@@ -39,15 +42,23 @@ final class PublicSuffixList
      */
     private function filterRules($rules): array
     {
+        if ($rules === null) {
+            return include dirname(__DIR__, 2) . '/data/public-suffix-list.php';
+        }
+
         if (is_array($rules)) {
             return $rules;
         }
 
-        if (is_string($rules) && file_exists($rules) && is_readable($rules)) {
-            return include $rules;
+        if (!is_string($rules)) {
+            throw new TypeError(sprintf('Expected rules to be an array, a file path or null; received "%s"', is_object($rules) ? get_class($rules) : gettype($rules)));
         }
 
-        return $rules ?? include dirname(__DIR__, 2) . '/data/public-suffix-list.php';
+        if (!is_readable($rules)) {
+            throw new InvalidArgumentException(sprintf('File path is not readable "%s"', $rules));
+        }
+
+        return include $rules;
     }
 
     /**
@@ -64,7 +75,7 @@ final class PublicSuffixList
         }
 
         $normalizedDomain = $this->normalize($domain);
-        $matchingLabels = $this->findMatchingLabels($this->getLabelsReverse($normalizedDomain), $this->rules);
+        $matchingLabels = $this->findMatchingLabels($this->getLabelsReverse($normalizedDomain));
         if (!empty($matchingLabels)) {
             $publicSuffix = $this->handleMatches($matchingLabels, $domain);
 
@@ -137,10 +148,10 @@ final class PublicSuffixList
      *
      * @return string[]
      */
-    private function findMatchingLabels(array $labels, array $rules): array
+    private function findMatchingLabels(array $labels): array
     {
         $matches = [];
-
+        $rules = $this->rules;
         foreach ($labels as $label) {
             if ($this->isExceptionRule($label, $rules)) {
                 break;

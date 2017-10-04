@@ -91,7 +91,9 @@ final class MatchedDomain implements Domain
      */
     private function hasRegistrableDomain(): bool
     {
-        return !($this->publicSuffix === null || $this->publicSuffix === $this->domain || !$this->hasLabels($this->domain));
+        return $this->publicSuffix !== null
+            && $this->publicSuffix !== $this->domain
+            && $this->hasLabels($this->domain);
     }
 
     /**

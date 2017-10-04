@@ -31,5 +31,5 @@ interface HttpAdapterInterface
      *
      * @return string Retrieved content
      */
-    public function getContent($url);
+    public function getContent(string $url);
 }

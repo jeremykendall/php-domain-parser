@@ -41,7 +41,7 @@ class PublicSuffixListManager
      */
     public function __construct(string $cacheDir = null)
     {
-         $this->cacheDir =$cacheDir ?? realpath(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'data');
+         $this->cacheDir = $cacheDir ?? realpath(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'data');
     }
 
     /**
@@ -88,14 +88,14 @@ class PublicSuffixListManager
             return strstr($line, '//') === false;
         });
 
-        $publicSuffixListArray = array();
+        $list = [];
 
         foreach ($data as $line) {
             $ruleParts = explode('.', $line);
-            $this->buildArray($publicSuffixListArray, $ruleParts);
+            $this->buildArray($list, $ruleParts);
         }
 
-        return $publicSuffixListArray;
+        return $list;
     }
 
     /**
@@ -107,12 +107,12 @@ class PublicSuffixListManager
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
-     * @param array $publicSuffixListArray Initially an empty array, this eventually
-     *                                     becomes the array representation of the Public Suffix List
-     * @param array $ruleParts             One line (rule) from the Public Suffix List
-     *                                     exploded on '.', or the remaining portion of that array during recursion
+     * @param array $publicSuffixList Initially an empty array, this eventually
+     *                                becomes the array representation of the Public Suffix List
+     * @param array $ruleParts        One line (rule) from the Public Suffix List
+     *                                exploded on '.', or the remaining portion of that array during recursion
      */
-    public function buildArray(array &$publicSuffixListArray, array $ruleParts)
+    public function buildArray(array &$publicSuffixList, array $ruleParts)
     {
         $isDomain = true;
 
@@ -129,12 +129,12 @@ class PublicSuffixListManager
             $isDomain = false;
         }
 
-        if (!array_key_exists($part, $publicSuffixListArray)) {
-            $publicSuffixListArray[$part] = $isDomain ? [] : ['!' => ''];
+        if (!array_key_exists($part, $publicSuffixList)) {
+            $publicSuffixList[$part] = $isDomain ? [] : ['!' => ''];
         }
 
         if ($isDomain && !empty($ruleParts)) {
-            $this->buildArray($publicSuffixListArray[$part], $ruleParts);
+            $this->buildArray($publicSuffixList[$part], $ruleParts);
         }
     }
 
@@ -159,11 +159,12 @@ class PublicSuffixListManager
      */
     public function getList(): PublicSuffixList
     {
-        if (!file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE)) {
+        $cachePath = $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
+        if (!file_exists($cachePath)) {
             $this->refreshPublicSuffixList();
         }
 
-        return new PublicSuffixList(include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE);
+        return new PublicSuffixList(include $cachePath);
     }
 
     /**
@@ -178,10 +179,9 @@ class PublicSuffixListManager
      */
     protected function write($filename, $data): int
     {
-        $result = @file_put_contents($this->cacheDir . '/' . $filename, $data);
-
-        if ($result === false) {
-            throw new Exception("Cannot write '" . $this->cacheDir . '/' . "$filename'");
+        $path = $this->cacheDir . '/' . $filename;
+        if (($result = @file_put_contents($path, $data)) === false) {
+            throw new Exception(sprintf("Cannot write '%s'", $path));
         }
 
         return $result;
@@ -190,7 +190,7 @@ class PublicSuffixListManager
     /**
      * Returns http adapter. Returns default http adapter if one is not set.
      *
-     * @return HttpAdapterInterface Http adapter
+     * @return HttpAdapterInterface
      */
     public function getHttpAdapter(): HttpAdapterInterface
     {

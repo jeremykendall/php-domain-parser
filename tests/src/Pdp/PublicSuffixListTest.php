@@ -12,8 +12,12 @@ declare(strict_types=1);
  */
 namespace Pdp;
 
+use InvalidArgumentException;
 use Pdp\PublicSuffixListManager;
 use PHPUnit\Framework\TestCase;
+use TypeError;
+
+
 
 class PublicSuffixListTest extends TestCase
 {
@@ -29,6 +33,18 @@ class PublicSuffixListTest extends TestCase
         parent::setUp();
         $this->list = new PublicSuffixList();
         $this->dataDir = realpath(dirname(__DIR__) . '/../../data');
+    }
+
+    public function testConstructorThrowsTypeError()
+    {
+        $this->expectException(TypeError::class);
+        new PublicSuffixList(new \stdClass);
+    }
+
+    public function testConstructorThrowsInvalidArgumentException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new PublicSuffixList('/usr/bin/foo/bar');
     }
 
     public function testConstructorWithFilePath()

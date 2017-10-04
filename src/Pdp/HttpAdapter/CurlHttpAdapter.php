@@ -27,7 +27,7 @@ class CurlHttpAdapter implements HttpAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getContent($url)
+    public function getContent(string $url)
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
