@@ -36,7 +36,10 @@ final class PublicSuffixList
     /**
      * Filter the rules parameter
      *
-     * @param  mixed $rules
+     * @param mixed $rules
+     *
+     * @throws TypeError if the $rules is not an array, a string or null
+     * @throws InvalidArgumentException if path does not exist or is not readable
      *
      * @return array
      */
@@ -62,6 +65,16 @@ final class PublicSuffixList
     }
 
     /**
+     * Returns PSL rules
+     *
+     * @return array
+     */
+    public function getRules(): array
+    {
+        return $this->rules;
+    }
+
+    /**
      * Returns PSL public info for a given domain
      *
      * @param string|null $domain
@@ -77,7 +90,7 @@ final class PublicSuffixList
         $normalizedDomain = $this->normalize($domain);
         $matchingLabels = $this->findMatchingLabels($this->getLabelsReverse($normalizedDomain));
         if (!empty($matchingLabels)) {
-            $publicSuffix = $this->handleMatches($matchingLabels, $domain);
+            $publicSuffix = $this->handleMatches($domain, $matchingLabels);
 
             return new MatchedDomain($domain, $publicSuffix);
         }
@@ -85,16 +98,6 @@ final class PublicSuffixList
         $publicSuffix = $this->handleNoMatches($domain);
 
         return new UnmatchedDomain($domain, $publicSuffix);
-    }
-
-    /**
-     * Returns PSL rules
-     *
-     * @return array
-     */
-    public function getRules(): array
-    {
-        return $this->rules;
     }
 
     /**
@@ -123,6 +126,30 @@ final class PublicSuffixList
         }
 
         return true;
+    }
+
+    /**
+     * Tell whether the domain starts with a dot character
+     *
+     * @param string $domain
+     *
+     * @return bool
+     */
+    private function hasLeadingDot($domain): bool
+    {
+        return strpos($domain, '.') === 0;
+    }
+
+    /**
+     * Tell whether the submitted domain is an IP address
+     *
+     * @param string $domain
+     *
+     * @return bool
+     */
+    private function isIpAddress(string $domain): bool
+    {
+        return filter_var($domain, FILTER_VALIDATE_IP) !== false;
     }
 
     /**
@@ -180,54 +207,6 @@ final class PublicSuffixList
     }
 
     /**
-     * Returns the suffix if a match is found using PSL rules
-     *
-     * @param string $domain
-     *
-     * @return string
-     */
-    private function handleMatches(array $matches, string $domain): string
-    {
-        $suffix = implode('.', array_filter($matches, 'strlen'));
-        if ($this->isPunycoded($domain)) {
-            return $suffix;
-        }
-
-        return idn_to_utf8($suffix, 0, INTL_IDNA_VARIANT_UTS46);
-    }
-
-    /**
-     * Returns the suffix if no match is found using PSL rules
-     *
-     * @param string $domain
-     *
-     * @return string|null
-     */
-    private function handleNoMatches(string $domain)
-    {
-        $labels = $this->getLabels($domain);
-        $suffix = array_pop($labels);
-
-        if ($this->isPunycoded($domain) || $suffix === null) {
-            return $suffix;
-        }
-
-        return idn_to_utf8($suffix, 0, INTL_IDNA_VARIANT_UTS46);
-    }
-
-    /**
-     * Tell whether the submitted domain is an IP address
-     *
-     * @param string $domain
-     *
-     * @return bool
-     */
-    private function isIpAddress(string $domain): bool
-    {
-        return filter_var($domain, FILTER_VALIDATE_IP) !== false;
-    }
-
-    /**
      * Tell whether a PSL exception rule is found
      *
      * @param string $label
@@ -267,6 +246,24 @@ final class PublicSuffixList
     }
 
     /**
+     * Returns the suffix if a match is found using PSL rules
+     *
+     * @param string   $domain
+     * @param string[] $matches
+     *
+     * @return string
+     */
+    private function handleMatches(string $domain, array $matches): string
+    {
+        $suffix = implode('.', array_filter($matches, 'strlen'));
+        if ($this->isPunycoded($domain)) {
+            return $suffix;
+        }
+
+        return idn_to_utf8($suffix, 0, INTL_IDNA_VARIANT_UTS46);
+    }
+
+    /**
      * Tell whether the domain is punycoded
      *
      * @param string $domain
@@ -279,14 +276,21 @@ final class PublicSuffixList
     }
 
     /**
-     * Tell whether the domain starts with a dot character
+     * Returns the suffix if no match is found using PSL rules
      *
      * @param string $domain
      *
-     * @return bool
+     * @return string|null
      */
-    private function hasLeadingDot($domain): bool
+    private function handleNoMatches(string $domain)
     {
-        return strpos($domain, '.') === 0;
+        $labels = $this->getLabels($domain);
+        $suffix = array_pop($labels);
+
+        if ($this->isPunycoded($domain) || $suffix === null) {
+            return $suffix;
+        }
+
+        return idn_to_utf8($suffix, 0, INTL_IDNA_VARIANT_UTS46);
     }
 }
