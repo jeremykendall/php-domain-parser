@@ -1,6 +1,6 @@
 <?php
 /**
- * Public Suffix List PHP: Public Suffix List based URL parsing.
+ * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
  *
