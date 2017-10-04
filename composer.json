@@ -19,7 +19,6 @@
         }
     ],
     "bin": [
-        "bin/parse",
         "bin/update-psl"
     ],
     "keywords": [
