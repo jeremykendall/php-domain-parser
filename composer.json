@@ -27,17 +27,13 @@
         "url parsing"
     ],
     "require": {
-        "php": ">=5.3.0",
+        "php": ">=7.0",
         "ext-curl": "*",
-        "ext-intl": "*",
-        "ext-mbstring": "*"
+        "ext-intl": "*"
     },
     "require-dev": {
-        "mikey179/vfsStream": "~1.6",
-        "phpunit/phpunit": "~4.8",
-        "jeremykendall/debug-die": "0.0.1.*",
-        "phing/phing": "^2.13",
-        "fabpot/php-cs-fixer": "^1.11"
+        "phpunit/phpunit": "^6.3",
+        "mikey179/vfsStream": "^1.6"
     },
     "autoload": {
         "psr-0": {
