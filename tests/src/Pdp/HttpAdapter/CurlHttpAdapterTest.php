@@ -30,7 +30,7 @@ class CurlHttpAdapterTest extends TestCase
 
     public function testGetContent()
     {
-        $content = $this->adapter->getContent('http://www.google.com');
+        $content = $this->adapter->getContent('https://www.google.com');
         $this->assertNotNull($content);
         $this->assertContains('google', $content);
     }

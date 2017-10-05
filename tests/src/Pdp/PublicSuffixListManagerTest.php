@@ -5,6 +5,8 @@ namespace Pdp;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
+use Pdp\HttpAdapter\CurlHttpAdapter;
+use Pdp\HttpAdapter\HttpAdapterInterface;
 
 class PublicSuffixListManagerTest extends TestCase
 {
@@ -60,7 +62,7 @@ class PublicSuffixListManagerTest extends TestCase
 
         $this->listManager = new PublicSuffixListManager($this->cacheDir);
 
-        $this->httpAdapter = $this->getMock('\Pdp\HttpAdapter\HttpAdapterInterface');
+        $this->httpAdapter = $this->getMock(HttpAdapterInterface::class);
         $this->listManager->setHttpAdapter($this->httpAdapter);
     }
 
@@ -120,10 +122,7 @@ class PublicSuffixListManagerTest extends TestCase
     public function testGetHttpAdapterReturnsDefaultCurlAdapterIfAdapterNotSet()
     {
         $listManager = new PublicSuffixListManager($this->cacheDir);
-        $this->assertInstanceOf(
-            '\Pdp\HttpAdapter\CurlHttpAdapter',
-            $listManager->getHttpAdapter()
-        );
+        $this->assertInstanceOf(CurlHttpAdapter::class, $listManager->getHttpAdapter());
     }
 
     public function testWritePhpCache()
@@ -172,7 +171,7 @@ class PublicSuffixListManagerTest extends TestCase
         );
         $publicSuffixList = $this->listManager->getList();
         $this->assertInstanceOf(PublicSuffixList::class, $publicSuffixList);
-        $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
+        $this->assertGreaterThanOrEqual(300, count($publicSuffixList->getRules()));
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList->getRules()['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList->getRules()['ac']) !== false);
     }
@@ -211,7 +210,7 @@ class PublicSuffixListManagerTest extends TestCase
         $listManager = new PublicSuffixListManager();
         $publicSuffixList = $listManager->getList();
         $this->assertInstanceOf(PublicSuffixList::class, $publicSuffixList);
-        $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
+        $this->assertGreaterThanOrEqual(300, count($publicSuffixList->getRules()));
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList->getRules()['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList->getRules()['ac']) !== false);
     }
