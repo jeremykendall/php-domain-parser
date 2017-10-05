@@ -17,7 +17,7 @@ namespace Pdp\HttpAdapter;
  * Lifted pretty much completely from William Durand's excellent Geocoder
  * project
  *
- * @link https://github.com/willdurand/Geocoder Geocoder on GitHub
+ * @see https://github.com/willdurand/Geocoder Geocoder on GitHub
  *
  * @author William Durand <william.durand1@gmail.com>
  * @author Jeremy Kendall <jeremy@jeremykendall.net>

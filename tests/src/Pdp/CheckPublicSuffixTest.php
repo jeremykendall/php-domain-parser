@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
  * This test case is based on the test data linked at
  * http://publicsuffix.org/list/ and provided by Rob Strading of Comodo.
  *
- * @link
+ * @see
  * http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1
  */
 class CheckPublicSuffixTest extends TestCase
@@ -31,7 +31,7 @@ class CheckPublicSuffixTest extends TestCase
      * parameter a domain name and the public suffix, runs your implementation
      * on the domain name and checks the result is the public suffix expected."
      *
-     * @link http://publicsuffix.org/list/
+     * @see http://publicsuffix.org/list/
      *
      * @param string $input    Domain and public suffix
      * @param string $expected Expected result

@@ -14,7 +14,7 @@ namespace Pdp;
 trait LabelsTrait
 {
     /**
-     * Returns labels from input
+     * Returns labels from input.
      *
      * @param string $input
      *
@@ -26,7 +26,7 @@ trait LabelsTrait
     }
 
     /**
-     * Returns labels from input in reverse
+     * Returns labels from input in reverse.
      *
      * @param string $input
      *
@@ -38,7 +38,7 @@ trait LabelsTrait
     }
 
     /**
-     * Tells whether the domain contains multiple labels
+     * Tells whether the domain contains multiple labels.
      *
      * @param string $domain
      *
@@ -50,7 +50,7 @@ trait LabelsTrait
     }
 
     /**
-     * Tells whether the domain contains one single label
+     * Tells whether the domain contains one single label.
      *
      * @param string $domain
      *

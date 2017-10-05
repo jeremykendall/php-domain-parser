@@ -34,11 +34,11 @@ final class PublicSuffixList
     }
 
     /**
-     * Filter the rules parameter
+     * Filter the rules parameter.
      *
      * @param array|string|null $rules
      *
-     * @throws TypeError if the $rules is not an array, a string or null
+     * @throws TypeError                if the $rules is not an array, a string or null
      * @throws InvalidArgumentException if path does not exist or is not readable
      *
      * @return array
@@ -65,7 +65,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Returns PSL rules
+     * Returns PSL rules.
      *
      * @return array
      */
@@ -75,7 +75,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Returns PSL public info for a given domain
+     * Returns PSL public info for a given domain.
      *
      * @param string|null $domain
      *
@@ -97,9 +97,9 @@ final class PublicSuffixList
     }
 
     /**
-     * Tells whether the given domain is valid
+     * Tells whether the given domain is valid.
      *
-     * @param  string|null $domain
+     * @param string|null $domain
      *
      * @return bool
      */
@@ -125,7 +125,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Tells whether the domain starts with a dot character
+     * Tells whether the domain starts with a dot character.
      *
      * @param string $domain
      *
@@ -137,7 +137,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Tells whether the submitted domain is an IP address
+     * Tells whether the submitted domain is an IP address.
      *
      * @param string $domain
      *
@@ -166,7 +166,7 @@ final class PublicSuffixList
 
     /**
      * Returns the matched public suffix or null
-     * if none found
+     * if none found.
      *
      * @param array $labels
      *
@@ -204,7 +204,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Tells whether a PSL exception rule is found
+     * Tells whether a PSL exception rule is found.
      *
      * @param string $label
      * @param array  $rules
@@ -218,7 +218,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Tells whether a PSL wildcard rule is found
+     * Tells whether a PSL wildcard rule is found.
      *
      * @param array $rules
      *
@@ -230,7 +230,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Tells whether a PSL label matches the given domain label
+     * Tells whether a PSL label matches the given domain label.
      *
      * @param string $label
      * @param array  $rules
@@ -243,7 +243,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Returns the MatchedDomain value object
+     * Returns the MatchedDomain value object.
      *
      * @param string $domain
      * @param string $publicSuffix
@@ -260,7 +260,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Tells whether the domain is punycoded
+     * Tells whether the domain is punycoded.
      *
      * @param string $domain
      *
@@ -272,7 +272,7 @@ final class PublicSuffixList
     }
 
     /**
-     * Returns the UnmatchedDomain value object
+     * Returns the UnmatchedDomain value object.
      *
      * @param string $domain
      *

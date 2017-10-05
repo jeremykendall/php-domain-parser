@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use InvalidArgumentException;
-use Pdp\PublicSuffixListManager;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 
@@ -36,7 +35,7 @@ class PublicSuffixListTest extends TestCase
     public function testConstructorThrowsTypeError()
     {
         $this->expectException(TypeError::class);
-        new PublicSuffixList(new \stdClass);
+        new PublicSuffixList(new \stdClass());
     }
 
     public function testConstructorThrowsInvalidArgumentException()

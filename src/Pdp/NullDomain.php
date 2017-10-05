@@ -14,7 +14,7 @@ namespace Pdp;
 final class NullDomain implements Domain
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getDomain()
     {
@@ -22,7 +22,7 @@ final class NullDomain implements Domain
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getPublicSuffix()
     {
@@ -30,7 +30,7 @@ final class NullDomain implements Domain
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getRegistrableDomain()
     {
@@ -38,7 +38,7 @@ final class NullDomain implements Domain
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isValid(): bool
     {

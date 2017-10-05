@@ -12,8 +12,6 @@ declare(strict_types=1);
  */
 namespace Pdp;
 
-use Pdp\MatchedDomain;
-use Pdp\UnmatchedDomain;
 use PHPUnit\Framework\TestCase;
 
 class DomainTest extends TestCase

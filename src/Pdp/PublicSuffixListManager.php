@@ -41,7 +41,7 @@ class PublicSuffixListManager
      */
     public function __construct(string $cacheDir = null)
     {
-         $this->cacheDir = $cacheDir ?? realpath(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'data');
+        $this->cacheDir = $cacheDir ?? realpath(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'data');
     }
 
     /**
@@ -72,7 +72,7 @@ class PublicSuffixListManager
      *
      * This method is based heavily on the code found in generateEffectiveTLDs.php
      *
-     * @link https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
+     * @see https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
@@ -103,7 +103,7 @@ class PublicSuffixListManager
      *
      * This method is based heavily on the code found in generateEffectiveTLDs.php
      *
-     * @link https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
+     * @see https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
@@ -173,9 +173,9 @@ class PublicSuffixListManager
      * @param string $filename Filename in cache dir where data will be written
      * @param mixed  $data     Data to write
      *
-     * @return int Number of bytes that were written to the file
-     *
      * @throws Exception if unable to write file
+     *
+     * @return int Number of bytes that were written to the file
      */
     protected function write($filename, $data): int
     {

@@ -31,7 +31,7 @@ final class MatchedDomain implements Domain
     private $isValid;
 
     /**
-     * New instance
+     * New instance.
      *
      * @param string|null $domain
      * @param string|null $publicSuffix
@@ -45,7 +45,7 @@ final class MatchedDomain implements Domain
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getDomain()
     {
@@ -53,7 +53,7 @@ final class MatchedDomain implements Domain
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getPublicSuffix()
     {
@@ -61,7 +61,7 @@ final class MatchedDomain implements Domain
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function isValid(): bool
     {
@@ -69,7 +69,7 @@ final class MatchedDomain implements Domain
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getRegistrableDomain()
     {
@@ -85,7 +85,7 @@ final class MatchedDomain implements Domain
     }
 
     /**
-     * Tells whether the domain has a registrable domain part
+     * Tells whether the domain has a registrable domain part.
      *
      * @return bool
      */
@@ -107,7 +107,7 @@ final class MatchedDomain implements Domain
     }
 
     /**
-     * Returns the additional label to generate the registrable domain
+     * Returns the additional label to generate the registrable domain.
      *
      * @param string[] $domainLabels
      * @param string[] $publicSuffixLabels
