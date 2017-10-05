@@ -48,7 +48,7 @@ class PublicSuffixListManagerTest extends TestCase
     /**
      * @var string url
      */
-    protected $publicSuffixListUrl = 'https://publicsuffix.org/list/effective_tld_names.dat';
+    protected $publicSuffixListUrl = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
     /**
      * @var HttpAdapterInterface|\PHPUnit_Framework_MockObject_MockObject Http adapter
