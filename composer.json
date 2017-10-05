@@ -48,6 +48,8 @@
     },
     "scripts": {
         "post-install-cmd": "php bin/update-psl",
-        "pcf": "php-cs-fixer fix --verbose"
+        "test": "phpunit --coverage-text; php-cs-fixer fix -v --diff --dry-run",
+        "phpunit": "phpunit --coverage-text",
+        "phpcs": "php-cs-fixer fix -v --diff --dry-run"
     }
 }

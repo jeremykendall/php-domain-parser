@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
+use Exception;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use Pdp\HttpAdapter\CurlHttpAdapter;
@@ -108,21 +109,6 @@ class PublicSuffixListManagerTest extends TestCase
         );
     }
 
-    public function testFetchListFromSource()
-    {
-        $content = file_get_contents(
-            $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
-        );
-
-        $this->httpAdapter->expects($this->once())
-            ->method('getContent')
-            ->with($this->publicSuffixListUrl)
-            ->will($this->returnValue($content));
-
-        $publicSuffixList = $this->listManager->fetchListFromSource();
-        $this->assertGreaterThanOrEqual(100000, $publicSuffixList);
-    }
-
     public function testGetHttpAdapterReturnsDefaultCurlAdapterIfAdapterNotSet()
     {
         $listManager = new PublicSuffixListManager($this->cacheDir);
@@ -131,10 +117,10 @@ class PublicSuffixListManagerTest extends TestCase
 
     public function testWriteThrowsExceptionIfCanNotWrite()
     {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage("Cannot write '/does/not/exist/public-suffix-list.php'");
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Cannot write '/does/not/exist/public-suffix-list.txt'");
         $manager = new PublicSuffixListManager('/does/not/exist');
-        $manager->writePhpCache([]);
+        $manager->refreshPublicSuffixList();
     }
 
     public function testGetList()
