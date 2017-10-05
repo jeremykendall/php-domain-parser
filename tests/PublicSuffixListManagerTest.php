@@ -146,15 +146,12 @@ class PublicSuffixListManagerTest extends TestCase
             ->setMethods(['refreshPublicSuffixList'])
             ->getMock();
 
-        $dataDir = $this->dataDir;
-        $cacheDir = $this->cacheDir;
-
         $listManager->expects($this->once())
             ->method('refreshPublicSuffixList')
-            ->will($this->returnCallback(function () use ($dataDir, $cacheDir) {
+            ->will($this->returnCallback(function () {
                 copy(
-                    $dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE,
-                    $cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+                    $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE,
+                    $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
                 );
             }));
 
