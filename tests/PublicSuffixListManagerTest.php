@@ -46,11 +46,6 @@ class PublicSuffixListManagerTest extends TestCase
     protected $dataDir;
 
     /**
-     * @var string url
-     */
-    protected $publicSuffixListUrl = 'https://publicsuffix.org/list/public_suffix_list.dat';
-
-    /**
      * @var HttpAdapterInterface|\PHPUnit_Framework_MockObject_MockObject Http adapter
      */
     protected $httpAdapter;
@@ -89,7 +84,7 @@ class PublicSuffixListManagerTest extends TestCase
 
         $this->httpAdapter->expects($this->once())
             ->method('getContent')
-            ->with($this->publicSuffixListUrl)
+            ->with(PublicSuffixListManager::PUBLIC_SUFFIX_LIST_URL)
             ->will($this->returnValue($content));
 
         $this->assertFileNotExists(

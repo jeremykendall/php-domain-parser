@@ -24,6 +24,8 @@ use SplFileObject;
  */
 class PublicSuffixListManager
 {
+    const PUBLIC_SUFFIX_LIST_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+
     const ALL_DOMAINS = 'ALL';
     const PDP_PSL_TEXT_FILE = 'public-suffix-list.txt';
     const PDP_PSL_PHP_FILE = 'public-suffix-list.php';
@@ -35,18 +37,13 @@ class PublicSuffixListManager
     const PRIVATE_PSL_PHP_FILE = 'private-public-suffix-list.php';
 
     /**
-     * @var Public Suffix List Type
+     * @var array Public Suffix List Type
      */
     private static $domainList = [
         self::ALL_DOMAINS => self::PDP_PSL_PHP_FILE,
         self::ICANN_DOMAINS => self::ICANN_PSL_PHP_FILE,
         self::PRIVATE_DOMAINS => self::PRIVATE_PSL_PHP_FILE,
     ];
-
-    /**
-     * @var string Public Suffix List URL
-     */
-    private $publicSuffixListUrl = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
     /**
      * @var string Directory where text and php versions of list will be cached
@@ -114,7 +111,7 @@ class PublicSuffixListManager
      */
     public function refreshPublicSuffixList()
     {
-        $publicSuffixList = $this->getHttpAdapter()->getContent($this->publicSuffixListUrl);
+        $publicSuffixList = $this->getHttpAdapter()->getContent(self::PUBLIC_SUFFIX_LIST_URL);
         $this->cache(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
 
         $publicSuffixListArray = $this->convertListToArray();
