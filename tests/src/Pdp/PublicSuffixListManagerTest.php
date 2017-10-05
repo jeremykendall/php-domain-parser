@@ -4,9 +4,9 @@ namespace Pdp;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit\Framework\TestCase;
 use Pdp\HttpAdapter\CurlHttpAdapter;
 use Pdp\HttpAdapter\HttpAdapterInterface;
+use PHPUnit\Framework\TestCase;
 
 class PublicSuffixListManagerTest extends TestCase
 {
@@ -46,7 +46,7 @@ class PublicSuffixListManagerTest extends TestCase
     protected $publicSuffixListUrl = 'https://publicsuffix.org/list/effective_tld_names.dat';
 
     /**
-     * @var \Pdp\HttpAdapter\HttpAdapterInterface Http adapter
+     * @var HttpAdapterInterface|\PHPUnit_Framework_MockObject_MockObject Http adapter
      */
     protected $httpAdapter;
 
@@ -54,10 +54,10 @@ class PublicSuffixListManagerTest extends TestCase
     {
         parent::setUp();
 
-        $this->dataDir = realpath(dirname(__DIR__) . '/../../data');
+        $this->dataDir = dirname(__DIR__, 3) . '/data';
 
         $this->root = vfsStream::setup('pdp');
-        vfsStream::create(array('cache' => array()), $this->root);
+        vfsStream::create(['cache' => []], $this->root);
         $this->cacheDir = vfsStream::url('pdp/cache');
 
         $this->listManager = new PublicSuffixListManager($this->cacheDir);
@@ -134,14 +134,6 @@ class PublicSuffixListManagerTest extends TestCase
             $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
         );
         $this->assertGreaterThanOrEqual(230000, $this->listManager->writePhpCache($array));
-        $this->assertFileExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
-        );
-        $publicSuffixList = include $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
-        $this->assertInternalType('array', $publicSuffixList);
-        $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
-        $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
-        $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
     }
 
     public function testWriteThrowsExceptionIfCanNotWrite()
@@ -149,7 +141,7 @@ class PublicSuffixListManagerTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage("Cannot write '/does/not/exist/public-suffix-list.php'");
         $manager = new PublicSuffixListManager('/does/not/exist');
-        $manager->writePhpCache(array());
+        $manager->writePhpCache([]);
     }
 
     public function testParseListToArray()
@@ -172,8 +164,8 @@ class PublicSuffixListManagerTest extends TestCase
         $publicSuffixList = $this->listManager->getList();
         $this->assertInstanceOf(PublicSuffixList::class, $publicSuffixList);
         $this->assertGreaterThanOrEqual(300, count($publicSuffixList->getRules()));
-        $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList->getRules()['org']) !== false);
-        $this->assertTrue(array_key_exists('net', $publicSuffixList->getRules()['ac']) !== false);
+        $this->assertArrayHasKey('stuff-4-sale', $publicSuffixList->getRules()['org']);
+        $this->assertArrayHasKey('net', $publicSuffixList->getRules()['ac']);
     }
 
     public function testGetListWithoutCache()
@@ -182,7 +174,7 @@ class PublicSuffixListManagerTest extends TestCase
             $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
         );
 
-        /** @var PublicSuffixListManager $listManager */
+        /** @var PublicSuffixListManager|\PHPUnit_Framework_MockObject_MockObject $listManager */
         $listManager = $this->getMockBuilder(PublicSuffixListManager::class)
             ->setConstructorArgs([$this->cacheDir])
             ->setMethods(['refreshPublicSuffixList'])
@@ -209,10 +201,7 @@ class PublicSuffixListManagerTest extends TestCase
         // By not providing cache I'm forcing use of default cache dir
         $listManager = new PublicSuffixListManager();
         $publicSuffixList = $listManager->getList();
-        $this->assertInstanceOf(PublicSuffixList::class, $publicSuffixList);
-        $this->assertGreaterThanOrEqual(300, count($publicSuffixList->getRules()));
-        $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList->getRules()['org']) !== false);
-        $this->assertTrue(array_key_exists('net', $publicSuffixList->getRules()['ac']) !== false);
+        $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
     }
 
     private function getMock(string $class)
