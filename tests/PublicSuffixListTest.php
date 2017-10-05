@@ -54,6 +54,12 @@ class PublicSuffixListTest extends TestCase
         $this->assertEquals($this->list, new PublicSuffixList($this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
     }
 
+    public function testConstructorWithArray()
+    {
+        $rules = include $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
+        $this->assertEquals($this->list, new PublicSuffixList($rules));
+    }
+
     public function testNullWillReturnNullDomain()
     {
         $domain = $this->list->query('COM');
