@@ -1,11 +1,15 @@
 <?php
 
-namespace Pdp;
+declare(strict_types=1);
+
+namespace Pdp\Tests;
 
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use Pdp\HttpAdapter\CurlHttpAdapter;
 use Pdp\HttpAdapter\HttpAdapterInterface;
+use Pdp\PublicSuffixList;
+use Pdp\PublicSuffixListManager;
 use PHPUnit\Framework\TestCase;
 
 class PublicSuffixListManagerTest extends TestCase
@@ -54,7 +58,7 @@ class PublicSuffixListManagerTest extends TestCase
     {
         parent::setUp();
 
-        $this->dataDir = dirname(__DIR__, 3) . '/data';
+        $this->dataDir = dirname(__DIR__) . '/data';
 
         $this->root = vfsStream::setup('pdp');
         vfsStream::create(['cache' => []], $this->root);

@@ -1,7 +1,8 @@
 <?php
 
-namespace Pdp;
+namespace Pdp\Tests;
 
+use Pdp\PublicSuffixList;
 use PHPUnit\Framework\TestCase;
 
 /**

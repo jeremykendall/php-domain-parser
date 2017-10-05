@@ -10,9 +10,14 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
  * @license   http://github.com/jeremykendall/publicsuffixlist-php/blob/master/LICENSE MIT License
  */
-namespace Pdp;
+namespace Pdp\Tests;
 
 use InvalidArgumentException;
+use Pdp\MatchedDomain;
+use Pdp\NullDomain;
+use Pdp\PublicSuffixList;
+use Pdp\PublicSuffixListManager;
+use Pdp\UnmatchedDomain;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 
@@ -29,7 +34,7 @@ class PublicSuffixListTest extends TestCase
     {
         parent::setUp();
         $this->list = new PublicSuffixList();
-        $this->dataDir = realpath(dirname(__DIR__) . '/../../data');
+        $this->dataDir = dirname(__DIR__) . '/data';
     }
 
     public function testConstructorThrowsTypeError()

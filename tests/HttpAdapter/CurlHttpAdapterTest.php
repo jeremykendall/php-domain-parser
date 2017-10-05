@@ -1,7 +1,8 @@
 <?php
 
-namespace Pdp\HttpAdapter;
+namespace Pdp\Tests\HttpAdapter;
 
+use Pdp\HttpAdapter\CurlHttpAdapter;
 use PHPUnit\Framework\TestCase;
 
 /**
