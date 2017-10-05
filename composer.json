@@ -33,7 +33,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^6.3",
-        "mikey179/vfsStream": "^1.6"
+        "mikey179/vfsStream": "^1.6",
+        "friendsofphp/php-cs-fixer": "^2.7"
     },
     "autoload": {
         "psr-0": {
@@ -41,6 +42,7 @@
         }
     },
     "scripts": {
-        "post-install-cmd": "php bin/update-psl"
+        "post-install-cmd": "php bin/update-psl",
+        "pcf": "php-cs-fixer fix --verbose"
     }
 }
