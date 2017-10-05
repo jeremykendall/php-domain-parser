@@ -23,7 +23,7 @@ use SplFileObject;
  */
 class PublicSuffixListManager
 {
-    const PUBLIC_SUFFIX_LIST_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    const PUBLIC_SUFFIX_LIST_URL = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
 
     const ALL_DOMAINS = 'ALL';
     const PDP_PSL_TEXT_FILE = 'public-suffix-list.txt';
