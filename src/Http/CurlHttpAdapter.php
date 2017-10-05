@@ -9,10 +9,10 @@
  */
 declare(strict_types=1);
 
-namespace Pdp\HttpAdapter;
+namespace Pdp\Http;
 
 /**
- * Interface for http adapters.
+ * cURL http adapter.
  *
  * Lifted pretty much completely from William Durand's excellent Geocoder
  * project
@@ -22,14 +22,19 @@ namespace Pdp\HttpAdapter;
  * @author William Durand <william.durand1@gmail.com>
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  */
-interface HttpAdapterInterface
+class CurlHttpAdapter implements HttpAdapter
 {
     /**
-     * Returns the content fetched from a given URL.
-     *
-     * @param string $url
-     *
-     * @return string Retrieved content
+     * {@inheritdoc}
      */
-    public function getContent(string $url);
+    public function getContent(string $url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $content = curl_exec($ch);
+        curl_close($ch);
+
+        return $content;
+    }
 }
