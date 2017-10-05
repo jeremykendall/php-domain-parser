@@ -2,11 +2,15 @@
 <phpunit
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.3/phpunit.xsd"
-        bootstrap="tests/bootstrap.php"
+        bootstrap="vendor/autoload.php"
         colors="true">
 
+    <php>
+        <ini name="error_reporting" value="-1" />
+    </php>
+
     <testsuite name="php-domain-parser">
-        <directory>tests/src</directory>
+        <directory>./tests</directory>
     </testsuite>
 
     <filter>

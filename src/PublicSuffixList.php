@@ -46,7 +46,7 @@ final class PublicSuffixList
     private function filterRules($rules): array
     {
         if ($rules === null) {
-            return include dirname(__DIR__, 2) . '/data/public-suffix-list.php';
+            return include dirname(__DIR__) . '/data/public-suffix-list.php';
         }
 
         if (is_array($rules)) {
