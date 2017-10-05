@@ -186,7 +186,7 @@ class PublicSuffixListManager
      *
      * @return array
      */
-    protected function validateDomainAddition($line, array $addDomain): array
+    protected function validateDomainAddition(string $line, array $addDomain): array
     {
         foreach ($addDomain as $section => $status) {
             $addDomain[$section] = $this->isValidSection($status, $line, $section);
