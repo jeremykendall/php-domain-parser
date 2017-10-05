@@ -5,6 +5,7 @@ namespace Pdp;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
+use Pdp\HttpAdapter\CurlHttpAdapter;
 use Pdp\HttpAdapter\HttpAdapterInterface;
 
 class PublicSuffixListManagerTest extends TestCase
@@ -121,10 +122,7 @@ class PublicSuffixListManagerTest extends TestCase
     public function testGetHttpAdapterReturnsDefaultCurlAdapterIfAdapterNotSet()
     {
         $listManager = new PublicSuffixListManager($this->cacheDir);
-        $this->assertInstanceOf(
-            '\Pdp\HttpAdapter\CurlHttpAdapter',
-            $listManager->getHttpAdapter()
-        );
+        $this->assertInstanceOf(CurlHttpAdapter::class, $listManager->getHttpAdapter());
     }
 
     public function testWritePhpCache()

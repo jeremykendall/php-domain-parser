@@ -73,8 +73,6 @@ final class UnmatchedDomain implements Domain
      */
     public function getRegistrableDomain()
     {
-        // This can not happen when an UnmatchedDomain object
-        // is returned by a PublicSuffixList object
         if (!$this->hasRegistrableDomain()) {
             return null;
         }
@@ -87,15 +85,25 @@ final class UnmatchedDomain implements Domain
     }
 
     /**
-     * Tell whether the domain has a registrable domain part
+     * Tells whether the domain has a registrable domain part
      *
      * @return bool
      */
     private function hasRegistrableDomain(): bool
     {
-        return $this->publicSuffix !== null
-            && $this->publicSuffix !== $this->domain
-            && $this->hasLabels($this->domain);
+        if (!$this->hasLabels($this->domain)) {
+            return false;
+        }
+
+        if ($this->publicSuffix === null) {
+            return false;
+        }
+
+        if ($this->publicSuffix === $this->domain) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

@@ -23,6 +23,24 @@ class CheckPublicSuffixTest extends TestCase
         $this->list = new PublicSuffixList();
     }
 
+    /**
+     * This is my version of the checkPublicSuffix function referred to in the
+     * test instructions at the Public Suffix List project.
+     *
+     * "You will need to define a checkPublicSuffix() function which takes as a
+     * parameter a domain name and the public suffix, runs your implementation
+     * on the domain name and checks the result is the public suffix expected."
+     *
+     * @link http://publicsuffix.org/list/
+     *
+     * @param string $input    Domain and public suffix
+     * @param string $expected Expected result
+     */
+    public function checkPublicSuffix($input, $expected)
+    {
+        $this->assertSame($expected, $this->list->query($input)->getRegistrableDomain());
+    }
+
     public function testPublicSuffixSpec()
     {
         // Test data from Rob Stradling at Comodo
@@ -121,23 +139,5 @@ class CheckPublicSuffixTest extends TestCase
         $this->checkPublicSuffix('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s');
         $this->checkPublicSuffix('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s');
         $this->checkPublicSuffix('xn--fiqs8s', null);
-    }
-
-    /**
-     * This is my version of the checkPublicSuffix function referred to in the
-     * test instructions at the Public Suffix List project.
-     *
-     * "You will need to define a checkPublicSuffix() function which takes as a
-     * parameter a domain name and the public suffix, runs your implementation
-     * on the domain name and checks the result is the public suffix expected."
-     *
-     * @link http://publicsuffix.org/list/
-     *
-     * @param string $input    Domain and public suffix
-     * @param string $expected Expected result
-     */
-    public function checkPublicSuffix($input, $expected)
-    {
-        $this->assertSame($expected, $this->list->query($input)->getRegistrableDomain());
     }
 }

@@ -16,7 +16,7 @@ trait LabelsTrait
     /**
      * Returns labels from input
      *
-     * @param  string $input
+     * @param string $input
      *
      * @return string[]
      */
@@ -28,7 +28,7 @@ trait LabelsTrait
     /**
      * Returns labels from input in reverse
      *
-     * @param  string $input
+     * @param string $input
      *
      * @return string[]
      */
@@ -38,7 +38,7 @@ trait LabelsTrait
     }
 
     /**
-     * Tell whether the domain contains multiple labels
+     * Tells whether the domain contains multiple labels
      *
      * @param string $domain
      *
@@ -50,7 +50,7 @@ trait LabelsTrait
     }
 
     /**
-     * Tell whether the domain contains one single label
+     * Tells whether the domain contains one single label
      *
      * @param string $domain
      *
