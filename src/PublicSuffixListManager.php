@@ -35,7 +35,7 @@ class PublicSuffixListManager
     const PRIVATE_PSL_PHP_FILE = 'private-public-suffix-list.php';
 
     /**
-     * @var PublicSuffixList Public Suffix List
+     * @var Public Suffix List Type
      */
     protected static $domainList = [
         self::ALL_DOMAINS => self::PDP_PSL_PHP_FILE,
@@ -46,7 +46,7 @@ class PublicSuffixListManager
     /**
      * @var string Public Suffix List URL
      */
-    protected $publicSuffixListUrl = 'https://publicsuffix.org/list/effective_tld_names.dat';
+    protected $publicSuffixListUrl = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
     /**
      * @var string Directory where text and php versions of list will be cached
