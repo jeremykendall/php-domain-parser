@@ -37,7 +37,7 @@ class PublicSuffixListManager
     /**
      * @var Public Suffix List Type
      */
-    protected static $domainList = [
+    private static $domainList = [
         self::ALL_DOMAINS => self::PDP_PSL_PHP_FILE,
         self::ICANN_DOMAINS => self::ICANN_PSL_PHP_FILE,
         self::PRIVATE_DOMAINS => self::PRIVATE_PSL_PHP_FILE,
@@ -46,17 +46,17 @@ class PublicSuffixListManager
     /**
      * @var string Public Suffix List URL
      */
-    protected $publicSuffixListUrl = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    private $publicSuffixListUrl = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
     /**
      * @var string Directory where text and php versions of list will be cached
      */
-    protected $cacheDir;
+    private $cacheDir;
 
     /**
      * @var HttpAdapterInterface Http adapter
      */
-    protected $httpAdapter;
+    private $httpAdapter;
 
     /**
      * Public constructor.
@@ -134,7 +134,7 @@ class PublicSuffixListManager
      *
      * @return int Number of bytes that were written to the file
      */
-    protected function cache(string $basename, string $data): int
+    private function cache(string $basename, string $data): int
     {
         $path = $this->cacheDir . '/' . $basename;
         $result = @file_put_contents($path, $data);
@@ -151,7 +151,7 @@ class PublicSuffixListManager
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
      */
-    protected function convertListToArray(): array
+    private function convertListToArray(): array
     {
         $addDomain = [
             self::ICANN_DOMAINS => false,
@@ -186,7 +186,7 @@ class PublicSuffixListManager
      *
      * @return array
      */
-    protected function validateDomainAddition(string $line, array $addDomain): array
+    private function validateDomainAddition(string $line, array $addDomain): array
     {
         foreach ($addDomain as $section => $status) {
             $addDomain[$section] = $this->isValidSection($status, $line, $section);
@@ -204,7 +204,7 @@ class PublicSuffixListManager
      *
      * @return bool
      */
-    protected function isValidSection(bool $previousStatus, string $line, string $section): bool
+    private function isValidSection(bool $previousStatus, string $line, string $section): bool
     {
         if (!$previousStatus && strpos($line, '// ===BEGIN ' . $section . ' DOMAINS===') === 0) {
             return true;
@@ -228,7 +228,7 @@ class PublicSuffixListManager
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
      */
-    protected function convertLineToArray(string $textLine, array $publicSuffixListArray, array $addDomain): array
+    private function convertLineToArray(string $textLine, array $publicSuffixListArray, array $addDomain): array
     {
         $ruleParts = explode('.', $textLine);
         $this->buildArray($publicSuffixListArray[self::ALL_DOMAINS], $ruleParts);
@@ -254,7 +254,7 @@ class PublicSuffixListManager
      * @param array $ruleParts        One line (rule) from the Public Suffix List
      *                                exploded on '.', or the remaining portion of that array during recursion
      */
-    protected function buildArray(array &$publicSuffixList, array $ruleParts)
+    private function buildArray(array &$publicSuffixList, array $ruleParts)
     {
         $isDomain = true;
 
