@@ -201,7 +201,7 @@ class PublicSuffixListManagerTest extends TestCase
         // By not providing cache I'm forcing use of default cache dir
         $listManager = new PublicSuffixListManager();
         $publicSuffixList = $listManager->getList();
-        $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
+        $this->assertGreaterThanOrEqual(300, count($publicSuffixList->getRules()));
     }
 
     private function getMock(string $class)
