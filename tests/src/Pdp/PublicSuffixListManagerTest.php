@@ -125,31 +125,12 @@ class PublicSuffixListManagerTest extends TestCase
         $this->assertInstanceOf(CurlHttpAdapter::class, $listManager->getHttpAdapter());
     }
 
-    public function testWritePhpCache()
-    {
-        $this->assertFileNotExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
-        );
-        $array = $this->listManager->parseListToArray(
-            $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
-        );
-        $this->assertGreaterThanOrEqual(230000, $this->listManager->writePhpCache($array));
-    }
-
     public function testWriteThrowsExceptionIfCanNotWrite()
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage("Cannot write '/does/not/exist/public-suffix-list.php'");
         $manager = new PublicSuffixListManager('/does/not/exist');
         $manager->writePhpCache([]);
-    }
-
-    public function testParseListToArray()
-    {
-        $publicSuffixList = $this->listManager->parseListToArray(
-            $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
-        );
-        $this->assertInternalType('array', $publicSuffixList);
     }
 
     public function testGetList()
@@ -209,5 +190,13 @@ class PublicSuffixListManagerTest extends TestCase
         return $this->getMockBuilder($class)
             ->disableOriginalConstructor()
             ->getMock();
+    }
+
+    public function testGetDifferentPublicList()
+    {
+        $listManager = new PublicSuffixListManager();
+        $publicList = $listManager->getList();
+        $invalidList = $listManager->getList('invalid type');
+        $this->assertEquals($publicList, $invalidList);
     }
 }
