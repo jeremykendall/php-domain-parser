@@ -11,9 +11,11 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Exception;
+use Pdp\Cache\FileCache;
 use Pdp\Http\HttpAdapter;
+use Psr\SimpleCache\CacheInterface;
 use SplFileObject;
+use SplTempFileObject;
 
 /**
  * Public Suffix List Manager.
@@ -25,29 +27,15 @@ class PublicSuffixListManager
 {
     const PUBLIC_SUFFIX_LIST_URL = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
 
+    const PUBLIC_SUFFIX_LIST_DATA = 'RAW';
     const ALL_DOMAINS = 'ALL';
-    const PDP_PSL_TEXT_FILE = 'public-suffix-list.txt';
-    const PDP_PSL_PHP_FILE = 'public-suffix-list.php';
-
     const ICANN_DOMAINS = 'ICANN';
-    const ICANN_PSL_PHP_FILE = 'icann-public-suffix-list.php';
-
     const PRIVATE_DOMAINS = 'PRIVATE';
-    const PRIVATE_PSL_PHP_FILE = 'private-public-suffix-list.php';
-
-    /**
-     * @var array Public Suffix List Type
-     */
-    private static $domainList = [
-        self::ALL_DOMAINS => self::PDP_PSL_PHP_FILE,
-        self::ICANN_DOMAINS => self::ICANN_PSL_PHP_FILE,
-        self::PRIVATE_DOMAINS => self::PRIVATE_PSL_PHP_FILE,
-    ];
 
     /**
      * @var string Directory where text and php versions of list will be cached
      */
-    private $cacheDir;
+    private $cache;
 
     /**
      * @var HttpAdapter Http adapter
@@ -57,31 +45,41 @@ class PublicSuffixListManager
     /**
      * Public constructor.
      *
-     * @param HttpAdapter $httpAdapter
-     * @param string      $cacheDir    Optional cache directory
+     * @param HttpAdapter         $httpAdapter
+     * @param CacheInterface|null $cache
      */
-    public function __construct(HttpAdapter $httpAdapter, string $cacheDir = null)
+    public function __construct(HttpAdapter $httpAdapter, CacheInterface $cache = null)
     {
-        $this->cacheDir = $cacheDir ?? realpath(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data');
         $this->httpAdapter = $httpAdapter;
+        $this->cache = $cache ?? new FileCache(realpath(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data'));
     }
 
     /**
      * Gets Public Suffix List.
      *
-     * @param string $list the Public Suffix List type
+     * @param string $type the Public Suffix List type
      *
      * @return PublicSuffixList
      */
-    public function getList($list = self::ALL_DOMAINS): PublicSuffixList
+    public function getList($type = self::ALL_DOMAINS): PublicSuffixList
     {
-        $cacheBasename = isset(self::$domainList[$list]) ? self::$domainList[$list] : self::PDP_PSL_PHP_FILE;
-        $cacheFile = $this->cacheDir . '/' . $cacheBasename;
-        if (!file_exists($cacheFile)) {
-            $this->refreshPublicSuffixList();
+        static $psl_type_lists = [self::ALL_DOMAINS => 1, self::ICANN_DOMAINS => 1, self::PRIVATE_DOMAINS => 1];
+
+        if (!isset($psl_type_lists[$type])) {
+            $type = self::ALL_DOMAINS;
         }
 
-        return new PublicSuffixList($cacheFile);
+        if ($this->cache->has($type)) {
+            return new PublicSuffixList($this->cache->get($type));
+        }
+
+        if ($this->cache->has(self::PUBLIC_SUFFIX_LIST_DATA)) {
+            $this->cachePublicSuffixListTypes();
+            return new PublicSuffixList($this->cache->get($type));
+        }
+
+        $this->refreshPublicSuffixList();
+        return new PublicSuffixList($this->cache->get($type));
     }
 
     /**
@@ -90,35 +88,19 @@ class PublicSuffixListManager
      */
     public function refreshPublicSuffixList()
     {
-        $publicSuffixList = $this->httpAdapter->getContent(self::PUBLIC_SUFFIX_LIST_URL);
-        $this->cache(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
+        $raw = $this->httpAdapter->getContent(self::PUBLIC_SUFFIX_LIST_URL);
+        $this->cache->set(self::PUBLIC_SUFFIX_LIST_DATA, $raw);
 
-        $publicSuffixListArray = $this->convertListToArray();
-        foreach ($publicSuffixListArray as $type => $list) {
-            $content = '<?php' . PHP_EOL . 'return ' . var_export($list, true) . ';';
-            $this->cache(self::$domainList[$type], $content);
-        }
+        $this->cachePublicSuffixListTypes();
     }
 
     /**
-     * Cache content to disk.
-     *
-     * @param string $basename basename in cache dir where data will be written
-     * @param string $data     data to write
-     *
-     * @throws Exception if unable to write file
-     *
-     * @return int Number of bytes that were written to the file
+     * Cache the different public suffix list subtypes
      */
-    private function cache(string $basename, string $data): int
+    private function cachePublicSuffixListTypes()
     {
-        $path = $this->cacheDir . '/' . $basename;
-        $result = @file_put_contents($path, $data);
-        if ($result !== false) {
-            return $result;
-        }
-
-        throw new Exception(sprintf("Cannot write '%s'", $path));
+        $publicSuffixListArray = $this->convertListToArray();
+        $this->cache->setMultiple($publicSuffixListArray);
     }
 
     /**
@@ -140,8 +122,9 @@ class PublicSuffixListManager
             self::PRIVATE_DOMAINS => [],
         ];
 
-        $path = $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE;
-        $data = new SplFileObject($path);
+        $raw = $this->cache->get(self::PUBLIC_SUFFIX_LIST_DATA);
+        $data = new SplTempFileObject();
+        $data->fwrite($raw);
         $data->setFlags(SplFileObject::DROP_NEW_LINE | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         foreach ($data as $line) {
             $addDomain = $this->validateDomainAddition($line, $addDomain);

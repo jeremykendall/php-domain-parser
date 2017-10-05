@@ -2,7 +2,9 @@
 
 namespace Pdp\Tests;
 
+use Pdp\Cache\FileCache;
 use Pdp\PublicSuffixList;
+use Pdp\PublicSuffixListManager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,7 +23,9 @@ class CheckPublicSuffixTest extends TestCase
 
     protected function setUp()
     {
-        $this->list = new PublicSuffixList();
+        $cache = new FileCache(dirname(__DIR__) . '/data');
+        $rules = $cache->get(PublicSuffixListManager::ALL_DOMAINS);
+        $this->list = new PublicSuffixList($rules);
     }
 
     /**

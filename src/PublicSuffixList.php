@@ -11,9 +11,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use InvalidArgumentException;
-use TypeError;
-
 final class PublicSuffixList
 {
     use LabelsTrait;
@@ -26,42 +23,11 @@ final class PublicSuffixList
     /**
      * PublicSuffixList constructor.
      *
-     * @param array|string|null $rules
+     * @param array $rules
      */
-    public function __construct($rules = null)
+    public function __construct(array $rules)
     {
-        $this->rules = $this->filterRules($rules);
-    }
-
-    /**
-     * Filter the rules parameter.
-     *
-     * @param array|string|null $rules
-     *
-     * @throws TypeError                if the $rules is not an array, a string or null
-     * @throws InvalidArgumentException if path does not exist or is not readable
-     *
-     * @return array
-     */
-    private function filterRules($rules): array
-    {
-        if ($rules === null) {
-            return include dirname(__DIR__) . '/data/public-suffix-list.php';
-        }
-
-        if (is_array($rules)) {
-            return $rules;
-        }
-
-        if (!is_string($rules)) {
-            throw new TypeError(sprintf('Expected rules to be an array, a file path or null; received "%s"', is_object($rules) ? get_class($rules) : gettype($rules)));
-        }
-
-        if (!is_readable($rules)) {
-            throw new InvalidArgumentException(sprintf('File path is not readable "%s"', $rules));
-        }
-
-        return include $rules;
+        $this->rules = $rules;
     }
 
     /**

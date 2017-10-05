@@ -12,14 +12,13 @@ declare(strict_types=1);
  */
 namespace Pdp\Tests;
 
-use InvalidArgumentException;
+use Pdp\Cache\FileCache;
 use Pdp\MatchedDomain;
 use Pdp\NullDomain;
 use Pdp\PublicSuffixList;
 use Pdp\PublicSuffixListManager;
 use Pdp\UnmatchedDomain;
 use PHPUnit\Framework\TestCase;
-use TypeError;
 
 class PublicSuffixListTest extends TestCase
 {
@@ -28,36 +27,11 @@ class PublicSuffixListTest extends TestCase
      */
     private $list;
 
-    private $dataDir;
-
     protected function setUp()
     {
-        parent::setUp();
-        $this->list = new PublicSuffixList();
-        $this->dataDir = dirname(__DIR__) . '/data';
-    }
-
-    public function testConstructorThrowsTypeError()
-    {
-        $this->expectException(TypeError::class);
-        new PublicSuffixList(new \stdClass());
-    }
-
-    public function testConstructorThrowsInvalidArgumentException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        new PublicSuffixList('/usr/bin/foo/bar');
-    }
-
-    public function testConstructorWithFilePath()
-    {
-        $this->assertEquals($this->list, new PublicSuffixList($this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
-    }
-
-    public function testConstructorWithArray()
-    {
-        $rules = include $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
-        $this->assertEquals($this->list, new PublicSuffixList($rules));
+        $cache = new FileCache(dirname(__DIR__) . '/data');
+        $rules = $cache->get(PublicSuffixListManager::ALL_DOMAINS);
+        $this->list = new PublicSuffixList($rules);
     }
 
     public function testNullWillReturnNullDomain()
