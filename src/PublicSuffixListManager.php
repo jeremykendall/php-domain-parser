@@ -65,7 +65,7 @@ class PublicSuffixListManager
      */
     public function __construct(string $cacheDir = null)
     {
-        $this->cacheDir = $cacheDir ?? realpath(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'data');
+        $this->cacheDir = $cacheDir ?? realpath(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data');
     }
 
     /**

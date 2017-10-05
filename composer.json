@@ -37,7 +37,7 @@
         "friendsofphp/php-cs-fixer": "^2.7"
     },
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "Pdp\\": "src/"
         }
     },
