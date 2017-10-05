@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
-    backupGlobals="false"
-    backupStaticAttributes="false"
-    bootstrap="tests/bootstrap.php"
-    colors="true">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.3/phpunit.xsd"
+        bootstrap="tests/bootstrap.php"
+        colors="true">
 
     <testsuite name="php-domain-parser">
         <directory>tests/src</directory>
@@ -17,17 +17,11 @@
 
     <logging>
         <log type="coverage-html"
-            target="build/coverage"
-            charset="UTF-8"
-            yui="true"
-            highlight="true"
-            lowUpperBound="40"
-            highLowerBound="70" />
+             target="build/coverage"
+             lowUpperBound="40" />
         <log type="testdox-html" target="build/coverage/log/testdox.html" />
         <log type="junit" target="build/report.junit.xml"/>
         <log type="coverage-text" target="build/coverage.txt"/>
         <log type="coverage-clover" target="build/clover.xml"/>
     </logging>
-    <logging>
-</logging>
 </phpunit>
