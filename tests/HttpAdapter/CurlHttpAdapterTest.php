@@ -2,7 +2,7 @@
 
 namespace Pdp\Tests\HttpAdapter;
 
-use Pdp\HttpAdapter\CurlHttpAdapter;
+use Pdp\Http\CurlHttpAdapter;
 use PHPUnit\Framework\TestCase;
 
 /**

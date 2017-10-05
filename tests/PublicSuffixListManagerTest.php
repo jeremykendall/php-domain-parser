@@ -7,8 +7,8 @@ namespace Pdp\Tests;
 use Exception;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
-use Pdp\HttpAdapter\CurlHttpAdapter;
-use Pdp\HttpAdapter\HttpAdapterInterface;
+use Pdp\Http\CurlHttpAdapter;
+use Pdp\Http\HttpAdapter;
 use Pdp\PublicSuffixList;
 use Pdp\PublicSuffixListManager;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +46,7 @@ class PublicSuffixListManagerTest extends TestCase
     protected $dataDir;
 
     /**
-     * @var HttpAdapterInterface|\PHPUnit_Framework_MockObject_MockObject Http adapter
+     * @var HttpAdapter|\PHPUnit_Framework_MockObject_MockObject Http adapter
      */
     protected $httpAdapter;
 
@@ -60,10 +60,9 @@ class PublicSuffixListManagerTest extends TestCase
         vfsStream::create(['cache' => []], $this->root);
         $this->cacheDir = vfsStream::url('pdp/cache');
 
-        $this->listManager = new PublicSuffixListManager($this->cacheDir);
+        $this->httpAdapter = $this->getMock(HttpAdapter::class);
 
-        $this->httpAdapter = $this->getMock(HttpAdapterInterface::class);
-        $this->listManager->setHttpAdapter($this->httpAdapter);
+        $this->listManager = new PublicSuffixListManager($this->httpAdapter, $this->cacheDir);
     }
 
     protected function tearDown()
@@ -104,17 +103,11 @@ class PublicSuffixListManagerTest extends TestCase
         );
     }
 
-    public function testGetHttpAdapterReturnsDefaultCurlAdapterIfAdapterNotSet()
-    {
-        $listManager = new PublicSuffixListManager($this->cacheDir);
-        $this->assertInstanceOf(CurlHttpAdapter::class, $listManager->getHttpAdapter());
-    }
-
     public function testWriteThrowsExceptionIfCanNotWrite()
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("Cannot write '/does/not/exist/public-suffix-list.txt'");
-        $manager = new PublicSuffixListManager('/does/not/exist');
+        $manager = new PublicSuffixListManager(new CurlHttpAdapter(), '/does/not/exist');
         $manager->refreshPublicSuffixList();
     }
 
@@ -142,7 +135,7 @@ class PublicSuffixListManagerTest extends TestCase
 
         /** @var PublicSuffixListManager|\PHPUnit_Framework_MockObject_MockObject $listManager */
         $listManager = $this->getMockBuilder(PublicSuffixListManager::class)
-            ->setConstructorArgs([$this->cacheDir])
+            ->setConstructorArgs([$this->httpAdapter, $this->cacheDir])
             ->setMethods(['refreshPublicSuffixList'])
             ->getMock();
 
@@ -162,7 +155,7 @@ class PublicSuffixListManagerTest extends TestCase
     public function testGetProvidedListFromDefaultCacheDir()
     {
         // By not providing cache I'm forcing use of default cache dir
-        $listManager = new PublicSuffixListManager();
+        $listManager = new PublicSuffixListManager($this->httpAdapter);
         $publicSuffixList = $listManager->getList();
         $this->assertGreaterThanOrEqual(300, count($publicSuffixList->getRules()));
     }
@@ -176,7 +169,7 @@ class PublicSuffixListManagerTest extends TestCase
 
     public function testGetDifferentPublicList()
     {
-        $listManager = new PublicSuffixListManager();
+        $listManager = new PublicSuffixListManager($this->httpAdapter);
         $publicList = $listManager->getList();
         $invalidList = $listManager->getList('invalid type');
         $this->assertEquals($publicList, $invalidList);

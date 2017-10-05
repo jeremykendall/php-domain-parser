@@ -21,7 +21,11 @@ if ($argc == 2 && is_dir($argv[1])) {
 
 try {
     echo 'Updating Public Suffix List.' . PHP_EOL;
-    $manager = new \Pdp\PublicSuffixListManager($cacheDir);
+    /**
+     * @TODO: Having the adapter baked in with no way for the library user to provide
+     * their own is problematic. Fix it or leave it? No one has ever complained.
+     */
+    $manager = new \Pdp\PublicSuffixListManager(new \Pdp\Http\CurlHttpAdapter(), $cacheDir);
     $manager->refreshPublicSuffixList();
     echo 'Update complete.' . PHP_EOL;
     exit(0);

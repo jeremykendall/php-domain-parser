@@ -12,8 +12,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use Exception;
-use Pdp\HttpAdapter\CurlHttpAdapter;
-use Pdp\HttpAdapter\HttpAdapterInterface;
+use Pdp\Http\HttpAdapter;
 use SplFileObject;
 
 /**
@@ -51,40 +50,20 @@ class PublicSuffixListManager
     private $cacheDir;
 
     /**
-     * @var HttpAdapterInterface Http adapter
+     * @var HttpAdapter Http adapter
      */
     private $httpAdapter;
 
     /**
      * Public constructor.
      *
-     * @param string $cacheDir Optional cache directory
+     * @param HttpAdapter $httpAdapter
+     * @param string      $cacheDir    Optional cache directory
      */
-    public function __construct(string $cacheDir = null)
+    public function __construct(HttpAdapter $httpAdapter, string $cacheDir = null)
     {
         $this->cacheDir = $cacheDir ?? realpath(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data');
-    }
-
-    /**
-     * Sets http adapter.
-     *
-     * @param HttpAdapterInterface $httpAdapter
-     */
-    public function setHttpAdapter(HttpAdapterInterface $httpAdapter)
-    {
         $this->httpAdapter = $httpAdapter;
-    }
-
-    /**
-     * Returns http adapter. Returns default http adapter if one is not set.
-     *
-     * @return HttpAdapterInterface
-     */
-    public function getHttpAdapter(): HttpAdapterInterface
-    {
-        $this->httpAdapter = $this->httpAdapter ?? new CurlHttpAdapter();
-
-        return $this->httpAdapter;
     }
 
     /**
@@ -111,7 +90,7 @@ class PublicSuffixListManager
      */
     public function refreshPublicSuffixList()
     {
-        $publicSuffixList = $this->getHttpAdapter()->getContent(self::PUBLIC_SUFFIX_LIST_URL);
+        $publicSuffixList = $this->httpAdapter->getContent(self::PUBLIC_SUFFIX_LIST_URL);
         $this->cache(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
 
         $publicSuffixListArray = $this->convertListToArray();
