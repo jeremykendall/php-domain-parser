@@ -26,22 +26,15 @@ final class MatchedDomain implements Domain
     private $publicSuffix;
 
     /**
-     * @var bool
-     */
-    private $isValid;
-
-    /**
      * New instance.
      *
      * @param string|null $domain
      * @param string|null $publicSuffix
-     * @param bool        $isValid
      */
-    public function __construct(string $domain = null, string $publicSuffix = null, bool $isValid = true)
+    public function __construct(string $domain = null, string $publicSuffix = null)
     {
         $this->domain = $domain;
         $this->publicSuffix = $publicSuffix;
-        $this->isValid = $isValid;
     }
 
     /**
@@ -65,7 +58,7 @@ final class MatchedDomain implements Domain
      */
     public function isValid(): bool
     {
-        return $this->isValid;
+        return true;
     }
 
     /**
