@@ -16,10 +16,9 @@ class PublicSuffixListManagerTest extends TestCase
      * @var PublicSuffixListManager List manager
      */
     protected $manager;
-    protected $cache;
-    protected $root;
-    protected $cacheDir;
     protected $cachePool;
+    protected $cacheDir;
+    protected $root;
 
     public function setUp()
     {
@@ -50,9 +49,9 @@ class PublicSuffixListManagerTest extends TestCase
 
     public function testGetDifferentPublicList()
     {
-        $publicList = $this->manager->getList();
+        $publicSuffixList = $this->manager->getList();
         $invalidList = $this->manager->getList('invalid type');
-        $this->assertEquals($publicList, $invalidList);
+        $this->assertEquals($publicSuffixList, $invalidList);
     }
 
     public function testRefreshList()

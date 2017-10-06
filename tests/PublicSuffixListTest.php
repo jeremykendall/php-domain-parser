@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use Pdp\Cache\FileCacheAdapter;
+use Pdp\Http\CurlHttpAdapter;
 use Pdp\MatchedDomain;
 use Pdp\NullDomain;
 use Pdp\PublicSuffixList;
@@ -29,9 +30,8 @@ class PublicSuffixListTest extends TestCase
 
     public function setUp()
     {
-        $cache = new FileCacheAdapter();
-        $rules = $cache->get(PublicSuffixListManager::ALL_DOMAINS);
-        $this->list = new PublicSuffixList($rules);
+        $manager = new PublicSuffixListManager(new FileCacheAdapter(), new CurlHttpAdapter());
+        $this->list = $manager->getList();
     }
 
     public function testGetRules()
