@@ -20,14 +20,13 @@ use RecursiveIteratorIterator;
 use Traversable;
 
 /**
- * This is a simple, file-based cache implementation, which is bootstrapped by
- * the Core Provider as a default.
+ * A simple file-based PSR-16 cache implementation.
  *
- * Bootstrapping a more powerful cache for production scenarios is highly recommended.
+ * This class is heavily based on the code found in
  *
- * @see https://github.com/matthiasmullie/scrapbook/
+ * @see https://github.com/kodus/file-cache/blob/master/src/FileCache.php
  */
-final class FileCache implements CacheInterface
+final class FileCacheAdapter implements CacheInterface
 {
     /**
      * @var string control characters for keys, reserved by PSR-16
@@ -42,7 +41,7 @@ final class FileCache implements CacheInterface
     /**
      * @var int
      */
-    private $default_ttl;
+    private $default_ttl = 86400;
 
     /**
      * @var int
@@ -55,22 +54,17 @@ final class FileCache implements CacheInterface
     private $file_mode = 0664;
 
     /**
-     * @param string $cache_path  absolute root path of cache-file folder
-     * @param int    $default_ttl default time-to-live (in seconds)
-     * @param int    $dir_mode    permission mode for created dirs
-     * @param int    $file_mode   permission mode for created files
+     * @param string $cache_path absolute root path of cache-file folder
      */
-    public function __construct(string $cache_path, int $default_ttl = 86400)
+    public function __construct(string $cache_path = '')
     {
-        $this->default_ttl = $default_ttl;
+        if ($cache_path === '') {
+            $cache_path = realpath(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'data');
+        }
+
         if (!file_exists($cache_path) && file_exists(dirname($cache_path))) {
             $this->mkdir($cache_path); // ensure that the parent path exists
         }
-
-        /*$path = realpath($cache_path);
-        if ($path === false) {
-            throw new InvalidArgumentException(sprintf('cache path does not exist: %s', $cache_path));
-        }*/
 
         if (!is_writable($cache_path . DIRECTORY_SEPARATOR)) {
             throw new InvalidArgumentException(sprintf('cache path is not writable: %s', $cache_path));
@@ -85,21 +79,18 @@ final class FileCache implements CacheInterface
     public function get($key, $default = null)
     {
         $path = $this->getPath($key);
-
         $expires_at = @filemtime($path);
-
         if ($expires_at === false) {
             return $default; // file not found
         }
 
-        if ($this->getTime() >= $expires_at) {
+        if (time() >= $expires_at) {
             @unlink($path); // file expired
 
             return $default;
         }
 
         $data = @file_get_contents($path);
-
         if ($data === false) {
             return $default; // race condition: file not found
         }
@@ -109,7 +100,6 @@ final class FileCache implements CacheInterface
         }
 
         $value = @unserialize($data);
-
         if ($value === false) {
             return $default; // unserialize() failed
         }
@@ -122,8 +112,8 @@ final class FileCache implements CacheInterface
      */
     public function set($key, $value, $ttl = null)
     {
+        $expires_at = $this->getExpireAt($ttl);
         $path = $this->getPath($key);
-
         $dir = dirname($path);
 
         if (!file_exists($dir)) {
@@ -132,17 +122,6 @@ final class FileCache implements CacheInterface
         }
 
         $temp_path = $this->cache_path . DIRECTORY_SEPARATOR . uniqid('', true);
-
-        if (is_int($ttl)) {
-            $expires_at = $this->getTime() + $ttl;
-        } elseif ($ttl instanceof DateInterval) {
-            $expires_at = date_create_from_format('U', $this->getTime())->add($ttl)->getTimestamp();
-        } elseif ($ttl === null) {
-            $expires_at = $this->getTime() + $this->default_ttl;
-        } else {
-            throw new InvalidArgumentException('invalid TTL: ' . print_r($ttl, true));
-        }
-
         if (false === @file_put_contents($temp_path, serialize($value))) {
             return false;
         }
@@ -161,6 +140,30 @@ final class FileCache implements CacheInterface
     }
 
     /**
+     * Returns the expiration time expressed in the number of seconds since the Unix Epoch.
+     *
+     * @param mixed $ttl
+     *
+     * @return int
+     */
+    private function getExpireAt($ttl): int
+    {
+        if (is_int($ttl)) {
+            return time() + $ttl;
+        }
+
+        if ($ttl instanceof DateInterval) {
+            return date_create_immutable('@' . time())->add($ttl)->getTimestamp();
+        }
+
+        if ($ttl === null) {
+            return time() + $this->default_ttl;
+        }
+
+        throw new InvalidArgumentException(sprintf('Expected TTL to be an int, a DateInterval or null; received "%s"', is_object($ttl) ? get_class($ttl) : gettype($ttl)));
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function delete($key)
@@ -176,7 +179,6 @@ final class FileCache implements CacheInterface
         $success = true;
 
         $paths = $this->listPaths();
-
         foreach ($paths as $path) {
             if (!unlink($path)) {
                 $success = false;
@@ -196,7 +198,6 @@ final class FileCache implements CacheInterface
         }
 
         $values = [];
-
         foreach ($keys as $key) {
             $values[$key] = $this->get($key) ?: $default;
         }
@@ -247,42 +248,6 @@ final class FileCache implements CacheInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function increment($key, $step = 1)
-    {
-        $path = $this->getPath($key);
-
-        $dir = dirname($path);
-
-        if (!file_exists($dir)) {
-            $this->mkdir($dir); // ensure that the parent path exists
-        }
-
-        $lock_path = $dir . DIRECTORY_SEPARATOR . '.lock'; // allows max. 256 client locks at one time
-
-        $lock_handle = fopen($lock_path, 'w');
-
-        flock($lock_handle, LOCK_EX);
-
-        $value = $this->get($key, 0) + $step;
-
-        $ok = $this->set($key, $value);
-
-        flock($lock_handle, LOCK_UN);
-
-        return $ok ? $value : false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function decrement($key, $step = 1)
-    {
-        return $this->increment($key, -$step);
-    }
-
-    /**
      * For a given cache key, obtain the absolute file path.
      *
      * @param string $key
@@ -307,14 +272,6 @@ final class FileCache implements CacheInterface
     }
 
     /**
-     * @return int current timestamp
-     */
-    private function getTime()
-    {
-        return time();
-    }
-
-    /**
      * @return Generator|string[]
      */
     private function listPaths()
@@ -327,11 +284,9 @@ final class FileCache implements CacheInterface
         $iterator = new RecursiveIteratorIterator($iterator);
 
         foreach ($iterator as $path) {
-            if (is_dir($path)) {
-                continue; // ignore directories
+            if (!is_dir($path)) {
+                yield $path;
             }
-
-            yield $path;
         }
     }
 
@@ -342,8 +297,12 @@ final class FileCache implements CacheInterface
      */
     private function validateKey($key)
     {
+        if (!is_string($key)) {
+            throw new InvalidArgumentException(sprintf('Expected key to be a string; received "%s"', is_object($key) ? get_class($key) : gettype($key)));
+        }
+
         if (preg_match(self::PSR16_RESERVED, $key, $match) === 1) {
-            throw new InvalidArgumentException("invalid character in key: {$match[0]}");
+            throw new InvalidArgumentException(sprintf('invalid character in key: %s', $match[0]));
         }
     }
 
