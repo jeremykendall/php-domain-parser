@@ -23,11 +23,11 @@ use Traversable;
  */
 class FileCacheAdapterTest extends TestCase
 {
-    private $cache;
+    protected $cache;
 
-    private $root;
+    protected $root;
 
-    private $cacheDir;
+    protected $cacheDir;
 
     public function setUp()
     {

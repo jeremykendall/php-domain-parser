@@ -36,7 +36,7 @@ class PublicSuffixListManager
     private $sourceUrl;
 
     /**
-     * @var string Directory where text and php versions of list will be cached
+     * @var CacheInterface PSR-16 cache adapter
      */
     private $cacheAdapter;
 

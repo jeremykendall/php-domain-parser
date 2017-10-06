@@ -27,7 +27,7 @@ class PublicSuffixListTest extends TestCase
      */
     private $list;
 
-    protected function setUp()
+    public function setUp()
     {
         $cache = new FileCacheAdapter();
         $rules = $cache->get(PublicSuffixListManager::ALL_DOMAINS);

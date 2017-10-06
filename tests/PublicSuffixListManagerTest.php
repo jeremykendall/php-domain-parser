@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
+use org\bovigo\vfs\vfsStream;
 use Pdp\Cache\FileCacheAdapter;
 use Pdp\Http\CurlHttpAdapter;
 use Pdp\PublicSuffixListManager;
@@ -15,13 +16,17 @@ class PublicSuffixListManagerTest extends TestCase
      * @var PublicSuffixListManager List manager
      */
     protected $manager;
-
+    protected $cache;
+    protected $root;
+    protected $cacheDir;
     protected $cachePool;
 
-    protected function setUp()
+    public function setUp()
     {
-        $this->cachePool = new FileCacheAdapter('/tmp/test-my-cache');
-
+        $this->root = vfsStream::setup('pdp');
+        vfsStream::create(['cache' => []], $this->root);
+        $this->cacheDir = vfsStream::url('pdp/cache');
+        $this->cachePool = new FileCacheAdapter($this->cacheDir);
         $this->manager = new PublicSuffixListManager(
             $this->cachePool,
             new CurlHttpAdapter(),
@@ -29,10 +34,12 @@ class PublicSuffixListManagerTest extends TestCase
         );
     }
 
-    protected function tearDown()
+    public function tearDown()
     {
         $this->manager = null;
         $this->cachePool = null;
+        $this->cacheDir = null;
+        $this->root = null;
     }
 
     public function testGetProvidedListFromDefaultCacheDir()
