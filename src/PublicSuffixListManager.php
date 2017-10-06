@@ -117,6 +117,8 @@ class PublicSuffixListManager
      *
      * Returns true if all the public suffix list are correctly refreshed
      *
+     * @param string $publicSuffixList
+     *
      * @return bool
      */
     private function cachePublicSuffixListTypes(string $publicSuffixList): bool
@@ -128,6 +130,8 @@ class PublicSuffixListManager
 
     /**
      * Parses text representation of list to associative, multidimensional array.
+     *
+     * @param string $publicSuffixList
      *
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
