@@ -56,10 +56,10 @@ class PublicSuffixListManager
     /**
      * Public constructor.
      *
-     * @param HttpAdapter                $httpAdapter
-     * @param FilesystemInterface|string $flysystem   Optional cache directory
+     * @param HttpAdapter         $httpAdapter
+     * @param FilesystemInterface $flysystem
      */
-    public function __construct(HttpAdapter $httpAdapter, FileSystemInterface $flysystem = null)
+    public function __construct(HttpAdapter $httpAdapter, FileSystemInterface $flysystem)
     {
         $this->flysystem = $flysystem;
         $this->httpAdapter = $httpAdapter;
