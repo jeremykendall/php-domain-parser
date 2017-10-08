@@ -39,12 +39,6 @@ class PublicSuffixListTest extends TestCase
         $this->list = new PublicSuffixList($rules);
     }
 
-    public function testConstructorWithArray()
-    {
-        $rules = json_decode(file_get_contents($this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON), true);
-        $this->assertEquals($this->list, new PublicSuffixList($rules));
-    }
-
     public function testNullWillReturnNullDomain()
     {
         $domain = $this->list->query('COM');
