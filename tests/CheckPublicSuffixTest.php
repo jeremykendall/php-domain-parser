@@ -3,6 +3,7 @@
 namespace Pdp\Tests;
 
 use Pdp\PublicSuffixList;
+use Pdp\PublicSuffixListManager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,7 +22,7 @@ class CheckPublicSuffixTest extends TestCase
 
     protected function setUp()
     {
-        $this->list = new PublicSuffixList();
+        $this->list = new PublicSuffixList(dirname(__DIR__) . '/data/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON);
     }
 
     /**

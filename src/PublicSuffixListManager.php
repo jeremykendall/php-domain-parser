@@ -26,22 +26,22 @@ class PublicSuffixListManager
     const PUBLIC_SUFFIX_LIST_URL = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
 
     const ALL_DOMAINS = 'ALL';
-    const PDP_PSL_TEXT_FILE = 'public-suffix-list.txt';
-    const PDP_PSL_PHP_FILE = 'public-suffix-list.php';
+    const PUBLIC_SUFFIX_LIST_RAW = 'public-suffix-list.txt';
+    const PUBLIC_SUFFIX_LIST_JSON = 'public-suffix-list.json';
 
     const ICANN_DOMAINS = 'ICANN';
-    const ICANN_PSL_PHP_FILE = 'icann-public-suffix-list.php';
+    const ICANN_DOMAINS_JSON = 'icann-domains.json';
 
     const PRIVATE_DOMAINS = 'PRIVATE';
-    const PRIVATE_PSL_PHP_FILE = 'private-public-suffix-list.php';
+    const PRIVATE_DOMAINS_JSON = 'private-domains.json';
 
     /**
      * @var array Public Suffix List Type
      */
     private static $domainList = [
-        self::ALL_DOMAINS => self::PDP_PSL_PHP_FILE,
-        self::ICANN_DOMAINS => self::ICANN_PSL_PHP_FILE,
-        self::PRIVATE_DOMAINS => self::PRIVATE_PSL_PHP_FILE,
+        self::ALL_DOMAINS => self::PUBLIC_SUFFIX_LIST_JSON,
+        self::ICANN_DOMAINS => self::ICANN_DOMAINS_JSON,
+        self::PRIVATE_DOMAINS => self::PRIVATE_DOMAINS_JSON,
     ];
 
     /**
@@ -75,7 +75,7 @@ class PublicSuffixListManager
      */
     public function getList($list = self::ALL_DOMAINS): PublicSuffixList
     {
-        $cacheBasename = isset(self::$domainList[$list]) ? self::$domainList[$list] : self::PDP_PSL_PHP_FILE;
+        $cacheBasename = isset(self::$domainList[$list]) ? self::$domainList[$list] : self::PUBLIC_SUFFIX_LIST_JSON;
         $cacheFile = $this->cacheDir . '/' . $cacheBasename;
         if (!file_exists($cacheFile)) {
             $this->refreshPublicSuffixList();
@@ -91,11 +91,11 @@ class PublicSuffixListManager
     public function refreshPublicSuffixList()
     {
         $publicSuffixList = $this->httpAdapter->getContent(self::PUBLIC_SUFFIX_LIST_URL);
-        $this->write(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
+        $this->write(self::PUBLIC_SUFFIX_LIST_RAW, $publicSuffixList);
 
         $publicSuffixListArray = $this->convertListToArray();
         foreach ($publicSuffixListArray as $type => $list) {
-            $content = '<?php' . PHP_EOL . 'return ' . var_export($list, true) . ';';
+            $content = json_encode($list);
             $this->write(self::$domainList[$type], $content);
         }
     }
@@ -140,7 +140,7 @@ class PublicSuffixListManager
             self::PRIVATE_DOMAINS => [],
         ];
 
-        $path = $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE;
+        $path = $this->cacheDir . '/' . self::PUBLIC_SUFFIX_LIST_RAW;
         $data = new SplFileObject($path);
         $data->setFlags(SplFileObject::DROP_NEW_LINE | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         foreach ($data as $line) {
