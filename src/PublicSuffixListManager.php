@@ -91,9 +91,9 @@ class PublicSuffixListManager
     {
         $publicSuffixList = $this->httpAdapter->getContent(self::PUBLIC_SUFFIX_LIST_URL);
         $this->write(self::PUBLIC_SUFFIX_LIST_RAW, $publicSuffixList);
+        $parsed = $this->parseListToArray();
 
-        $publicSuffixListArray = $this->convertListToArray();
-        foreach ($publicSuffixListArray as $type => $list) {
+        foreach ($parsed as $type => $list) {
             $content = json_encode($list);
             $this->write(self::$domainList[$type], $content);
         }
@@ -109,7 +109,7 @@ class PublicSuffixListManager
      */
     private function write(string $path, string $contents): bool
     {
-        return $this->flysystem->write($path, $contents);
+        return $this->flysystem->put($path, $contents);
     }
 
     /**
@@ -118,7 +118,7 @@ class PublicSuffixListManager
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
      */
-    private function convertListToArray(): array
+    private function parseListToArray(): array
     {
         $addDomain = [
             self::ICANN_DOMAINS => false,
@@ -132,12 +132,13 @@ class PublicSuffixListManager
         ];
 
         $data = $this->flysystem->read(self::PUBLIC_SUFFIX_LIST_RAW);
-        $data = array_filter(explode("\n", $data), function ($line) {
-            return false === strpos($line, '//') && strlen($line) > 0;
-        });
+        $data = array_filter(explode("\n", $data), 'strlen');
 
         foreach ($data as $line) {
             $addDomain = $this->validateDomainAddition($line, $addDomain);
+            if (false !== strpos($line, '//')) {
+                continue;
+            }
             $publicSuffixListArray = $this->convertLineToArray($line, $publicSuffixListArray, $addDomain);
         }
 
