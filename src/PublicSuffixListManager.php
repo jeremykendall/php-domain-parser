@@ -145,7 +145,7 @@ class PublicSuffixListManager
         $data->setFlags(SplFileObject::DROP_NEW_LINE | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         foreach ($data as $line) {
             $addDomain = $this->validateDomainAddition($line, $addDomain);
-            if (strstr($line, '//') !== false) {
+            if (false !== strpos($line, '//')) {
                 continue;
             }
             $publicSuffixListArray = $this->convertLineToArray($line, $publicSuffixListArray, $addDomain);
