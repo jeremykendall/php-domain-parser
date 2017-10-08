@@ -11,9 +11,8 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Exception;
+use League\Flysystem\FilesystemInterface;
 use Pdp\Http\HttpAdapter;
-use SplFileObject;
 
 /**
  * Public Suffix List Manager.
@@ -45,9 +44,9 @@ class PublicSuffixListManager
     ];
 
     /**
-     * @var string Directory where text and php versions of list will be cached
+     * @var FilesystemInterface
      */
-    private $cacheDir;
+    private $flysystem;
 
     /**
      * @var HttpAdapter Http adapter
@@ -57,12 +56,12 @@ class PublicSuffixListManager
     /**
      * Public constructor.
      *
-     * @param HttpAdapter $httpAdapter
-     * @param string      $cacheDir    Optional cache directory
+     * @param HttpAdapter                $httpAdapter
+     * @param FilesystemInterface|string $flysystem   Optional cache directory
      */
-    public function __construct(HttpAdapter $httpAdapter, string $cacheDir = null)
+    public function __construct(HttpAdapter $httpAdapter, FileSystemInterface $flysystem = null)
     {
-        $this->cacheDir = $cacheDir ?? realpath(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data');
+        $this->flysystem = $flysystem;
         $this->httpAdapter = $httpAdapter;
     }
 
@@ -76,12 +75,12 @@ class PublicSuffixListManager
     public function getList($list = self::ALL_DOMAINS): PublicSuffixList
     {
         $cacheBasename = isset(self::$domainList[$list]) ? self::$domainList[$list] : self::PUBLIC_SUFFIX_LIST_JSON;
-        $cacheFile = $this->cacheDir . '/' . $cacheBasename;
-        if (!file_exists($cacheFile)) {
+
+        if (!$this->flysystem->has($cacheBasename)) {
             $this->refreshPublicSuffixList();
         }
 
-        return new PublicSuffixList($cacheFile);
+        return new PublicSuffixList(json_decode($this->flysystem->read($cacheBasename), true));
     }
 
     /**
@@ -101,24 +100,16 @@ class PublicSuffixListManager
     }
 
     /**
-     * Cache content to disk.
+     * Write file to disk.
      *
-     * @param string $basename basename in cache dir where data will be written
-     * @param string $data     data to write
+     * @param string $path     Path to file
+     * @param string $contents data to write
      *
-     * @throws Exception if unable to write file
-     *
-     * @return int Number of bytes that were written to the file
+     * @return bool True on success, false on failure
      */
-    private function write(string $basename, string $data): int
+    private function write(string $path, string $contents): bool
     {
-        $path = $this->cacheDir . '/' . $basename;
-        $result = @file_put_contents($path, $data);
-        if ($result !== false) {
-            return $result;
-        }
-
-        throw new Exception(sprintf("Cannot write '%s'", $path));
+        return $this->flysystem->write($path, $contents);
     }
 
     /**
@@ -140,14 +131,13 @@ class PublicSuffixListManager
             self::PRIVATE_DOMAINS => [],
         ];
 
-        $path = $this->cacheDir . '/' . self::PUBLIC_SUFFIX_LIST_RAW;
-        $data = new SplFileObject($path);
-        $data->setFlags(SplFileObject::DROP_NEW_LINE | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $data = $this->flysystem->read(self::PUBLIC_SUFFIX_LIST_RAW);
+        $data = array_filter(explode("\n", $data), function ($line) {
+            return false === strpos($line, '//') && strlen($line) > 0;
+        });
+
         foreach ($data as $line) {
             $addDomain = $this->validateDomainAddition($line, $addDomain);
-            if (false !== strpos($line, '//')) {
-                continue;
-            }
             $publicSuffixListArray = $this->convertLineToArray($line, $publicSuffixListArray, $addDomain);
         }
 
