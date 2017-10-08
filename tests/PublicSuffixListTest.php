@@ -33,8 +33,8 @@ class PublicSuffixListTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->list = new PublicSuffixList();
         $this->dataDir = dirname(__DIR__) . '/data';
+        $this->list = new PublicSuffixList($this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON);
     }
 
     public function testConstructorThrowsTypeError()
@@ -51,12 +51,12 @@ class PublicSuffixListTest extends TestCase
 
     public function testConstructorWithFilePath()
     {
-        $this->assertEquals($this->list, new PublicSuffixList($this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE));
+        $this->assertEquals($this->list, new PublicSuffixList($this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON));
     }
 
     public function testConstructorWithArray()
     {
-        $rules = include $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE;
+        $rules = json_decode(file_get_contents($this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON), true);
         $this->assertEquals($this->list, new PublicSuffixList($rules));
     }
 

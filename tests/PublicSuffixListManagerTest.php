@@ -78,7 +78,7 @@ class PublicSuffixListManagerTest extends TestCase
     public function testRefreshPublicSuffixList()
     {
         $content = file_get_contents(
-            $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
+            $this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_RAW
         );
 
         $this->httpAdapter->expects($this->once())
@@ -87,19 +87,19 @@ class PublicSuffixListManagerTest extends TestCase
             ->will($this->returnValue($content));
 
         $this->assertFileNotExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
+            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_RAW
         );
         $this->assertFileNotExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON
         );
 
         $this->listManager->refreshPublicSuffixList();
 
         $this->assertFileExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
+            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_RAW
         );
         $this->assertFileExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON
         );
     }
 
@@ -114,11 +114,11 @@ class PublicSuffixListManagerTest extends TestCase
     public function testGetList()
     {
         copy(
-            $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE,
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+            $this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON,
+            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON
         );
         $this->assertFileExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON
         );
         $publicSuffixList = $this->listManager->getList();
         $this->assertInstanceOf(PublicSuffixList::class, $publicSuffixList);
@@ -130,7 +130,7 @@ class PublicSuffixListManagerTest extends TestCase
     public function testGetListWithoutCache()
     {
         $this->assertFileNotExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON
         );
 
         /** @var PublicSuffixListManager|\PHPUnit_Framework_MockObject_MockObject $listManager */
@@ -143,8 +143,8 @@ class PublicSuffixListManagerTest extends TestCase
             ->method('refreshPublicSuffixList')
             ->will($this->returnCallback(function () {
                 copy(
-                    $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE,
-                    $this->cacheDir . '/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+                    $this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON,
+                    $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON
                 );
             }));
 

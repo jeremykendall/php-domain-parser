@@ -26,9 +26,9 @@ final class PublicSuffixList
     /**
      * PublicSuffixList constructor.
      *
-     * @param array|string|null $rules
+     * @param array|string $rules
      */
-    public function __construct($rules = null)
+    public function __construct($rules)
     {
         $this->rules = $this->filterRules($rules);
     }
@@ -45,10 +45,6 @@ final class PublicSuffixList
      */
     private function filterRules($rules): array
     {
-        if ($rules === null) {
-            return include dirname(__DIR__) . '/data/public-suffix-list.php';
-        }
-
         if (is_array($rules)) {
             return $rules;
         }
@@ -61,7 +57,7 @@ final class PublicSuffixList
             throw new InvalidArgumentException(sprintf('File path is not readable "%s"', $rules));
         }
 
-        return include $rules;
+        return json_decode(file_get_contents($rules), true);
     }
 
     /**
