@@ -1,10 +1,13 @@
 #!/usr/bin/env php
 <?php
 
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
+
 if (is_dir($vendor = __DIR__.'/../vendor')) {
-    require($vendor.'/autoload.php');
+    require $vendor.'/autoload.php';
 } elseif (is_dir($vendor = __DIR__.'/../../../../vendor')) {
-    require($vendor.'/autoload.php');
+    require $vendor.'/autoload.php';
 } else {
     die(
         'You must set up the project dependencies, run the following commands:'.PHP_EOL.
@@ -13,11 +16,12 @@ if (is_dir($vendor = __DIR__.'/../vendor')) {
     );
 }
 
-$cacheDir = null;
-
 if ($argc == 2 && is_dir($argv[1])) {
     $cacheDir = $argv[1];
 }
+
+$adapter = new Local($cacheDir ?? dirname(__DIR__) . '/data');
+$flysystem = new Filesystem($adapter);
 
 try {
     echo 'Updating Public Suffix List.' . PHP_EOL;
@@ -25,7 +29,7 @@ try {
      * @TODO: Having the adapter baked in with no way for the library user to provide
      * their own is problematic. Fix it or leave it? No one has ever complained.
      */
-    $manager = new \Pdp\PublicSuffixListManager(new \Pdp\Http\CurlHttpAdapter(), $cacheDir);
+    $manager = new \Pdp\PublicSuffixListManager(new \Pdp\Http\CurlHttpAdapter(), $flysystem);
     $manager->refreshPublicSuffixList();
     echo 'Update complete.' . PHP_EOL;
     exit(0);
