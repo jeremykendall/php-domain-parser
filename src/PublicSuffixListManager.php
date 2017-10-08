@@ -91,12 +91,12 @@ class PublicSuffixListManager
     public function refreshPublicSuffixList()
     {
         $publicSuffixList = $this->httpAdapter->getContent(self::PUBLIC_SUFFIX_LIST_URL);
-        $this->cache(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
+        $this->write(self::PDP_PSL_TEXT_FILE, $publicSuffixList);
 
         $publicSuffixListArray = $this->convertListToArray();
         foreach ($publicSuffixListArray as $type => $list) {
             $content = '<?php' . PHP_EOL . 'return ' . var_export($list, true) . ';';
-            $this->cache(self::$domainList[$type], $content);
+            $this->write(self::$domainList[$type], $content);
         }
     }
 
@@ -110,7 +110,7 @@ class PublicSuffixListManager
      *
      * @return int Number of bytes that were written to the file
      */
-    private function cache(string $basename, string $data): int
+    private function write(string $basename, string $data): int
     {
         $path = $this->cacheDir . '/' . $basename;
         $result = @file_put_contents($path, $data);
