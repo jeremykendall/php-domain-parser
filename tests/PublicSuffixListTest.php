@@ -12,14 +12,12 @@ declare(strict_types=1);
  */
 namespace Pdp\Tests;
 
-use InvalidArgumentException;
 use Pdp\MatchedDomain;
 use Pdp\NullDomain;
 use Pdp\PublicSuffixList;
 use Pdp\PublicSuffixListManager;
 use Pdp\UnmatchedDomain;
 use PHPUnit\Framework\TestCase;
-use TypeError;
 
 class PublicSuffixListTest extends TestCase
 {
@@ -34,24 +32,11 @@ class PublicSuffixListTest extends TestCase
     {
         parent::setUp();
         $this->dataDir = dirname(__DIR__) . '/data';
-        $this->list = new PublicSuffixList($this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON);
-    }
-
-    public function testConstructorThrowsTypeError()
-    {
-        $this->expectException(TypeError::class);
-        new PublicSuffixList(new \stdClass());
-    }
-
-    public function testConstructorThrowsInvalidArgumentException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        new PublicSuffixList('/usr/bin/foo/bar');
-    }
-
-    public function testConstructorWithFilePath()
-    {
-        $this->assertEquals($this->list, new PublicSuffixList($this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON));
+        $rules = json_decode(
+            file_get_contents($this->dataDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON),
+            true
+        );
+        $this->list = new PublicSuffixList($rules);
     }
 
     public function testConstructorWithArray()

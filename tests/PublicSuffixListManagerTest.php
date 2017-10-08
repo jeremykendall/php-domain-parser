@@ -97,21 +97,35 @@ class PublicSuffixListManagerTest extends TestCase
             ->with(PublicSuffixListManager::PUBLIC_SUFFIX_LIST_URL)
             ->will($this->returnValue($content));
 
-        $this->assertFileNotExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_RAW
-        );
-        $this->assertFileNotExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON
-        );
+        $files = [
+            PublicSuffixListManager::PUBLIC_SUFFIX_LIST_RAW,
+            PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON,
+            PublicSuffixListManager::ICANN_DOMAINS_JSON,
+            PublicSuffixListManager::PRIVATE_DOMAINS_JSON,
+        ];
+
+        foreach ($files as $file) {
+            $this->assertFalse($this->flysystem->has($file), $file . ' should not be present.');
+        }
 
         $this->listManager->refreshPublicSuffixList();
 
-        $this->assertFileExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_RAW
-        );
-        $this->assertFileExists(
-            $this->cacheDir . '/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON
-        );
+        foreach ($files as $file) {
+            $this->assertTrue($this->flysystem->has($file), $file . ' should be present.');
+        }
+
+        $json = [
+            PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON,
+            PublicSuffixListManager::ICANN_DOMAINS_JSON,
+            PublicSuffixListManager::PRIVATE_DOMAINS_JSON,
+        ];
+
+        foreach ($json as $file) {
+            $this->assertNotEmpty(
+                json_decode($this->flysystem->read($file), true),
+                $file . ' is empty.'
+            );
+        }
     }
 
     public function testWriteThrowsExceptionIfCanNotWrite()

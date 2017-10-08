@@ -22,7 +22,9 @@ class CheckPublicSuffixTest extends TestCase
 
     protected function setUp()
     {
-        $this->list = new PublicSuffixList(dirname(__DIR__) . '/data/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON);
+        $file = dirname(__DIR__) . '/data/' . PublicSuffixListManager::PUBLIC_SUFFIX_LIST_JSON;
+        $rules = json_decode(file_get_contents($file), true);
+        $this->list = new PublicSuffixList($rules);
     }
 
     /**
