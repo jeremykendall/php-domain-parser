@@ -74,7 +74,7 @@ class PublicSuffixListManager
      */
     public function getList($list = self::ALL_DOMAINS): PublicSuffixList
     {
-        $cacheBasename = isset(self::$domainList[$list]) ? self::$domainList[$list] : self::PUBLIC_SUFFIX_LIST_JSON;
+        $cacheBasename = self::$domainList[$list] ?? self::PUBLIC_SUFFIX_LIST_JSON;
 
         if (!$this->flysystem->has($cacheBasename)) {
             $this->refreshPublicSuffixList();
