@@ -107,6 +107,8 @@ class PublicSuffixListManager
     /**
      * Parses text representation of list to associative, multidimensional array.
      *
+     * @param string $publicSuffixList
+     *
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
      */

@@ -256,7 +256,7 @@ final class FileCacheAdapter implements CacheInterface
      *
      * @return string absolute path to cache-file
      */
-    private function getPath($key)
+    private function getPath($key): string
     {
         $this->validateKey($key);
 
@@ -274,7 +274,7 @@ final class FileCacheAdapter implements CacheInterface
     /**
      * @return Generator|string[]
      */
-    private function listPaths()
+    private function listPaths(): Generator
     {
         $iterator = new RecursiveDirectoryIterator(
             $this->cache_path,
