@@ -25,7 +25,6 @@ use SplTempFileObject;
 class PublicSuffixListManager
 {
     const PUBLIC_SUFFIX_LIST_URL = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
-    const PUBLIC_SUFFIX_LIST_DATA = 'RAW';
     const ALL_DOMAINS = 'ALL';
     const ICANN_DOMAINS = 'ICANN';
     const PRIVATE_DOMAINS = 'PRIVATE';
@@ -73,27 +72,20 @@ class PublicSuffixListManager
      */
     public function getList($type = self::ALL_DOMAINS): PublicSuffixList
     {
-        static $type_lists = [self::ALL_DOMAINS => 1, self::ICANN_DOMAINS => 1, self::PRIVATE_DOMAINS => 1];
+        static $type_lists = [
+            self::ALL_DOMAINS => self::ALL_DOMAINS,
+            self::ICANN_DOMAINS => self::ICANN_DOMAINS,
+            self::PRIVATE_DOMAINS => self::PRIVATE_DOMAINS,
+        ];
 
-        if (!isset($type_lists[$type])) {
-            $type = self::ALL_DOMAINS;
+        $type = $type_lists[$type] ?? self::ALL_DOMAINS;
+
+        if (($list = $this->cacheAdapter->get($type)) === null) {
+            $this->refreshPublicSuffixList();
+            $list = $this->cacheAdapter->get($type);
         }
 
-        if (($list = $this->cacheAdapter->get($type)) !== null) {
-            return new PublicSuffixList($list);
-        }
-
-        if (($raw = $this->cacheAdapter->get(self::PUBLIC_SUFFIX_LIST_DATA)) !== null
-            && $this->cachePublicSuffixListTypes($raw)) {
-            return new PublicSuffixList($this->cacheAdapter->get($type));
-        }
-
-        if ($this->refreshPublicSuffixList()) {
-            return new PublicSuffixList($this->cacheAdapter->get($type));
-        }
-
-        //this should not happen but in rare cases you should be able to cach this one
-        throw new RuntimeException(sprintf('Unable to return `%s` Public Suffix List', $type));
+        return new PublicSuffixList(json_decode($list, true));
     }
 
     /**
@@ -107,23 +99,9 @@ class PublicSuffixListManager
     public function refreshPublicSuffixList(): bool
     {
         $publicSuffixList = $this->httpAdapter->getContent($this->sourceUrl);
-
-        return $this->cacheAdapter->set(self::PUBLIC_SUFFIX_LIST_DATA, $publicSuffixList)
-            && $this->cachePublicSuffixListTypes($publicSuffixList);
-    }
-
-    /**
-     * Cache the different public suffix list subtypes.
-     *
-     * Returns true if all the public suffix list are correctly refreshed
-     *
-     * @return bool
-     */
-    private function cachePublicSuffixListTypes(string $publicSuffixList): bool
-    {
         $publicSuffixListTypes = $this->convertListToArray($publicSuffixList);
 
-        return $this->cacheAdapter->setMultiple($publicSuffixListTypes);
+        return $this->cacheAdapter->setMultiple(array_map('json_encode', $publicSuffixListTypes));
     }
 
     /**
