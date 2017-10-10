@@ -292,7 +292,7 @@ retrieve only the component you're interested in
 <?php
 
 var_dump($parser->getSubdomain('www.scottwills.co.uk'));
-var_dump($parser->getRegistrableDomain('www.scottwills.co.uk'));
+var_dump($parser->getRegisterableDomain('www.scottwills.co.uk'));
 var_dump($parser->getPublicSuffix('www.scottwills.co.uk'));
 ```
 
