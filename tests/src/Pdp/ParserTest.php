@@ -82,6 +82,29 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * If a file URI scheme is entered, throw an appropriate error
+     * otherwise file:///a/b will cause 'Undefined index: host'
+     *
+     * @group issue183
+     *
+     * @see https://github.com/jeremykendall/php-domain-parser/issues/183
+     *
+     * @covers Pdp\Parser::parseUrl()
+     * @covers ::pdp_parse_url
+     */
+    public function testParseFileURIThrowsInvalidArgumentException()
+    {
+        $file = 'file:///a/b/c';
+
+        $this->setExpectedException(
+            'Pdp\Exception\SeriouslyMalformedUrlException',
+            '"' . $file . '" is one seriously malformed url.'
+        );
+
+        $this->parser->parseUrl($file);
+    }
+
+    /**
      * @covers       Pdp\Parser::parseUrl()
      * @dataProvider parseDataProvider
      *
