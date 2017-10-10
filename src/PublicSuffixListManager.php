@@ -13,7 +13,6 @@ namespace Pdp;
 
 use Pdp\Http\HttpAdapter;
 use Psr\SimpleCache\CacheInterface;
-use RuntimeException;
 use SplTempFileObject;
 
 /**
@@ -66,8 +65,6 @@ class PublicSuffixListManager
      *
      * @param string $type the Public Suffix List type
      *
-     * @throws RuntimeException if no PublicSuffixList can be returned
-     *
      * @return PublicSuffixList
      */
     public function getList($type = self::ALL_DOMAINS): PublicSuffixList
@@ -79,8 +76,8 @@ class PublicSuffixListManager
         ];
 
         $type = $type_lists[$type] ?? self::ALL_DOMAINS;
-
-        if (($list = $this->cacheAdapter->get($type)) === null) {
+        $list = $this->cacheAdapter->get($type);
+        if ($list === null) {
             $this->refreshPublicSuffixList();
             $list = $this->cacheAdapter->get($type);
         }

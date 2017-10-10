@@ -15,8 +15,6 @@ use DateInterval;
 use FilesystemIterator;
 use Generator;
 use Psr\SimpleCache\CacheInterface;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Traversable;
 
 /**
@@ -32,16 +30,14 @@ final class FileCacheAdapter implements CacheInterface
      * @var string control characters for keys, reserved by PSR-16
      */
     const PSR16_RESERVED = '/\{|\}|\(|\)|\/|\\\\|\@|\:/u';
+    const FILE_PREFIX = 'pdp::';
+    const FILE_EXTENSION = '.cache';
+    const CACHE_TTL = 86400 * 365 * 5;
 
     /**
      * @var string
      */
     private $cache_path;
-
-    /**
-     * @var int
-     */
-    private $default_ttl = 86400;
 
     /**
      * @var int
@@ -157,7 +153,7 @@ final class FileCacheAdapter implements CacheInterface
         }
 
         if ($ttl === null) {
-            return time() + $this->default_ttl;
+            return time() + self::CACHE_TTL;
         }
 
         throw new InvalidArgumentException(sprintf('Expected TTL to be an int, a DateInterval or null; received "%s"', is_object($ttl) ? get_class($ttl) : gettype($ttl)));
@@ -260,15 +256,7 @@ final class FileCacheAdapter implements CacheInterface
     {
         $this->validateKey($key);
 
-        $hash = hash('sha256', $key);
-
-        return $this->cache_path
-            . DIRECTORY_SEPARATOR
-            . strtoupper($hash[0])
-            . DIRECTORY_SEPARATOR
-            . strtoupper($hash[1])
-            . DIRECTORY_SEPARATOR
-            . substr($hash, 2);
+        return $this->cache_path . DIRECTORY_SEPARATOR . self::FILE_PREFIX . $key . self::FILE_EXTENSION;
     }
 
     /**
@@ -276,12 +264,10 @@ final class FileCacheAdapter implements CacheInterface
      */
     private function listPaths(): Generator
     {
-        $iterator = new RecursiveDirectoryIterator(
+        $iterator = new FilesystemIterator(
             $this->cache_path,
             FilesystemIterator::CURRENT_AS_PATHNAME | FilesystemIterator::SKIP_DOTS
         );
-
-        $iterator = new RecursiveIteratorIterator($iterator);
 
         foreach ($iterator as $path) {
             if (!is_dir($path)) {
