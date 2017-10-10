@@ -5,6 +5,12 @@ namespace Pdp;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 
+// work around PHP 5.3 quirky behavior with ftruncate() and streams
+// @see https://bugs.php.net/bug.php?id=53888
+if (version_compare(PHP_VERSION, '5.4.0') < 0) {
+    function ftruncate($fp, $size) { return @\ftruncate($fp, $size) || true; }
+}
+
 class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -146,7 +152,7 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteThrowsExceptionIfCanNotWrite()
     {
-        $this->setExpectedException('\Exception', "Cannot write '/does/not/exist/public-suffix-list.php'");
+        $this->setExpectedException('\Exception', "Cannot write to '/does/not/exist/public-suffix-list.php'");
         $manager = new PublicSuffixListManager('/does/not/exist');
         $manager->writePhpCache(array());
     }
@@ -157,6 +163,14 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
             $this->dataDir . '/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
         );
         $this->assertInternalType('array', $publicSuffixList);
+    }
+
+    public function testParseListToArrayThrowsExceptionIfCanNotRead()
+    {
+        $this->setExpectedException('\Exception', "Cannot read '/does/not/exist/public-suffix-list.txt'");
+        $publicSuffixList = $this->listManager->parseListToArray(
+            '/does/not/exist/' . PublicSuffixListManager::PDP_PSL_TEXT_FILE
+        );
     }
 
     public function testGetList()
@@ -213,5 +227,13 @@ class PublicSuffixListManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThanOrEqual(300, count($publicSuffixList));
         $this->assertTrue(array_key_exists('stuff-4-sale', $publicSuffixList['org']) !== false);
         $this->assertTrue(array_key_exists('net', $publicSuffixList['ac']) !== false);
+    }
+
+    public function testgetListFromFileThrowsExceptionIfCanNotRead()
+    {
+        $this->setExpectedException('\Exception', "Cannot read '/does/not/exist/public-suffix-list.php'");
+        $publicSuffixList = $this->listManager->getListFromFile(
+            '/does/not/exist/' . PublicSuffixListManager::PDP_PSL_PHP_FILE
+        );
     }
 }
