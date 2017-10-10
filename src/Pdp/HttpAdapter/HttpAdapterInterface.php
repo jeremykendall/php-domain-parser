@@ -29,6 +29,8 @@ interface HttpAdapterInterface
      * @param string $url
      *
      * @return string Retrieved content
+     *
+     * @throws Exception\HttpAdapterException
      */
     public function getContent($url);
 }

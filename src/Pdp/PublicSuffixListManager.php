@@ -8,7 +8,11 @@
  * @copyright Copyright (c) 2014 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
+
 namespace Pdp;
+
+use Pdp\HttpAdapter\Exception\HttpAdapterException;
+use Pdp\HttpAdapter\HttpAdapterInterface;
 
 /**
  * Public Suffix List Manager.
@@ -66,7 +70,11 @@ class PublicSuffixListManager
         $publicSuffixListArray = $this->parseListToArray(
             $this->cacheDir . '/' . self::PDP_PSL_TEXT_FILE
         );
-        $this->writePhpCache($publicSuffixListArray);
+
+        // do not empty existing PHP cache file if source TXT is empty
+        if (is_array($publicSuffixListArray) && !empty($publicSuffixListArray)) {
+            $this->writePhpCache($publicSuffixListArray);
+        }
     }
 
     /**
@@ -186,13 +194,20 @@ class PublicSuffixListManager
      */
     public function getList()
     {
-        if (!file_exists($this->cacheDir . '/' . self::PDP_PSL_PHP_FILE)) {
-            $this->refreshPublicSuffixList();
+        $filename = $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE;
+
+        if (file_exists($filename)) {
+            $data = include $filename;
+        } else {
+            try {
+                $this->refreshPublicSuffixList();
+                $data = include $filename;
+            } catch (\Exception $e) {
+                $data = array();
+            }
         }
 
-        $this->list = new PublicSuffixList(
-            include $this->cacheDir . '/' . self::PDP_PSL_PHP_FILE
-        );
+        $this->list = new PublicSuffixList((array) $data);
 
         return $this->list;
     }
@@ -209,10 +224,16 @@ class PublicSuffixListManager
      */
     protected function write($filename, $data)
     {
-        $result = @file_put_contents($this->cacheDir . '/' . $filename, $data);
+        $data = trim($data);
+        $filename = $this->cacheDir . '/' . $filename;
 
+        if (empty($data)) {
+            throw new \Exception("No data to write into '{$filename}'");
+        }
+
+        $result = @file_put_contents($filename, $data . PHP_EOL);
         if ($result === false) {
-            throw new \Exception("Cannot write '" . $this->cacheDir . '/' . "$filename'");
+            throw new \Exception("Cannot write '{$filename}'");
         }
 
         return $result;

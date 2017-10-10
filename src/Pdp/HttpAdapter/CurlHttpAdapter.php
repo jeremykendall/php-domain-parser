@@ -10,6 +10,9 @@
  */
 namespace Pdp\HttpAdapter;
 
+
+use Pdp\HttpAdapter\Exception;
+
 /**
  * cURL http adapter.
  *
@@ -30,8 +33,20 @@ class CurlHttpAdapter implements HttpAdapterInterface
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_URL, $url);
+
         $content = curl_exec($ch);
+
+        if ($errNo = curl_errno($ch)) {
+            throw new Exception\CurlHttpAdapterException("CURL error [{$errNo}]: " . curl_error($ch), $errNo);
+        }
+
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($responseCode !== 200) {
+            throw new Exception\CurlHttpAdapterException('Wrong HTTP response code: ' . $responseCode, $responseCode);
+        }
         curl_close($ch);
 
         return $content;
