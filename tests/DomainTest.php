@@ -21,8 +21,8 @@ class DomainTest extends TestCase
     /**
      * @dataProvider invalidRegistrableDomainProvider
      *
-     * @param string      $domain
-     * @param string|null $publicSuffix
+     * @param string $domain
+     * @param string $publicSuffix
      */
     public function testRegistrableDomainIsNullWithMatchedDomain(string $domain, $publicSuffix)
     {
@@ -41,8 +41,8 @@ class DomainTest extends TestCase
     /**
      * @dataProvider invalidRegistrableDomainProvider
      *
-     * @param string      $domain
-     * @param string|null $publicSuffix
+     * @param string $domain
+     * @param string $publicSuffix
      */
     public function testRegistrableDomainIsNullWithUnMatchedDomain(string $domain, $publicSuffix)
     {

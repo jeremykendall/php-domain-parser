@@ -9,11 +9,10 @@
  */
 declare(strict_types=1);
 
-namespace Pdp\Cache;
+namespace Pdp\Tests\Cache;
 
-use InvalidArgumentException as PhpException;
 use Psr\SimpleCache\InvalidArgumentException as CacheException;
 
-class InvalidArgumentException extends PhpException implements CacheException
+class InvalidArgumentException extends \InvalidArgumentException implements CacheException
 {
 }

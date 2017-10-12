@@ -13,12 +13,12 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use OutOfRangeException;
-use Pdp\Cache\FileCacheAdapter;
 use Pdp\Http\CurlHttpAdapter;
 use Pdp\MatchedDomain;
 use Pdp\NullDomain;
 use Pdp\PublicSuffixList;
 use Pdp\PublicSuffixListManager;
+use Pdp\Tests\Cache\FileCacheAdapter;
 use Pdp\UnmatchedDomain;
 use PHPUnit\Framework\TestCase;
 

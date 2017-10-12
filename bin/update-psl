@@ -3,7 +3,7 @@
 
 use Pdp\PublicSuffixListManager;
 use Pdp\Http\CurlHttpAdapter;
-use Pdp\Cache\FileCacheAdapter;
+use Pdp\Tests\Cache\FileCacheAdapter;
 
 function getVendorPath()
 {

@@ -23,12 +23,7 @@ use SplTempFileObject;
  */
 class PublicSuffixListManager
 {
-    const PUBLIC_SUFFIX_LIST_URL = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
-
-    /**
-     * @var string Public Suffix List Source URL
-     */
-    private $sourceUrl;
+    const PSL_URL = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
 
     /**
      * @var CacheInterface PSR-16 cache adapter
@@ -45,16 +40,11 @@ class PublicSuffixListManager
      *
      * @param CacheInterface $cacheAdapter
      * @param HttpAdapter    $httpAdapter
-     * @param string         $sourceUrl
      */
-    public function __construct(
-        CacheInterface $cacheAdapter,
-        HttpAdapter $httpAdapter,
-        string $sourceUrl = self::PUBLIC_SUFFIX_LIST_URL
-    ) {
+    public function __construct(CacheInterface $cacheAdapter, HttpAdapter $httpAdapter)
+    {
         $this->cacheAdapter = $cacheAdapter;
         $this->httpAdapter = $httpAdapter;
-        $this->sourceUrl = $sourceUrl;
     }
 
     /**
@@ -64,18 +54,18 @@ class PublicSuffixListManager
      *
      * @return PublicSuffixList
      */
-    public function getList($type = PublicSuffixList::ALL_DOMAINS): PublicSuffixList
+    public function getList(string $type = PublicSuffixList::ALL_DOMAINS, string $sourceUrl = self::PSL_URL): PublicSuffixList
     {
-        static $type_lists = [
+        static $availableTypes = [
             PublicSuffixList::ALL_DOMAINS => PublicSuffixList::ALL_DOMAINS,
             PublicSuffixList::ICANN_DOMAINS => PublicSuffixList::ICANN_DOMAINS,
             PublicSuffixList::PRIVATE_DOMAINS => PublicSuffixList::PRIVATE_DOMAINS,
         ];
 
-        $type = $type_lists[$type] ?? PublicSuffixList::ALL_DOMAINS;
+        $type = $availableTypes[$type] ?? PublicSuffixList::ALL_DOMAINS;
         $list = $this->cacheAdapter->get($type);
         if ($list === null) {
-            $this->refreshPublicSuffixList();
+            $this->refreshPublicSuffixList($sourceUrl);
             $list = $this->cacheAdapter->get($type);
         }
 
@@ -90,64 +80,64 @@ class PublicSuffixListManager
      *
      * @return bool
      */
-    public function refreshPublicSuffixList(): bool
+    public function refreshPublicSuffixList(string $sourceUrl = self::PSL_URL): bool
     {
-        $publicSuffixList = $this->httpAdapter->getContent($this->sourceUrl);
-        $publicSuffixListTypes = $this->convertListToArray($publicSuffixList);
+        $content = $this->httpAdapter->getContent($sourceUrl);
+        $list = $this->parse($content);
 
-        return $this->cacheAdapter->setMultiple(array_map('json_encode', $publicSuffixListTypes));
+        return $this->cacheAdapter->setMultiple(array_map('json_encode', $list));
     }
 
     /**
      * Parses text representation of list to associative, multidimensional array.
      *
-     * @param string $publicSuffixList
+     * @param string $content the Public SUffix List as a SplFileObject
      *
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
      */
-    private function convertListToArray(string $publicSuffixList): array
+    private function parse(string $content): array
     {
-        $addDomain = [
+        $sectionList = [
+            PublicSuffixList::ALL_DOMAINS => true,
             PublicSuffixList::ICANN_DOMAINS => false,
             PublicSuffixList::PRIVATE_DOMAINS => false,
         ];
 
-        $publicSuffixListTypes = [
+        $lists = [
             PublicSuffixList::ALL_DOMAINS => [],
             PublicSuffixList::ICANN_DOMAINS => [],
             PublicSuffixList::PRIVATE_DOMAINS => [],
         ];
 
-        $data = new SplTempFileObject();
-        $data->fwrite($publicSuffixList);
-        $data->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
-        foreach ($data as $line) {
-            $addDomain = $this->validateDomainAddition($line, $addDomain);
-            if (strstr($line, '//') !== false) {
-                continue;
+        $fileObj = new SplTempFileObject();
+        $fileObj->fwrite($content);
+        $fileObj->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        foreach ($fileObj as $line) {
+            $sectionList = $this->validateAddingSection($line, $sectionList);
+            if (strpos($line, '//') === false) {
+                $lists = $this->convertLine($line, $lists, $sectionList);
             }
-            $publicSuffixListTypes = $this->convertLineToArray($line, $publicSuffixListTypes, $addDomain);
         }
 
-        return $publicSuffixListTypes;
+        return $lists;
     }
 
     /**
      * Update the addition status for a given line against the domain list (ICANN and PRIVATE).
      *
-     * @param string $line      the current file line
-     * @param array  $addDomain the domain addition status
+     * @param string $line        the current file line
+     * @param array  $sectionList the domain addition status
      *
      * @return array
      */
-    private function validateDomainAddition(string $line, array $addDomain): array
+    private function validateAddingSection(string $line, array $sectionList): array
     {
-        foreach ($addDomain as $section => $status) {
-            $addDomain[$section] = $this->isValidSection($status, $line, $section);
+        foreach ($sectionList as $section => $status) {
+            $sectionList[$section] = $this->isValidSection($status, $line, $section);
         }
 
-        return $addDomain;
+        return $sectionList;
     }
 
     /**
@@ -175,24 +165,23 @@ class PublicSuffixListManager
     /**
      * Convert a line from the Public Suffix list.
      *
-     * @param string $rule                  Public Suffix List text line
-     * @param array  $publicSuffixListTypes Associative, multidimensional array representation of the
-     *                                      public suffx list
-     * @param array  $validTypes            Tell which section should be converted
+     * @param string $rule       Public Suffix List text line
+     * @param array  $lists      Associative, multidimensional array representation of the
+     *                           public suffx list
+     * @param array  $validTypes Tell which section should be converted
      *
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
      */
-    private function convertLineToArray(string $line, array $publicSuffixListTypes, array $validTypes): array
+    private function convertLine(string $line, array $lists, array $validTypes): array
     {
         $ruleParts = explode('.', $line);
         $validTypes = array_keys(array_filter($validTypes));
-        $validTypes[] = PublicSuffixList::ALL_DOMAINS;
         foreach ($validTypes as $type) {
-            $publicSuffixListTypes[$type] = $this->buildArray($publicSuffixListTypes[$type], $ruleParts);
+            $lists[$type] = $this->addRule($lists[$type], $ruleParts);
         }
 
-        return $publicSuffixListTypes;
+        return $lists;
     }
 
     /**
@@ -204,15 +193,15 @@ class PublicSuffixListManager
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
-     * @param array $publicSuffixList Initially an empty array, this eventually
-     *                                becomes the array representation of the Public Suffix List
-     * @param array $ruleParts        One line (rule) from the Public Suffix List
-     *                                exploded on '.', or the remaining portion of that array during recursion
+     * @param array $list      Initially an empty array, this eventually
+     *                         becomes the array representation of the Public Suffix List
+     * @param array $ruleParts One line (rule) from the Public Suffix List
+     *                         exploded on '.', or the remaining portion of that array during recursion
+     *
+     * @return array
      */
-    private function buildArray(array $publicSuffixList, array $ruleParts): array
+    private function addRule(array $list, array $ruleParts): array
     {
-        $isDomain = true;
-
         $part = array_pop($ruleParts);
 
         // Adheres to canonicalization rule from the "Formal Algorithm" section
@@ -221,17 +210,20 @@ class PublicSuffixListManager
         // for hostnames - lower-case, Punycode (RFC 3492)."
 
         $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
+        $isDomain = true;
         if (strpos($part, '!') === 0) {
             $part = substr($part, 1);
             $isDomain = false;
         }
 
-        $publicSuffixList[$part] = $publicSuffixList[$part] ?? ($isDomain ? [] : ['!' => '']);
-
-        if ($isDomain && !empty($ruleParts)) {
-            $publicSuffixList[$part] = $this->buildArray($publicSuffixList[$part], $ruleParts);
+        if (!isset($list[$part])) {
+            $list[$part] = $isDomain ? [] : ['!' => ''];
         }
 
-        return $publicSuffixList;
+        if ($isDomain && !empty($ruleParts)) {
+            $list[$part] = $this->addRule($list[$part], $ruleParts);
+        }
+
+        return $list;
     }
 }

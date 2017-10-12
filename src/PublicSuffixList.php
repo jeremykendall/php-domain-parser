@@ -189,18 +189,17 @@ final class PublicSuffixList
                 break;
             }
 
-            if ($this->matchExists($label, $rules)) {
-                array_unshift($matches, $label);
-                $rules = $rules[$label];
-                continue;
+            if (!$this->matchExists($label, $rules)) {
+                // Avoids improper parsing when $domain's subdomain + public suffix ===
+                // a valid public suffix (e.g. domain 'us.example.com' and public suffix 'us.com')
+                //
+                // Added by @goodhabit in https://github.com/jeremykendall/php-domain-parser/pull/15
+                // Resolves https://github.com/jeremykendall/php-domain-parser/issues/16
+                break;
             }
 
-            // Avoids improper parsing when $domain's subdomain + public suffix ===
-            // a valid public suffix (e.g. domain 'us.example.com' and public suffix 'us.com')
-            //
-            // Added by @goodhabit in https://github.com/jeremykendall/php-domain-parser/pull/15
-            // Resolves https://github.com/jeremykendall/php-domain-parser/issues/16
-            break;
+            array_unshift($matches, $label);
+            $rules = $rules[$label];
         }
 
         return empty($matches) ? null : implode('.', array_filter($matches, 'strlen'));
@@ -216,8 +215,7 @@ final class PublicSuffixList
      */
     private function isExceptionRule(string $label, array $rules): bool
     {
-        return $this->matchExists($label, $rules)
-            && array_key_exists('!', $rules[$label]);
+        return isset($rules[$label], $rules[$label]['!']);
     }
 
     /**
@@ -229,7 +227,7 @@ final class PublicSuffixList
      */
     private function isWildcardRule(array $rules): bool
     {
-        return array_key_exists('*', $rules);
+        return isset($rules['*']);
     }
 
     /**
@@ -242,7 +240,7 @@ final class PublicSuffixList
      */
     private function matchExists(string $label, array $rules): bool
     {
-        return array_key_exists($label, $rules);
+        return isset($rules[$label]);
     }
 
     /**

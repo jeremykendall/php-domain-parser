@@ -9,7 +9,7 @@
  */
 declare(strict_types=1);
 
-namespace Pdp\Cache;
+namespace Pdp\Tests\Cache;
 
 use DateInterval;
 use FilesystemIterator;

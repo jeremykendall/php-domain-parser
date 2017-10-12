@@ -28,8 +28,8 @@ final class UnmatchedDomain implements Domain
     /**
      * New instance.
      *
-     * @param string|null $domain
-     * @param string|null $publicSuffix
+     * @param string $domain
+     * @param string $publicSuffix
      */
     public function __construct(string $domain, string $publicSuffix)
     {

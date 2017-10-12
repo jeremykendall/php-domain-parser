@@ -2,10 +2,10 @@
 
 namespace Pdp\Tests;
 
-use Pdp\Cache\FileCacheAdapter;
 use Pdp\Http\CurlHttpAdapter;
 use Pdp\PublicSuffixList;
 use Pdp\PublicSuffixListManager;
+use Pdp\Tests\Cache\FileCacheAdapter;
 use PHPUnit\Framework\TestCase;
 
 /**
