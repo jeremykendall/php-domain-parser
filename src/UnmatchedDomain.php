@@ -31,7 +31,7 @@ final class UnmatchedDomain implements Domain
      * @param string|null $domain
      * @param string|null $publicSuffix
      */
-    public function __construct(string $domain = null, string $publicSuffix = null)
+    public function __construct(string $domain, string $publicSuffix)
     {
         $this->domain = $domain;
         $this->publicSuffix = $publicSuffix;
@@ -88,27 +88,6 @@ final class UnmatchedDomain implements Domain
             return false;
         }
 
-        if ($this->publicSuffix === null) {
-            return false;
-        }
-
-        if ($this->publicSuffix === $this->domain) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns the additional label to generate the registrable domain.
-     *
-     * @param string[] $domainLabels
-     * @param string[] $publicSuffixLabels
-     *
-     * @return string[]
-     */
-    private function getAdditionalLabel($domainLabels, $publicSuffixLabels): array
-    {
-        return array_slice($domainLabels, count($domainLabels) - count($publicSuffixLabels) - 1, 1);
+        return $this->publicSuffix !== $this->domain;
     }
 }

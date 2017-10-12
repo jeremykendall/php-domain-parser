@@ -11,9 +11,15 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use OutOfRangeException;
+
 final class PublicSuffixList
 {
     use LabelsTrait;
+
+    const ALL_DOMAINS = 'ALL';
+    const ICANN_DOMAINS = 'ICANN';
+    const PRIVATE_DOMAINS = 'PRIVATE';
 
     /**
      * @var array
@@ -23,21 +29,52 @@ final class PublicSuffixList
     /**
      * PublicSuffixList constructor.
      *
-     * @param array $rules
+     * @param string $type  Tje PSL type 'ALL, ICANN or PRIVATE'
+     * @param array  $rules
      */
-    public function __construct(array $rules)
+    public function __construct(string $type, array $rules)
     {
+        static $type_lists = [
+            self::ALL_DOMAINS => 1,
+            self::ICANN_DOMAINS => 1,
+            self::PRIVATE_DOMAINS => 1,
+        ];
+
+        if (!isset($type_lists[$type])) {
+            throw new OutOfRangeException(sprintf('Unknown PSL type %s', $type));
+        }
+        $this->type = $type;
         $this->rules = $rules;
     }
 
     /**
-     * Returns PSL rules.
+     * Tell whether the PSL resolves ICANN domains only.
      *
-     * @return array
+     * @return bool
      */
-    public function getRules(): array
+    public function isICANN()
     {
-        return $this->rules;
+        return $this->type === self::ICANN_DOMAINS;
+    }
+
+    /**
+     * Tell whether the PSL resolves private domains only.
+     *
+     * @return bool
+     */
+    public function isPrivate()
+    {
+        return $this->type === self::PRIVATE_DOMAINS;
+    }
+
+    /**
+     * Tell whether the PSL resolves all domains.
+     *
+     * @return bool
+     */
+    public function isAll()
+    {
+        return $this->type === self::ALL_DOMAINS;
     }
 
     /**

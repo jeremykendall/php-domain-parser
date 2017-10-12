@@ -24,9 +24,6 @@ use SplTempFileObject;
 class PublicSuffixListManager
 {
     const PUBLIC_SUFFIX_LIST_URL = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
-    const ALL_DOMAINS = 'ALL';
-    const ICANN_DOMAINS = 'ICANN';
-    const PRIVATE_DOMAINS = 'PRIVATE';
 
     /**
      * @var string Public Suffix List Source URL
@@ -67,22 +64,22 @@ class PublicSuffixListManager
      *
      * @return PublicSuffixList
      */
-    public function getList($type = self::ALL_DOMAINS): PublicSuffixList
+    public function getList($type = PublicSuffixList::ALL_DOMAINS): PublicSuffixList
     {
         static $type_lists = [
-            self::ALL_DOMAINS => self::ALL_DOMAINS,
-            self::ICANN_DOMAINS => self::ICANN_DOMAINS,
-            self::PRIVATE_DOMAINS => self::PRIVATE_DOMAINS,
+            PublicSuffixList::ALL_DOMAINS => PublicSuffixList::ALL_DOMAINS,
+            PublicSuffixList::ICANN_DOMAINS => PublicSuffixList::ICANN_DOMAINS,
+            PublicSuffixList::PRIVATE_DOMAINS => PublicSuffixList::PRIVATE_DOMAINS,
         ];
 
-        $type = $type_lists[$type] ?? self::ALL_DOMAINS;
+        $type = $type_lists[$type] ?? PublicSuffixList::ALL_DOMAINS;
         $list = $this->cacheAdapter->get($type);
         if ($list === null) {
             $this->refreshPublicSuffixList();
             $list = $this->cacheAdapter->get($type);
         }
 
-        return new PublicSuffixList(json_decode($list, true));
+        return new PublicSuffixList($type, json_decode($list, true));
     }
 
     /**
@@ -112,14 +109,14 @@ class PublicSuffixListManager
     private function convertListToArray(string $publicSuffixList): array
     {
         $addDomain = [
-            self::ICANN_DOMAINS => false,
-            self::PRIVATE_DOMAINS => false,
+            PublicSuffixList::ICANN_DOMAINS => false,
+            PublicSuffixList::PRIVATE_DOMAINS => false,
         ];
 
         $publicSuffixListTypes = [
-            self::ALL_DOMAINS => [],
-            self::ICANN_DOMAINS => [],
-            self::PRIVATE_DOMAINS => [],
+            PublicSuffixList::ALL_DOMAINS => [],
+            PublicSuffixList::ICANN_DOMAINS => [],
+            PublicSuffixList::PRIVATE_DOMAINS => [],
         ];
 
         $data = new SplTempFileObject();
@@ -178,21 +175,21 @@ class PublicSuffixListManager
     /**
      * Convert a line from the Public Suffix list.
      *
-     * @param string $textLine              Public Suffix List text line
+     * @param string $rule                  Public Suffix List text line
      * @param array  $publicSuffixListTypes Associative, multidimensional array representation of the
      *                                      public suffx list
-     * @param array  $addDomain             Tell which section should be converted
+     * @param array  $validTypes            Tell which section should be converted
      *
      * @return array Associative, multidimensional array representation of the
      *               public suffx list
      */
-    private function convertLineToArray(string $textLine, array $publicSuffixListTypes, array $addDomain): array
+    private function convertLineToArray(string $line, array $publicSuffixListTypes, array $validTypes): array
     {
-        $ruleParts = explode('.', $textLine);
-        $this->buildArray($publicSuffixListTypes[self::ALL_DOMAINS], $ruleParts);
-        $domainNames = array_keys(array_filter($addDomain));
-        foreach ($domainNames as $domainName) {
-            $this->buildArray($publicSuffixListTypes[$domainName], $ruleParts);
+        $ruleParts = explode('.', $line);
+        $validTypes = array_keys(array_filter($validTypes));
+        $validTypes[] = PublicSuffixList::ALL_DOMAINS;
+        foreach ($validTypes as $type) {
+            $publicSuffixListTypes[$type] = $this->buildArray($publicSuffixListTypes[$type], $ruleParts);
         }
 
         return $publicSuffixListTypes;
@@ -212,7 +209,7 @@ class PublicSuffixListManager
      * @param array $ruleParts        One line (rule) from the Public Suffix List
      *                                exploded on '.', or the remaining portion of that array during recursion
      */
-    private function buildArray(array &$publicSuffixList, array $ruleParts)
+    private function buildArray(array $publicSuffixList, array $ruleParts): array
     {
         $isDomain = true;
 
@@ -229,12 +226,12 @@ class PublicSuffixListManager
             $isDomain = false;
         }
 
-        if (!array_key_exists($part, $publicSuffixList)) {
-            $publicSuffixList[$part] = $isDomain ? [] : ['!' => ''];
-        }
+        $publicSuffixList[$part] = $publicSuffixList[$part] ?? ($isDomain ? [] : ['!' => '']);
 
         if ($isDomain && !empty($ruleParts)) {
-            $this->buildArray($publicSuffixList[$part], $ruleParts);
+            $publicSuffixList[$part] = $this->buildArray($publicSuffixList[$part], $ruleParts);
         }
+
+        return $publicSuffixList;
     }
 }

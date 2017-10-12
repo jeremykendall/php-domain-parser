@@ -60,4 +60,17 @@ trait LabelsTrait
     {
         return !$this->hasLabels($domain);
     }
+
+    /**
+     * Returns the additional label to generate the registrable domain.
+     *
+     * @param string[] $domainLabels
+     * @param string[] $publicSuffixLabels
+     *
+     * @return string[]
+     */
+    private function getAdditionalLabel($domainLabels, $publicSuffixLabels): array
+    {
+        return array_slice($domainLabels, count($domainLabels) - count($publicSuffixLabels) - 1, 1);
+    }
 }

@@ -34,7 +34,6 @@ class DomainTest extends TestCase
     {
         return [
             'domain and suffix are the same' => ['co.uk', 'co.uk'],
-            'publicSuffix is null' => ['example.faketld', null],
             'domain has no labels' => ['faketld', 'faketld'],
         ];
     }

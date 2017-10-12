@@ -7,6 +7,7 @@ namespace Pdp\Tests;
 use org\bovigo\vfs\vfsStream;
 use Pdp\Cache\FileCacheAdapter;
 use Pdp\Http\CurlHttpAdapter;
+use Pdp\PublicSuffixList;
 use Pdp\PublicSuffixListManager;
 use PHPUnit\Framework\TestCase;
 
@@ -41,12 +42,6 @@ class PublicSuffixListManagerTest extends TestCase
         $this->root = null;
     }
 
-    public function testGetProvidedListFromDefaultCacheDir()
-    {
-        $publicSuffixList = $this->manager->getList();
-        $this->assertGreaterThanOrEqual(300, count($publicSuffixList->getRules()));
-    }
-
     public function testGetDifferentPublicList()
     {
         $publicSuffixList = $this->manager->getList();
@@ -63,17 +58,17 @@ class PublicSuffixListManagerTest extends TestCase
 
     public function testGetListRebuildListFromLocalCache()
     {
-        $previous = $this->manager->getList(PublicSuffixListManager::ICANN_DOMAINS);
-        $this->cachePool->delete(PublicSuffixListManager::ICANN_DOMAINS); //delete local copy of ICAN DOMAINS RULES
-        $list = $this->manager->getList(PublicSuffixListManager::ICANN_DOMAINS);
-        $this->assertEquals($previous, $this->manager->getList(PublicSuffixListManager::ICANN_DOMAINS));
+        $previous = $this->manager->getList(PublicSuffixList::ICANN_DOMAINS);
+        $this->cachePool->delete(PublicSuffixList::ICANN_DOMAINS); //delete local copy of ICAN DOMAINS RULES
+        $list = $this->manager->getList(PublicSuffixList::ICANN_DOMAINS);
+        $this->assertEquals($previous, $this->manager->getList(PublicSuffixList::ICANN_DOMAINS));
     }
 
     public function testGetListRebuildListFromRemoveSource()
     {
-        $previous = $this->manager->getList(PublicSuffixListManager::ICANN_DOMAINS);
+        $previous = $this->manager->getList(PublicSuffixList::ICANN_DOMAINS);
         $this->cachePool->clear(); //delete all local cache
-        $list = $this->manager->getList(PublicSuffixListManager::ICANN_DOMAINS);
-        $this->assertEquals($previous, $this->manager->getList(PublicSuffixListManager::ICANN_DOMAINS));
+        $list = $this->manager->getList(PublicSuffixList::ICANN_DOMAINS);
+        $this->assertEquals($previous, $this->manager->getList(PublicSuffixList::ICANN_DOMAINS));
     }
 }

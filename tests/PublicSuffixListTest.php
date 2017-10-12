@@ -12,6 +12,7 @@ declare(strict_types=1);
  */
 namespace Pdp\Tests;
 
+use OutOfRangeException;
 use Pdp\Cache\FileCacheAdapter;
 use Pdp\Http\CurlHttpAdapter;
 use Pdp\MatchedDomain;
@@ -28,15 +29,41 @@ class PublicSuffixListTest extends TestCase
      */
     private $list;
 
+    private $manager;
+
     public function setUp()
     {
-        $manager = new PublicSuffixListManager(new FileCacheAdapter(), new CurlHttpAdapter());
-        $this->list = $manager->getList();
+        $this->manager = new PublicSuffixListManager(new FileCacheAdapter(), new CurlHttpAdapter());
+        $this->list = $this->manager->getList();
     }
 
-    public function testGetRules()
+    public function testConstructorThrowsExceptionOnUnsupportedType()
     {
-        $this->assertInternalType('array', $this->list->getRules());
+        $this->expectException(OutOfRangeException::class);
+        new PublicSuffixList('foo', []);
+    }
+
+    public function testFullDomainList()
+    {
+        $this->assertTrue($this->list->isAll());
+        $this->assertFalse($this->list->isICANN());
+        $this->assertFalse($this->list->isPrivate());
+    }
+
+    public function testICANNDomainList()
+    {
+        $list = $this->manager->getList(PublicSuffixList::ICANN_DOMAINS);
+        $this->assertFalse($list->isAll());
+        $this->assertTrue($list->isICANN());
+        $this->assertFalse($list->isPrivate());
+    }
+
+    public function testPrivateDomainList()
+    {
+        $list = $this->manager->getList(PublicSuffixList::PRIVATE_DOMAINS);
+        $this->assertFalse($list->isAll());
+        $this->assertFalse($list->isICANN());
+        $this->assertTrue($list->isPrivate());
     }
 
     public function testNullWillReturnNullDomain()
