@@ -1,27 +1,23 @@
 <?php
 
-namespace Pdp\Tests\Http;
+declare(strict_types=1);
 
-use Pdp\Http\CurlHttpAdapter;
+namespace Pdp\Tests;
+
+use Pdp\CurlHttpClient;
+use Pdp\HttpClientException;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group internet
- */
-class CurlHttpAdapterTest extends TestCase
+class CurlHttpClientTest extends TestCase
 {
     /**
-     * @var HttpAdapterInterface
+     * @var HttpClient
      */
     protected $adapter;
 
     protected function setUp()
     {
-        if (!function_exists('curl_init')) {
-            $this->markTestSkipped('cURL has to be enabled.');
-        }
-
-        $this->adapter = new CurlHttpAdapter();
+        $this->adapter = new CurlHttpClient();
     }
 
     protected function tearDown()
@@ -34,5 +30,11 @@ class CurlHttpAdapterTest extends TestCase
         $content = $this->adapter->getContent('https://www.google.com');
         $this->assertNotNull($content);
         $this->assertContains('google', $content);
+    }
+
+    public function testThrowsException()
+    {
+        $this->expectException(HttpClientException::class);
+        $this->adapter->getContent('https://qsfsdfqdf.dfsf');
     }
 }

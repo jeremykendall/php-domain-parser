@@ -9,10 +9,10 @@
  */
 declare(strict_types=1);
 
-namespace Pdp\Http;
+namespace Pdp;
 
 /**
- * cURL http adapter.
+ * Simple cURL Http client
  *
  * Lifted pretty much completely from William Durand's excellent Geocoder
  * project
@@ -21,19 +21,29 @@ namespace Pdp\Http;
  *
  * @author William Durand <william.durand1@gmail.com>
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-class CurlHttpAdapter implements HttpAdapter
+final class CurlHttpClient implements HttpClient
 {
     /**
      * {@inheritdoc}
      */
-    public function getContent(string $url)
+    public function getContent(string $url): string
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $content = curl_exec($ch);
-        curl_close($ch);
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_FAILONERROR => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_URL => $url,
+        ]);
+        $content = curl_exec($curl);
+        if (CURLE_OK !== ($code = curl_errno($curl))) {
+            $message = curl_error($curl);
+            curl_close($curl);
+            throw new HttpClientException($message, $code);
+        }
+        curl_close($curl);
 
         return $content;
     }
