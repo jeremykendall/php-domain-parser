@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use Psr\SimpleCache\CacheInterface;
-use SplTempFileObject;
 
 /**
  * Public Suffix List Manager.
@@ -97,109 +96,14 @@ final class Manager
      */
     public function refreshRules(string $source_url = self::PSL_URL): bool
     {
+        static $parser;
+        $parser = $parser ?? new Parser();
         $content = $this->http->getContent($source_url);
-        $rules = $this->parse($content);
-        if (empty($rules[Domain::ICANN_DOMAIN]) || empty($rules[Domain::PRIVATE_DOMAIN])) {
+        $rules = $parser->parse($content);
+        if (empty($rules[PublicSuffix::ICANN]) || empty($rules[PublicSuffix::PRIVATE])) {
             return false;
         }
 
         return $this->cache->set($this->getCacheKey($source_url), json_encode($rules));
-    }
-
-    /**
-     * Parses text representation of list to associative, multidimensional array.
-     *
-     * @param string $content the Public SUffix List as a SplFileObject
-     *
-     * @return array Associative, multidimensional array representation of the
-     *               public suffx list
-     */
-    private function parse(string $content): array
-    {
-        $section = Domain::UNKNOWN_DOMAIN;
-        $rules = [Domain::ICANN_DOMAIN => [], Domain::PRIVATE_DOMAIN => []];
-        $file = new SplTempFileObject();
-        $file->fwrite($content);
-        $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
-        foreach ($file as $line) {
-            $section = $this->getPslSection($section, $line);
-            if ($section !== Domain::UNKNOWN_DOMAIN && strpos($line, '//') === false) {
-                $rules[$section] = $this->addRule($rules[$section], explode('.', $line));
-            }
-        }
-
-        return $rules;
-    }
-
-    /**
-     * Tell whether the line can be converted for a given domain.
-     *
-     * @param bool   $section the previous status
-     * @param string $line    the current file line
-     *
-     * @return string
-     */
-    private function getPslSection(string $section, string $line): string
-    {
-        if ($section == Domain::UNKNOWN_DOMAIN && strpos($line, '// ===BEGIN ICANN DOMAINS===') === 0) {
-            return Domain::ICANN_DOMAIN;
-        }
-
-        if ($section == Domain::ICANN_DOMAIN && strpos($line, '// ===END ICANN DOMAINS===') === 0) {
-            return Domain::UNKNOWN_DOMAIN;
-        }
-
-        if ($section == Domain::UNKNOWN_DOMAIN && strpos($line, '// ===BEGIN PRIVATE DOMAINS===') === 0) {
-            return Domain::PRIVATE_DOMAIN;
-        }
-
-        if ($section == Domain::PRIVATE_DOMAIN && strpos($line, '// ===END PRIVATE DOMAINS===') === 0) {
-            return Domain::UNKNOWN_DOMAIN;
-        }
-
-        return $section;
-    }
-
-    /**
-     * Recursive method to build the array representation of the Public Suffix List.
-     *
-     * This method is based heavily on the code found in generateEffectiveTLDs.php
-     *
-     * @see https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
-     * A copy of the Apache License, Version 2.0, is provided with this
-     * distribution
-     *
-     * @param array $list       Initially an empty array, this eventually
-     *                          becomes the array representation of the Public Suffix List
-     * @param array $rule_parts One line (rule) from the Public Suffix List
-     *                          exploded on '.', or the remaining portion of that array during recursion
-     *
-     * @return array
-     */
-    private function addRule(array $list, array $rule_parts): array
-    {
-        $part = array_pop($rule_parts);
-
-        // Adheres to canonicalization rule from the "Formal Algorithm" section
-        // of https://publicsuffix.org/list/
-        // "The domain and all rules must be canonicalized in the normal way
-        // for hostnames - lower-case, Punycode (RFC 3492)."
-
-        $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
-        $isDomain = true;
-        if (strpos($part, '!') === 0) {
-            $part = substr($part, 1);
-            $isDomain = false;
-        }
-
-        if (!isset($list[$part])) {
-            $list[$part] = $isDomain ? [] : ['!' => ''];
-        }
-
-        if ($isDomain && !empty($rule_parts)) {
-            $list[$part] = $this->addRule($list[$part], $rule_parts);
-        }
-
-        return $list;
     }
 }

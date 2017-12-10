@@ -231,8 +231,7 @@ In any case, you should setup a cron to regularly update your local cache.
 ### Public Suffix Resolver
 
 
-#### Rules and Domain
-
+#### Public Suffix, Domain and Resolution
 
 ~~~php
 <?php
@@ -248,24 +247,38 @@ final class Rules
 
 The `Rules` constructor expects a `array` representation of the Public Suffix List. This `array` representation is constructed by the `Manager` and stored using a PSR-16 compliant cache.
 
-The `Rules` class resolves the submitted domain against the parsed rules from the PSL. This is done using the `Rules::resolve` method which returns a `Pdp\Domain` object. The method expect a valid domain and you can optionnally specify against which section of rules you want to validate the given domain. By default all section are used (ie `PRIVATE_DOMAIN` and `ICANN_DOMAIN`) if the submitted section is invalid or unknown, the resolver will fallback to use the entire list.
+The `Rules` class resolves the submitted domain against the parsed rules from the PSL. This is done using the `Rules::resolve` method which returns a `Pdp\Domain` object. The method expect a valid domain and you can optionnally specify against which section of rules you want to validate the given domain. By default all section are used (ie `PRIVATE` and `ICANN`) if the submitted section is invalid or unknown, the resolver will fallback to use the entire list.
+
+~~~php
+<?php
+
+final class PublicSuffix
+{
+
+    const ICANN = 'ICANN_DOMAIN';
+    const PRIVATE = 'PRIVATE_DOMAIN';
+    const ALL = 'ALL_DOMAIN';
+    const UNKNOWN = 'UNKNOWN_DOMAIN';
+
+    public function __construct(?string $domain = null, string $type = self::UNKNOWN);
+    public function getContent(): ?string
+    public function isKnown(): bool;
+    public function isICANN(): bool;
+    public function isPrivate(): bool;
+}
+~~~
 
 ~~~php
 <?php
 
 final class Domain
 {
-
-    const ICANN_DOMAIN = 'ICANN_DOMAIN';
-    const PRIVATE_DOMAIN = 'PRIVATE_DOMAIN';
-    const UNKNOWN_DOMAIN = 'UNKNOWN_DOMAIN';
-
-    public function __construct(?string $domain = null, ?string $publicSuffix = null, string $type = self::UNKNOWN_DOMAIN);
+    public function __construct(?string $domain = null, PublicSuffix $publicSuffix);
     public function getDomain(): ?string
     public function getPublicSuffix(): ?string
     public function getRegistrableDomain(): ?string
     public function getSubDomain(); ?string
-    public function isValid(): bool;
+    public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
 }

@@ -22,10 +22,6 @@ namespace Pdp;
  */
 final class Domain
 {
-    const ICANN_DOMAIN = 'ICANN_DOMAIN';
-    const PRIVATE_DOMAIN = 'PRIVATE_DOMAIN';
-    const UNKNOWN_DOMAIN = 'UNKNOWN_DOMAIN';
-
     /**
      * @var string|null
      */
@@ -47,59 +43,17 @@ final class Domain
     private $subDomain;
 
     /**
-     * @var string
-     */
-    private $type = self::UNKNOWN_DOMAIN;
-
-    /**
      * New instance.
      *
-     * @param string|null $domain
-     * @param string|null $publicSuffix
-     * @param string      $type
+     * @param string|null  $domain
+     * @param PublicSuffix $publicSuffix
      */
-    public function __construct(
-        $domain = null,
-        $publicSuffix = null,
-        string $type = self::UNKNOWN_DOMAIN
-    ) {
+    public function __construct($domain = null, PublicSuffix $publicSuffix)
+    {
         $this->domain = $domain;
-        $this->setPublicSuffix($publicSuffix);
-        $this->setType($type);
+        $this->publicSuffix = $publicSuffix;
         $this->setRegistrableDomain();
         $this->setSubDomain();
-    }
-
-    /**
-     * Compute the public suffix part
-     *
-     * @param string|null $publicSuffix
-     */
-    private function setPublicSuffix($publicSuffix)
-    {
-        if (null === $this->domain) {
-            return;
-        }
-
-        $this->publicSuffix = $publicSuffix;
-    }
-
-    /**
-     * Compute the domain validity
-     *
-     * @param string $type
-     */
-    private function setType(string $type)
-    {
-        if (null === $this->publicSuffix) {
-            return;
-        }
-
-        if (!in_array($type, [self::PRIVATE_DOMAIN, self::ICANN_DOMAIN], true)) {
-            $type = self::UNKNOWN_DOMAIN;
-        }
-
-        $this->type = $type;
     }
 
     /**
@@ -111,7 +65,7 @@ final class Domain
             return;
         }
 
-        $countLabelsToRemove = count(explode('.', $this->publicSuffix)) + 1;
+        $countLabelsToRemove = count($this->publicSuffix) + 1;
         $domainLabels = explode('.', $this->domain);
         $domain = implode('.', array_slice($domainLabels, count($domainLabels) - $countLabelsToRemove));
         $this->registrableDomain = $this->normalize($domain);
@@ -124,9 +78,8 @@ final class Domain
      */
     private function hasRegistrableDomain(): bool
     {
-        return null !== $this->publicSuffix
-            && strpos($this->domain, '.') > 0
-            && $this->publicSuffix !== $this->domain;
+        return strpos((string) $this->domain, '.') > 0
+            && !in_array($this->publicSuffix->getContent(), [null, $this->domain], true);
     }
 
     /**
@@ -162,7 +115,7 @@ final class Domain
 
         $domainLabels = explode('.', $this->domain);
         $countLabels = count($domainLabels);
-        $countLabelsToRemove = count(explode('.', $this->publicSuffix)) + 1;
+        $countLabelsToRemove = count($this->publicSuffix) + 1;
         if ($countLabels === $countLabelsToRemove) {
             return;
         }
@@ -184,7 +137,7 @@ final class Domain
      */
     public function getPublicSuffix()
     {
-        return $this->publicSuffix;
+        return $this->publicSuffix->getContent();
     }
 
     /**
@@ -202,9 +155,9 @@ final class Domain
      *
      * @return bool
      */
-    public function isValid(): bool
+    public function isKnown(): bool
     {
-        return $this->type !== self::UNKNOWN_DOMAIN;
+        return $this->publicSuffix->isKnown();
     }
 
     /**
@@ -224,7 +177,7 @@ final class Domain
      */
     public function isICANN(): bool
     {
-        return $this->type === self::ICANN_DOMAIN;
+        return $this->publicSuffix->isICANN();
     }
 
     /**
@@ -244,7 +197,7 @@ final class Domain
      */
     public function isPrivate(): bool
     {
-        return $this->type === self::PRIVATE_DOMAIN;
+        return $this->publicSuffix->isPrivate();
     }
 
     /**
@@ -279,5 +232,29 @@ final class Domain
     public function getSubDomain()
     {
         return $this->subDomain;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __debugInfo()
+    {
+        return [
+            'domain' => $this->domain,
+            'publicSuffix' => $this->publicSuffix->getContent(),
+            'registrableDomain' => $this->registrableDomain,
+            'subDomain' => $this->subDomain,
+            'isKnown' => $this->isKnown(),
+            'isICANN' => $this->isICANN(),
+            'isPrivate' => $this->isPrivate(),
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __set_state(array $properties)
+    {
+        return new self($properties['domain'], $properties['publicSuffix']);
     }
 }

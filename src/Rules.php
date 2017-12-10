@@ -36,20 +36,24 @@ final class Rules
      *
      * @return Domain
      */
-    public function resolve(string $domain = null, string $type = Domain::UNKNOWN_DOMAIN): Domain
+    public function resolve(string $domain = null, string $type = PublicSuffix::ALL): Domain
     {
+        if (!in_array($type, [PublicSuffix::PRIVATE, PublicSuffix::ICANN, PublicSuffix::ALL], true)) {
+            throw new Exception(sprintf('%s is an unknown Public Suffix Section', $type));
+        }
+
         if (!$this->isMatchable($domain)) {
-            return new Domain();
+            return new Domain(null, new PublicSuffix());
         }
 
         $normalizedDomain = $this->normalize($domain);
         $reverseLabels = array_reverse(explode('.', $normalizedDomain));
-        list($publicSuffix, $type) = $this->findPublicSuffix($type, $reverseLabels);
-        if (null === $publicSuffix) {
+        $publicSuffix = $this->findPublicSuffix($type, $reverseLabels);
+        if (null === $publicSuffix->getContent()) {
             return $this->handleNoMatches($domain);
         }
 
-        return $this->handleMatches($domain, $publicSuffix, $type);
+        return $this->handleMatches($domain, $publicSuffix);
     }
 
     /**
@@ -98,29 +102,25 @@ final class Rules
      * @param string $type
      * @param array  $labels
      *
-     * @return array
+     * @return PublicSuffix
      */
-    private function findPublicSuffix(string $type, array $labels): array
+    private function findPublicSuffix(string $type, array $labels): PublicSuffix
     {
-        if (in_array($type, [Domain::PRIVATE_DOMAIN, Domain::ICANN_DOMAIN], true)) {
-            return $this->findPublicSuffixFromSection($type, $labels);
+        $resultIcann = $this->findPublicSuffixFromSection(PublicSuffix::ICANN, $labels);
+        if (PublicSuffix::ICANN === $type) {
+            return $resultIcann;
         }
 
-        $resultPrivate = $this->findPublicSuffixFromSection(Domain::PRIVATE_DOMAIN, $labels);
-        $resultIcann = $this->findPublicSuffixFromSection(Domain::ICANN_DOMAIN, $labels);
-
-        $privateSuffix = $resultPrivate[0];
-        $icannSuffix = $resultIcann[0];
-
-        if (isset($icannSuffix, $privateSuffix)) {
-            return strlen($privateSuffix) > strlen($icannSuffix) ? $resultPrivate : $resultIcann;
+        $resultPrivate = $this->findPublicSuffixFromSection(PublicSuffix::PRIVATE, $labels);
+        if (PublicSuffix::ALL === $type) {
+            return count($resultIcann) >= count($resultPrivate) ? $resultIcann : $resultPrivate;
         }
 
-        if (null === $privateSuffix && null === $icannSuffix) {
-            return [null, Domain::UNKNOWN_DOMAIN];
+        if (count($resultPrivate) > count($resultIcann)) {
+            return $resultPrivate;
         }
 
-        return null === $privateSuffix ? $resultIcann : $resultPrivate;
+        return new PublicSuffix();
     }
 
     /**
@@ -129,9 +129,9 @@ final class Rules
      * @param string $type
      * @param array  $labels
      *
-     * @return array
+     * @return PublicSuffix
      */
-    private function findPublicSuffixFromSection(string $type, array $labels): array
+    private function findPublicSuffixFromSection(string $type, array $labels): PublicSuffix
     {
         $rules = $this->rules[$type];
         $matches = [];
@@ -162,15 +162,12 @@ final class Rules
         }
 
         $found = array_filter($matches, 'strlen');
-        if (count($found) == 1 && $type === Domain::PRIVATE_DOMAIN) {
-            return [null, $type = Domain::UNKNOWN_DOMAIN];
+        if (empty($found)) {
+            return new PublicSuffix();
         }
 
-        $publicSuffix = empty($matches) ? null : implode('.', $found);
-
-        return [$publicSuffix, $type];
+        return new PublicSuffix(implode('.', $found), $type);
     }
-
 
     /**
      * Returns the Domain value object.
@@ -181,13 +178,16 @@ final class Rules
      *
      * @return Domain
      */
-    private function handleMatches(string $domain, string $publicSuffix, string $type): Domain
+    private function handleMatches(string $domain, PublicSuffix $publicSuffix): Domain
     {
         if (!$this->isPunycoded($domain)) {
-            $publicSuffix = idn_to_utf8($publicSuffix, 0, INTL_IDNA_VARIANT_UTS46);
+            $publicSuffix = new PublicSuffix(
+                idn_to_utf8($publicSuffix->getContent(), 0, INTL_IDNA_VARIANT_UTS46),
+                $publicSuffix->isICANN() ? PublicSuffix::ICANN : PublicSuffix::PRIVATE
+            );
         }
 
-        return new Domain($domain, $publicSuffix, $type);
+        return new Domain($domain, $publicSuffix);
     }
 
     /**
@@ -221,6 +221,6 @@ final class Rules
             }
         }
 
-        return new Domain($domain, $publicSuffix);
+        return new Domain($domain, new PublicSuffix($publicSuffix));
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests;
+namespace pdp\tests;
 
 use Pdp\CurlHttpClient;
 use Pdp\HttpClientException;

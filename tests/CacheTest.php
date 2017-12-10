@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests;
+namespace pdp\tests;
 
 use DateInterval;
 use org\bovigo\vfs\vfsStream;

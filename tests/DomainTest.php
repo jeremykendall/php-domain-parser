@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests;
+namespace pdp\tests;
 
 use Pdp\Domain;
+use Pdp\PublicSuffix;
 use PHPUnit\Framework\TestCase;
 
 class DomainTest extends TestCase
@@ -17,7 +18,7 @@ class DomainTest extends TestCase
      */
     public function testRegistrableDomainIsNullWithFoundDomain(string $domain, $publicSuffix)
     {
-        $domain = new Domain($domain, $publicSuffix, Domain::ICANN_DOMAIN);
+        $domain = new Domain($domain, new PublicSuffix($publicSuffix, PublicSuffix::ICANN));
         $this->assertNull($domain->getRegistrableDomain());
         $this->assertNull($domain->getSubDomain());
     }
