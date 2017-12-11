@@ -63,5 +63,13 @@
         "test": "phpunit --coverage-text; php-cs-fixer fix -vv --diff --dry-run --allow-risky=yes",
         "phpunit": "phpunit --coverage-text",
         "phpcs": "php-cs-fixer fix -vv --diff --dry-run --allow-risky=yes"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "4.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
