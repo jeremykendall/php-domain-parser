@@ -181,9 +181,6 @@ final class Domain implements JsonSerializable
      *
      * This method should return null if the registrable domain is the same as the public suffix.
      *
-     * @see https://publicsuffix.org/list/
-     * @see https://raw.githubusercontent.com/publicsuffix/list/master/tests/test_psl.txt
-     *
      * @return string|null registrable domain
      */
     public function getRegistrableDomain()
@@ -219,8 +216,6 @@ final class Domain implements JsonSerializable
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List.
      *
-     * @see https://publicsuffix.org/learn/
-     *
      * @return bool
      */
     public function isKnown(): bool
@@ -231,8 +226,6 @@ final class Domain implements JsonSerializable
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List ICANN Section.
      *
-     * @see https://publicsuffix.org/learn/
-     *
      * @return bool
      */
     public function isICANN(): bool
@@ -242,8 +235,6 @@ final class Domain implements JsonSerializable
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List Private Section.
-     *
-     * @see https://publicsuffix.org/learn/
      *
      * @return bool
      */

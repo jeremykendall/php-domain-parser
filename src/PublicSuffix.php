@@ -24,9 +24,8 @@ use Countable;
  * it for this purpose, please do not bake static copies of the PSL into your
  * software with no update mechanism."
  *
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- *
- * @internal
+ * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @internal used internally to represent a public suffix
  */
 final class PublicSuffix implements Countable
 {
@@ -77,8 +76,6 @@ final class PublicSuffix implements Countable
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List.
      *
-     * @see https://publicsuffix.org/learn/
-     *
      * @return bool
      */
     public function isKnown(): bool
@@ -89,8 +86,6 @@ final class PublicSuffix implements Countable
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List ICANN Section.
      *
-     * @see https://publicsuffix.org/learn/
-     *
      * @return bool
      */
     public function isICANN(): bool
@@ -100,8 +95,6 @@ final class PublicSuffix implements Countable
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List Private Section.
-     *
-     * @see https://publicsuffix.org/learn/
      *
      * @return bool
      */

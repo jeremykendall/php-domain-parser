@@ -104,6 +104,8 @@ final class Manager
             return false;
         }
 
-        return $this->cache->set($this->getCacheKey($source_url), json_encode($rules));
+        $cacheKey = $this->getCacheKey($source_url);
+
+        return $this->cache->set($cacheKey, json_encode($rules));
     }
 }

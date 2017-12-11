@@ -86,7 +86,7 @@ final class Rules
      *
      * "The domain must be canonicalized in the normal way for hostnames - lower-case, Punycode."
      *
-     * @see http://www.ietf.org/rfc/rfc3492.txt
+     * @see https://tools.ietf.org/html/rfc3492
      *
      * @param string $domain
      *
@@ -118,7 +118,6 @@ final class Rules
     {
         $normalizedDomain = $this->normalize($domain);
         $reverseLabels = array_reverse(explode('.', $normalizedDomain));
-
         $resultIcann = $this->findPublicSuffixFromSection(self::ICANN_DOMAINS, $reverseLabels);
         if (self::ICANN_DOMAINS === $type) {
             return $resultIcann;
@@ -193,7 +192,6 @@ final class Rules
     {
         $labels = explode('.', $domain);
         $publicSuffix = array_pop($labels);
-
         if ($this->isPunycoded($domain)) {
             return new PublicSuffix($publicSuffix);
         }
