@@ -18,8 +18,7 @@ Consider the domain www.pref.okinawa.jp.  In this domain, the
 *public suffix* portion is **okinawa.jp**, the *registrable domain* is
 **pref.okinawa.jp**, and the *subdomain* is **www**. You can't regex that.
 
-PHP Domain Parser was built around accurate Public Suffix List based parsing from the very
-beginning. For URL parsing, building or manipulation please refer to [better libraries](https://packagist.org/packages/sabre/uri?q=uri%20rfc3986&p=0) who are more focus on those area of development
+PHP Domain Parser is built around accurate Public Suffix List based parsing. For URL parsing, building or manipulation please refer to [libraries](https://packagist.org/packages/sabre/uri?q=uri%20rfc3986&p=0) focused on those area of development.
 
 System Requirements
 -------
@@ -156,6 +155,7 @@ $ php ./bin/update-psl
 
 This script requires that:
 
+- the PHP `curl` extension
 - The `Pdp\Installer` class which comes bundle with this package
 - The use of the Cache and HTTP Client implementations bundle with the package.
 
