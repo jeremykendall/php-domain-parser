@@ -29,7 +29,6 @@ You need:
 - **PHP >= 7.0** but the latest stable version of PHP is recommended
 - the `mbstring` extension
 - the `intl` extension
-- the `curl` extension
 
 Dependencies
 -------
@@ -228,7 +227,7 @@ In any case, you should setup a cron to regularly update your local cache.
 ### Public Suffix Resolver
 
 
-#### Public Suffix, Domain and Resolution
+#### Public Suffix and Domain Resolution
 
 ~~~php
 <?php
