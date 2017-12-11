@@ -7,7 +7,8 @@ domain parser implemented in PHP.
 [![Total Downloads](https://poser.pugx.org/jeremykendall/php-domain-parser/downloads.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 [![Latest Stable Version](https://poser.pugx.org/jeremykendall/php-domain-parser/v/stable.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
 
-## Motivation
+Motivation
+-------
 
 While there are plenty of excellent URL parsers and builders available, there
 are very few projects that can accurately parse a url into its component
@@ -17,385 +18,315 @@ Consider the domain www.pref.okinawa.jp.  In this domain, the
 *public suffix* portion is **okinawa.jp**, the *registrable domain* is
 **pref.okinawa.jp**, and the *subdomain* is **www**. You can't regex that.
 
-Other similar libraries focus primarily on URL building, parsing, and
-manipulation and additionally include public suffix domain parsing.  PHP Domain
-Parser was built around accurate Public Suffix List based parsing from the very
-beginning, adding a URL object simply for the sake of completeness.
+PHP Domain Parser is built around accurate Public Suffix List based parsing. For URL parsing, building or manipulation please refer to [libraries](https://packagist.org/packages/sabre/uri?q=uri%20rfc3986&p=0) focused on those area of development.
 
-## Installation
+System Requirements
+-------
 
-The only (currently) supported method of installation is via
-[Composer](http://getcomposer.org).
+You need:
 
-Create a `composer.json` file in the root of your project:
+- **PHP >= 7.0** but the latest stable version of PHP is recommended
+- the `mbstring` extension
+- the `intl` extension
 
-``` json
+Dependencies
+-------
+
+- [PSR-16](http://www.php-fig.org/psr/psr-16/)
+
+Installation
+--------
+
+~~~
+$ composer require jeremykendall/php-domain-parser
+~~~
+
+Documentation
+--------
+
+### Public Suffix Manager
+
+~~~php
+<?php
+
+namespace Pdp;
+
+use Psr\SimpleCache\CacheInterface;
+
+final class Manager
 {
-    "require": {
-        "jeremykendall/php-domain-parser": "~2.0"
+    const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    public function __construct(CacheInterface $cache, HttpClient $http)
+    public function getRules(string $source_url = self::PSL_URL): Rules
+    public function refreshRules(string $source_url = self::PSL_URL): bool
+}
+~~~
+
+This class obtains, parses, caches, and returns a PHP representation of the PSL rules.
+
+#### Creating a new manager
+
+To work as intended, the `Manager` constructor requires:
+
+- a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object to store the retrieved rules using a basic HTTP client.
+
+- a `HttpClient` interface which exposes the `HttpClient::getContent` method which expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
+If an error occurs while retrieving such body a `HttpClientException` is thrown.
+
+~~~php
+<?php
+
+namespace Pdp;
+
+interface HttpClient
+{
+    /**
+     * Returns the content fetched from a given URL.
+     *
+     * @param string $url
+     *
+     * @throws HttpClientException If an errors occurs while fetching the content from a given URL
+     *
+     * @return string Retrieved content
+     */
+    public function getContent(string $url): string;
+}
+~~~
+
+For advance usages you are free to use your own cache and/or http implementation.
+
+By default and out of the box, the package uses:
+
+- a file cache PSR-16 implementation based on the excellent [FileCache](https://github.com/kodus/file-cache) which **caches the local copy for a maximum of 7 days**.
+- a HTTP client based on the cURL extension.
+
+#### Accessing the Public Suffix rules
+
+~~~php
+<?php
+
+public function getRules(string $source_url = self::PSL_URL): Rules
+~~~
+
+This method returns a `Rules` object which is instantiated with the PSL rules.
+
+The method takes an optional `$source_url` argument which specifies the PSL source URL. If no local cache exists for the submitted source URL, the method will:
+
+1. call `Manager::refreshRules` with the given URL to update its local cache
+2. instantiate the `Rules` object with the newly cached data.
+
+On error, the method throws an `Pdp\Exception`.
+
+~~~php
+<?php
+
+use Pdp\Cache;
+use Pdp\CurlHttpClient;
+use Pdp\Manager;
+
+$manager = new Manager(new Cache(), new CurlHttpClient());
+$rules = $manager->getRules('https://publicsuffix.org/list/public_suffix_list.dat');
+$rules->resolve('www.bébé.be');
+~~~
+
+#### Refreshing the cached rules
+
+This method enables refreshing your local copy of the PSL stored with your [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache and retrieved using the Http Client. By default the method will use the `Manager::PSL_URL` as the source URL but you are free to substitute this URL with your own.  
+The method returns a boolean value which is `true` on success.
+
+~~~php
+<?php
+
+use Pdp\Cache;
+use Pdp\CurlHttpClient;
+use Pdp\Manager;
+
+$manager = new Manager(new Cache(), new CurlHttpClient());
+$manager->refreshRules('https://publicsuffix.org/list/public_suffix_list.dat');
+~~~
+
+## Automatic Updates
+
+It is important to always have an up to date PSL ICANN Section. In order to do so the library comes bundle with an auto-update script located in the `bin` directory.
+
+~~~bash
+$ php ./bin/update-psl
+~~~
+
+This script requires that:
+
+- the PHP `curl` extension
+- The `Pdp\Installer` class which comes bundle with this package
+- The use of the Cache and HTTP Client implementations bundle with the package.
+
+If you prefer using your own implementations you should:
+
+1. Copy the `Pdp\Installer` class
+2. Adapt its code to reflect your requirements.
+
+
+In any cases your are required to register a cron with your chosen script to keep your data up to date
+
+For example, below I'm using the `Manager` with
+
+- the [Symfony Cache component](https://github.com/symfony/cache)
+- the [Guzzle](https://github.com/guzzle/guzzle) client.
+
+Of course you can add more setups depending on your usage.
+
+<p class="message-notice">Be sure to adapt the following code to your own framework/situation. The following code is given as an example without warranty of it working out of the box.</p>
+
+~~~php
+<?php
+
+use GuzzleHttp\Client as GuzzleClient;
+use Pdp\HttpClient;
+use Pdp\HttpClientException;
+use Pdp\Manager;
+use Symfony\Component\Cache\Simple\PDOCache;
+
+final class GuzzleHttpClientAdapter implements HttpClient
+{
+    private $client;
+
+    public function __construct(GuzzleClient $client)
+    {
+        $this->client = $client;
+    }
+
+    public function getContent(string $url): string
+    {
+        try {
+            return $client->get($url)->getBody()->getContents();
+        } catch (Throwable $e) {
+            throw new HttpClientException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 }
-```
 
-And then run: `composer install`
+$dbh = new PDO('mysql:dbname=testdb;host=127.0.0.1', 'dbuser', 'dbpass');
+$symfonyCache = new PDOCache($dbh, 'league-psl-icann', 86400);
+$guzzleAdapter = new GuzzleHttpClientAdapter(new GuzzleClient());
+$manager = new Manager($symfonyCache, $guzzleAdapter);
+$manager->refreshRules();
+//the rules are saved to the database for 1 day
+//the rules are fetched using GuzzlClient
 
-Add the autoloader to your project:
+$rules = $manager->getRules();
+$domain = $rules->resolve('nl.shop.bébé.faketld');
+$domain->getDomain();            //returns 'nl.shop.bébé.faketld'
+$domain->getPublicSuffix();      //returns 'faketld'
+$domain->getRegistrableDomain(); //returns 'bébé.faketld'
+$domain->getSubDomain();         //returns 'nl.shop'
+$domain->isValid();              //returns false
+~~~
 
-``` php
+In any case, you should setup a cron to regularly update your local cache.
+
+
+### Public Suffix Resolver
+
+
+#### Public Suffix and Domain Resolution
+
+~~~php
 <?php
 
-require_once 'vendor/autoload.php'
-```
+namespace Pdp;
 
-You're now ready to begin using the PHP Domain Parser.
+final class Rules
+{
+    const ALL_DOMAINS = 'ALL_DOMAINS';
+    const ICANN_DOMAINS = 'ICANN_DOMAINS';
+    const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 
-## Usage
+    public function __construct(array $rules)
+    public function resolve(string $domain = null, string $type = self::ALL_DOMAINS): Domain
+}
+~~~
 
-### Parsing URLs
+The `Rules` constructor expects a `array` representation of the Public Suffix List. This `array` representation is constructed by the `Manager` and stored using a PSR-16 compliant cache.
 
-Parsing URLs into their component parts is as simple as the example you see below.
+The `Rules` class resolves the submitted domain against the parsed rules from the PSL. This is done using the `Rules::resolve` method which returns a `Pdp\Domain` object. The method expects
 
-``` php
+- a valid domain name as a string
+- a string to optionnally specify which section of the PSL you want to validate the given domain against.  
+ By default all sections are used `Rules::ALL_DOMAINS` but you can validate your domain against the ICANN only section (`Rules::ICANN_DOMAINS` or the private section (`Rules::PRIVATE_DOMAINS`) of the PSL.
+
+~~~php
 <?php
 
-require_once '../vendor/autoload.php';
-
-$pslManager = new Pdp\PublicSuffixListManager();
-$parser = new Pdp\Parser($pslManager->getList());
-$host = 'http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment';
-$url = $parser->parseUrl($host);
-var_dump($url);
-```
-
-The above will output:
-
-```
-class Pdp\Uri\Url#6 (8) {
-    private $scheme =>
-    string(4) "http"
-    private $host =>
-    class Pdp\Uri\Url\Host#5 (3) {
-        private $subdomain =>
-        string(3) "www"
-        private $registrableDomain =>
-        string(15) "pref.okinawa.jp"
-        private $publicSuffix =>
-        string(10) "okinawa.jp"
-    }
-    private $port =>
-    int(8080)
-    private $user =>
-    string(4) "user"
-    private $pass =>
-    string(4) "pass"
-    private $path =>
-    string(18) "/path/to/page.html"
-    private $query =>
-    string(12) "query=string"
-    private $fragment =>
-    string(8) "fragment"
+final class Domain
+{
+    public function getDomain(): ?string
+    public function getPublicSuffix(): ?string
+    public function getRegistrableDomain(): ?string
+    public function getSubDomain(); ?string
+    public function isKnown(): bool;
+    public function isICANN(): bool;
+    public function isPrivate(): bool;
 }
-```
+~~~
 
-### Convenience Methods
+The `Domain` getters method always return normalized value according to the domain status against the PSL rules.
 
-A magic [`__get()`](http://php.net/manual/en/language.oop5.overloading.php#object.get) 
-method is provided to access the above object properties.  Obtaining the public
-suffix for a parsed domain is as simple as:
+<p class="message-notice"><code>Domain::isKnown</code> status depends on the PSL rules used. For the same domain, depending on the rules used a domain public suffix may be known or not.</p>
 
-``` php
+~~~php
 <?php
 
-$host = 'waxaudio.com.au';
-$url = $parser->parseUrl($host);
-$publicSuffix = $url->host->publicSuffix;
+use Pdp\Cache;
+use Pdp\CurlHttpClient;
+use Pdp\Domain;
+use Pdp\Manager;
 
-// $publicSuffix = 'com.au'
-```
+$manager = new Manager(new Cache(), new CurlHttpClient());
+$rules = $manager->getRules('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
+//$rules is a Pdp\Rules object
 
-### IDNA Support
+$domain = $rules->resolve('www.ulb.ac.be');
+$domain->getDomain();            //returns 'www.ulb.ac.be'
+$domain->getPublicSuffix();      //returns 'ac.be'
+$domain->getRegistrableDomain(); //returns 'ulb.ac.be'
+$domain->getSubDomain();         //returns 'www'
+$domain->isKnown();              //returns true
+$domain->isICANN();              //returns true
+$domain->isPrivate();            //returns false
 
-[IDN (Internationalized Domain Name)](http://en.wikipedia.org/wiki/Internationalized_domain_name)
-support was added in version `1.4.0`. Both unicode domains and their ASCII
-equivalents are supported.
+//let's resolve the same domain against the PRIVATE DOMAIN SECTION
 
-**IMPORTANT**:
+$domain = $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS);
+$domain->getDomain();            //returns 'www.ulb.ac.be'
+$domain->getPublicSuffix();      //returns 'be'
+$domain->getRegistrableDomain(); //returns 'ac.be'
+$domain->getSubDomain();         //returns 'www.ulb'
+$domain->isKnown();              //returns false
+$domain->isICANN();              //returns false
+$domain->isPrivate();            //returns false
+~~~
 
-* PHP's [intl](http://php.net/manual/en/book.intl.php) extension is
-required for the [IDN functions](http://php.net/manual/en/ref.intl.idn.php).
-* PHP's [mb_string](http://php.net/manual/en/book.mbstring.php) extension is
-required for [mb_strtolower](http://php.net/manual/en/function.mb-strtolower.php).
+<p class="message-warning"><strong>Warning:</strong> Some people use the PSL to determine what is a valid domain name and what isn't. This is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace, if your software does not regularly receive PSL updates, it may erroneously think new gTLDs are not known. The DNS is the proper source for this information. If you must use it for this purpose, please do not bake static copies of the PSL into your software with no update mechanism.</p>
 
-#### Unicode
+Contributing
+-------
 
-Parsing IDNA hosts is no different that parsing standard hosts. Setting `$host
-= 'Яндекс.РФ';` (Russian-Cyrillic) in the *Parsing URLs* example would return:
+Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 
-```
-class Pdp\Uri\Url#6 (8) {
-  private $scheme =>
-  string(0) ""
-  private $host =>
-  class Pdp\Uri\Url\Host#5 (4) {
-    private $subdomain =>
-    NULL
-    private $registrableDomain =>
-    string(17) "яндекс.рф"
-    private $publicSuffix =>
-    string(4) "рф"
-    private $host =>
-    string(17) "яндекс.рф"
-  }
-  private $port =>
-  NULL
-  private $user =>
-  NULL
-  private $pass =>
-  NULL
-  private $path =>
-  NULL
-  private $query =>
-  NULL
-  private $fragment =>
-  NULL
-}
-```
+Credits
+-------
 
-#### ASCII (Punycode)
+- [Jeremy Kendall](https://github.com/jeremykendall)
+- [ignace nyamagana butera](https://github.com/nyamsprod)
+- [All Contributors](https://github.com/thephpleague/uri/contributors)
 
-If you choose to provide the ASCII equivalent of the unicode domain name
-(`$host = 'http://xn--d1acpjx3f.xn--p1ai';` in the case of the *Parsing URLs* example),
-the ASCII equivalent will be returned by the parser:
+License
+-------
 
-```
-class Pdp\Uri\Url#6 (8) {
-  private $scheme =>
-  string(4) "http"
-  private $host =>
-  class Pdp\Uri\Url\Host#5 (4) {
-    private $subdomain =>
-    NULL
-    private $registrableDomain =>
-    string(22) "xn--d1acpjx3f.xn--p1ai"
-    private $publicSuffix =>
-    string(8) "xn--p1ai"
-    private $host =>
-    string(22) "xn--d1acpjx3f.xn--p1ai"
-  }
-  private $port =>
-  NULL
-  private $user =>
-  NULL
-  private $pass =>
-  NULL
-  private $path =>
-  NULL
-  private $query =>
-  NULL
-  private $fragment =>
-  NULL
-}
-```
+The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
-### IPv6 Support
 
-Parsing IPv6 hosts is no different that parsing standard hosts. Setting `$host
-= 'http://[2001:db8:85a3:8d3:1319:8a2e:370:7348]:8080/';`
-in the *Parsing URLs* example would return:
-
-```
-class Pdp\Uri\Url#6 (8) {
-  private $scheme =>
-  string(4) "http"
-  private $host =>
-  class Pdp\Uri\Url\Host#5 (4) {
-    private $subdomain =>
-    NULL
-    private $registrableDomain =>
-    NULL
-    private $publicSuffix =>
-    NULL
-    private $host =>
-    string(38) "[2001:db8:85a3:8d3:1319:8a2e:370:7348]"
-  }
-  private $port =>
-  string(4) "8080"
-  private $user =>
-  NULL
-  private $pass =>
-  NULL
-  private $path =>
-  string(1) "/"
-  private $query =>
-  NULL
-  private $fragment =>
-  NULL
-}
-```
-
-**IMPORTANT**: IPv6 url host names *must* be enclosed in square brackets. They
-will not be parsed properly otherwise.
-
-> Hat tip to [@geekwright](https://github.com/geekwright) for adding IPv6 support in a
-> [bugfix pull request](https://github.com/jeremykendall/php-domain-parser/pull/35).
-
-### Parsing Domains
-
-If you'd like to parse the domain (or host) portion only, you can use
-`Parser::parseHost()`.
-
-```php
-<?php
-
-$host = $parser->parseHost('a.b.c.cy');
-var_dump($host);
-```
-
-The above will output:
-
-```
-class Pdp\Uri\Url\Host#7 (3) {
-    private $subdomain =>
-    string(1) "a"
-    private $registrableDomain =>
-    string(6) "b.c.cy"
-    private $publicSuffix =>
-    string(4) "c.cy"
-}
-```
-
-### Validation of Public Suffixes
-
-Public Suffix validation is available by calling `Parser::isSuffixValid()`:
-
-```
-var_dump($parser->isSuffixValid('www.example.faketld');
-// false
-
-var_dump($parser->isSuffixValid('www.example.com.au');
-// true
-```
-
-A suffix is considered invalid if it is not contained in the 
-[Public Suffix List](http://publicsuffix.org/).
-
-> Huge thanks to [@SmellyFish](https://github.com/SmellyFish) for submitting
-> [Add a way to validate TLDs](https://github.com/jeremykendall/php-domain-parser/pull/36)
-> to add public suffix validation to the project.
-
-### Retrieving Domain Components Only ###
-
-If you're only interested in a domain component, you can use the parser to
-retrieve only the component you're interested in
-
-```php
-<?php
-
-var_dump($parser->getSubdomain('www.scottwills.co.uk'));
-var_dump($parser->getRegisterableDomain('www.scottwills.co.uk'));
-var_dump($parser->getPublicSuffix('www.scottwills.co.uk'));
-```
-
-The above will output:
-
-```
-string(3) "www"
-string(16) "scottwills.co.uk"
-string(5) "co.uk"
-```
-
-### Sanity Check
-
-You can quickly parse a url from the command line with the provided `parse`
-vendor binary.  From the root of your project, simply call:
-
-``` bash
-$ ./vendor/bin/parse <url>
-```
-
-If you pass a url to `parse`, that url will be parsed and the output printed
-to screen.
-
-If you do not pass a url, `http://user:pass@www.pref.okinawa.jp:8080/path/to/page.html?query=string#fragment`
-will be parsed and the output printed to screen.
-
-Example:
-
-``` bash
-$ ./vendor/bin/parse http://www.waxaudio.com.au/
-
-Array
-(
-    [scheme] => http
-    [user] =>
-    [pass] =>
-    [host] => www.waxaudio.com.au
-    [subdomain] => www
-    [registrableDomain] => waxaudio.com.au
-    [publicSuffix] => com.au
-    [port] =>
-    [path] => /
-    [query] =>
-    [fragment] =>
-)
-Host: http://www.waxaudio.com.au/
-```
-
-### Example Script
-
-For more information on using the PHP Domain Parser, please see the provided
-[example script](https://github.com/jeremykendall/php-domain-parser/blob/master/example.php).
-
-### Refreshing the Public Suffix List
-
-While a cached PHP copy of the Public Suffix List is provided for you in the
-`data` directory, that copy may or may not be up to date (Mozilla provides an
-[Atom change feed](http://hg.mozilla.org/mozilla-central/atom-log/default/netwerk/dns/effective_tld_names.dat)
-to keep up with changes to the list). Please use the provided vendor binary to
-refresh your cached copy of the Public Suffix List.
-
-From the root of your project, simply call:
-
-``` bash
-$ ./vendor/bin/update-psl
-```
-
-You may verify the update by checking the timestamp on the files located in the
-`data` directory.
-
-**Important**: The vendor binary `update-psl` depends on an internet connection to
-update the cached Public Suffix List.
-
-## Possible Unexpected Behavior
-
-PHP Domain Parser is built around PHP's
-[`parse_url()`](http://php.net/parse_url) function and, as such, exhibits most
-of the same behaviors of that function. Just like `parse_url()`, this library
-is not meant to validate URLs, but rather to break a URL into its component
-parts.
-
-One specific, counterintuitive behavior is that PHP Domain Parser will happily 
-parse a URL with [spaces in the host part](https://github.com/jeremykendall/php-domain-parser/issues/45).
-
-## Contributing
-
-Pull requests are *always* welcome! Please review the CONTRIBUTING.md document before
-submitting pull requests.
-
-## Heads up: BC Break In All 1.4 Versions
-
-The 1.4 series introduced a backwards incompatible change by adding PHP's `ext-mbstring`
-and `ext-intl` as dependencies.  This should have resulted in a major version
-bump.  Instead I bumped the minor version from 1.3.1 to 1.4.
-
-I highly recommend reverting to 1.3.1 if you're running into extension issues and
-do not want to or cannot install `ext-mbstring` and `ext-intl`. You will lose
-IDNA and IPv6 support, however.  Those are only available in versions >= 1.4.
-
-I apologize for any issues you may have encountered due my 
-[semver](http://semver.org/) error.
-
-## Attribution
+Attribution
+-------
 
 The HTTP adapter interface and the cURL HTTP adapter were inspired by (er,
 lifted from) Will Durand's excellent

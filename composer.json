@@ -14,41 +14,62 @@
             "role": "Developer"
         },
         {
+            "name": "Ignace Nyamagana Butera",
+            "homepage": "http://nyamsprod.com",
+            "role": "Developer"
+        },
+        {
             "name": "Contributors",
             "homepage": "https://github.com/jeremykendall/php-domain-parser/graphs/contributors"
         }
     ],
     "bin": [
-        "bin/parse",
         "bin/update-psl"
     ],
     "keywords": [
         "Public Suffix List",
         "domain parsing",
-        "url parsing"
+        "icann",
+        "idn",
+        "psl"
     ],
     "require": {
-        "php": ">=5.3.0",
-        "ext-curl": "*",
+        "php": ">=7.0",
         "ext-intl": "*",
-        "ext-mbstring": "*"
+        "psr/simple-cache": "^1"
     },
     "require-dev": {
-        "mikey179/vfsStream": "~1.6",
-        "phpunit/phpunit": "~4.8",
-        "jeremykendall/debug-die": "0.0.1.*",
-        "phing/phing": "^2.13",
-        "fabpot/php-cs-fixer": "^1.11"
+        "phpunit/phpunit": "^6.3",
+        "mikey179/vfsStream": "^1.6",
+        "friendsofphp/php-cs-fixer": "^2.7"
+    },
+    "suggest": {
+        "psr/simple-cache-implementation": "To enable using other cache providers",
+        "ext-curl": "To use the package http client"
     },
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "Pdp\\": "src/"
-        },
-        "files": [
-            "src/pdp-parse-url.php"
-        ]
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pdp\\Tests\\": "tests/"
+        }
     },
     "scripts": {
-        "post-install-cmd": "php bin/update-psl"
+        "post-install-cmd": "\\Pdp\\Installer::updateLocalCache",
+        "post-update-cmd": "\\Pdp\\Installer::updateLocalCache",
+        "test": "phpunit --coverage-text; php-cs-fixer fix -vv --diff --dry-run --allow-risky=yes",
+        "phpunit": "phpunit --coverage-text",
+        "phpcs": "php-cs-fixer fix -vv --diff --dry-run --allow-risky=yes"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "4.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
