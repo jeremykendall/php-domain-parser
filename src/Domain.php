@@ -259,7 +259,7 @@ final class Domain
     /**
      * {@inheritdoc}
      */
-    public function __set_state(array $properties)
+    public static function __set_state(array $properties)
     {
         return new self($properties['domain'], $properties['publicSuffix']);
     }
