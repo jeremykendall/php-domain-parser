@@ -363,8 +363,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
 
-Portions of the PublicSuffixListManager and the DomainParser are derivative
-works of the PHP
+Portions of the `Pdp\Converter` and `Pdp\Rules` are derivative works of the PHP
 [registered-domain-libs](https://github.com/usrflo/registered-domain-libs).
 Those parts of this codebase are heavily commented, and I've included a copy of
 the Apache Software Foundation License 2.0 in this project.
