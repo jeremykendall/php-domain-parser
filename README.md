@@ -256,7 +256,7 @@ The `Rules` class resolves the submitted domain against the parsed rules from th
 ~~~php
 <?php
 
-final class Domain
+final class Domain implements JsonSerializable
 {
     public function getDomain(): ?string
     public function getPublicSuffix(): ?string
@@ -292,6 +292,17 @@ $domain->getSubDomain();         //returns 'www'
 $domain->isKnown();              //returns true
 $domain->isICANN();              //returns true
 $domain->isPrivate();            //returns false
+echo json_encode($domain, JSON_PRETTY_PRINT);
+// returns
+//  {
+//      "domain": "www.ulb.ac.be",
+//      "registrableDomain": "ulb.ac.be",
+//      "subDomain": "www",
+//      "publicSuffix": "ac.be",
+//      "isKnown": true,
+//      "isICANN": true,
+//      "isPrivate": false
+//  }
 
 //let's resolve the same domain against the PRIVATE DOMAIN SECTION
 

@@ -11,16 +11,23 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use JsonSerializable;
+
 /**
  * Domain Value Object
  *
- * Lifted pretty much completely from Jeremy Kendall PDP
- * project
+ * WARNING: "Some people use the PSL to determine what is a valid domain name
+ * and what isn't. This is dangerous, particularly in these days where new
+ * gTLDs are arriving at a rapid pace, if your software does not regularly
+ * receive PSL updates, it will erroneously think new gTLDs are not
+ * valid. The DNS is the proper source for this innormalizeion. If you must use
+ * it for this purpose, please do not bake static copies of the PSL into your
+ * software with no update mechanism."
  *
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Domain
+final class Domain implements JsonSerializable
 {
     /**
      * @var string|null
@@ -63,8 +70,12 @@ final class Domain
      */
     private function setRegistrableDomain()
     {
-        if (!$this->hasRegistrableDomain()) {
-            return;
+        if (strpos((string) $this->domain, '.') === false) {
+            return null;
+        }
+
+        if (in_array($this->publicSuffix->getContent(), [null, $this->domain], true)) {
+            return null;
         }
 
         $nbLabelsToRemove = count($this->publicSuffix) + 1;
@@ -75,18 +86,7 @@ final class Domain
     }
 
     /**
-     * Tells whether the domain has a registrable domain part.
-     *
-     * @return bool
-     */
-    private function hasRegistrableDomain(): bool
-    {
-        return strpos((string) $this->domain, '.') > 0
-            && !in_array($this->publicSuffix->getContent(), [null, $this->domain], true);
-    }
-
-    /**
-     * Normalize the domain according to its representation.
+     * Normalizes the domain according to its representation.
      *
      * @param string $domain
      *
@@ -108,13 +108,13 @@ final class Domain
     }
 
     /**
-     * Compute the sub domain part.
+     * Computes the sub domain part.
      *
      * @return string|null
      */
     private function setSubDomain()
     {
-        if (!$this->hasRegistrableDomain()) {
+        if (null === $this->registrableDomain) {
             return null;
         }
 
@@ -125,12 +125,48 @@ final class Domain
             return null;
         }
 
-        $domain = implode('.', array_slice($domainLabels, 0, $countLabels - $nbLabelsToRemove));
+        $subDomain = implode('.', array_slice($domainLabels, 0, $countLabels - $nbLabelsToRemove));
 
-        return $this->normalize($domain);
+        return $this->normalize($subDomain);
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function jsonSerialize()
+    {
+        return [
+            'domain' => $this->domain,
+            'registrableDomain' => $this->registrableDomain,
+            'subDomain' => $this->subDomain,
+            'publicSuffix' => $this->publicSuffix->getContent(),
+            'isKnown' => $this->publicSuffix->isKnown(),
+            'isICANN' => $this->publicSuffix->isICANN(),
+            'isPrivate' => $this->publicSuffix->isPrivate(),
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __debugInfo()
+    {
+        return $this->jsonSerialize();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function __set_state(array $properties)
+    {
+        return new self($properties['domain'], $properties['publicSuffix']);
+    }
+
+    /**
+     * Returns the full domain name.
+     *
+     * This method should return null on seriously malformed domain name
+     *
      * @return string|null
      */
     public function getDomain()
@@ -139,81 +175,11 @@ final class Domain
     }
 
     /**
-     * @return string|null
-     */
-    public function getPublicSuffix()
-    {
-        return $this->publicSuffix->getContent();
-    }
-
-    /**
-     * Does the domain have a matching rule in the Public Suffix List?
+     * Returns the registrable domain.
      *
-     * WARNING: "Some people use the PSL to determine what is a valid domain name
-     * and what isn't. This is dangerous, particularly in these days where new
-     * gTLDs are arriving at a rapid pace, if your software does not regularly
-     * receive PSL updates, because it will erroneously think new gTLDs are not
-     * valid. The DNS is the proper source for this innormalizeion. If you must use
-     * it for this purpose, please do not bake static copies of the PSL into your
-     * software with no update mechanism."
+     * The registered or registrable domain is the public suffix plus one additional label.
      *
-     * @see https://publicsuffix.org/learn/
-     *
-     * @return bool
-     */
-    public function isKnown(): bool
-    {
-        return $this->publicSuffix->isKnown();
-    }
-
-    /**
-     * Does the domain have a matching rule in the Public Suffix List ICANN section
-     *
-     * WARNING: "Some people use the PSL to determine what is a valid domain name
-     * and what isn't. This is dangerous, particularly in these days where new
-     * gTLDs are arriving at a rapid pace, if your software does not regularly
-     * receive PSL updates, because it will erroneously think new gTLDs are not
-     * valid. The DNS is the proper source for this innormalizeion. If you must use
-     * it for this purpose, please do not bake static copies of the PSL into your
-     * software with no update mechanism."
-     *
-     * @see https://publicsuffix.org/learn/
-     *
-     * @return bool
-     */
-    public function isICANN(): bool
-    {
-        return $this->publicSuffix->isICANN();
-    }
-
-    /**
-     * Does the domain have a matching rule in the Public Suffix List Private section
-     *
-     * WARNING: "Some people use the PSL to determine what is a valid domain name
-     * and what isn't. This is dangerous, particularly in these days where new
-     * gTLDs are arriving at a rapid pace, if your software does not regularly
-     * receive PSL updates, because it will erroneously think new gTLDs are not
-     * valid. The DNS is the proper source for this innormalizeion. If you must use
-     * it for this purpose, please do not bake static copies of the PSL into your
-     * software with no update mechanism."
-     *
-     * @see https://publicsuffix.org/learn/
-     *
-     * @return bool
-     */
-    public function isPrivate(): bool
-    {
-        return $this->publicSuffix->isPrivate();
-    }
-
-    /**
-     * Get registrable domain.
-     *
-     * Algorithm #7: The registered or registrable domain is the public suffix
-     * plus one additional label.
-     *
-     * This method should return null if the domain provided is a public suffix,
-     * per the test cases provided by Mozilla.
+     * This method should return null if the registrable domain is the same as the public suffix.
      *
      * @see https://publicsuffix.org/list/
      * @see https://raw.githubusercontent.com/publicsuffix/list/master/tests/test_psl.txt
@@ -226,12 +192,12 @@ final class Domain
     }
 
     /**
-     * Get the sub domain.
+     * Returns the sub domain.
      *
-     * This method should return null if
+     * The sub domain represents the remaining labels without the registrable domain.
      *
-     * - the registrable domain is null
-     * - the registrable domain is the same as the public suffix
+     * This method should return null if the registrable domain is null
+     * This method should return null if the registrable domain is the same as the public suffix
      *
      * @return string|null registrable domain
      */
@@ -241,26 +207,48 @@ final class Domain
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the public suffix.
+     *
+     * @return string|null
      */
-    public function __debugInfo()
+    public function getPublicSuffix()
     {
-        return [
-            'domain' => $this->domain,
-            'publicSuffix' => $this->publicSuffix->getContent(),
-            'registrableDomain' => $this->registrableDomain,
-            'subDomain' => $this->subDomain,
-            'isKnown' => $this->isKnown(),
-            'isICANN' => $this->isICANN(),
-            'isPrivate' => $this->isPrivate(),
-        ];
+        return $this->publicSuffix->getContent();
     }
 
     /**
-     * {@inheritdoc}
+     * Tells whether the public suffix has a matching rule in a Public Suffix List.
+     *
+     * @see https://publicsuffix.org/learn/
+     *
+     * @return bool
      */
-    public static function __set_state(array $properties)
+    public function isKnown(): bool
     {
-        return new self($properties['domain'], $properties['publicSuffix']);
+        return $this->publicSuffix->isKnown();
+    }
+
+    /**
+     * Tells whether the public suffix has a matching rule in a Public Suffix List ICANN Section.
+     *
+     * @see https://publicsuffix.org/learn/
+     *
+     * @return bool
+     */
+    public function isICANN(): bool
+    {
+        return $this->publicSuffix->isICANN();
+    }
+
+    /**
+     * Tells whether the public suffix has a matching rule in a Public Suffix List Private Section.
+     *
+     * @see https://publicsuffix.org/learn/
+     *
+     * @return bool
+     */
+    public function isPrivate(): bool
+    {
+        return $this->publicSuffix->isPrivate();
     }
 }

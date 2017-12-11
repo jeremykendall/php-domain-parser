@@ -15,6 +15,8 @@ use Throwable;
 
 /**
  * A class to manage PSL ICANN Section rules updates
+ *
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Installer
 {

@@ -13,6 +13,9 @@ namespace Pdp;
 
 /**
  * A class to resolve domain name against the Public Suffix list
+ *
+ * @author Jeremy Kendall <jeremy@jeremykendall.net>
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Rules
 {
@@ -21,6 +24,8 @@ final class Rules
     const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 
     /**
+     * PSL rules as a multidimentional associative array
+     *
      * @var array
      */
     private $rules;
@@ -62,7 +67,7 @@ final class Rules
     }
 
     /**
-     * Tells whether the given domain is valid.
+     * Tells whether the given domain can be resolved.
      *
      * @param string|null $domain
      *
@@ -77,7 +82,7 @@ final class Rules
     }
 
     /**
-     * Normalize domain.
+     * Normalizes a domain name.
      *
      * "The domain must be canonicalized in the normal way for hostnames - lower-case, Punycode."
      *
@@ -102,7 +107,7 @@ final class Rules
     }
 
     /**
-     * Returns the matched public suffix and its type
+     * Returns the matched public suffix.
      *
      * @param string $type
      * @param string $domain
@@ -132,7 +137,7 @@ final class Rules
     }
 
     /**
-     * Returns the matched public suffix using a given section type
+     * Returns the public suffix matched against a given PSL section.
      *
      * @param string $type
      * @param array  $labels
@@ -178,7 +183,7 @@ final class Rules
     }
 
     /**
-     * Returns the PublicSuffix value object if no public suffix was found.
+     * Returns a PublicSuffix if none was found using the PSL.
      *
      * @param string $domain
      *
@@ -214,7 +219,7 @@ final class Rules
     }
 
     /**
-     * Returns the PublicSuffix value object if a known public suffix was found.
+     * Returns a PublicSuffix if one was found using the PSL.
      *
      * @param string       $domain
      * @param PublicSuffix $publicSuffix

@@ -2,7 +2,7 @@
 
 All Notable changes to `PHP Domain Parser` will be documented in this file
 
-## 4.0.0 - TBD
+## 5.0.0 - TBD
 
 ### Added
 
@@ -16,8 +16,9 @@ All Notable changes to `PHP Domain Parser` will be documented in this file
 
 ### Fixed
 
-- Domain class with invalid domain names improved supported
+- invalid domain names improved supported
 - idn_* conversion error better handled
+- domain name with RFC3986 encoded string improved supported
 
 ### Deprecated
 

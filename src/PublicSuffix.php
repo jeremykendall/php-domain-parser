@@ -16,6 +16,14 @@ use Countable;
 /**
  * Public Suffix Value Object
  *
+ * WARNING: "Some people use the PSL to determine what is a valid domain name
+ * and what isn't. This is dangerous, particularly in these days where new
+ * gTLDs are arriving at a rapid pace, if your software does not regularly
+ * receive PSL updates, it will erroneously think new gTLDs are not
+ * valid. The DNS is the proper source for this innormalizeion. If you must use
+ * it for this purpose, please do not bake static copies of the PSL into your
+ * software with no update mechanism."
+ *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  * @internal
@@ -45,6 +53,8 @@ final class PublicSuffix implements Countable
     }
 
     /**
+     * Returns the public suffix content.
+     *
      * @return string|null
      */
     public function getContent()
@@ -65,15 +75,7 @@ final class PublicSuffix implements Countable
     }
 
     /**
-     * Does the domain have a matching rule in the Public Suffix List?
-     *
-     * WARNING: "Some people use the PSL to determine what is a valid domain name
-     * and what isn't. This is dangerous, particularly in these days where new
-     * gTLDs are arriving at a rapid pace, if your software does not regularly
-     * receive PSL updates, because it will erroneously think new gTLDs are not
-     * valid. The DNS is the proper source for this innormalizeion. If you must use
-     * it for this purpose, please do not bake static copies of the PSL into your
-     * software with no update mechanism."
+     * Tells whether the public suffix has a matching rule in a Public Suffix List.
      *
      * @see https://publicsuffix.org/learn/
      *
@@ -85,15 +87,7 @@ final class PublicSuffix implements Countable
     }
 
     /**
-     * Does the domain have a matching rule in the Public Suffix List ICANN section
-     *
-     * WARNING: "Some people use the PSL to determine what is a valid domain name
-     * and what isn't. This is dangerous, particularly in these days where new
-     * gTLDs are arriving at a rapid pace, if your software does not regularly
-     * receive PSL updates, because it will erroneously think new gTLDs are not
-     * valid. The DNS is the proper source for this innormalizeion. If you must use
-     * it for this purpose, please do not bake static copies of the PSL into your
-     * software with no update mechanism."
+     * Tells whether the public suffix has a matching rule in a Public Suffix List ICANN Section.
      *
      * @see https://publicsuffix.org/learn/
      *
@@ -105,15 +99,7 @@ final class PublicSuffix implements Countable
     }
 
     /**
-     * Does the domain have a matching rule in the Public Suffix List Private section
-     *
-     * WARNING: "Some people use the PSL to determine what is a valid domain name
-     * and what isn't. This is dangerous, particularly in these days where new
-     * gTLDs are arriving at a rapid pace, if your software does not regularly
-     * receive PSL updates, because it will erroneously think new gTLDs are not
-     * valid. The DNS is the proper source for this innormalizeion. If you must use
-     * it for this purpose, please do not bake static copies of the PSL into your
-     * software with no update mechanism."
+     * Tells whether the public suffix has a matching rule in a Public Suffix List Private Section.
      *
      * @see https://publicsuffix.org/learn/
      *
