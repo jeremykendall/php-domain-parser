@@ -44,7 +44,7 @@ $ composer require jeremykendall/php-domain-parser
 Documentation
 --------
 
-### Public Suffix Manager
+### Public Suffix List Maintenance
 
 ~~~php
 <?php
@@ -100,7 +100,7 @@ By default and out of the box, the package uses:
 - a file cache PSR-16 implementation based on the excellent [FileCache](https://github.com/kodus/file-cache) which **caches the local copy for a maximum of 7 days**.
 - a HTTP client based on the cURL extension.
 
-#### Accessing the Public Suffix rules
+#### Accessing the Public Suffix List rules
 
 ~~~php
 <?php
@@ -126,7 +126,7 @@ use Pdp\Manager;
 
 $manager = new Manager(new Cache(), new CurlHttpClient());
 $rules = $manager->getRules('https://publicsuffix.org/list/public_suffix_list.dat');
-$rules->resolve('www.bébé.be');
+$domain = $rules->resolve('www.bébé.be');
 ~~~
 
 #### Refreshing the cached rules
@@ -165,7 +165,7 @@ If you prefer using your own implementations you should:
 2. Adapt its code to reflect your requirements.
 
 
-In any cases your are required to register a cron with your chosen script to keep your data up to date
+In any cases your are required to update regularly your PSL information with your chosen script to keep your data up to date.
 
 For example, below I'm using the `Manager` with
 
@@ -205,7 +205,7 @@ final class GuzzleHttpClientAdapter implements HttpClient
 }
 
 $dbh = new PDO('mysql:dbname=testdb;host=127.0.0.1', 'dbuser', 'dbpass');
-$symfonyCache = new PDOCache($dbh, 'league-psl-icann', 86400);
+$symfonyCache = new PDOCache($dbh, 'psl', 86400);
 $guzzleAdapter = new GuzzleHttpClientAdapter(new GuzzleClient());
 $manager = new Manager($symfonyCache, $guzzleAdapter);
 $manager->refreshRules();
@@ -218,16 +218,13 @@ $domain->getDomain();            //returns 'nl.shop.bébé.faketld'
 $domain->getPublicSuffix();      //returns 'faketld'
 $domain->getRegistrableDomain(); //returns 'bébé.faketld'
 $domain->getSubDomain();         //returns 'nl.shop'
-$domain->isValid();              //returns false
+$domain->isKnown();              //returns false
 ~~~
 
 In any case, you should setup a cron to regularly update your local cache.
 
 
-### Public Suffix Resolver
-
-
-#### Public Suffix and Domain Resolution
+### Domain Resolution
 
 ~~~php
 <?php
@@ -328,7 +325,7 @@ Credits
 
 - [Jeremy Kendall](https://github.com/jeremykendall)
 - [ignace nyamagana butera](https://github.com/nyamsprod)
-- [All Contributors](https://github.com/thephpleague/uri/contributors)
+- [All Contributors](https://github.com/jeremykendall/php-domain-parser/contributors)
 
 License
 -------
