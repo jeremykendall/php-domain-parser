@@ -2,18 +2,14 @@
 
 declare(strict_types=1);
 
-/**
- * Public Suffix List PHP: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/publicsuffixlist-php for the canonical source repository
- *
- * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- * @license   http://github.com/jeremykendall/publicsuffixlist-php/blob/master/LICENSE MIT License
- */
-namespace Pdp\Tests;
+namespace pdp\tests;
 
-use Pdp\MatchedDomain;
-use Pdp\UnmatchedDomain;
+use Pdp\Cache;
+use Pdp\CurlHttpClient;
+use Pdp\Domain;
+use Pdp\Manager;
+use Pdp\PublicSuffix;
+use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 
 class DomainTest extends TestCase
@@ -21,33 +17,40 @@ class DomainTest extends TestCase
     /**
      * @dataProvider invalidRegistrableDomainProvider
      *
-     * @param string      $domain
-     * @param string|null $publicSuffix
+     * @param string $domain
+     * @param string $publicSuffix
      */
-    public function testRegistrableDomainIsNullWithMatchedDomain(string $domain, $publicSuffix)
+    public function testRegistrableDomainIsNullWithFoundDomain(string $domain, $publicSuffix)
     {
-        $domain = new MatchedDomain($domain, $publicSuffix);
+        $domain = new Domain($domain, new PublicSuffix($publicSuffix));
         $this->assertNull($domain->getRegistrableDomain());
+        $this->assertNull($domain->getSubDomain());
     }
 
     public function invalidRegistrableDomainProvider()
     {
         return [
             'domain and suffix are the same' => ['co.uk', 'co.uk'],
-            'publicSuffix is null' => ['example.faketld', null],
             'domain has no labels' => ['faketld', 'faketld'],
+            'public suffix is null' => ['faketld', null],
+            'public suffix is invalid' => ['_b%C3%A9bé.be-', 'be-'],
         ];
     }
 
-    /**
-     * @dataProvider invalidRegistrableDomainProvider
-     *
-     * @param string      $domain
-     * @param string|null $publicSuffix
-     */
-    public function testRegistrableDomainIsNullWithUnMatchedDomain(string $domain, $publicSuffix)
+    public function testDomainInternalPhpMethod()
     {
-        $domain = new UnmatchedDomain($domain, $publicSuffix);
-        $this->assertNull($domain->getRegistrableDomain());
+        $rules = (new Manager(new Cache(), new CurlHttpClient()))->getRules();
+        $domain = $rules->resolve('contoso.com');
+        $generateDomain = eval('return '.var_export($domain, true).';');
+        $this->assertInternalType('array', $domain->__debugInfo());
+        $this->assertEquals($domain, $generateDomain);
+    }
+
+    public function testPublicSuffixnternalPhpMethod()
+    {
+        $publicSuffix = new PublicSuffix('co.uk', Rules::ICANN_DOMAINS);
+        $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
+        $this->assertInternalType('array', $publicSuffix->__debugInfo());
+        $this->assertEquals($publicSuffix, $generatePublicSuffix);
     }
 }
