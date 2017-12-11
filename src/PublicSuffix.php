@@ -16,16 +16,12 @@ use Countable;
 /**
  * Public Suffix Value Object
  *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ *
+ * @internal
  */
 final class PublicSuffix implements Countable
 {
-    const ICANN = 'ICANN_DOMAIN';
-    const PRIVATE = 'PRIVATE_DOMAIN';
-    const ALL = 'ALL_DOMAIN';
-    const UNKNOWN = 'UNKNOWN_DOMAIN';
-
     /**
      * @var string|null
      */
@@ -34,7 +30,7 @@ final class PublicSuffix implements Countable
     /**
      * @var string
      */
-    private $type = '';
+    private $type;
 
     /**
      * New instance.
@@ -42,13 +38,9 @@ final class PublicSuffix implements Countable
      * @param string|null $publicSuffix
      * @param string      $type
      */
-    public function __construct(string $publicSuffix = null, string $type = self::UNKNOWN)
+    public function __construct(string $publicSuffix = null, string $type = '')
     {
         $this->publicSuffix = $publicSuffix;
-        if (!in_array($type, [self::UNKNOWN, self::PRIVATE, self::ICANN], true)) {
-            $type = self::UNKNOWN;
-        }
-
         $this->type = $type;
     }
 
@@ -89,7 +81,7 @@ final class PublicSuffix implements Countable
      */
     public function isKnown(): bool
     {
-        return self::UNKNOWN !== $this->type;
+        return '' !== $this->type;
     }
 
     /**
@@ -109,7 +101,7 @@ final class PublicSuffix implements Countable
      */
     public function isICANN(): bool
     {
-        return self::ICANN === $this->type;
+        return Rules::ICANN_DOMAINS === $this->type;
     }
 
     /**
@@ -129,7 +121,7 @@ final class PublicSuffix implements Countable
      */
     public function isPrivate(): bool
     {
-        return self::PRIVATE === $this->type;
+        return Rules::PRIVATE_DOMAINS === $this->type;
     }
 
     /**

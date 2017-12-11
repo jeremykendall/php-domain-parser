@@ -16,9 +16,9 @@ use SplTempFileObject;
 /**
  * Public Suffix List Parser.
  *
- * This class parses the Public Suffix List
+ * This class convert the Public Suffix List into an associative, multidimensional array
  */
-final class Parser
+final class Converter
 {
     /**
      * Convert the Public Suffix List into
@@ -28,12 +28,9 @@ final class Parser
      *
      * @return array
      */
-    public function parse(string $content): array
+    public function convert(string $content): array
     {
-        $rules = [
-            PublicSuffix::ICANN => [],
-            PublicSuffix::PRIVATE => [],
-        ];
+        $rules = [Rules::ICANN_DOMAINS => [], Rules::PRIVATE_DOMAINS => []];
         $file = new SplTempFileObject();
         $file->fwrite($content);
         $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
@@ -59,18 +56,18 @@ final class Parser
     private function getSection(string $section, string $line): string
     {
         if ($section == '' && strpos($line, '// ===BEGIN ICANN DOMAINS===') === 0) {
-            return PublicSuffix::ICANN;
+            return Rules::ICANN_DOMAINS;
         }
 
-        if ($section == PublicSuffix::ICANN && strpos($line, '// ===END ICANN DOMAINS===') === 0) {
+        if ($section == Rules::ICANN_DOMAINS && strpos($line, '// ===END ICANN DOMAINS===') === 0) {
             return '';
         }
 
         if ($section == '' && strpos($line, '// ===BEGIN PRIVATE DOMAINS===') === 0) {
-            return PublicSuffix::PRIVATE;
+            return Rules::PRIVATE_DOMAINS;
         }
 
-        if ($section == PublicSuffix::PRIVATE && strpos($line, '// ===END PRIVATE DOMAINS===') === 0) {
+        if ($section == Rules::PRIVATE_DOMAINS && strpos($line, '// ===END PRIVATE DOMAINS===') === 0) {
             return '';
         }
 

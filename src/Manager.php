@@ -96,11 +96,11 @@ final class Manager
      */
     public function refreshRules(string $source_url = self::PSL_URL): bool
     {
-        static $parser;
-        $parser = $parser ?? new Parser();
+        static $converter;
+        $converter = $converter ?? new Converter();
         $content = $this->http->getContent($source_url);
-        $rules = $parser->parse($content);
-        if (empty($rules[PublicSuffix::ICANN]) || empty($rules[PublicSuffix::PRIVATE])) {
+        $rules = $converter->convert($content);
+        if (empty($rules[Rules::ICANN_DOMAINS]) || empty($rules[Rules::PRIVATE_DOMAINS])) {
             return false;
         }
 

@@ -28,7 +28,7 @@ final class Domain
     private $domain;
 
     /**
-     * @var string|null
+     * @var PublicSuffix
      */
     private $publicSuffix;
 
@@ -52,12 +52,14 @@ final class Domain
     {
         $this->domain = $domain;
         $this->publicSuffix = $publicSuffix;
-        $this->setRegistrableDomain();
-        $this->setSubDomain();
+        $this->registrableDomain = $this->setRegistrableDomain();
+        $this->subDomain = $this->setSubDomain();
     }
 
     /**
-     * Compute the registrable domain part
+     * Compute the registrable domain part.
+     *
+     * @return string|null
      */
     private function setRegistrableDomain()
     {
@@ -65,10 +67,11 @@ final class Domain
             return;
         }
 
-        $countLabelsToRemove = count($this->publicSuffix) + 1;
+        $nbLabelsToRemove = count($this->publicSuffix) + 1;
         $domainLabels = explode('.', $this->domain);
-        $domain = implode('.', array_slice($domainLabels, count($domainLabels) - $countLabelsToRemove));
-        $this->registrableDomain = $this->normalize($domain);
+        $registrableDomain = implode('.', array_slice($domainLabels, count($domainLabels) - $nbLabelsToRemove));
+
+        return $this->normalize($registrableDomain);
     }
 
     /**
@@ -105,23 +108,26 @@ final class Domain
     }
 
     /**
-     * Compute the sub domain part
+     * Compute the sub domain part.
+     *
+     * @return string|null
      */
     private function setSubDomain()
     {
         if (!$this->hasRegistrableDomain()) {
-            return;
+            return null;
         }
 
+        $nbLabelsToRemove = count($this->publicSuffix) + 1;
         $domainLabels = explode('.', $this->domain);
         $countLabels = count($domainLabels);
-        $countLabelsToRemove = count($this->publicSuffix) + 1;
-        if ($countLabels === $countLabelsToRemove) {
-            return;
+        if ($countLabels === $nbLabelsToRemove) {
+            return null;
         }
 
-        $domain = implode('.', array_slice($domainLabels, 0, $countLabels - $countLabelsToRemove));
-        $this->subDomain = $this->normalize($domain);
+        $domain = implode('.', array_slice($domainLabels, 0, $countLabels - $nbLabelsToRemove));
+
+        return $this->normalize($domain);
     }
 
     /**

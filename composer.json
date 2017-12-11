@@ -29,11 +29,12 @@
     "keywords": [
         "Public Suffix List",
         "domain parsing",
-        "url parsing"
+        "icann",
+        "idn",
+        "psl"
     ],
     "require": {
         "php": ">=7.0",
-        "ext-curl": "*",
         "ext-intl": "*",
         "psr/simple-cache": "^1"
     },
@@ -43,7 +44,8 @@
         "friendsofphp/php-cs-fixer": "^2.7"
     },
     "suggest": {
-        "psr/simple-cache-implementation": "To enable using other cache providers"
+        "psr/simple-cache-implementation": "To enable using other cache providers",
+        "ext-curl": "To use the package http client"
     },
     "autoload": {
         "psr-4": {
