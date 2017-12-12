@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use InvalidArgumentException;
+
 /**
  * Simple cURL Http client
  *
@@ -26,17 +28,43 @@ namespace Pdp;
 final class CurlHttpClient implements HttpClient
 {
     /**
+     * Additionnal cURL options
+     *
+     * @var array
+     */
+    private $options;
+
+    /**
+     * new instance
+     *
+     * @param array $options additional cURL options
+     */
+    public function __construct(array $options = [])
+    {
+        $this->options = $options + [
+            CURLOPT_FAILONERROR => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPGET => true,
+        ];
+
+        $curl = curl_init();
+        $res = @curl_setopt_array($curl, $this->options);
+        curl_close($curl);
+        if (!$res) {
+            throw new InvalidArgumentException('Please verify your curl additionnal options');
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getContent(string $url): string
     {
+        $options = $this->options;
+        $options[CURLOPT_URL] = $url;
         $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_FAILONERROR => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => $url,
-        ]);
+        curl_setopt_array($curl, $options);
         $content = curl_exec($curl);
         $code = curl_errno($curl);
         $message = curl_error($curl);
