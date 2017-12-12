@@ -74,7 +74,7 @@ use Pdp\Converter;
 
 $content = file_get_contents('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
 $converter = new Converter();
-$arr_rules = $converter->convert($raw);
+$arr_rules = $converter->convert($content);
 ~~~
 
 Once the PSL has been converted we can feed its data to a `Pdp\Rules` object which is responsible for resolving a given domain name against the PSL rules.

@@ -58,7 +58,7 @@ final class Rules
             return new Domain();
         }
 
-        $publicSuffix = $this->findPublicSuffix($type, $domain);
+        $publicSuffix = $this->findPublicSuffix($domain, $type);
         if (null === $publicSuffix->getContent()) {
             return new Domain($domain, $this->handleNoMatches($domain));
         }
@@ -75,7 +75,7 @@ final class Rules
      */
     private function isMatchable($domain): bool
     {
-        return $domain !== null
+        return null !== $domain
             && strpos($domain, '.') > 0
             && strlen($domain) === strcspn($domain, '][')
             && !filter_var($domain, FILTER_VALIDATE_IP);
@@ -109,21 +109,21 @@ final class Rules
     /**
      * Returns the matched public suffix.
      *
-     * @param string $type
      * @param string $domain
+     * @param string $type
      *
      * @return PublicSuffix
      */
-    private function findPublicSuffix(string $type, string $domain): PublicSuffix
+    private function findPublicSuffix(string $domain, string $type): PublicSuffix
     {
         $normalizedDomain = $this->normalize($domain);
         $reverseLabels = array_reverse(explode('.', $normalizedDomain));
-        $resultIcann = $this->findPublicSuffixFromSection(self::ICANN_DOMAINS, $reverseLabels);
+        $resultIcann = $this->findPublicSuffixFromSection($reverseLabels, self::ICANN_DOMAINS);
         if (self::ICANN_DOMAINS === $type) {
             return $resultIcann;
         }
 
-        $resultPrivate = $this->findPublicSuffixFromSection(self::PRIVATE_DOMAINS, $reverseLabels);
+        $resultPrivate = $this->findPublicSuffixFromSection($reverseLabels, self::PRIVATE_DOMAINS);
         if (count($resultPrivate) > count($resultIcann)) {
             return $resultPrivate;
         }
@@ -138,12 +138,12 @@ final class Rules
     /**
      * Returns the public suffix matched against a given PSL section.
      *
-     * @param string $type
      * @param array  $labels
+     * @param string $type
      *
      * @return PublicSuffix
      */
-    private function findPublicSuffixFromSection(string $type, array $labels): PublicSuffix
+    private function findPublicSuffixFromSection(array $labels, string $type): PublicSuffix
     {
         $rules = $this->rules[$type];
         $matches = [];
@@ -155,7 +155,7 @@ final class Rules
 
             //match wildcard rule
             if (isset($rules['*'])) {
-                array_unshift($matches, $label);
+                $matches[] = $label;
                 break;
             }
 
@@ -169,16 +169,16 @@ final class Rules
                 break;
             }
 
-            array_unshift($matches, $label);
+            $matches[] = $label;
             $rules = $rules[$label];
         }
 
-        $found = array_filter($matches, 'strlen');
-        if (empty($found)) {
+        $foundLabels = array_reverse(array_filter($matches, 'strlen'));
+        if (empty($foundLabels)) {
             return new PublicSuffix();
         }
 
-        return new PublicSuffix(implode('.', $found), $type);
+        return new PublicSuffix(implode('.', $foundLabels), $type);
     }
 
     /**
@@ -213,7 +213,7 @@ final class Rules
      */
     private function isPunycoded(string $domain): bool
     {
-        return strpos($domain, 'xn--') !== false;
+        return false !== strpos($domain, 'xn--');
     }
 
     /**

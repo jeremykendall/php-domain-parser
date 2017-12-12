@@ -70,7 +70,7 @@ final class Domain implements JsonSerializable
      */
     private function setRegistrableDomain()
     {
-        if (strpos((string) $this->domain, '.') === false) {
+        if (false === strpos((string) $this->domain, '.')) {
             return null;
         }
 
@@ -95,7 +95,7 @@ final class Domain implements JsonSerializable
     private function normalize(string $domain)
     {
         $func = 'idn_to_utf8';
-        if (strpos($domain, 'xn--') !== false) {
+        if (false !== strpos($domain, 'xn--')) {
             $func = 'idn_to_ascii';
         }
 

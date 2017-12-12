@@ -38,13 +38,13 @@ final class CurlHttpClient implements HttpClient
             CURLOPT_URL => $url,
         ]);
         $content = curl_exec($curl);
-        if (CURLE_OK !== ($code = curl_errno($curl))) {
-            $message = curl_error($curl);
-            curl_close($curl);
-            throw new HttpClientException($message, $code);
-        }
+        $code = curl_errno($curl);
+        $message = curl_error($curl);
         curl_close($curl);
+        if (CURLE_OK === $code) {
+            return $content;
+        }
 
-        return $content;
+        throw new HttpClientException($message, $code);
     }
 }
