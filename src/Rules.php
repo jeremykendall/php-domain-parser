@@ -55,7 +55,7 @@ final class Rules
         }
 
         if (!$this->isMatchable($domain)) {
-            return new Domain(null, new PublicSuffix());
+            return new Domain();
         }
 
         $publicSuffix = $this->findPublicSuffix($type, $domain);

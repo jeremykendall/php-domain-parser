@@ -44,7 +44,126 @@ $ composer require jeremykendall/php-domain-parser
 Documentation
 --------
 
+### Public Suffix List conversion
+
+~~~php
+<?php
+
+namespace Pdp;
+
+final class Converter
+{
+    public function convert(string $content): array
+}
+~~~
+
+To resolve the submitted domain name we must first convert the Public Suffix List into a structure consommable by the library. This is done using the `Pdp\Converter` class which converts the list into an `array` representation that can be then used by the `Pdp\Rules` object.
+
+~~~php
+<?php
+
+use Pdp\Converter;
+use Pdp\Rules;
+
+$content = file_get_contents('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
+$converter = new Converter();
+$arr_rules = $converter->convert($raw);
+$rules = new Rules($arr_rules);
+~~~
+
+### Domain name resolution
+
+~~~php
+<?php
+
+namespace Pdp;
+
+final class Rules
+{
+    const ALL_DOMAINS = 'ALL_DOMAINS';
+    const ICANN_DOMAINS = 'ICANN_DOMAINS';
+    const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
+
+    public function __construct(array $rules)
+    public function resolve(string $domain = null, string $type = self::ALL_DOMAINS): Domain
+}
+~~~
+
+The `Rules` constructor expects a `array` representation of the Public Suffix List. This `array` representation is constructed using the `Pdp\Converter` class.
+
+The `Rules` class resolves the submitted domain against the parsed rules from the PSL. This is done using the `Rules::resolve` method which returns a `Pdp\Domain` object. The method expects
+
+- a valid domain name as a string
+- a string to optionnally specify which section of the PSL you want to validate the given domain against.  
+ By default all sections are used `Rules::ALL_DOMAINS` but you can validate your domain against the ICANN only section (`Rules::ICANN_DOMAINS` or the private section (`Rules::PRIVATE_DOMAINS`) of the PSL.
+
+~~~php
+<?php
+
+final class Domain implements JsonSerializable
+{
+    public function getDomain(): ?string
+    public function getPublicSuffix(): ?string
+    public function getRegistrableDomain(): ?string
+    public function getSubDomain(); ?string
+    public function isKnown(): bool;
+    public function isICANN(): bool;
+    public function isPrivate(): bool;
+}
+~~~
+
+The `Domain` getters method always return normalized value according to the domain status against the PSL rules.
+
+<p class="message-notice"><code>Domain::isKnown</code> status depends on the PSL rules used. For the same domain, depending on the rules used a domain public suffix may be known or not.</p>
+
+~~~php
+<?php
+
+use Pdp\Converter;
+use Pdp\Rules;
+
+$content = file_get_contents('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
+$arr = (new Converter())->convert($raw);
+$rules = new Rules($arr);
+
+$domain = $rules->resolve('www.ulb.ac.be');
+$domain->getDomain();            //returns 'www.ulb.ac.be'
+$domain->getPublicSuffix();      //returns 'ac.be'
+$domain->getRegistrableDomain(); //returns 'ulb.ac.be'
+$domain->getSubDomain();         //returns 'www'
+$domain->isKnown();              //returns true
+$domain->isICANN();              //returns true
+$domain->isPrivate();            //returns false
+echo json_encode($domain, JSON_PRETTY_PRINT);
+// returns
+//  {
+//      "domain": "www.ulb.ac.be",
+//      "registrableDomain": "ulb.ac.be",
+//      "subDomain": "www",
+//      "publicSuffix": "ac.be",
+//      "isKnown": true,
+//      "isICANN": true,
+//      "isPrivate": false
+//  }
+
+//let's resolve the same domain against the PRIVATE DOMAIN SECTION
+
+$domain = $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS);
+$domain->getDomain();            //returns 'www.ulb.ac.be'
+$domain->getPublicSuffix();      //returns 'be'
+$domain->getRegistrableDomain(); //returns 'ac.be'
+$domain->getSubDomain();         //returns 'www.ulb'
+$domain->isKnown();              //returns false
+$domain->isICANN();              //returns false
+$domain->isPrivate();            //returns false
+~~~
+
+<p class="message-warning"><strong>Warning:</strong> Some people use the PSL to determine what is a valid domain name and what isn't. This is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace, if your software does not regularly receive PSL updates, it may erroneously think new gTLDs are not known. The DNS is the proper source for this information. If you must use it for this purpose, please do not bake static copies of the PSL into your software with no update mechanism.</p>
+
 ### Public Suffix List Maintenance
+
+**Directly fetching the Public Suffix List without caching the result is not recommend** . For that reason, the package comes bundle with a `Pdp\Manager` class which retrieves, convert and cache the Public Suffix List for you.
+
 
 ~~~php
 <?php
@@ -62,8 +181,6 @@ final class Manager
 }
 ~~~
 
-This class obtains, parses, caches, and returns a PHP representation of the PSL rules.
-
 #### Creating a new manager
 
 To work as intended, the `Manager` constructor requires:
@@ -72,6 +189,8 @@ To work as intended, the `Manager` constructor requires:
 
 - a `HttpClient` interface which exposes the `HttpClient::getContent` method which expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
 If an error occurs while retrieving such body a `HttpClientException` is thrown.
+
+**Of note:** the class also uses internally a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
 
 ~~~php
 <?php
@@ -221,99 +340,7 @@ $domain->getSubDomain();         //returns 'nl.shop'
 $domain->isKnown();              //returns false
 ~~~
 
-In any case, you should setup a cron to regularly update your local cache.
-
-
-### Domain Resolution
-
-~~~php
-<?php
-
-namespace Pdp;
-
-final class Rules
-{
-    const ALL_DOMAINS = 'ALL_DOMAINS';
-    const ICANN_DOMAINS = 'ICANN_DOMAINS';
-    const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
-
-    public function __construct(array $rules)
-    public function resolve(string $domain = null, string $type = self::ALL_DOMAINS): Domain
-}
-~~~
-
-The `Rules` constructor expects a `array` representation of the Public Suffix List. This `array` representation is constructed by the `Manager` and stored using a PSR-16 compliant cache.
-
-The `Rules` class resolves the submitted domain against the parsed rules from the PSL. This is done using the `Rules::resolve` method which returns a `Pdp\Domain` object. The method expects
-
-- a valid domain name as a string
-- a string to optionnally specify which section of the PSL you want to validate the given domain against.  
- By default all sections are used `Rules::ALL_DOMAINS` but you can validate your domain against the ICANN only section (`Rules::ICANN_DOMAINS` or the private section (`Rules::PRIVATE_DOMAINS`) of the PSL.
-
-~~~php
-<?php
-
-final class Domain implements JsonSerializable
-{
-    public function getDomain(): ?string
-    public function getPublicSuffix(): ?string
-    public function getRegistrableDomain(): ?string
-    public function getSubDomain(); ?string
-    public function isKnown(): bool;
-    public function isICANN(): bool;
-    public function isPrivate(): bool;
-}
-~~~
-
-The `Domain` getters method always return normalized value according to the domain status against the PSL rules.
-
-<p class="message-notice"><code>Domain::isKnown</code> status depends on the PSL rules used. For the same domain, depending on the rules used a domain public suffix may be known or not.</p>
-
-~~~php
-<?php
-
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
-use Pdp\Domain;
-use Pdp\Manager;
-
-$manager = new Manager(new Cache(), new CurlHttpClient());
-$rules = $manager->getRules('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
-//$rules is a Pdp\Rules object
-
-$domain = $rules->resolve('www.ulb.ac.be');
-$domain->getDomain();            //returns 'www.ulb.ac.be'
-$domain->getPublicSuffix();      //returns 'ac.be'
-$domain->getRegistrableDomain(); //returns 'ulb.ac.be'
-$domain->getSubDomain();         //returns 'www'
-$domain->isKnown();              //returns true
-$domain->isICANN();              //returns true
-$domain->isPrivate();            //returns false
-echo json_encode($domain, JSON_PRETTY_PRINT);
-// returns
-//  {
-//      "domain": "www.ulb.ac.be",
-//      "registrableDomain": "ulb.ac.be",
-//      "subDomain": "www",
-//      "publicSuffix": "ac.be",
-//      "isKnown": true,
-//      "isICANN": true,
-//      "isPrivate": false
-//  }
-
-//let's resolve the same domain against the PRIVATE DOMAIN SECTION
-
-$domain = $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS);
-$domain->getDomain();            //returns 'www.ulb.ac.be'
-$domain->getPublicSuffix();      //returns 'be'
-$domain->getRegistrableDomain(); //returns 'ac.be'
-$domain->getSubDomain();         //returns 'www.ulb'
-$domain->isKnown();              //returns false
-$domain->isICANN();              //returns false
-$domain->isPrivate();            //returns false
-~~~
-
-<p class="message-warning"><strong>Warning:</strong> Some people use the PSL to determine what is a valid domain name and what isn't. This is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace, if your software does not regularly receive PSL updates, it may erroneously think new gTLDs are not known. The DNS is the proper source for this information. If you must use it for this purpose, please do not bake static copies of the PSL into your software with no update mechanism.</p>
+In any case, you should setup a reccurent job to regularly update your local cache.
 
 Contributing
 -------

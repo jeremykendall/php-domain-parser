@@ -55,10 +55,10 @@ final class Domain implements JsonSerializable
      * @param string|null  $domain
      * @param PublicSuffix $publicSuffix
      */
-    public function __construct($domain = null, PublicSuffix $publicSuffix)
+    public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
         $this->domain = $domain;
-        $this->publicSuffix = $publicSuffix;
+        $this->publicSuffix = $publicSuffix ?? new PublicSuffix();
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
     }
