@@ -52,7 +52,7 @@ In order to resolve a domain name one we must:
 - Convert the Public Suffix List (PSL) into a structure usable in PHP
 - Resolve the domain name against the PSL rules
 
-Conversion is done using the `Pdp\Converter` class.
+PSL Conversion is done using the `Pdp\Converter` class.
 
 ~~~php
 <?php
@@ -67,7 +67,7 @@ final class Converter
 
 The `Pdp\Converter::convert` method expects the raw content of a PSL and returns its `array` representation.
 
-Once the PSL has been converted we can feed its data to a `Pdp\Rules` object which is responsable for resolving a given domain name against its rules.
+Once the PSL has been converted we can used the returned `array` to instantiate a `Pdp\Rules` object which is responsable for resolving a given domain name.
 
 ~~~php
 <?php
@@ -85,20 +85,18 @@ final class Rules
 }
 ~~~
 
-The `Rules` constructor expects the result of the PSL conversion by the `Pdp\Converter` class.
+Domain name resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
 
-Domain name resolution is done using the `Rules::resolve`. The method expects
+- `$domain` a valid domain name as a string
+- `$type` a string to optionnally specify which section of the PSL you want to validate the given domain against. The possible values are:
+    - `Rules::ALL_DOMAINS`, to validate against the full PSL.
+    - `Rules::ICANN_DOMAINS`, to validate against the PSL ICANN section only.
+    - `Rules::PRIVATE_DOMAINS`, to validate against the PSL PRIVATE section only.
 
-- a valid domain name as a string
-- a string to optionnally specify which section of the PSL you want to validate the given domain against. The possible values are:
-    - `Rules::ALL_DOMAINS`, will validate the domain name against the full PSL.
-    - `Rules::ICANN_DOMAINS`, will validate the domain name againts the PSL ICANN section only.
-    - `Rules::PRIVATE_DOMAINS`, will validate the domain name againts the PSL PRIVATE section only.
-
- By default, the `$type` argument equals `Rules::ALL_DOMAINS`. If an unrecognized section is submitted otherwise, a `Pdp\Exception` exception will be thrown.
+ By default, the `$type` argument is equal to `Rules::ALL_DOMAINS`. If an unrecognized section is submitted otherwise, a `Pdp\Exception` exception will be thrown.
 
 
-`Rules::resolve` returns a `Domain` object.
+The `Pdp\Rules::resolve` returns a `Pdp\Domain` object.
 
 ~~~php
 <?php
@@ -115,22 +113,22 @@ final class Domain implements JsonSerializable
 }
 ~~~
 
-The `Domain` getter methods returns:
+The `Pdp\Domain` getter methods returns:
 
-- the submitted domain name using `Domain::getDomain`
-- the public suffix part normalized according to the domain using `Domain::getPublicSuffix`
-- the registrable domain part using `Domain::getRegistrableDomain`
-- the subdomain part usung  `Domain::getSubDomain`.
+- the submitted domain name using `Pdp\Domain::getDomain`
+- the public suffix part normalized according to the domain using `Pdp\Domain::getPublicSuffix`
+- the registrable domain part using `Pdp\Domain::getRegistrableDomain`
+- the subdomain part usung  `Pdp\Domain::getSubDomain`.
 
-If the domain name of some of its part are seriously malformed or unrecognized, the getter methods will return `null`.
+If the domain name or some of its part are seriously malformed or unrecognized, the getter methods will return `null`.
 
 **The Domain name public status status depends on the PSL section used to resolve them:**
 
-- `Domain::isICANN` returns `true` if the domain name resolution is done against a PSL which includes the ICANN DOMAINS section and its public suffix is found in it;
-- `Domain::isPrivate` returns `true` if the domain name resolution is done against a PSL which includes the PRIVATE DOMAINS section and its public suffix is found in it;
-- `Domain::isKnown` returns `true` if the public suffix is found in the selected PSL
+- `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL
+- `Pdp\Domain::isICANN` returns `true` if the domain name resolution is done against a PSL which includes the ICANN DOMAINS section and its public suffix is found in it;
+- `Pdp\Domain::isPrivate` returns `true` if the domain name resolution is done against a PSL which includes the PRIVATE DOMAINS section and its public suffix is found in it;
 
-**THIS EXAMPLE ILLUSTRATE HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN A PRODUCTIVE ENVIRONMENT**
+**THIS EXAMPLE ILLUSTRATES HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN A PRODUCTIVE ENVIRONMENT**
 
 ~~~php
 <?php
@@ -162,7 +160,7 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //      "isPrivate": false
 //  }
 
-//The same domain will yield a different result using the PRIVATE DOMAIN SECTION only
+//The same domain will yield a different result using the PSL PRIVATE DOMAIN SECTION only
 
 $domain = $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS);
 echo json_encode($domain, JSON_PRETTY_PRINT);
@@ -180,13 +178,13 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 
 **WARNING:**
 
-**Yous should never user the library this way in a productive application, without at least a caching mechanism to load the PSL.**
+**As already stated, you should never user the library this way in a productive application, without at least a caching mechanism to load the PSL.**
 
 **Some people use the PSL to determine what is a valid domain name and what isn't. This is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace, if your software does not regularly receive PSL updates, it may erroneously think new gTLDs are not known. The DNS is the proper source for this information. If you must use it for this purpose, please do not bake static copies of the PSL into your software with no update mechanism.**
 
 ### Public Suffix List Maintenance
 
-Since **directly fetching the PSL without caching the result is not recommend**, the library comes bundle with a `Pdp\Manager` class. This class is a service which enables resolving domain name without the constant network overhead of continously downloading the PSL. The class retrieves, converts and caches the PSL as well as creates the corresponding `Pdp\Rules` object on demand. It internally uses a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
+Since **directly fetching the PSL without caching the result is not recommend**, the library comes bundle with a service which enables resolving domain name without the constant network overhead of continously downloading the PSL. The `Pdp\Manager` class retrieves, converts and caches the PSL as well as creates the corresponding `Pdp\Rules` object on demand. It internally uses a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
 
 ~~~php
 <?php
@@ -238,7 +236,7 @@ By default and out of the box, the package uses:
 - a file cache PSR-16 implementation based on the excellent [FileCache](https://github.com/kodus/file-cache) which **caches the local copy for a maximum of 7 days**.
 - a HTTP client based on the cURL extension.
 
-#### Accessing the Public Suffix List rules
+#### Returning a `Pdp\Rules` object
 
 ~~~php
 <?php
@@ -293,15 +291,15 @@ use Pdp\CurlHttpClient;
 use Pdp\Manager;
 
 $manager = new Manager(new Cache(), new CurlHttpClient());
-$res = $manager->refreshRules('https://publicsuffix.org/list/public_suffix_list.dat');
-if ($res === true) {
+$retval = $manager->refreshRules('https://publicsuffix.org/list/public_suffix_list.dat');
+if ($retval) {
     //the local cache has been updated
 } else {
     //the local cache has not been updated
 }
 ~~~
 
-## Automatic Updates
+### Automatic Updates
 
 It is important to always have an up to date PSL. In order to do so the library comes bundle with an auto-update script located in the `bin` directory.
 
@@ -309,11 +307,11 @@ It is important to always have an up to date PSL. In order to do so the library 
 $ php ./bin/update-psl
 ~~~
 
-This script requires that:
+This script requires:
 
-- the PHP `curl` extension
+- The PHP `curl` extension
 - The `Pdp\Installer` class which comes bundle with this package
-- The use of the Cache and HTTP Client implementations bundle with the package.
+- The use of the Cache and HTTP Client implementations bundle with this package.
 
 If you prefer using your own implementations you should:
 
@@ -375,8 +373,6 @@ $domain->getRegistrableDomain(); //returns 'bébé.faketld'
 $domain->getSubDomain();         //returns 'nl.shop'
 $domain->isKnown();              //returns false
 ~~~
-
-In any case, you should setup a reccurent job to regularly update your local cache.
 
 Contributing
 -------
