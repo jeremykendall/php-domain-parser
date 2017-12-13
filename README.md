@@ -48,7 +48,6 @@ Documentation
 
 ### Domain name resolution
 
-
 In order to resolve a domain name one we must:
 
 - Convert the Public Suffix List (PSL) into a structure usable in PHP
@@ -97,6 +96,7 @@ Domain name resolution is done using the `Pdp\Rules::resolve` method which expec
 
  By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
 
+**WARNING: The `Pdp\Rules::resolve` does not validate the submitted host. You are require to use a host validator prior to using this library.**
 
 The `Pdp\Rules::resolve` returns a `Pdp\Domain` object.
 
