@@ -128,7 +128,7 @@ If the domain name or some of its part are seriously malformed or unrecognized, 
 - `Pdp\Domain::isICANN` returns `true` if the public suffix is found in a selected PSL which includes the ICANN DOMAINS section;
 - `Pdp\Domain::isPrivate` returns `true` if the public suffix is found in a selected PSL which includes the PRIVATE DOMAINS section;
 
-**THIS EXAMPLE ILLUSTRATES HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN A PRODUCTON**
+**THIS EXAMPLE ILLUSTRATES HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN PRODUCTON**
 
 ~~~php
 <?php
@@ -239,6 +239,12 @@ The package comes bundle with:
 
 #### Refreshing the cached PSL
 
+~~~php
+<?php
+
+public Manager::refreshRules(string $source_url = self::PSL_URL): bool
+~~~
+
 The `Pdp\Manager::refreshRules` method enables refreshing your local copy of the PSL stored with your [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache and retrieved using the Http Client. By default the method will use the `Manager::PSL_URL` as the source URL but you are free to substitute this URL with your own.  
 The method returns a boolean value which is `true` on success.
 
@@ -263,7 +269,7 @@ if ($retval) {
 ~~~php
 <?php
 
-public function getRules(string $source_url = self::PSL_URL): Rules
+public Manager::getRules(string $source_url = self::PSL_URL): Rules
 ~~~
 
 This method returns a `Rules` object which is instantiated with the PSL rules.
@@ -313,6 +319,18 @@ This script requires:
 - The PHP `curl` extension
 - The `Pdp\Installer` class which organizes how to update the cache.
 - The `Pdp\Cache` and `Pdp\CurlHttpClient` classes to retrieve and cache the PSL
+
+You can also add a composer script in your `composer.json` file to update the PSL cache everytime after the `install` or the `update` command are executed.
+
+~~~bash
+{
+    "scripts": {
+        "post-install-cmd": "\\Pdp\\Installer::updateLocalCache",
+        "post-update-cmd": "\\Pdp\\Installer::updateLocalCache"
+    }
+}
+~~~
+
 
 If you prefer using your own implementations you should:
 
