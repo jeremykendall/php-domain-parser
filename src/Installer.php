@@ -7,6 +7,7 @@
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
  * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
  */
+declare(strict_types=1);
 
 namespace Pdp;
 
@@ -15,6 +16,8 @@ use Throwable;
 
 /**
  * A class to manage PSL ICANN Section rules updates
+ *
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Installer
 {

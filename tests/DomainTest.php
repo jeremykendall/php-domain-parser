@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace pdp\tests;
 
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
 use Pdp\Domain;
-use Pdp\Manager;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
@@ -39,8 +36,7 @@ class DomainTest extends TestCase
 
     public function testDomainInternalPhpMethod()
     {
-        $rules = (new Manager(new Cache(), new CurlHttpClient()))->getRules();
-        $domain = $rules->resolve('contoso.com');
+        $domain = new Domain('www.ulb.ac.be', new PublicSuffix('ac.be', Rules::ICANN_DOMAINS));
         $generateDomain = eval('return '.var_export($domain, true).';');
         $this->assertInternalType('array', $domain->__debugInfo());
         $this->assertEquals($domain, $generateDomain);

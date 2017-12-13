@@ -45,7 +45,8 @@
     },
     "suggest": {
         "psr/simple-cache-implementation": "To enable using other cache providers",
-        "ext-curl": "To use the package http client"
+        "ext-curl": "To use the package http client",
+        "league/uri-parser": "To parse URL and validate host"
     },
     "autoload": {
         "psr-4": {
@@ -66,7 +67,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "4.x-dev"
+            "dev-master": "5.x-dev"
         }
     },
     "config": {

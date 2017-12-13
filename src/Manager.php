@@ -46,7 +46,7 @@ final class Manager
     }
 
     /**
-     * Gets ICANN Public Suffix List Rules.
+     * Gets the Public Suffix List Rules.
      *
      * @param string $source_url the Public Suffix List URL
      *
@@ -66,7 +66,6 @@ final class Manager
 
         $rules = $this->cache->get($cacheKey);
 
-
         return new Rules(json_decode($rules, true));
     }
 
@@ -85,10 +84,11 @@ final class Manager
     }
 
     /**
-     * Downloads Public Suffix List and writes text cache and PHP cache. If these files
-     * already exist, they will be overwritten.
+     * Downloads, converts and cache the Public Suffix.
      *
-     * Returns true if all list are correctly refreshed
+     * If a local cache already exists, it will be overwritten.
+     *
+     * Returns true if the refresh was successful
      *
      * @param string $source_url the Public Suffix List URL
      *
@@ -96,14 +96,14 @@ final class Manager
      */
     public function refreshRules(string $source_url = self::PSL_URL): bool
     {
-        static $converter;
-        $converter = $converter ?? new Converter();
         $content = $this->http->getContent($source_url);
-        $rules = $converter->convert($content);
+        $rules = (new Converter())->convert($content);
         if (empty($rules[Rules::ICANN_DOMAINS]) || empty($rules[Rules::PRIVATE_DOMAINS])) {
             return false;
         }
 
-        return $this->cache->set($this->getCacheKey($source_url), json_encode($rules));
+        $cacheKey = $this->getCacheKey($source_url);
+
+        return $this->cache->set($cacheKey, json_encode($rules));
     }
 }

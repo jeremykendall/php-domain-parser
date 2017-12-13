@@ -2,7 +2,7 @@
 
 All Notable changes to `PHP Domain Parser` will be documented in this file
 
-## 4.0.0 - TBD
+## 5.0.0 - 2017-12-13
 
 ### Added
 
@@ -16,8 +16,9 @@ All Notable changes to `PHP Domain Parser` will be documented in this file
 
 ### Fixed
 
-- Domain class with invalid domain names improved supported
+- invalid domain names improved supported
 - idn_* conversion error better handled
+- domain name with RFC3986 encoded string improved supported
 
 ### Deprecated
 
@@ -25,7 +26,8 @@ All Notable changes to `PHP Domain Parser` will be documented in this file
 
 ### Removed
 
-- URL Parsing capabilities API is removed
+- PHP5 support
+- URL Parsing capabilities and domain name validation
 - `Pdp\PublicSuffixList` class replaced by the `Pdp\Rules` class
 - `Pdp\PublicSuffixManager` class replaced by the `Pdp\Manager` class
 - `Pdp\HttpAdapter\HttpAdapterInterface` interface replaced by the `Pdp\HttpClient` interface

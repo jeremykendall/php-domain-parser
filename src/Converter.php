@@ -55,19 +55,19 @@ final class Converter
      */
     private function getSection(string $section, string $line): string
     {
-        if ($section == '' && strpos($line, '// ===BEGIN ICANN DOMAINS===') === 0) {
+        if ('' === $section && 0 === strpos($line, '// ===BEGIN ICANN DOMAINS===')) {
             return Rules::ICANN_DOMAINS;
         }
 
-        if ($section == Rules::ICANN_DOMAINS && strpos($line, '// ===END ICANN DOMAINS===') === 0) {
+        if (Rules::ICANN_DOMAINS === $section && 0 === strpos($line, '// ===END ICANN DOMAINS===')) {
             return '';
         }
 
-        if ($section == '' && strpos($line, '// ===BEGIN PRIVATE DOMAINS===') === 0) {
+        if ('' === $section && 0 === strpos($line, '// ===BEGIN PRIVATE DOMAINS===')) {
             return Rules::PRIVATE_DOMAINS;
         }
 
-        if ($section == Rules::PRIVATE_DOMAINS && strpos($line, '// ===END PRIVATE DOMAINS===') === 0) {
+        if (Rules::PRIVATE_DOMAINS === $section && 0 === strpos($line, '// ===END PRIVATE DOMAINS===')) {
             return '';
         }
 
@@ -101,7 +101,7 @@ final class Converter
 
         $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
         $isDomain = true;
-        if (strpos($part, '!') === 0) {
+        if (0 === strpos($part, '!')) {
             $part = substr($part, 1);
             $isDomain = false;
         }

@@ -72,7 +72,7 @@ final class Cache implements CacheInterface
     {
         $path = $this->getPath($key);
         $expires_at = @filemtime($path);
-        if ($expires_at === false) {
+        if (false === $expires_at) {
             return $default; // file not found
         }
 
@@ -83,16 +83,16 @@ final class Cache implements CacheInterface
         }
 
         $data = @file_get_contents($path);
-        if ($data === false) {
+        if (false === $data) {
             return $default; // race condition: file not found
         }
 
-        if ($data === 'b:0;') {
+        if ('b:0;' === $data) {
             return false; // because we can't otherwise distinguish a FALSE return-value from unserialize()
         }
 
         $value = @unserialize($data);
-        if ($value === false) {
+        if (false === $value) {
             return $default; // unserialize() failed
         }
 
@@ -152,7 +152,7 @@ final class Cache implements CacheInterface
             return date_create_immutable('@'.time())->add($ttl)->getTimestamp();
         }
 
-        if ($ttl === null) {
+        if (null === $ttl) {
             return time() + self::CACHE_TTL;
         }
 
