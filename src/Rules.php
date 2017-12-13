@@ -44,21 +44,21 @@ final class Rules
      * Returns PSL ICANN public info for a given domain.
      *
      * @param string|null $domain
-     * @param string      $type
+     * @param string      $section
      *
      * @return Domain
      */
-    public function resolve(string $domain = null, string $type = self::ALL_DOMAINS): Domain
+    public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
     {
-        if (!in_array($type, [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, self::ALL_DOMAINS], true)) {
-            throw new Exception(sprintf('%s is an unknown Domain type', $type));
+        if (!in_array($section, [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, self::ALL_DOMAINS], true)) {
+            throw new Exception(sprintf('%s is an unknown Domain section', $section));
         }
 
         if (!$this->isMatchable($domain)) {
             return new Domain();
         }
 
-        $publicSuffix = $this->findPublicSuffix($domain, $type);
+        $publicSuffix = $this->findPublicSuffix($domain, $section);
         if (null === $publicSuffix->getContent()) {
             return new Domain($domain, $this->handleNoMatches($domain));
         }
@@ -110,16 +110,16 @@ final class Rules
      * Returns the matched public suffix.
      *
      * @param string $domain
-     * @param string $type
+     * @param string $section
      *
      * @return PublicSuffix
      */
-    private function findPublicSuffix(string $domain, string $type): PublicSuffix
+    private function findPublicSuffix(string $domain, string $section): PublicSuffix
     {
         $normalizedDomain = $this->normalize($domain);
         $reverseLabels = array_reverse(explode('.', $normalizedDomain));
         $resultIcann = $this->findPublicSuffixFromSection($reverseLabels, self::ICANN_DOMAINS);
-        if (self::ICANN_DOMAINS === $type) {
+        if (self::ICANN_DOMAINS === $section) {
             return $resultIcann;
         }
 
@@ -128,7 +128,7 @@ final class Rules
             return $resultPrivate;
         }
 
-        if (self::ALL_DOMAINS === $type) {
+        if (self::ALL_DOMAINS === $section) {
             return $resultIcann;
         }
 
@@ -139,13 +139,13 @@ final class Rules
      * Returns the public suffix matched against a given PSL section.
      *
      * @param array  $labels
-     * @param string $type
+     * @param string $section
      *
      * @return PublicSuffix
      */
-    private function findPublicSuffixFromSection(array $labels, string $type): PublicSuffix
+    private function findPublicSuffixFromSection(array $labels, string $section): PublicSuffix
     {
-        $rules = $this->rules[$type] ?? null;
+        $rules = $this->rules[$section] ?? null;
         $matches = [];
         foreach ($labels as $label) {
             //match exception rule
@@ -173,7 +173,7 @@ final class Rules
             return new PublicSuffix();
         }
 
-        return new PublicSuffix(implode('.', $foundLabels), $type);
+        return new PublicSuffix(implode('.', $foundLabels), $section);
     }
 
     /**

@@ -81,19 +81,19 @@ final class Rules
     const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 
     public function __construct(array $rules)
-    public function resolve(string $domain = null, string $type = self::ALL_DOMAINS): Domain
+    public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
 }
 ~~~
 
 Domain name resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
 
 - `$domain` a domain name as a string
-- `$type` a string which specifies which section of the PSL you want to validate the given domain against. The possible values are:
+- `$section` a string which specifies which section of the PSL you want to validate the given domain against. The possible values are:
     - `Rules::ALL_DOMAINS`, to validate against the full PSL.
     - `Rules::ICANN_DOMAINS`, to validate against the PSL ICANN DOMAINS section only.
     - `Rules::PRIVATE_DOMAINS`, to validate against the PSL PRIVATE DOMAINS section only.
 
- By default, the `$type` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted otherwise, a `Pdp\Exception` exception will be thrown.
+ By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
 
 
 The `Pdp\Rules::resolve` returns a `Pdp\Domain` object.
@@ -128,7 +128,7 @@ If the domain name or some of its part are seriously malformed or unrecognized, 
 - `Pdp\Domain::isICANN` returns `true` if the public suffix is found in a selected PSL which includes the ICANN DOMAINS section;
 - `Pdp\Domain::isPrivate` returns `true` if the public suffix is found in a selected PSL which includes the PRIVATE DOMAINS section;
 
-**THIS EXAMPLE ILLUSTRATES HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN A PRODUCTIVE ENVIRONMENT**
+**THIS EXAMPLE ILLUSTRATES HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN A PRODUCTON**
 
 ~~~php
 <?php
@@ -178,13 +178,13 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 
 **WARNING:**
 
-**As already stated, you should never user the library this way in a productive application, without at least a caching mechanism to load the PSL.**
+**You should never use the library this way in production, without, at least, a caching mechanism to reduce PSL downloads.**
 
 **Some people use the PSL to determine what is a valid domain name and what isn't. This is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace, if your software does not regularly receive PSL updates, it may erroneously think new gTLDs are not known. The DNS is the proper source for this information. If you must use it for this purpose, please do not bake static copies of the PSL into your software with no update mechanism.**
 
 ### Public Suffix List Maintenance
 
-Since **directly fetching the PSL without caching the result is not recommend**, the library comes bundle with a service which enables resolving domain name without the constant network overhead of continously downloading the PSL. The `Pdp\Manager` class retrieves, converts and caches the PSL as well as creates the corresponding `Pdp\Rules` object on demand. It internally uses a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
+The library comes bundle with a service which enables resolving domain name without the constant network overhead of continously downloading the PSL. The `Pdp\Manager` class retrieves, converts and caches the PSL as well as creates the corresponding `Pdp\Rules` object on demand. It internally uses a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
 
 ~~~php
 <?php
@@ -202,14 +202,15 @@ final class Manager
 }
 ~~~
 
-#### Creating a new manager
+#### Instantiate `Pdp\Manager`
 
-To work as intended, the `Manager` constructor requires:
+To work as intended, the `Pdp\Manager` constructor requires:
 
-- a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object to store the retrieved rules using a basic HTTP client.
+- a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object to store the rules locally.
 
-- a `HttpClient` interface which exposes the `HttpClient::getContent` method which expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
-If an error occurs while retrieving such body a `HttpClientException` is thrown.
+- a `Pdp\HttpClient` object to retrieve the PSL.  
+the `Pdp\HttpClient` is a simple interface which exposes the `HttpClient::getContent` method. This method expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
+If an error occurs while retrieving such body a `HttpClientException` exception is thrown.
 
 ~~~php
 <?php
@@ -231,10 +232,31 @@ interface HttpClient
 }
 ~~~
 
-By default and out of the box, the package uses:
+The package comes bundle with:
 
 - a file cache PSR-16 implementation based on the excellent [FileCache](https://github.com/kodus/file-cache) which **caches the local copy for a maximum of 7 days**.
 - a HTTP client based on the cURL extension.
+
+#### Refreshing the cached PSL
+
+The `Pdp\Manager::refreshRules` method enables refreshing your local copy of the PSL stored with your [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache and retrieved using the Http Client. By default the method will use the `Manager::PSL_URL` as the source URL but you are free to substitute this URL with your own.  
+The method returns a boolean value which is `true` on success.
+
+~~~php
+<?php
+
+use Pdp\Cache;
+use Pdp\CurlHttpClient;
+use Pdp\Manager;
+
+$manager = new Manager(new Cache(), new CurlHttpClient());
+$retval = $manager->refreshRules('https://publicsuffix.org/list/public_suffix_list.dat');
+if ($retval) {
+    //the local cache has been updated
+} else {
+    //the local cache has not been updated
+}
+~~~
 
 #### Returning a `Pdp\Rules` object
 
@@ -278,27 +300,6 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //  }
 ~~~
 
-#### Refreshing the cached PSL
-
-The `Pdp\Manager::refreshRules` method enables refreshing your local copy of the PSL stored with your [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache and retrieved using the Http Client. By default the method will use the `Manager::PSL_URL` as the source URL but you are free to substitute this URL with your own.  
-The method returns a boolean value which is `true` on success.
-
-~~~php
-<?php
-
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
-use Pdp\Manager;
-
-$manager = new Manager(new Cache(), new CurlHttpClient());
-$retval = $manager->refreshRules('https://publicsuffix.org/list/public_suffix_list.dat');
-if ($retval) {
-    //the local cache has been updated
-} else {
-    //the local cache has not been updated
-}
-~~~
-
 ### Automatic Updates
 
 It is important to always have an up to date PSL. In order to do so the library comes bundle with an auto-update script located in the `bin` directory.
@@ -310,8 +311,8 @@ $ php ./bin/update-psl
 This script requires:
 
 - The PHP `curl` extension
-- The `Pdp\Installer` class which comes bundle with this package
-- The use of the Cache and HTTP Client implementations bundle with this package.
+- The `Pdp\Installer` class which organizes how to update the cache.
+- The `Pdp\Cache` and `Pdp\CurlHttpClient` classes to retrieve and cache the PSL
 
 If you prefer using your own implementations you should:
 
