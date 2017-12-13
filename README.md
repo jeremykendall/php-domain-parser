@@ -3,9 +3,11 @@
 **PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based
 domain parser implemented in PHP.
 
-[![Build Status](https://travis-ci.org/jeremykendall/php-domain-parser.png?branch=master)](https://travis-ci.org/jeremykendall/php-domain-parser)
-[![Total Downloads](https://poser.pugx.org/jeremykendall/php-domain-parser/downloads.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
-[![Latest Stable Version](https://poser.pugx.org/jeremykendall/php-domain-parser/v/stable.png)](https://packagist.org/packages/jeremykendall/php-domain-parser)
+[![Build Status](https://img.shields.io/travis/jeremykendall/php-domain-parser/master.svg?style=flat-square)](https://travis-ci.org/jeremykendall/php-domain-parser)
+[![Total Downloads](https://img.shields.io/packagist/dt/jeremykendall/php-domain-parser.svg?style=flat-square)](https://packagist.org/packages/jeremykendall/php-domain-parser)
+[![Latest Stable Version](https://img.shields.io/github/release/jeremykendall/php-domain-parser.svg?style=flat-square)](https://github.com/jeremykendall/php-domain-parser/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE)
+
 
 Motivation
 -------
