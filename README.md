@@ -87,13 +87,13 @@ final class Rules
 
 Domain name resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
 
-- `$domain` a valid domain name as a string
-- `$type` a string to optionnally specify which section of the PSL you want to validate the given domain against. The possible values are:
+- `$domain` a domain name as a string
+- `$type` a string which specifies which section of the PSL you want to validate the given domain against. The possible values are:
     - `Rules::ALL_DOMAINS`, to validate against the full PSL.
-    - `Rules::ICANN_DOMAINS`, to validate against the PSL ICANN section only.
-    - `Rules::PRIVATE_DOMAINS`, to validate against the PSL PRIVATE section only.
+    - `Rules::ICANN_DOMAINS`, to validate against the PSL ICANN DOMAINS section only.
+    - `Rules::PRIVATE_DOMAINS`, to validate against the PSL PRIVATE DOMAINS section only.
 
- By default, the `$type` argument is equal to `Rules::ALL_DOMAINS`. If an unrecognized section is submitted otherwise, a `Pdp\Exception` exception will be thrown.
+ By default, the `$type` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted otherwise, a `Pdp\Exception` exception will be thrown.
 
 
 The `Pdp\Rules::resolve` returns a `Pdp\Domain` object.
@@ -118,15 +118,15 @@ The `Pdp\Domain` getter methods returns:
 - the submitted domain name using `Pdp\Domain::getDomain`
 - the public suffix part normalized according to the domain using `Pdp\Domain::getPublicSuffix`
 - the registrable domain part using `Pdp\Domain::getRegistrableDomain`
-- the subdomain part usung  `Pdp\Domain::getSubDomain`.
+- the subdomain part using `Pdp\Domain::getSubDomain`.
 
 If the domain name or some of its part are seriously malformed or unrecognized, the getter methods will return `null`.
 
-**The Domain name public status status depends on the PSL section used to resolve them:**
+**The Domain name status depends on the PSL section used to resolve it:**
 
-- `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL
-- `Pdp\Domain::isICANN` returns `true` if the domain name resolution is done against a PSL which includes the ICANN DOMAINS section and its public suffix is found in it;
-- `Pdp\Domain::isPrivate` returns `true` if the domain name resolution is done against a PSL which includes the PRIVATE DOMAINS section and its public suffix is found in it;
+- `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL;
+- `Pdp\Domain::isICANN` returns `true` if the public suffix is found in a selected PSL which includes the ICANN DOMAINS section;
+- `Pdp\Domain::isPrivate` returns `true` if the public suffix is found in a selected PSL which includes the PRIVATE DOMAINS section;
 
 **THIS EXAMPLE ILLUSTRATES HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN A PRODUCTIVE ENVIRONMENT**
 
@@ -137,8 +137,8 @@ use Pdp\Converter;
 use Pdp\Rules;
 
 $content = file_get_contents('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
-$arr = (new Converter())->convert($raw);
-$rules = new Rules($arr);
+$arr_rules = (new Converter())->convert($content);
+$rules = new Rules($arr_rules);
 
 $domain = $rules->resolve('www.ulb.ac.be'); //using Rules::ALL_DOMAINS
 $domain->getDomain();            //returns 'www.ulb.ac.be'
@@ -278,9 +278,9 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //  }
 ~~~
 
-#### Refreshing the cached rules
+#### Refreshing the cached PSL
 
-The `Manager::refreshRules` method enables refreshing your local copy of the PSL stored with your [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache and retrieved using the Http Client. By default the method will use the `Manager::PSL_URL` as the source URL but you are free to substitute this URL with your own.  
+The `Pdp\Manager::refreshRules` method enables refreshing your local copy of the PSL stored with your [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache and retrieved using the Http Client. By default the method will use the `Manager::PSL_URL` as the source URL but you are free to substitute this URL with your own.  
 The method returns a boolean value which is `true` on success.
 
 ~~~php

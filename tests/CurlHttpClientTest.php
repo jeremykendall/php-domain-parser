@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace pdp\tests;
 
-use InvalidArgumentException;
 use Pdp\CurlHttpClient;
+use Pdp\Exception;
 use Pdp\HttpClientException;
 use PHPUnit\Framework\TestCase;
 
@@ -26,7 +26,7 @@ class CurlHttpClientTest extends TestCase
 
     public function testConstructorThrowsException()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(Exception::class);
         new CurlHttpClient(['foo' => 'bar']);
     }
 }

@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use InvalidArgumentException;
-
 /**
  * Simple cURL Http client
  *
@@ -52,7 +50,7 @@ final class CurlHttpClient implements HttpClient
         $res = @curl_setopt_array($curl, $this->options);
         curl_close($curl);
         if (!$res) {
-            throw new InvalidArgumentException('Please verify your curl additionnal options');
+            throw new Exception('Please verify your curl additionnal options');
         }
     }
 

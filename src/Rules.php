@@ -145,7 +145,7 @@ final class Rules
      */
     private function findPublicSuffixFromSection(array $labels, string $type): PublicSuffix
     {
-        $rules = $this->rules[$type];
+        $rules = $this->rules[$type] ?? null;
         $matches = [];
         foreach ($labels as $label) {
             //match exception rule
@@ -161,11 +161,6 @@ final class Rules
 
             //no match found
             if (!isset($rules[$label])) {
-                // Avoids improper parsing when $domain's subdomain + public suffix ===
-                // a valid public suffix (e.g. domain 'us.example.com' and public suffix 'us.com')
-                //
-                // Added by @goodhabit in https://github.com/jeremykendall/php-domain-parser/pull/15
-                // Resolves https://github.com/jeremykendall/php-domain-parser/issues/16
                 break;
             }
 
