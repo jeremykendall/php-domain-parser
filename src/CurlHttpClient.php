@@ -43,6 +43,7 @@ final class CurlHttpClient implements HttpClient
             CURLOPT_FAILONERROR => true,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_HTTPGET => true,
         ];
 
@@ -59,18 +60,16 @@ final class CurlHttpClient implements HttpClient
      */
     public function getContent(string $url): string
     {
-        $options = $this->options;
-        $options[CURLOPT_URL] = $url;
-        $curl = curl_init();
-        curl_setopt_array($curl, $options);
+        $curl = curl_init($url);
+        curl_setopt_array($curl, $this->options);
         $content = curl_exec($curl);
-        $code = curl_errno($curl);
-        $message = curl_error($curl);
+        $error_code = curl_errno($curl);
+        $error_message = curl_error($curl);
         curl_close($curl);
-        if (CURLE_OK === $code) {
+        if (CURLE_OK === $error_code) {
             return $content;
         }
 
-        throw new HttpClientException($message, $code);
+        throw new HttpClientException($error_message, $error_code);
     }
 }
