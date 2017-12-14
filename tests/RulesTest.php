@@ -25,6 +25,18 @@ class RulesTest extends TestCase
         $this->rules = $manager->getRules();
     }
 
+    public function testCreateFromPath()
+    {
+        $rules = Rules::createFromPath(__DIR__.'/data/public_suffix_list.dat');
+        $this->assertInstanceOf(Rules::class, $rules);
+    }
+
+    public function testCreateFromPathThrowsException()
+    {
+        $this->expectException(Exception::class);
+        Rules::createFromPath('/foo/bar.dat');
+    }
+
     public function testNullWillReturnNullDomain()
     {
         $domain = $this->rules->resolve('COM');
