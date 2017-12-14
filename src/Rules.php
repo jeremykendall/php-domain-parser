@@ -33,13 +33,19 @@ final class Rules
     /**
      * Returns a new instance from a file path.
      *
-     * @param string $path
+     * @param string        $path
+     * @param null|resource $context
      *
      * @return self
      */
-    public static function createFromPath(string $path): self
+    public static function createFromPath(string $path, $context = null): self
     {
-        if (!($resource = @fopen($path, 'r'))) {
+        $args = [$path, 'r', false];
+        if (null !== $context) {
+            $args[] = $context;
+        }
+
+        if (!($resource = @fopen(...$args))) {
             throw new Exception(sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
 

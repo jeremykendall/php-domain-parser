@@ -27,7 +27,14 @@ class RulesTest extends TestCase
 
     public function testCreateFromPath()
     {
-        $rules = Rules::createFromPath(__DIR__.'/data/public_suffix_list.dat');
+        $context = stream_context_create([
+            'http'=> [
+                'method' => 'GET',
+                'header' => "Accept-language: en\r\nCookie: foo=bar\r\n",
+            ],
+        ]);
+
+        $rules = Rules::createFromPath(__DIR__.'/data/public_suffix_list.dat', $context);
         $this->assertInstanceOf(Rules::class, $rules);
     }
 
