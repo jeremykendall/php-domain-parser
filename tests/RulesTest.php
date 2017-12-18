@@ -25,6 +25,25 @@ class RulesTest extends TestCase
         $this->rules = $manager->getRules();
     }
 
+    public function testCreateFromPath()
+    {
+        $context = stream_context_create([
+            'http'=> [
+                'method' => 'GET',
+                'header' => "Accept-language: en\r\nCookie: foo=bar\r\n",
+            ],
+        ]);
+
+        $rules = Rules::createFromPath(__DIR__.'/data/public_suffix_list.dat', $context);
+        $this->assertInstanceOf(Rules::class, $rules);
+    }
+
+    public function testCreateFromPathThrowsException()
+    {
+        $this->expectException(Exception::class);
+        Rules::createFromPath('/foo/bar.dat');
+    }
+
     public function testNullWillReturnNullDomain()
     {
         $domain = $this->rules->resolve('COM');

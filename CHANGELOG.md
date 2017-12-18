@@ -2,6 +2,25 @@
 
 All Notable changes to `PHP Domain Parser` will be documented in this file
 
+## 5.1.0 - 2017-12-18
+
+### Added
+
+- `Pdp\Rules::createFromPath` named constructor to returns a new instance from a path
+- `Pdp\Rules::createFromString` named constructor to returns a new instance from a string
+
+### Fixed
+
+- None
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 5.0.0 - 2017-12-13
 
 ### Added

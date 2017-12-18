@@ -31,6 +31,43 @@ final class Rules
     private $rules;
 
     /**
+     * Returns a new instance from a file path.
+     *
+     * @param string        $path
+     * @param null|resource $context
+     *
+     * @return self
+     */
+    public static function createFromPath(string $path, $context = null): self
+    {
+        $args = [$path, 'r', false];
+        if (null !== $context) {
+            $args[] = $context;
+        }
+
+        if (!($resource = @fopen(...$args))) {
+            throw new Exception(sprintf('`%s`: failed to open stream: No such file or directory', $path));
+        }
+
+        $content = stream_get_contents($resource);
+        fclose($resource);
+
+        return self::createFromString($content);
+    }
+
+    /**
+     * Returns a new instance from a string.
+     *
+     * @param string $content
+     *
+     * @return self
+     */
+    public static function createFromString(string $content): self
+    {
+        return new self((new Converter())->convert($content));
+    }
+
+    /**
      * new instance.
      *
      * @param array $rules
@@ -51,7 +88,7 @@ final class Rules
     public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
     {
         if (!in_array($section, [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, self::ALL_DOMAINS], true)) {
-            throw new Exception(sprintf('%s is an unknown Domain section', $section));
+            throw new Exception(sprintf('%s is an unknown Public Suffix List section', $section));
         }
 
         if (!$this->isMatchable($domain)) {
