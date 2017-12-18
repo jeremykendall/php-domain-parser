@@ -81,10 +81,24 @@ final class Rules
     const ICANN_DOMAINS = 'ICANN_DOMAINS';
     const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 
+    public static function createFromPath(string $path, $context = null): self
+    public static function createFromString(string $content): self
     public function __construct(array $rules)
     public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
 }
 ~~~
+
+Starting with version 5.1.0, the following named constructors arre added to ease `Rules` instantiation.
+
+- `Rules::createFromString` expects a string content which follows [the PSL format](https://publicsuffix.org/list/#list-format);
+
+- `Rules::createFromPath` expects a valid path to a readable PSL. You can optionnally submit a context resource as defined in PHP's `fopen` function;
+
+Both named constructors:
+
+- uses internally a `Pdp\Converter` object to convert the raw content into a suitable array to instantiate a valid `Pdp\Rules`;
+- do not have any cache functionnality;
+
 
 Domain name resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
 
@@ -135,12 +149,9 @@ If the domain name or some of its part are seriously malformed or unrecognized, 
 ~~~php
 <?php
 
-use Pdp\Converter;
 use Pdp\Rules;
 
-$content = file_get_contents('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
-$arr_rules = (new Converter())->convert($content);
-$rules = new Rules($arr_rules);
+$rules = Rules::createFromPath('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
 
 $domain = $rules->resolve('www.ulb.ac.be'); //using Rules::ALL_DOMAINS
 $domain->getDomain();            //returns 'www.ulb.ac.be'
