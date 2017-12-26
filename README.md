@@ -48,27 +48,7 @@ Documentation
 
 ### Domain name resolution
 
-In order to resolve a domain name one we must:
-
-- Convert the Public Suffix List (PSL) into a structure usable in PHP
-- Resolve the domain name against the PSL rules
-
-PSL Conversion is done using the `Pdp\Converter` class.
-
-~~~php
-<?php
-
-namespace Pdp;
-
-final class Converter
-{
-    public function convert(string $content): array
-}
-~~~
-
-The `Pdp\Converter::convert` method expects the raw content of a PSL and returns its `array` representation.
-
-Once the PSL has been converted we can used the returned `array` to instantiate a `Pdp\Rules` object which is responsable for resolving a given domain name.
+The `Pdp\Rules` object is responsible for domain name resolution.
 
 ~~~php
 <?php
@@ -88,10 +68,9 @@ final class Rules
 }
 ~~~
 
-Starting with version 5.1.0, the following named constructors arre added to ease `Rules` instantiation.
+**NEW IN VERSION 5.1:**
 
 - `Rules::createFromString` expects a string content which follows [the PSL format](https://publicsuffix.org/list/#list-format);
-
 - `Rules::createFromPath` expects a valid path to a readable PSL. You can optionnally submit a context resource as defined in PHP's `fopen` function;
 
 Both named constructors:
@@ -99,6 +78,7 @@ Both named constructors:
 - uses internally a `Pdp\Converter` object to convert the raw content into a suitable array to instantiate a valid `Pdp\Rules`;
 - do not have any cache functionnality;
 
+#### Usage
 
 Domain name resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
 
@@ -108,9 +88,7 @@ Domain name resolution is done using the `Pdp\Rules::resolve` method which expec
     - `Rules::ICANN_DOMAINS`, to validate against the PSL ICANN DOMAINS section only.
     - `Rules::PRIVATE_DOMAINS`, to validate against the PSL PRIVATE DOMAINS section only.
 
- By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
-
-**WARNING: The `Pdp\Rules::resolve` does not validate the submitted host. You are require to use a host validator prior to using this library.**
+By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
 
 The `Pdp\Rules::resolve` returns a `Pdp\Domain` object.
 
@@ -129,29 +107,16 @@ final class Domain implements JsonSerializable
 }
 ~~~
 
-The `Pdp\Domain` getter methods returns:
-
-- the submitted domain name using `Pdp\Domain::getDomain`
-- the public suffix part normalized according to the domain using `Pdp\Domain::getPublicSuffix`
-- the registrable domain part using `Pdp\Domain::getRegistrableDomain`
-- the subdomain part using `Pdp\Domain::getSubDomain`.
-
-If the domain name or some of its part are seriously malformed or unrecognized, the getter methods will return `null`.
-
-**The Domain name status depends on the PSL section used to resolve it:**
-
-- `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL;
-- `Pdp\Domain::isICANN` returns `true` if the public suffix is found in a selected PSL which includes the ICANN DOMAINS section;
-- `Pdp\Domain::isPrivate` returns `true` if the public suffix is found in a selected PSL which includes the PRIVATE DOMAINS section;
-
-**THIS EXAMPLE ILLUSTRATES HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN PRODUCTON**
+**THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
 ~~~php
 <?php
 
 use Pdp\Rules;
+use Pdp\Converter;
 
-$rules = Rules::createFromPath('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
+$pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
+$rules = Rules::createFromPath($pdp_url);
 
 $domain = $rules->resolve('www.ulb.ac.be'); //using Rules::ALL_DOMAINS
 $domain->getDomain();            //returns 'www.ulb.ac.be'
@@ -189,11 +154,28 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //  }
 ~~~
 
+The `Pdp\Domain` getter methods returns:
+
+- the submitted domain name using `Pdp\Domain::getDomain`
+- the public suffix part normalized according to the domain using `Pdp\Domain::getPublicSuffix`
+- the registrable domain part using `Pdp\Domain::getRegistrableDomain`
+- the subdomain part using `Pdp\Domain::getSubDomain`.
+
+If the domain name or some of its part are seriously malformed or unrecognized, the getter methods will return `null`.
+
+**The Domain name status depends on the PSL section used to resolve it:**
+
+- `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL;
+- `Pdp\Domain::isICANN` returns `true` if the public suffix is found using a PSL which includes the ICANN DOMAINS section;
+- `Pdp\Domain::isPrivate` returns `true` if the public suffix is found using a PSL which includes the PRIVATE DOMAINS section;
+
 **WARNING:**
+
+**The `Pdp\Rules::resolve` does not validate the submitted host. You are require to use a host validator prior to using this library.**
 
 **You should never use the library this way in production, without, at least, a caching mechanism to reduce PSL downloads.**
 
-**Some people use the PSL to determine what is a valid domain name and what isn't. This is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace, if your software does not regularly receive PSL updates, it may erroneously think new gTLDs are not known. The DNS is the proper source for this information. If you must use it for this purpose, please do not bake static copies of the PSL into your software with no update mechanism.**
+**Using the PSL to determine what is a valid domain name and what isn't is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace. The DNS is the proper source for this information. If you must use this library for this purpose, please consider integrating a PSL update mechanism into your software.**
 
 ### Public Suffix List Maintenance
 
