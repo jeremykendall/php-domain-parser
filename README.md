@@ -64,9 +64,16 @@ final class Rules
     public static function createFromPath(string $path, $context = null): self
     public static function createFromString(string $content): self
     public function __construct(array $rules)
+    public function supports(string $section): bool
+    public function getPublicSuffix(string $domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
     public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
 }
 ~~~
+
+**NEW IN VERSION 5.2:**
+
+- `Rules::supports` returns a boolean to tell whether the specific section is present in the `Rules` object;
+- `Rules::getPublicSuffix` returns a `PublicSuffix` object determined from the `Rules` object;
 
 **NEW IN VERSION 5.1:**
 
@@ -104,8 +111,17 @@ final class Domain implements JsonSerializable
     public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
+    public function getSection(): string;
+    public function toUnicode(): self;
+    public function toAscii(): self;
 }
 ~~~
+
+**NEW IN VERSION 5.2:**
+
+- `Domain::getSection` returns the section string name if presents else returns an empty string;
+- `Domain::toUnicode` returns an instance with the domain converted to its unicode representation;
+- `Domain::toAscii` returns an instance with the domain converted to its ascii representation;
 
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
@@ -168,6 +184,28 @@ If the domain name or some of its part are seriously malformed or unrecognized, 
 - `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL;
 - `Pdp\Domain::isICANN` returns `true` if the public suffix is found using a PSL which includes the ICANN DOMAINS section;
 - `Pdp\Domain::isPrivate` returns `true` if the public suffix is found using a PSL which includes the PRIVATE DOMAINS section;
+
+The `Rules::getPublicSuffix` method expects the same arguments as `Rules::resolve` but returns a `Pdp\PublicSuffix` object instead.
+
+~~~php
+<?php
+
+final class PublicSuffix implements Countable, JsonSerializable
+{
+    public function getContent(): ?string
+    public function isKnown(): bool;
+    public function isICANN(): bool;
+    public function isPrivate(): bool;
+    public function getSection(): string;
+    public function toUnicode(): self;
+    public function toAscii(): self;
+}
+~~~
+
+While `Rules::resolve` will only throws an exception if the section value is invalid, the `Rules::getPublicSuffix` is more restrictive and will additionnally throw if:
+
+- If the Domain is invalid or seriously malformed
+- If the PublicSuffix can not be normalized and converted using the domain encoding.
 
 **WARNING:**
 

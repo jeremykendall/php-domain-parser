@@ -18,6 +18,9 @@ use Psr\SimpleCache\CacheInterface;
  *
  * This class obtains, writes, caches, and returns PHP representations
  * of the Public Suffix List ICANN section
+ *
+ * @author Jeremy Kendall <jeremy@jeremykendall.net>
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Manager
 {

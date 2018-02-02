@@ -44,6 +44,12 @@ class RulesTest extends TestCase
         Rules::createFromPath('/foo/bar.dat');
     }
 
+    public function testDomainInternalPhpMethod()
+    {
+        $generateRules = eval('return '.var_export($this->rules, true).';');
+        $this->assertEquals($this->rules, $generateRules);
+    }
+
     public function testNullWillReturnNullDomain()
     {
         $domain = $this->rules->resolve('COM');
@@ -96,7 +102,7 @@ class RulesTest extends TestCase
     public function testWithInvalidDomainName()
     {
         $domain = $this->rules->resolve('_b%C3%A9bé.be-');
-        $this->assertSame('_b%C3%A9bé.be-', $domain->getDomain());
+        $this->assertSame('_bébé.be-', $domain->getDomain());
         $this->assertFalse($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
@@ -111,6 +117,7 @@ class RulesTest extends TestCase
         $this->assertTrue($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertTrue($domain->isPrivate());
+        $this->assertSame(Rules::PRIVATE_DOMAINS, $domain->getSection());
         $this->assertSame('github.io', $domain->getPublicSuffix());
         $this->assertSame('thephpleague.github.io', $domain->getRegistrableDomain());
         $this->assertNull($domain->getSubDomain());
@@ -123,6 +130,7 @@ class RulesTest extends TestCase
         $this->assertFalse($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
+        $this->assertSame('', $domain->getSection());
         $this->assertSame('be', $domain->getPublicSuffix());
         $this->assertSame('ac.be', $domain->getRegistrableDomain());
         $this->assertSame('private.ulb', $domain->getSubDomain());
@@ -135,6 +143,7 @@ class RulesTest extends TestCase
         $this->assertTrue($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertTrue($domain->isPrivate());
+        $this->assertSame(Rules::PRIVATE_DOMAINS, $domain->getSection());
         $this->assertSame('github.io', $domain->getPublicSuffix());
         $this->assertSame('thephpleague.github.io', $domain->getRegistrableDomain());
         $this->assertNull($domain->getSubDomain());
@@ -147,6 +156,7 @@ class RulesTest extends TestCase
         $this->assertTrue($domain->isKnown());
         $this->assertTrue($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
+        $this->assertSame(Rules::ICANN_DOMAINS, $domain->getSection());
         $this->assertSame('ac.be', $domain->getPublicSuffix());
         $this->assertSame('ulb.ac.be', $domain->getRegistrableDomain());
         $this->assertSame('private', $domain->getSubDomain());
@@ -213,12 +223,33 @@ class RulesTest extends TestCase
         ];
     }
 
-    public function testGetPublicSuffixHandlesWrongCaseProperly()
+    /**
+     * @dataProvider invalidParseProvider
+     * @param mixed $domain
+     * @param mixed $section
+     */
+    public function testDetermine($domain, $section)
     {
-        $publicSuffix = 'рф';
-        $domain = 'Яндекс.РФ';
+        $this->expectException(Exception::class);
+        $this->rules->getPublicSuffix($domain, $section);
+    }
 
-        $this->assertSame($publicSuffix, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getPublicSuffix());
+    public function invalidParseProvider()
+    {
+        return [
+            'IPv6' => ['[::1]', Rules::ICANN_DOMAINS],
+            'IPv4' => ['192.168.1.2', Rules::ICANN_DOMAINS],
+            'single label host' => ['localhost', Rules::ICANN_DOMAINS],
+        ];
+    }
+
+    public function testPublicSuffixSection()
+    {
+        $expected = 'рф';
+        $domain = 'Яндекс.РФ';
+        $publicSuffix =  $this->rules->getPublicSuffix($domain);
+        $this->assertSame(Rules::ICANN_DOMAINS, $publicSuffix->getSection());
+        $this->assertSame($expected, $publicSuffix->getContent());
     }
 
     /**

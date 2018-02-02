@@ -17,6 +17,9 @@ use SplTempFileObject;
  * Public Suffix List Parser.
  *
  * This class convert the Public Suffix List into an associative, multidimensional array
+ *
+ * @author Jeremy Kendall <jeremy@jeremykendall.net>
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Converter
 {

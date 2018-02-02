@@ -1,6 +1,33 @@
 # Changelog
 
-All Notable changes to `PHP Domain Parser` will be documented in this file
+All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
+
+## Next - TBD
+
+### Added
+
+- `Pdp\Rules::supports` returns a boolean to indicates if a given section is supported
+- `Pdp\Rules::getPublicSuffix` returns a `Pdp\PublicSuffix` value object
+- `Pdp\Rules::__set_state` is implemented
+- `Pdp\Domain::getSection` returns a string containing the section name used to determine the public suffix
+- `Pdp\Domain::toUnicode` returns a `Pdp\Domain` with its value converted to its Unicode form
+- `Pdp\Domain::toAscii` returns a `Pdp\Domain` with its value converted to its AScii form
+- `Pdp\PublicSuffix::getSection` returns a string containing the section name used to determine the public suffix
+- `Pdp\PublicSuffix::toUnicode` returns a `Pdp\PublicSuffix` with its value converted to its Unicode form
+- `Pdp\PublicSuffix::toAscii` returns a `Pdp\PublicSuffix` with its value converted to its AScii form
+
+### Fixed
+
+- `Pdp\Domain::getDomain` returns the normalized form of the domain name
+- `Pdp\PublicSuffix` is no longer internal.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
 
 ## 5.1.0 - 2017-12-18
 

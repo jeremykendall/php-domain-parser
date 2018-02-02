@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use Countable;
+use JsonSerializable;
 
 /**
  * Public Suffix Value Object
@@ -25,9 +26,8 @@ use Countable;
  * software with no update mechanism."
  *
  * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
- * @internal used internally to represent a public suffix
  */
-final class PublicSuffix implements Countable
+final class PublicSuffix implements Countable, JsonSerializable
 {
     /**
      * @var string|null
@@ -37,18 +37,47 @@ final class PublicSuffix implements Countable
     /**
      * @var string
      */
-    private $type;
+    private $section;
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self($properties['publicSuffix'], $properties['section']);
+    }
 
     /**
      * New instance.
      *
      * @param string|null $publicSuffix
-     * @param string      $type
+     * @param string      $section
      */
-    public function __construct(string $publicSuffix = null, string $type = '')
+    public function __construct(string $publicSuffix = null, string $section = '')
     {
         $this->publicSuffix = $publicSuffix;
-        $this->type = $type;
+        $this->section = $section;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function jsonSerialize()
+    {
+        return [
+            'publicSuffix' => $this->getContent(),
+            'isKnown' => $this->isKnown(),
+            'isICANN' => $this->isICANN(),
+            'isPrivate' => $this->isPrivate(),
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __debugInfo()
+    {
+        return $this->jsonSerialize();
     }
 
     /**
@@ -59,6 +88,16 @@ final class PublicSuffix implements Countable
     public function getContent()
     {
         return $this->publicSuffix;
+    }
+
+    /**
+     * Returns the public suffix section name used to determine the public suffix.
+     *
+     * @return string
+     */
+    public function getSection(): string
+    {
+        return $this->section;
     }
 
     /**
@@ -80,7 +119,7 @@ final class PublicSuffix implements Countable
      */
     public function isKnown(): bool
     {
-        return '' !== $this->type;
+        return '' !== $this->section;
     }
 
     /**
@@ -90,7 +129,7 @@ final class PublicSuffix implements Countable
      */
     public function isICANN(): bool
     {
-        return Rules::ICANN_DOMAINS === $this->type;
+        return Rules::ICANN_DOMAINS === $this->section;
     }
 
     /**
@@ -100,27 +139,60 @@ final class PublicSuffix implements Countable
      */
     public function isPrivate(): bool
     {
-        return Rules::PRIVATE_DOMAINS === $this->type;
+        return Rules::PRIVATE_DOMAINS === $this->section;
     }
 
     /**
-     * {@inheritdoc}
+     * Converts the domain to its IDNA UTF8 form.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance with is content converted to its IDNA UTF8 form
+     *
+     * @throws Exception if the domain can not be converted to Unicode using IDN UTS46 algorithm
+     *
+     * @return self
      */
-    public function __debugInfo()
+    public function toUnicode(): self
     {
-        return [
-            'publicSuffix' => $this->getContent(),
-            'isKnown' => $this->isKnown(),
-            'isICANN' => $this->isICANN(),
-            'isPrivate' => $this->isPrivate(),
-        ];
+        if (null === $this->publicSuffix) {
+            return $this;
+        }
+
+        $publicSuffix = idn_to_utf8($this->publicSuffix, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        if (!$arr['errors']) {
+            $clone = clone $this;
+            $clone->publicSuffix = $publicSuffix;
+
+            return $clone;
+        }
+
+        throw new Exception(sprintf('The following public suffix `%s` can not be converted to unicode', $this->publicSuffix));
     }
 
     /**
-     * {@inheritdoc}
+     * Converts the domain to its IDNA ASCII form.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance with is content converted to its IDNA ASCII form
+     *
+     * @throws Exception if the domain can not be converted to ASCII using IDN UTS46 algorithm
+     *
+     * @return self
      */
-    public static function __set_state(array $properties)
+    public function toAscii(): self
     {
-        return new self($properties['publicSuffix'], $properties['type']);
+        if (null === $this->publicSuffix) {
+            return $this;
+        }
+
+        $publicSuffix = idn_to_ascii($this->publicSuffix, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        if (!$arr['errors']) {
+            $clone = clone $this;
+            $clone->publicSuffix = $publicSuffix;
+
+            return $clone;
+        }
+
+        throw new Exception(sprintf('The following public suffix `%s` can not be converted to ascii', $this->publicSuffix));
     }
 }

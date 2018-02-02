@@ -40,7 +40,7 @@ final class Installer
 
         require $vendor.'/autoload.php';
 
-        $io->write('Updating your Public Suffix List ICANN Section local cache.');
+        $io->write('Updating your Public Suffix List local cache.');
         if (!extension_loaded('curl')) {
             $io->writeError([
                 '😓 😓 😓 Your local cache could not be updated. 😓 😓 😓',
