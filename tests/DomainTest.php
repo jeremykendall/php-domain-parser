@@ -23,7 +23,6 @@ class DomainTest extends TestCase
         $domain = new Domain($domain, new PublicSuffix($publicSuffix));
         $this->assertNull($domain->getRegistrableDomain());
         $this->assertNull($domain->getSubDomain());
-        $this->assertEmpty($domain->getSection());
     }
 
     public function testToAsciiThrowsException()

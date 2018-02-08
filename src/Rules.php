@@ -19,6 +19,8 @@ namespace Pdp;
  */
 final class Rules
 {
+    use IDNAConverterTrait;
+
     const ALL_DOMAINS = 'ALL_DOMAINS';
     const ICANN_DOMAINS = 'ICANN_DOMAINS';
     const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
@@ -217,12 +219,11 @@ final class Rules
             $domain = rawurldecode($domain);
         }
 
-        $normalize = idn_to_ascii($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if ($arr['errors'] > 0) {
+        try {
+            return strtolower($this->idnToAscii($domain));
+        } catch (Exception $e) {
             return '';
         }
-
-        return strtolower($normalize);
     }
 
     /**
@@ -278,7 +279,7 @@ final class Rules
     {
         if (null === $publicSuffix->getContent()) {
             $labels = explode('.', $domain);
-            $publicSuffix = new PublicSuffix(array_pop($labels));
+            $publicSuffix = new PublicSuffix($this->idnToAscii(array_pop($labels)));
         }
 
         if (false === strpos($domain, 'xn--')) {

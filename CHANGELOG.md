@@ -20,6 +20,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - `Pdp\Domain::getDomain` returns the normalized form of the domain name
 - `Pdp\PublicSuffix` is no longer internal.
+- normalizes IDN conversion using a internal `IDNConverterTrait`
 
 ### Deprecated
 

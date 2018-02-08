@@ -29,6 +29,8 @@ use JsonSerializable;
  */
 final class Domain implements JsonSerializable
 {
+    use IDNAConverterTrait;
+
     /**
      * @var string|null
      */
@@ -242,16 +244,6 @@ final class Domain implements JsonSerializable
     }
 
     /**
-     * Returns the public suffix section name used to determine the public suffix.
-     *
-     * @return string
-     */
-    public function getSection(): string
-    {
-        return $this->publicSuffix->getSection();
-    }
-
-    /**
      * Converts the domain to its IDNA ASCII form.
      *
      * This method MUST retain the state of the current instance, and return
@@ -267,12 +259,7 @@ final class Domain implements JsonSerializable
             return $this;
         }
 
-        $domain = idn_to_ascii($this->domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (!$arr['errors']) {
-            return new self($domain, $this->publicSuffix->toAscii());
-        }
-
-        throw new Exception(sprintf('The following domain `%s` can not be converted to ascii', $this->domain));
+        return new self($this->idnToAscii($this->domain), $this->publicSuffix->toAscii());
     }
 
     /**
@@ -291,11 +278,6 @@ final class Domain implements JsonSerializable
             return $this;
         }
 
-        $domain = idn_to_utf8($this->domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (!$arr['errors']) {
-            return new self($domain, $this->publicSuffix->toUnicode());
-        }
-
-        throw new Exception(sprintf('The following domain `%s` can not be converted to unicode', $this->domain));
+        return new self($this->idnToUnicode($this->domain), $this->publicSuffix->toUnicode());
     }
 }

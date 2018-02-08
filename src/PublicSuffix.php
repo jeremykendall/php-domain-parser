@@ -29,6 +29,8 @@ use JsonSerializable;
  */
 final class PublicSuffix implements Countable, JsonSerializable
 {
+    use IDNAConverterTrait;
+
     /**
      * @var string|null
      */
@@ -91,16 +93,6 @@ final class PublicSuffix implements Countable, JsonSerializable
     }
 
     /**
-     * Returns the public suffix section name used to determine the public suffix.
-     *
-     * @return string
-     */
-    public function getSection(): string
-    {
-        return $this->section;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function count()
@@ -158,15 +150,7 @@ final class PublicSuffix implements Countable, JsonSerializable
             return $this;
         }
 
-        $publicSuffix = idn_to_utf8($this->publicSuffix, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (!$arr['errors']) {
-            $clone = clone $this;
-            $clone->publicSuffix = $publicSuffix;
-
-            return $clone;
-        }
-
-        throw new Exception(sprintf('The following public suffix `%s` can not be converted to unicode', $this->publicSuffix));
+        return new self($this->idnToUnicode($this->publicSuffix), $this->section);
     }
 
     /**
@@ -185,14 +169,6 @@ final class PublicSuffix implements Countable, JsonSerializable
             return $this;
         }
 
-        $publicSuffix = idn_to_ascii($this->publicSuffix, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (!$arr['errors']) {
-            $clone = clone $this;
-            $clone->publicSuffix = $publicSuffix;
-
-            return $clone;
-        }
-
-        throw new Exception(sprintf('The following public suffix `%s` can not be converted to ascii', $this->publicSuffix));
+        return new self($this->idnToAscii($this->publicSuffix), $this->section);
     }
 }
