@@ -96,8 +96,13 @@ final class Rules
      */
     public function supports(string $section): bool
     {
-        return self::ALL_DOMAINS === $section
-            || (isset($this->rules[$section]) && is_array($this->rules[$section]) && !empty($this->rules[$section]));
+        if (self::ALL_DOMAINS === $section) {
+            return true;
+        }
+
+        $rules = $this->rules[$section] ?? null;
+
+        return !(null === $rules || !is_array($rules) || empty($rules));
     }
 
     /**
