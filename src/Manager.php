@@ -81,9 +81,9 @@ final class Manager
      */
     private function getCacheKey(string $str): string
     {
-        static $cacheKeyPrefix = 'PSL-FULL';
+        static $cacheKeyPrefix = 'PSL_FULL';
 
-        return $cacheKeyPrefix.'-'.md5(strtolower($str));
+        return $cacheKeyPrefix.'_'.md5(strtolower($str));
     }
 
     /**
