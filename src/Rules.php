@@ -220,10 +220,6 @@ final class Rules
      */
     private function normalizeDomain(string $domain): string
     {
-        if (false !== strpos($domain, '%')) {
-            $domain = rawurldecode($domain);
-        }
-
         try {
             return strtolower($this->idnToAscii($domain));
         } catch (Exception $e) {

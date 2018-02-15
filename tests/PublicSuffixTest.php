@@ -18,6 +18,11 @@ class PublicSuffixTest extends TestCase
         $this->assertEquals($publicSuffix, $generatePublicSuffix);
     }
 
+    public function testPSToUnicodeWithUrlEncode()
+    {
+        $this->assertSame('bébe', (new PublicSuffix('b%C3%A9be'))->toUnicode()->getContent());
+    }
+
     public function testPSToAsciiThrowsException()
     {
         $this->expectException(Exception::class);

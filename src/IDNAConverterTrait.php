@@ -71,7 +71,11 @@ trait IDNAConverterTrait
      */
     private function idnToAscii(string $host): string
     {
-        if (false !== strpos($host, 'xn--')) {
+        if (false !== strpos($host, '%')) {
+            $host = rawurldecode($host);
+        }
+
+        if (!preg_match('/[\pL]+/u', $host)) {
             return $host;
         }
 
@@ -95,6 +99,10 @@ trait IDNAConverterTrait
      */
     private function idnToUnicode(string $host): string
     {
+        if (false !== strpos($host, '%')) {
+            $host = $this->idnToAscii($host);
+        }
+
         if (false === strpos($host, 'xn--')) {
             return $host;
         }
