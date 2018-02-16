@@ -210,7 +210,7 @@ final class Rules
     private function normalizeDomain(string $domain): string
     {
         try {
-            return strtolower($this->idnToAscii($domain));
+            return $this->idnToAscii($domain);
         } catch (Exception $e) {
             return '';
         }

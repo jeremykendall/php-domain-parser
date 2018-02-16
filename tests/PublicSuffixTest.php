@@ -28,4 +28,11 @@ class PublicSuffixTest extends TestCase
         $this->expectException(Exception::class);
         (new PublicSuffix('_b%C3%A9bé.be-'))->toAscii();
     }
+
+    public function testConversionReturnsTheSameInstance()
+    {
+        $instance = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
+        $this->assertSame($instance->toUnicode(), $instance);
+        $this->assertSame($instance->toAscii(), $instance);
+    }
 }

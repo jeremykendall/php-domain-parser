@@ -57,6 +57,14 @@ final class PublicSuffix implements Countable, JsonSerializable
      */
     public function __construct(string $publicSuffix = null, string $section = '')
     {
+        if (false !== strpos((string) $publicSuffix, '%')) {
+            $publicSuffix = rawurldecode($publicSuffix);
+        }
+
+        if (null !== $publicSuffix) {
+            $publicSuffix = strtolower($publicSuffix);
+        }
+
         $this->publicSuffix = $publicSuffix;
         $this->section = $section;
     }
@@ -146,7 +154,7 @@ final class PublicSuffix implements Countable, JsonSerializable
      */
     public function toUnicode(): self
     {
-        if (null === $this->publicSuffix) {
+        if (null === $this->publicSuffix || false === strpos($this->publicSuffix, 'xn--')) {
             return $this;
         }
 
@@ -165,10 +173,15 @@ final class PublicSuffix implements Countable, JsonSerializable
      */
     public function toAscii(): self
     {
-        if (null === $this->publicSuffix) {
+        if (null === $this->publicSuffix || false !== strpos($this->publicSuffix, 'xn--')) {
             return $this;
         }
 
-        return new self($this->idnToAscii($this->publicSuffix), $this->section);
+        $newPublicSuffix = $this->idnToAscii($this->publicSuffix);
+        if ($newPublicSuffix === $this->publicSuffix) {
+            return $this;
+        }
+
+        return new self($newPublicSuffix, $this->section);
     }
 }

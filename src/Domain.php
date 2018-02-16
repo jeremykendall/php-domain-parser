@@ -259,7 +259,12 @@ final class Domain implements JsonSerializable
             return $this;
         }
 
-        return new self($this->idnToAscii($this->domain), $this->publicSuffix->toAscii());
+        $newDomain = $this->idnToAscii($this->domain);
+        if ($newDomain === $this->domain) {
+            return $this;
+        }
+
+        return new self($newDomain, $this->publicSuffix->toAscii());
     }
 
     /**
