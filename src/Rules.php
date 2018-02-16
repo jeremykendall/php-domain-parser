@@ -88,24 +88,6 @@ final class Rules
     }
 
     /**
-     * Tell whether the submitted section if supported by the current object
-     *
-     * @param string $section
-     *
-     * @return bool
-     */
-    public function supports(string $section): bool
-    {
-        if (self::ALL_DOMAINS === $section) {
-            return true;
-        }
-
-        $rules = $this->rules[$section] ?? null;
-
-        return !(null === $rules || !is_array($rules) || empty($rules));
-    }
-
-    /**
      * Determines the public suffix for a given domain.
      *
      * @param string|null $domain
@@ -174,9 +156,16 @@ final class Rules
      */
     private function validateSection(string $section)
     {
-        if (!$this->supports($section)) {
-            throw new Exception(sprintf('%s is an unknown Public Suffix List section', $section));
+        if (self::ALL_DOMAINS === $section) {
+            return;
         }
+
+        $rules = $this->rules[$section] ?? null;
+        if (null !== $rules && is_array($rules)) {
+            return;
+        }
+
+        throw new Exception(sprintf('%s is an unknown Public Suffix List section', $section));
     }
 
     /**

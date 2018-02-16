@@ -64,7 +64,6 @@ final class Rules
     public static function createFromPath(string $path, $context = null): self
     public static function createFromString(string $content): self
     public function __construct(array $rules)
-    public function supports(string $section): bool
     public function getPublicSuffix(string $domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
     public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
 }
@@ -72,7 +71,6 @@ final class Rules
 
 **NEW IN VERSION 5.2:**
 
-- `Rules::supports` returns a boolean to tell whether the specific section is present in the `Rules` object;
 - `Rules::getPublicSuffix` returns a `PublicSuffix` object determined from the `Rules` object;
 
 **NEW IN VERSION 5.1:**
@@ -111,7 +109,6 @@ final class Domain implements JsonSerializable
     public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
-    public function getSection(): string;
     public function toUnicode(): self;
     public function toAscii(): self;
 }
@@ -119,9 +116,9 @@ final class Domain implements JsonSerializable
 
 **NEW IN VERSION 5.2:**
 
-- `Domain::getSection` returns the section string name if presents else returns an empty string;
 - `Domain::toUnicode` returns an instance with the domain converted to its unicode representation;
 - `Domain::toAscii` returns an instance with the domain converted to its ascii representation;
+- `Domain::getDomain` will lowercase the domain name to normalize its content;
 
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
@@ -134,7 +131,7 @@ use Pdp\Converter;
 $pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
 $rules = Rules::createFromPath($pdp_url);
 
-$domain = $rules->resolve('www.ulb.ac.be'); //using Rules::ALL_DOMAINS
+$domain = $rules->resolve('www.Ulb.AC.be'); //using Rules::ALL_DOMAINS
 $domain->getDomain();            //returns 'www.ulb.ac.be'
 $domain->getPublicSuffix();      //returns 'ac.be'
 $domain->getRegistrableDomain(); //returns 'ulb.ac.be'
@@ -156,7 +153,7 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 
 //The same domain will yield a different result using the PSL PRIVATE DOMAIN SECTION only
 
-$domain = $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS);
+$domain = $rules->resolve('www.Ulb.AC.be', Rules::PRIVATE_DOMAINS);
 echo json_encode($domain, JSON_PRETTY_PRINT);
 // returns
 //  {
@@ -196,7 +193,6 @@ final class PublicSuffix implements Countable, JsonSerializable
     public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
-    public function getSection(): string;
     public function toUnicode(): self;
     public function toAscii(): self;
 }
@@ -204,8 +200,8 @@ final class PublicSuffix implements Countable, JsonSerializable
 
 While `Rules::resolve` will only throws an exception if the section value is invalid, the `Rules::getPublicSuffix` is more restrictive and will additionnally throw if:
 
-- If the Domain is invalid or seriously malformed
-- If the PublicSuffix can not be normalized and converted using the domain encoding.
+- The domain name is invalid or seriously malformed
+- The public suffix can not be normalized and converted using the domain encoding.
 
 **WARNING:**
 
@@ -241,8 +237,9 @@ To work as intended, the `Pdp\Manager` constructor requires:
 
 - a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object to store the rules locally.
 
-- a `Pdp\HttpClient` object to retrieve the PSL.  
-the `Pdp\HttpClient` is a simple interface which exposes the `HttpClient::getContent` method. This method expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
+- a `Pdp\HttpClient` object to retrieve the PSL.
+
+The `Pdp\HttpClient` is a simple interface which exposes the `HttpClient::getContent` method. This method expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
 If an error occurs while retrieving such body a `HttpClientException` exception is thrown.
 
 ~~~php

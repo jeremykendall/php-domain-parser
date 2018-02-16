@@ -6,13 +6,10 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
-- `Pdp\Rules::supports` returns a boolean to indicates if a given section is supported
 - `Pdp\Rules::getPublicSuffix` returns a `Pdp\PublicSuffix` value object
 - `Pdp\Rules::__set_state` is implemented
-- `Pdp\Domain::getSection` returns a string containing the section name used to determine the public suffix
 - `Pdp\Domain::toUnicode` returns a `Pdp\Domain` with its value converted to its Unicode form
 - `Pdp\Domain::toAscii` returns a `Pdp\Domain` with its value converted to its AScii form
-- `Pdp\PublicSuffix::getSection` returns a string containing the section name used to determine the public suffix
 - `Pdp\PublicSuffix::toUnicode` returns a `Pdp\PublicSuffix` with its value converted to its Unicode form
 - `Pdp\PublicSuffix::toAscii` returns a `Pdp\PublicSuffix` with its value converted to its AScii form
 
