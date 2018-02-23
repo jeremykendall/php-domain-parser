@@ -102,7 +102,7 @@ final class Rules
      */
     public function getPublicSuffix(string $domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
     {
-        if (!$this->isMatchable($domain)) {
+        if (null === $domain || !$this->isMatchable($domain)) {
             throw new Exception(sprintf('The submitted domain `%s` is invalid or malformed', $domain));
         }
         $this->validateSection($section);
@@ -121,7 +121,7 @@ final class Rules
     public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
     {
         $this->validateSection($section);
-        if (!$this->isMatchable($domain)) {
+        if (null === $domain || !$this->isMatchable($domain)) {
             return new Domain();
         }
 
@@ -135,14 +135,13 @@ final class Rules
     /**
      * Tells whether the given domain can be resolved.
      *
-     * @param string|null $domain
+     * @param string $domain
      *
      * @return bool
      */
     private function isMatchable($domain): bool
     {
-        return null !== $domain
-            && strpos($domain, '.') > 0
+        return strpos($domain, '.') > 0
             && strlen($domain) === strcspn($domain, '][')
             && !filter_var($domain, FILTER_VALIDATE_IP);
     }

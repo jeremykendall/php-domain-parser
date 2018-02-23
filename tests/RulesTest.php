@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace pdp\tests;
+namespace Pdp\Tests;
 
 use Pdp\Cache;
 use Pdp\CurlHttpClient;
@@ -257,8 +257,8 @@ class RulesTest extends TestCase
      *
      * @see http://publicsuffix.org/list/
      *
-     * @param string $input    Domain and public suffix
-     * @param string $expected Expected result
+     * @param string|null $input    Domain and public suffix
+     * @param string|null $expected Expected result
      */
     public function checkPublicSuffix($input, $expected)
     {

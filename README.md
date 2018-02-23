@@ -428,6 +428,26 @@ Contributing
 
 Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 
+Testing
+-------
+
+`pdp-domain-parser` has:
+
+- a [PHPUnit](https://phpunit.de) test suite
+- a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/).
+- a code analysis compliance test suite using [PHPStan](https://github.com/phpstan/phpstan).
+
+To run the tests, run the following command from the project folder.
+
+``` bash
+$ composer test
+```
+
+Security
+-------
+
+If you discover any security related issues, please email nyamsprod@gmail.com instead of using the issue tracker.
+
 Credits
 -------
 

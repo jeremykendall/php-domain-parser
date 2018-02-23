@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace pdp\tests;
+namespace Pdp\Tests;
 
 use DateInterval;
+use Iterator;
 use org\bovigo\vfs\vfsStream;
 use Pdp\Cache;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\InvalidArgumentException;
-use Traversable;
 
 /**
  * Abstract PSR-16 tester.
@@ -47,8 +47,7 @@ class CacheTest extends TestCase
     /**
      * @dataProvider storableValuesProvider
      *
-     * @param mixed  $expected
-     * @param string $key
+     * @param mixed $expected
      */
     public function testSetGet($expected)
     {
@@ -387,7 +386,7 @@ class CacheTest extends TestCase
         // first value is requested.
         //
         // This extra line is just a precaution for that
-        if ($result instanceof Traversable) {
+        if ($result instanceof Iterator) {
             $result->current();
         }
     }

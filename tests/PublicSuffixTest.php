@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace pdp\tests;
+namespace Pdp\Tests;
 
 use Pdp\Exception;
 use Pdp\PublicSuffix;
