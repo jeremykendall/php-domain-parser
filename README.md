@@ -28,7 +28,6 @@ System Requirements
 You need:
 
 - **PHP >= 7.0** but the latest stable version of PHP is recommended
-- the `mbstring` extension
 - the `intl` extension
 
 Dependencies
@@ -48,27 +47,7 @@ Documentation
 
 ### Domain name resolution
 
-In order to resolve a domain name one we must:
-
-- Convert the Public Suffix List (PSL) into a structure usable in PHP
-- Resolve the domain name against the PSL rules
-
-PSL Conversion is done using the `Pdp\Converter` class.
-
-~~~php
-<?php
-
-namespace Pdp;
-
-final class Converter
-{
-    public function convert(string $content): array
-}
-~~~
-
-The `Pdp\Converter::convert` method expects the raw content of a PSL and returns its `array` representation.
-
-Once the PSL has been converted we can used the returned `array` to instantiate a `Pdp\Rules` object which is responsable for resolving a given domain name.
+The `Pdp\Rules` object is responsible for domain name resolution.
 
 ~~~php
 <?php
@@ -84,14 +63,18 @@ final class Rules
     public static function createFromPath(string $path, $context = null): self
     public static function createFromString(string $content): self
     public function __construct(array $rules)
+    public function getPublicSuffix(string $domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
     public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
 }
 ~~~
 
-Starting with version 5.1.0, the following named constructors arre added to ease `Rules` instantiation.
+**NEW IN VERSION 5.2:**
+
+- `Rules::getPublicSuffix` returns a `PublicSuffix` object determined from the `Rules` object;
+
+**NEW IN VERSION 5.1:**
 
 - `Rules::createFromString` expects a string content which follows [the PSL format](https://publicsuffix.org/list/#list-format);
-
 - `Rules::createFromPath` expects a valid path to a readable PSL. You can optionnally submit a context resource as defined in PHP's `fopen` function;
 
 Both named constructors:
@@ -99,6 +82,7 @@ Both named constructors:
 - uses internally a `Pdp\Converter` object to convert the raw content into a suitable array to instantiate a valid `Pdp\Rules`;
 - do not have any cache functionnality;
 
+#### Usage
 
 Domain name resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
 
@@ -108,9 +92,7 @@ Domain name resolution is done using the `Pdp\Rules::resolve` method which expec
     - `Rules::ICANN_DOMAINS`, to validate against the PSL ICANN DOMAINS section only.
     - `Rules::PRIVATE_DOMAINS`, to validate against the PSL PRIVATE DOMAINS section only.
 
- By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
-
-**WARNING: The `Pdp\Rules::resolve` does not validate the submitted host. You are require to use a host validator prior to using this library.**
+By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
 
 The `Pdp\Rules::resolve` returns a `Pdp\Domain` object.
 
@@ -126,34 +108,29 @@ final class Domain implements JsonSerializable
     public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
+    public function toUnicode(): self;
+    public function toAscii(): self;
 }
 ~~~
 
-The `Pdp\Domain` getter methods returns:
+**NEW IN VERSION 5.2:**
 
-- the submitted domain name using `Pdp\Domain::getDomain`
-- the public suffix part normalized according to the domain using `Pdp\Domain::getPublicSuffix`
-- the registrable domain part using `Pdp\Domain::getRegistrableDomain`
-- the subdomain part using `Pdp\Domain::getSubDomain`.
+- `Domain::toUnicode` returns an instance with the domain converted to its unicode representation;
+- `Domain::toAscii` returns an instance with the domain converted to its ascii representation;
+- `Domain::getDomain` will lowercase the domain name to normalize its content;
 
-If the domain name or some of its part are seriously malformed or unrecognized, the getter methods will return `null`.
-
-**The Domain name status depends on the PSL section used to resolve it:**
-
-- `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL;
-- `Pdp\Domain::isICANN` returns `true` if the public suffix is found in a selected PSL which includes the ICANN DOMAINS section;
-- `Pdp\Domain::isPrivate` returns `true` if the public suffix is found in a selected PSL which includes the PRIVATE DOMAINS section;
-
-**THIS EXAMPLE ILLUSTRATES HOW EACH OBJECT IS USED BUT SHOULD BE AVOID IN PRODUCTON**
+**THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
 ~~~php
 <?php
 
 use Pdp\Rules;
+use Pdp\Converter;
 
-$rules = Rules::createFromPath('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
+$pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
+$rules = Rules::createFromPath($pdp_url);
 
-$domain = $rules->resolve('www.ulb.ac.be'); //using Rules::ALL_DOMAINS
+$domain = $rules->resolve('www.Ulb.AC.be'); //using Rules::ALL_DOMAINS
 $domain->getDomain();            //returns 'www.ulb.ac.be'
 $domain->getPublicSuffix();      //returns 'ac.be'
 $domain->getRegistrableDomain(); //returns 'ulb.ac.be'
@@ -175,7 +152,7 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 
 //The same domain will yield a different result using the PSL PRIVATE DOMAIN SECTION only
 
-$domain = $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS);
+$domain = $rules->resolve('www.Ulb.AC.be', Rules::PRIVATE_DOMAINS);
 echo json_encode($domain, JSON_PRETTY_PRINT);
 // returns
 //  {
@@ -189,11 +166,49 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //  }
 ~~~
 
+The `Pdp\Domain` getter methods returns:
+
+- the submitted domain name using `Pdp\Domain::getDomain`
+- the public suffix part normalized according to the domain using `Pdp\Domain::getPublicSuffix`
+- the registrable domain part using `Pdp\Domain::getRegistrableDomain`
+- the subdomain part using `Pdp\Domain::getSubDomain`.
+
+If the domain name or some of its part are seriously malformed or unrecognized, the getter methods will return `null`.
+
+**The Domain name status depends on the PSL section used to resolve it:**
+
+- `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL;
+- `Pdp\Domain::isICANN` returns `true` if the public suffix is found using a PSL which includes the ICANN DOMAINS section;
+- `Pdp\Domain::isPrivate` returns `true` if the public suffix is found using a PSL which includes the PRIVATE DOMAINS section;
+
+The `Rules::getPublicSuffix` method expects the same arguments as `Rules::resolve` but returns a `Pdp\PublicSuffix` object instead.
+
+~~~php
+<?php
+
+final class PublicSuffix implements Countable, JsonSerializable
+{
+    public function getContent(): ?string
+    public function isKnown(): bool;
+    public function isICANN(): bool;
+    public function isPrivate(): bool;
+    public function toUnicode(): self;
+    public function toAscii(): self;
+}
+~~~
+
+While `Rules::resolve` will only throws an exception if the section value is invalid, the `Rules::getPublicSuffix` is more restrictive and will additionnally throw if:
+
+- The domain name is invalid or seriously malformed
+- The public suffix can not be normalized and converted using the domain encoding.
+
 **WARNING:**
+
+**The `Pdp\Rules::resolve` does not validate the submitted host. You are require to use a host validator prior to using this library.**
 
 **You should never use the library this way in production, without, at least, a caching mechanism to reduce PSL downloads.**
 
-**Some people use the PSL to determine what is a valid domain name and what isn't. This is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace, if your software does not regularly receive PSL updates, it may erroneously think new gTLDs are not known. The DNS is the proper source for this information. If you must use it for this purpose, please do not bake static copies of the PSL into your software with no update mechanism.**
+**Using the PSL to determine what is a valid domain name and what isn't is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace. The DNS is the proper source for this information. If you must use this library for this purpose, please consider integrating a PSL update mechanism into your software.**
 
 ### Public Suffix List Maintenance
 
@@ -221,8 +236,9 @@ To work as intended, the `Pdp\Manager` constructor requires:
 
 - a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object to store the rules locally.
 
-- a `Pdp\HttpClient` object to retrieve the PSL.  
-the `Pdp\HttpClient` is a simple interface which exposes the `HttpClient::getContent` method. This method expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
+- a `Pdp\HttpClient` object to retrieve the PSL.
+
+The `Pdp\HttpClient` is a simple interface which exposes the `HttpClient::getContent` method. This method expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
 If an error occurs while retrieving such body a `HttpClientException` exception is thrown.
 
 ~~~php
@@ -410,6 +426,26 @@ Contributing
 -------
 
 Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
+
+Testing
+-------
+
+`pdp-domain-parser` has:
+
+- a [PHPUnit](https://phpunit.de) test suite
+- a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/).
+- a code analysis compliance test suite using [PHPStan](https://github.com/phpstan/phpstan).
+
+To run the tests, run the following command from the project folder.
+
+``` bash
+$ composer test
+```
+
+Security
+-------
+
+If you discover any security related issues, please email nyamsprod@gmail.com instead of using the issue tracker.
 
 Credits
 -------

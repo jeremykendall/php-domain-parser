@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace pdp\tests;
+namespace Pdp\Tests;
 
 use Pdp\Cache;
 use Pdp\CurlHttpClient;
@@ -42,6 +42,12 @@ class RulesTest extends TestCase
     {
         $this->expectException(Exception::class);
         Rules::createFromPath('/foo/bar.dat');
+    }
+
+    public function testDomainInternalPhpMethod()
+    {
+        $generateRules = eval('return '.var_export($this->rules, true).';');
+        $this->assertEquals($this->rules, $generateRules);
     }
 
     public function testNullWillReturnNullDomain()
@@ -96,7 +102,7 @@ class RulesTest extends TestCase
     public function testWithInvalidDomainName()
     {
         $domain = $this->rules->resolve('_b%C3%A9bé.be-');
-        $this->assertSame('_b%C3%A9bé.be-', $domain->getDomain());
+        $this->assertSame('_bébé.be-', $domain->getDomain());
         $this->assertFalse($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
@@ -213,12 +219,32 @@ class RulesTest extends TestCase
         ];
     }
 
-    public function testGetPublicSuffixHandlesWrongCaseProperly()
+    /**
+     * @dataProvider invalidParseProvider
+     * @param mixed $domain
+     * @param mixed $section
+     */
+    public function testDetermine($domain, $section)
     {
-        $publicSuffix = 'рф';
-        $domain = 'Яндекс.РФ';
+        $this->expectException(Exception::class);
+        $this->rules->getPublicSuffix($domain, $section);
+    }
 
-        $this->assertSame($publicSuffix, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getPublicSuffix());
+    public function invalidParseProvider()
+    {
+        return [
+            'IPv6' => ['[::1]', Rules::ICANN_DOMAINS],
+            'IPv4' => ['192.168.1.2', Rules::ICANN_DOMAINS],
+            'single label host' => ['localhost', Rules::ICANN_DOMAINS],
+        ];
+    }
+
+    public function testPublicSuffixSection()
+    {
+        $expected = 'рф';
+        $domain = 'Яндекс.РФ';
+        $publicSuffix =  $this->rules->getPublicSuffix($domain);
+        $this->assertSame($expected, $publicSuffix->getContent());
     }
 
     /**
@@ -231,12 +257,12 @@ class RulesTest extends TestCase
      *
      * @see http://publicsuffix.org/list/
      *
-     * @param string $input    Domain and public suffix
-     * @param string $expected Expected result
+     * @param string|null $input    Domain and public suffix
+     * @param string|null $expected Expected result
      */
     public function checkPublicSuffix($input, $expected)
     {
-        $this->assertSame($expected, $this->rules->resolve($input, Rules::ICANN_DOMAINS)->getRegistrableDomain());
+        $this->assertSame($expected, $this->rules->resolve($input)->getRegistrableDomain());
     }
 
     /**

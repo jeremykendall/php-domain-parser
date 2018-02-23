@@ -29,6 +29,8 @@ use JsonSerializable;
  */
 final class Domain implements JsonSerializable
 {
+    use IDNAConverterTrait;
+
     /**
      * @var string|null
      */
@@ -50,6 +52,14 @@ final class Domain implements JsonSerializable
     private $subDomain;
 
     /**
+     * {@inheritdoc}
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self($properties['domain'], $properties['publicSuffix']);
+    }
+
+    /**
      * New instance.
      *
      * @param string|null  $domain
@@ -57,10 +67,34 @@ final class Domain implements JsonSerializable
      */
     public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
+        if (false !== strpos((string) $domain, '%')) {
+            $domain = rawurldecode($domain);
+        }
+
+        if (null !== $domain) {
+            $domain = strtolower($domain);
+        }
+
         $this->domain = $domain;
-        $this->publicSuffix = $publicSuffix ?? new PublicSuffix();
+        $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
+    }
+
+    /**
+     * Filter the PublicSuffix
+     *
+     * @param PublicSuffix|null $publicSuffix
+     *
+     * @return PublicSuffix
+     */
+    private function setPublicSuffix(PublicSuffix $publicSuffix = null): PublicSuffix
+    {
+        if (null === $publicSuffix || null === $this->domain) {
+            return new PublicSuffix();
+        }
+
+        return $publicSuffix;
     }
 
     /**
@@ -82,29 +116,7 @@ final class Domain implements JsonSerializable
         $domainLabels = explode('.', $this->domain);
         $registrableDomain = implode('.', array_slice($domainLabels, count($domainLabels) - $nbLabelsToRemove));
 
-        return $this->normalize($registrableDomain);
-    }
-
-    /**
-     * Normalizes the domain according to its representation.
-     *
-     * @param string $domain
-     *
-     * @return string|null
-     */
-    private function normalize(string $domain)
-    {
-        $func = 'idn_to_utf8';
-        if (false !== strpos($domain, 'xn--')) {
-            $func = 'idn_to_ascii';
-        }
-
-        $domain = $func($domain, 0, INTL_IDNA_VARIANT_UTS46);
-        if (false === $domain) {
-            return null;
-        }
-
-        return strtolower($domain);
+        return $registrableDomain;
     }
 
     /**
@@ -127,7 +139,7 @@ final class Domain implements JsonSerializable
 
         $subDomain = implode('.', array_slice($domainLabels, 0, $countLabels - $nbLabelsToRemove));
 
-        return $this->normalize($subDomain);
+        return $subDomain;
     }
 
     /**
@@ -135,15 +147,11 @@ final class Domain implements JsonSerializable
      */
     public function jsonSerialize()
     {
-        return [
+        return array_merge([
             'domain' => $this->domain,
             'registrableDomain' => $this->registrableDomain,
             'subDomain' => $this->subDomain,
-            'publicSuffix' => $this->publicSuffix->getContent(),
-            'isKnown' => $this->publicSuffix->isKnown(),
-            'isICANN' => $this->publicSuffix->isICANN(),
-            'isPrivate' => $this->publicSuffix->isPrivate(),
-        ];
+        ], $this->publicSuffix->jsonSerialize());
     }
 
     /**
@@ -152,14 +160,6 @@ final class Domain implements JsonSerializable
     public function __debugInfo()
     {
         return $this->jsonSerialize();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function __set_state(array $properties)
-    {
-        return new self($properties['domain'], $properties['publicSuffix']);
     }
 
     /**
@@ -214,7 +214,7 @@ final class Domain implements JsonSerializable
     }
 
     /**
-     * Tells whether the public suffix has a matching rule in a Public Suffix List.
+     * Tells whether the public suffix has been matching rule in a Public Suffix List.
      *
      * @return bool
      */
@@ -241,5 +241,48 @@ final class Domain implements JsonSerializable
     public function isPrivate(): bool
     {
         return $this->publicSuffix->isPrivate();
+    }
+
+    /**
+     * Converts the domain to its IDNA ASCII form.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance with is content converted to its IDNA ASCII form
+     *
+     * @throws Exception if the domain can not be converted to ASCII using IDN UTS46 algorithm
+     *
+     * @return self
+     */
+    public function toAscii(): self
+    {
+        if (null === $this->domain || false !== strpos($this->domain, 'xn--')) {
+            return $this;
+        }
+
+        $newDomain = $this->idnToAscii($this->domain);
+        if ($newDomain === $this->domain) {
+            return $this;
+        }
+
+        return new self($newDomain, $this->publicSuffix->toAscii());
+    }
+
+    /**
+     * Converts the domain to its IDNA UTF8 form.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance with is content converted to its IDNA UTF8 form
+     *
+     * @throws Exception if the domain can not be converted to Unicode using IDN UTS46 algorithm
+     *
+     * @return self
+     */
+    public function toUnicode(): self
+    {
+        if (null === $this->domain || false === strpos($this->domain, 'xn--')) {
+            return $this;
+        }
+
+        return new self($this->idnToUnicode($this->domain), $this->publicSuffix->toUnicode());
     }
 }

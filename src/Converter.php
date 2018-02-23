@@ -17,9 +17,14 @@ use SplTempFileObject;
  * Public Suffix List Parser.
  *
  * This class convert the Public Suffix List into an associative, multidimensional array
+ *
+ * @author Jeremy Kendall <jeremy@jeremykendall.net>
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Converter
 {
+    use IDNAConverterTrait;
+
     /**
      * Convert the Public Suffix List into
      * an associative, multidimensional array
@@ -99,7 +104,7 @@ final class Converter
         // "The domain and all rules must be canonicalized in the normal way
         // for hostnames - lower-case, Punycode (RFC 3492)."
 
-        $part = idn_to_ascii($part, 0, INTL_IDNA_VARIANT_UTS46);
+        $part = $this->idnToAscii($part);
         $isDomain = true;
         if (0 === strpos($part, '!')) {
             $part = substr($part, 1);

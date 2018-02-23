@@ -40,7 +40,7 @@ final class Installer
 
         require $vendor.'/autoload.php';
 
-        $io->write('Updating your Public Suffix List ICANN Section local cache.');
+        $io->write('Updating your Public Suffix List local cache.');
         if (!extension_loaded('curl')) {
             $io->writeError([
                 '😓 😓 😓 Your local cache could not be updated. 😓 😓 😓',
@@ -67,7 +67,7 @@ final class Installer
             $io->writeError([
                 '😓 😓 😓 Your local cache could not be updated. 😓 😓 😓',
                 'An error occurred during the update.',
-                '----- Error Trace ----',
+                '----- Error Message ----',
             ]);
             $io->writeError($e->getMessage());
             die(1);
@@ -83,7 +83,7 @@ final class Installer
      */
     private static function getVendorPath(Event $event = null)
     {
-        if ($event instanceof Event) {
+        if (null !== $event) {
             return $event->getComposer()->getConfig()->get('vendor-dir');
         }
 
@@ -103,11 +103,11 @@ final class Installer
      *
      * @param Event|null $event
      *
-     * @return object
+     * @return mixed
      */
     private static function getIO(Event $event = null)
     {
-        if ($event instanceof Event) {
+        if (null !== $event) {
             return $event->getIO();
         }
 

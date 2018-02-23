@@ -1,6 +1,32 @@
 # Changelog
 
-All Notable changes to `PHP Domain Parser` will be documented in this file
+All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
+
+## 5.2.0 - 2018-02-23
+
+### Added
+
+- `Pdp\Rules::getPublicSuffix` returns a `Pdp\PublicSuffix` value object
+- `Pdp\Rules::__set_state` is implemented
+- `Pdp\Domain::toUnicode` returns a `Pdp\Domain` with its value converted to its Unicode form
+- `Pdp\Domain::toAscii` returns a `Pdp\Domain` with its value converted to its AScii form
+- `Pdp\PublicSuffix::toUnicode` returns a `Pdp\PublicSuffix` with its value converted to its Unicode form
+- `Pdp\PublicSuffix::toAscii` returns a `Pdp\PublicSuffix` with its value converted to its AScii form
+
+### Fixed
+
+- `Pdp\Domain::getDomain` returns the normalized form of the domain name
+- `Pdp\PublicSuffix` is no longer internal.
+- Normalizes IDN conversion using a internal `IDNConverterTrait`
+- Internal code improved by requiring PHPStan for development
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
 
 ## 5.1.0 - 2017-12-18
 

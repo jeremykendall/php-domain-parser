@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace pdp\tests;
+namespace Pdp\Tests;
 
 use org\bovigo\vfs\vfsStream;
 use Pdp\Cache;
@@ -13,9 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 class ManagerTest extends TestCase
 {
-    /**
-     * @var Manager
-     */
     protected $manager;
     protected $cachePool;
     protected $cacheDir;
