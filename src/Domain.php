@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Countable;
 use JsonSerializable;
 
 /**
@@ -27,7 +28,7 @@ use JsonSerializable;
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Domain implements JsonSerializable
+final class Domain implements Countable, JsonSerializable
 {
     use IDNAConverterTrait;
 
@@ -67,22 +68,34 @@ final class Domain implements JsonSerializable
      */
     public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
-        if (false !== strpos((string) $domain, '%')) {
-            $domain = rawurldecode($domain);
-        }
-
-        if (null !== $domain) {
-            $domain = strtolower($domain);
-        }
-
-        $this->domain = $domain;
+        $this->domain = $this->setDomain($domain);
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
     }
 
     /**
-     * Filter the PublicSuffix
+     * Normalize the given domain.
+     *
+     * @param string|null $domain
+     *
+     * @return string|null
+     */
+    private function setDomain(string $domain = null)
+    {
+        if (null === $domain) {
+            return null;
+        }
+
+        if (false !== strpos($domain, '%')) {
+            $domain = rawurldecode($domain);
+        }
+
+        return strtolower($domain);
+    }
+
+    /**
+     * Sets the public suffix domain part.
      *
      * @param PublicSuffix|null $publicSuffix
      *
@@ -90,7 +103,12 @@ final class Domain implements JsonSerializable
      */
     private function setPublicSuffix(PublicSuffix $publicSuffix = null): PublicSuffix
     {
-        if (null === $publicSuffix || null === $this->domain) {
+        $publicSuffix = $publicSuffix ?? new PublicSuffix();
+        if (null === $publicSuffix->getContent()) {
+            return $publicSuffix;
+        }
+
+        if (null === $this->domain || false === strpos($this->domain, '.')) {
             return new PublicSuffix();
         }
 
@@ -98,25 +116,24 @@ final class Domain implements JsonSerializable
     }
 
     /**
-     * Compute the registrable domain part.
+     * Computes the registrable domain part.
      *
      * @return string|null
      */
     private function setRegistrableDomain()
     {
-        if (false === strpos((string) $this->domain, '.')) {
+        if (null === $this->publicSuffix->getContent()) {
             return null;
         }
 
-        if (in_array($this->publicSuffix->getContent(), [null, $this->domain], true)) {
+        $labels = explode('.', $this->domain);
+        $countLabels = count($labels);
+        $countPublicSuffixLabels = count($this->publicSuffix);
+        if ($countLabels === $countPublicSuffixLabels) {
             return null;
         }
 
-        $nbLabelsToRemove = count($this->publicSuffix) + 1;
-        $domainLabels = explode('.', $this->domain);
-        $registrableDomain = implode('.', array_slice($domainLabels, count($domainLabels) - $nbLabelsToRemove));
-
-        return $registrableDomain;
+        return implode('.', array_slice($labels, $countLabels - $countPublicSuffixLabels - 1));
     }
 
     /**
@@ -130,16 +147,14 @@ final class Domain implements JsonSerializable
             return null;
         }
 
-        $nbLabelsToRemove = count($this->publicSuffix) + 1;
-        $domainLabels = explode('.', $this->domain);
-        $countLabels = count($domainLabels);
-        if ($countLabels === $nbLabelsToRemove) {
+        $labels = explode('.', $this->domain);
+        $countLabels = count($labels);
+        $countLabelsToRemove = count(explode('.', $this->registrableDomain));
+        if ($countLabels === $countLabelsToRemove) {
             return null;
         }
 
-        $subDomain = implode('.', array_slice($domainLabels, 0, $countLabels - $nbLabelsToRemove));
-
-        return $subDomain;
+        return implode('.', array_slice($labels, 0, $countLabels - $countLabelsToRemove));
     }
 
     /**
@@ -163,7 +178,36 @@ final class Domain implements JsonSerializable
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        if (null === $this->domain) {
+            return 0;
+        }
+
+        return count(explode('.', $this->domain));
+    }
+
+    /**
+     * Returns the domain content.
+     *
+     * This method should return null on seriously malformed domain name
+     *
+     * @return string|null
+     */
+    public function getContent()
+    {
+        return $this->domain;
+    }
+
+    /**
      * Returns the full domain name.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.3
+     * @see Domain::getContent
      *
      * This method should return null on seriously malformed domain name
      *
@@ -171,7 +215,7 @@ final class Domain implements JsonSerializable
      */
     public function getDomain()
     {
-        return $this->domain;
+        return $this->getContent();
     }
 
     /**

@@ -91,16 +91,6 @@ final class PublicSuffix implements Countable, JsonSerializable
     }
 
     /**
-     * Returns the public suffix content.
-     *
-     * @return string|null
-     */
-    public function getContent()
-    {
-        return $this->publicSuffix;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function count()
@@ -110,6 +100,16 @@ final class PublicSuffix implements Countable, JsonSerializable
         }
 
         return count(explode('.', $this->publicSuffix));
+    }
+
+    /**
+     * Returns the public suffix content.
+     *
+     * @return string|null
+     */
+    public function getContent()
+    {
+        return $this->publicSuffix;
     }
 
     /**

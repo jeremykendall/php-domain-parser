@@ -52,6 +52,12 @@ class DomainTest extends TestCase
         $generateDomain = eval('return '.var_export($domain, true).';');
         $this->assertInternalType('array', $domain->__debugInfo());
         $this->assertEquals($domain, $generateDomain);
+        $this->assertCount(4, $domain);
+    }
+
+    public function testDomainWithNullLabels()
+    {
+        $this->assertCount(0, new Domain());
     }
 
     public function testPublicSuffixnternalPhpMethod()
