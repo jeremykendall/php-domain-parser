@@ -47,7 +47,7 @@ Documentation
 
 ### Domain name resolution
 
-The `Pdp\Rules` object is responsible for domain name resolution.
+The `Pdp\Rules` object is responsible for public suffix resolution for a given domain.
 
 ~~~php
 <?php
@@ -68,23 +68,9 @@ final class Rules
 }
 ~~~
 
-**NEW IN VERSION 5.2:**
-
-- `Rules::getPublicSuffix` returns a `PublicSuffix` object determined from the `Rules` object;
-
-**NEW IN VERSION 5.1:**
-
-- `Rules::createFromString` expects a string content which follows [the PSL format](https://publicsuffix.org/list/#list-format);
-- `Rules::createFromPath` expects a valid path to a readable PSL. You can optionnally submit a context resource as defined in PHP's `fopen` function;
-
-Both named constructors:
-
-- uses internally a `Pdp\Converter` object to convert the raw content into a suitable array to instantiate a valid `Pdp\Rules`;
-- do not have any cache functionnality;
-
 #### Usage
 
-Domain name resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
+Public suffix resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
 
 - `$domain` a domain name as a string
 - `$section` a string which specifies which section of the PSL you want to validate the given domain against. The possible values are:
@@ -96,28 +82,36 @@ By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsu
 
 The `Pdp\Rules::resolve` returns a `Pdp\Domain` object.
 
+The `Pdp\Domain` implements the `Pdp\DomainInterface`
+
 ~~~php
 <?php
 
-final class Domain implements JsonSerializable
+interface DomainInterface extends Countable, IteratorAggregate
 {
-    public function getDomain(): ?string
+    public function getContent(): ?string
+    public function getLabel(int $offset): ?string
+    public function keys(string $label): int[]
+    public function toUnicode(): static;
+    public function toAscii(): static;
+}
+~~~
+
+But also enable returns informations about the domain parts and its public suffix status.
+
+~~~php
+<?php
+
+final class Domain implements DomainInterface, JsonSerializable
+{
     public function getPublicSuffix(): ?string
     public function getRegistrableDomain(): ?string
     public function getSubDomain(); ?string
     public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
-    public function toUnicode(): self;
-    public function toAscii(): self;
 }
 ~~~
-
-**NEW IN VERSION 5.2:**
-
-- `Domain::toUnicode` returns an instance with the domain converted to its unicode representation;
-- `Domain::toAscii` returns an instance with the domain converted to its ascii representation;
-- `Domain::getDomain` will lowercase the domain name to normalize its content;
 
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
@@ -131,13 +125,25 @@ $pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_su
 $rules = Rules::createFromPath($pdp_url);
 
 $domain = $rules->resolve('www.Ulb.AC.be'); //using Rules::ALL_DOMAINS
-$domain->getDomain();            //returns 'www.ulb.ac.be'
+$domain->getContent();           //returns 'www.ulb.ac.be'
 $domain->getPublicSuffix();      //returns 'ac.be'
 $domain->getRegistrableDomain(); //returns 'ulb.ac.be'
 $domain->getSubDomain();         //returns 'www'
+$domain->getLabel(0)             //returns 'be'
+$domain->getLabel(-1)            //returns 'www'
+$domain->keys('ulb')             //returns [2]
 $domain->isKnown();              //returns true
 $domain->isICANN();              //returns true
 $domain->isPrivate();            //returns false
+echo json_encode(iterator_to_array($domain), JSON_PRETTY_PRINT);
+// returns
+//  [
+//      'be',
+//      'ac',
+//      'ulb',
+//      'www'
+//  ]
+
 echo json_encode($domain, JSON_PRETTY_PRINT);
 // returns
 //  {
@@ -166,16 +172,9 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //  }
 ~~~
 
-The `Pdp\Domain` getter methods returns:
+- All `Pdp\Domain` getter methods returns normalized and lowercased domain labels or `null` if no value was found for a particular domain part.
 
-- the submitted domain name using `Pdp\Domain::getDomain`
-- the public suffix part normalized according to the domain using `Pdp\Domain::getPublicSuffix`
-- the registrable domain part using `Pdp\Domain::getRegistrableDomain`
-- the subdomain part using `Pdp\Domain::getSubDomain`.
-
-If the domain name or some of its part are seriously malformed or unrecognized, the getter methods will return `null`.
-
-**The Domain name status depends on the PSL section used to resolve it:**
+**The domain public suffix status depends on the PSL section used to resolve it:**
 
 - `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL;
 - `Pdp\Domain::isICANN` returns `true` if the public suffix is found using a PSL which includes the ICANN DOMAINS section;
@@ -186,25 +185,21 @@ The `Rules::getPublicSuffix` method expects the same arguments as `Rules::resolv
 ~~~php
 <?php
 
-final class PublicSuffix implements Countable, JsonSerializable
+final class PublicSuffix implements DomainInterface, JsonSerializable
 {
-    public function getContent(): ?string
     public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
-    public function toUnicode(): self;
-    public function toAscii(): self;
 }
 ~~~
 
 While `Rules::resolve` will only throws an exception if the section value is invalid, the `Rules::getPublicSuffix` is more restrictive and will additionnally throw if:
 
 - The domain name is invalid or seriously malformed
-- The public suffix can not be normalized and converted using the domain encoding.
+- No public suffix can be match against the submitted domain.
+- The public suffix can not be normalized using the domain encoding.
 
 **WARNING:**
-
-**The `Pdp\Rules::resolve` does not validate the submitted host. You are require to use a host validator prior to using this library.**
 
 **You should never use the library this way in production, without, at least, a caching mechanism to reduce PSL downloads.**
 
@@ -375,7 +370,7 @@ For example, below I'm using the `Manager` with
 
 Of course you can add more setups depending on your usage.
 
-<p class="message-notice">Be sure to adapt the following code to your own framework/situation. The following code is given as an example without warranty of it working out of the box.</p>
+**Be sure to adapt the following code to your own framework/situation. The following code is given as an example without warranty of it working out of the box.**
 
 ~~~php
 <?php
@@ -421,6 +416,11 @@ $domain->getRegistrableDomain(); //returns 'bébé.faketld'
 $domain->getSubDomain();         //returns 'nl.shop'
 $domain->isKnown();              //returns false
 ~~~
+
+Changelog
+-------
+
+Please see [CHANGELOG](CHANGELOG.md) for more information about what has been changed since version **5.0.0** was released.
 
 Contributing
 -------
