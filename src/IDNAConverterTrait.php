@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 /**
- * A Wrapper around INTL IDNA function
+ * @internal Domain name validator
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
@@ -63,24 +63,25 @@ trait IDNAConverterTrait
      *
      * This method returns the string converted to IDN ASCII form
      *
-     * @param  string    $host
+     * @param string $domain
+     *
      * @throws Exception if the string can not be converted to ASCII using IDN UTS46 algorithm
      *
      * @return string
      */
-    private function idnToAscii(string $host): string
+    private function idnToAscii(string $domain): string
     {
         static $pattern = '/[^\x20-\x7f]/';
-        if (!preg_match($pattern, $host)) {
-            return $host;
+        if (!preg_match($pattern, $domain)) {
+            return $domain;
         }
 
-        $output = idn_to_ascii($host, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        $output = idn_to_ascii($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
         if (!$arr['errors']) {
             return $output;
         }
 
-        throw new Exception(sprintf('The host `%s` is invalid : %s', $host, self::getIdnErrors($arr['errors'])));
+        throw new Exception(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
     }
 
     /**
@@ -88,25 +89,33 @@ trait IDNAConverterTrait
      *
      * This method returns the string converted to IDN UNICODE form
      *
-     * @param  string    $host
+     * @param string $domain
+     *
      * @throws Exception if the string can not be converted to UNICODE using IDN UTS46 algorithm
      *
      * @return string
      */
-    private function idnToUnicode(string $host): string
+    private function idnToUnicode(string $domain): string
     {
-        $output = idn_to_utf8($host, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        $output = idn_to_utf8($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
         if (!$arr['errors']) {
             return $output;
         }
 
-        throw new Exception(sprintf('The host `%s` is invalid : %s', $host, self::getIdnErrors($arr['errors'])));
+        throw new Exception(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
     }
 
     /**
-     * Validate the given domain
+     * Filter and format the domain to ensure it is valid
+     *
+     * Returns an array containing the formatted domain name in lowercase
+     * with its associated labels in reverse order
+     *
+     * For example: setDomain('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];
      *
      * @param string|null $domain
+     *
+     * @throws Exception If the domain is invalid
      *
      * @return array
      */
@@ -127,14 +136,14 @@ trait IDNAConverterTrait
         $formatted_domain = strtolower(rawurldecode($domain));
 
         // Note that unreserved is purposely missing . as it is used to separate labels.
-        static $reg_name = '/(?(DEFINE)
+        static $domain_name = '/(?(DEFINE)
                 (?<unreserved>[a-z0-9_~\-])
                 (?<sub_delims>[!$&\'()*+,;=])
                 (?<encoded>%[A-F0-9]{2})
                 (?<reg_name>(?:(?&unreserved)|(?&sub_delims)|(?&encoded)){1,63})
             )
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
-        if (preg_match($reg_name, $formatted_domain)) {
+        if (preg_match($domain_name, $formatted_domain)) {
             return [$formatted_domain, array_reverse(explode('.', $formatted_domain))];
         }
 

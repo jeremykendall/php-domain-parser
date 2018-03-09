@@ -108,7 +108,7 @@ final class Domain implements DomainInterface, JsonSerializable
     {
         foreach ($this->publicSuffix as $offset => $label) {
             if ($label !== $this->labels[$offset]) {
-                throw new Exception(sprintf('The submitted public suffix `%s` is invalid for the given domain `%s`', $this->publicSuffix->getContent(), $this->domain));
+                throw new Exception(sprintf('The public suffix `%s` is invalid for the domain `%s`', $this->publicSuffix->getContent(), $this->domain));
             }
         }
     }
