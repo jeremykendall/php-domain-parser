@@ -7,34 +7,34 @@ namespace Pdp\Tests;
 use Pdp\Domain;
 use Pdp\Exception;
 use Pdp\PublicSuffix;
-use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @coversDefaultClass Pdp\Domain
+ */
 class DomainTest extends TestCase
 {
     /**
      * @dataProvider invalidRegistrableDomainProvider
      *
-     * @param string $domain
-     * @param string $publicSuffix
+     * @param string|null $domain
+     * @param string|null $publicSuffix
+     *
+     * @covers ::__construct
+     * @covers ::setPublicSuffix
+     * @covers ::setRegistrableDomain
+     * @covers ::setSubDomain
+     * @covers ::assertValidState
+     * @covers ::getPublicSuffix
+     * @covers ::getRegistrableDomain
+     * @covers ::getSubDomain
      */
-    public function testRegistrableDomainIsNullWithFoundDomain(string $domain, $publicSuffix)
+    public function testRegistrableDomainIsNullWithFoundDomain($domain, $publicSuffix)
     {
         $domain = new Domain($domain, new PublicSuffix($publicSuffix));
+        $this->assertNull($domain->getPublicSuffix());
         $this->assertNull($domain->getRegistrableDomain());
         $this->assertNull($domain->getSubDomain());
-    }
-
-    public function testToAsciiThrowsException()
-    {
-        $this->expectException(Exception::class);
-        (new Domain('_b%C3%A9bé.be-'))->toAscii();
-    }
-
-    public function testToUnicodeThrowsException()
-    {
-        $this->expectException(Exception::class);
-        (new Domain('xn--a-ecp.ru'))->toUnicode();
     }
 
     public function invalidRegistrableDomainProvider()
@@ -43,29 +43,108 @@ class DomainTest extends TestCase
             'domain and suffix are the same' => ['co.uk', 'co.uk'],
             'domain has no labels' => ['faketld', 'faketld'],
             'public suffix is null' => ['faketld', null],
+            'domain is null' => [null, 'faketld'],
         ];
     }
 
+    /**
+     * @covers ::__construct
+     * @covers ::assertValidState
+     */
+    public function testConstructorThrowsExceptionOnMisMatchPublicSuffixDomain()
+    {
+        $this->expectException(Exception::class);
+        new Domain('www.ulb.ac.be', new PublicSuffix('com'));
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::setDomain
+     * @covers ::getIdnErrors
+     */
+    public function testToAsciiThrowsException()
+    {
+        $this->expectException(Exception::class);
+        new Domain('a⒈com');
+    }
+
+    /**
+     * @covers ::toUnicode
+     * @covers ::idnToUnicode
+     * @covers ::getIdnErrors
+     */
+    public function testToUnicodeThrowsException()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('xn--a-ecp.ru'))->toUnicode();
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::__set_state
+     * @covers ::__debugInfo
+     * @covers ::jsonSerialize
+     * @covers ::getIterator
+     */
     public function testDomainInternalPhpMethod()
     {
-        $domain = new Domain('www.ulb.ac.be', new PublicSuffix('ac.be', Rules::ICANN_DOMAINS));
+        $domain = new Domain('www.ulb.ac.be', new PublicSuffix('ac.be'));
         $generateDomain = eval('return '.var_export($domain, true).';');
         $this->assertInternalType('array', $domain->__debugInfo());
         $this->assertEquals($domain, $generateDomain);
-        $this->assertCount(4, $domain);
+        $this->assertSame(['be', 'ac', 'ulb', 'www'], iterator_to_array($domain));
+        $this->assertJsonStringEqualsJsonString(
+            json_encode($domain->__debugInfo()),
+            json_encode($domain)
+        );
     }
 
-    public function testDomainWithNullLabels()
+    /**
+     * @dataProvider countableProvider
+     * @param string|null $domain
+     * @param int         $nbLabels
+     * @param string[]    $labels
+     * @covers ::getIterator
+     * @covers ::count
+     */
+    public function testCountable($domain, $nbLabels, $labels)
     {
-        $this->assertCount(0, new Domain());
+        $domain = new Domain($domain);
+        $this->assertCount($nbLabels, $domain);
+        $this->assertSame($labels, iterator_to_array($domain));
     }
 
-    public function testPublicSuffixnternalPhpMethod()
+    public function countableProvider()
     {
-        $publicSuffix = new PublicSuffix('co.uk', Rules::ICANN_DOMAINS);
-        $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
-        $this->assertInternalType('array', $publicSuffix->__debugInfo());
-        $this->assertEquals($publicSuffix, $generatePublicSuffix);
+        return [
+            'null' => [null, 0, []],
+            'empty string' => ['', 1, ['']],
+            'simple' => ['foo.bar.baz', 3, ['baz', 'bar', 'foo']],
+            'unicode' => ['www.食狮.公司.cn', 4, ['cn', '公司', '食狮', 'www']],
+        ];
+    }
+
+    /**
+     * @covers ::getLabel
+     */
+    public function testGetLabel()
+    {
+        $domain = new Domain('master.example.com');
+        $this->assertSame('com', $domain->getLabel(0));
+        $this->assertSame('example', $domain->getLabel(1));
+        $this->assertSame('master', $domain->getLabel(-1));
+        $this->assertNull($domain->getLabel(23));
+        $this->assertNull($domain->getLabel(-23));
+    }
+
+    /**
+     * @covers ::keys
+     */
+    public function testOffsets()
+    {
+        $domain = new Domain('master.com.example.com');
+        $this->assertSame([0, 2], $domain->keys('com'));
+        $this->assertSame([], $domain->keys('toto'));
     }
 
     /**
@@ -76,6 +155,18 @@ class DomainTest extends TestCase
      * @param null|string $expectedSuffix
      * @param null|string $expectedIDNDomain
      * @param null|string $expectedIDNSuffix
+     *
+     * @covers ::setDomain
+     * @covers ::setPublicSuffix
+     * @covers ::assertValidState
+     * @covers ::setRegistrableDomain
+     * @covers ::setSubDomain
+     * @covers ::getDomain
+     * @covers ::getContent
+     * @covers ::getPublicSuffix
+     * @covers ::idnToUnicode
+     * @covers ::toUnicode
+     * @covers \Pdp\PublicSuffix::toUnicode
      */
     public function testToIDN(
         $domain,
@@ -121,6 +212,14 @@ class DomainTest extends TestCase
                 'expectedIDNDomain' => 'www.食狮.公司.cn',
                 'expectedIDNSuffix' => '食狮.公司.cn',
             ],
+            'empty string domain and null suffix' => [
+                'domain' => '',
+                'publicSuffix' => null,
+                'expectedDomain' => '',
+                'expectedSuffix' => null,
+                'expectedIDNDomain' => '',
+                'expectedIDNSuffix' => null,
+            ],
             'null domain and suffix' => [
                 'domain' => null,
                 'publicSuffix' => null,
@@ -137,6 +236,14 @@ class DomainTest extends TestCase
                 'expectedIDNDomain' => 'www.食狮.公司.cn',
                 'expectedIDNSuffix' => null,
             ],
+            'domain with URLencoded data' => [
+                'domain' => 'b%C3%A9b%C3%A9.be',
+                'publicSuffix' => 'be',
+                'expectedDomain' => 'bébé.be',
+                'expectedSuffix' => 'be',
+                'expectedIDNDomain' => 'bébé.be',
+                'expectedIDNSuffix' => 'be',
+            ],
         ];
     }
 
@@ -148,6 +255,18 @@ class DomainTest extends TestCase
      * @param null|string $expectedSuffix
      * @param null|string $expectedAsciiDomain
      * @param null|string $expectedAsciiSuffix
+     *
+     * @covers ::setDomain
+     * @covers ::setPublicSuffix
+     * @covers ::assertValidState
+     * @covers ::setRegistrableDomain
+     * @covers ::setSubDomain
+     * @covers ::getDomain
+     * @covers ::getContent
+     * @covers ::getPublicSuffix
+     * @covers ::idnToAscii
+     * @covers ::toAscii
+     * @covers \Pdp\PublicSuffix::toAscii
      */
     public function testToAscii(
         $domain,

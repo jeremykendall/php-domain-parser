@@ -58,8 +58,7 @@ final class Manager
     public function getRules(string $source_url = self::PSL_URL): Rules
     {
         $cacheKey = $this->getCacheKey($source_url);
-        $rules = $this->cache->get($cacheKey);
-        if (null !== $rules) {
+        if (null !== ($rules = $this->cache->get($cacheKey))) {
             return new Rules(json_decode($rules, true));
         }
 
@@ -67,9 +66,7 @@ final class Manager
             throw new Exception(sprintf('Unable to load the public suffix list rules for %s', $source_url));
         }
 
-        $rules = $this->cache->get($cacheKey);
-
-        return new Rules(json_decode($rules, true));
+        return new Rules(json_decode($this->cache->get($cacheKey), true));
     }
 
     /**
@@ -105,8 +102,6 @@ final class Manager
             return false;
         }
 
-        $cacheKey = $this->getCacheKey($source_url);
-
-        return $this->cache->set($cacheKey, json_encode($rules));
+        return $this->cache->set($this->getCacheKey($source_url), json_encode($rules));
     }
 }

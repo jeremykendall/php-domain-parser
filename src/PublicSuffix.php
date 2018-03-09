@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Countable;
 use JsonSerializable;
 
 /**
@@ -25,9 +24,9 @@ use JsonSerializable;
  * it for this purpose, please do not bake static copies of the PSL into your
  * software with no update mechanism."
  *
- * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class PublicSuffix implements Countable, JsonSerializable
+final class PublicSuffix implements DomainInterface, JsonSerializable
 {
     use IDNAConverterTrait;
 
@@ -40,6 +39,11 @@ final class PublicSuffix implements Countable, JsonSerializable
      * @var string
      */
     private $section;
+
+    /**
+     * @var string[]
+     */
+    private $labels;
 
     /**
      * {@inheritdoc}
@@ -57,16 +61,34 @@ final class PublicSuffix implements Countable, JsonSerializable
      */
     public function __construct(string $publicSuffix = null, string $section = '')
     {
-        if (false !== strpos((string) $publicSuffix, '%')) {
-            $publicSuffix = rawurldecode($publicSuffix);
+        list($this->publicSuffix, $this->labels) = $this->setDomain($publicSuffix);
+        $this->section = $this->setSection($section);
+    }
+
+    /**
+     * Set the public suffix section
+     *
+     * @param string $section
+     *
+     * @return string
+     */
+    private function setSection(string $section): string
+    {
+        if ('' === $this->publicSuffix || null === $this->publicSuffix) {
+            return '';
         }
 
-        if (null !== $publicSuffix) {
-            $publicSuffix = strtolower($publicSuffix);
-        }
+        return $section;
+    }
 
-        $this->publicSuffix = $publicSuffix;
-        $this->section = $section;
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        foreach ($this->labels as $offset => $label) {
+            yield $label;
+        }
     }
 
     /**
@@ -75,7 +97,7 @@ final class PublicSuffix implements Countable, JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'publicSuffix' => $this->getContent(),
+            'publicSuffix' => $this->publicSuffix,
             'isKnown' => $this->isKnown(),
             'isICANN' => $this->isICANN(),
             'isPrivate' => $this->isPrivate(),
@@ -95,21 +117,35 @@ final class PublicSuffix implements Countable, JsonSerializable
      */
     public function count()
     {
-        if (null === $this->publicSuffix) {
-            return 0;
-        }
-
-        return count(explode('.', $this->publicSuffix));
+        return count($this->labels);
     }
 
     /**
-     * Returns the public suffix content.
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getContent()
     {
         return $this->publicSuffix;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLabel(int $offset)
+    {
+        if ($offset < 0) {
+            $offset += count($this->labels);
+        }
+
+        return $this->labels[$offset] ?? null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function keys(string $label): array
+    {
+        return array_keys($this->labels, $label, true);
     }
 
     /**
@@ -143,45 +179,35 @@ final class PublicSuffix implements Countable, JsonSerializable
     }
 
     /**
-     * Converts the domain to its IDNA UTF8 form.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with is content converted to its IDNA UTF8 form
-     *
-     * @throws Exception if the domain can not be converted to Unicode using IDN UTS46 algorithm
-     *
-     * @return self
+     * {@inheritdoc}
      */
-    public function toUnicode(): self
+    public function toAscii()
+    {
+        static $pattern = '/[^\x20-\x7f]/';
+        if (null === $this->publicSuffix || !preg_match($pattern, $this->publicSuffix)) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->publicSuffix = $this->idnToAscii($this->publicSuffix);
+        $clone->labels = array_reverse(explode('.', $clone->publicSuffix));
+
+        return $clone;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toUnicode()
     {
         if (null === $this->publicSuffix || false === strpos($this->publicSuffix, 'xn--')) {
             return $this;
         }
 
-        return new self($this->idnToUnicode($this->publicSuffix), $this->section);
-    }
+        $clone = clone $this;
+        $clone->publicSuffix = $this->idnToUnicode($this->publicSuffix);
+        $clone->labels = array_reverse(explode('.', $clone->publicSuffix));
 
-    /**
-     * Converts the domain to its IDNA ASCII form.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with is content converted to its IDNA ASCII form
-     *
-     * @throws Exception if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     *
-     * @return self
-     */
-    public function toAscii(): self
-    {
-        if (null === $this->publicSuffix || false !== strpos($this->publicSuffix, 'xn--')) {
-            return $this;
-        }
-
-        $newPublicSuffix = $this->idnToAscii($this->publicSuffix);
-        if ($newPublicSuffix === $this->publicSuffix) {
-            return $this;
-        }
-
-        return new self($newPublicSuffix, $this->section);
+        return $clone;
     }
 }

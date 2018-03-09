@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Countable;
 use JsonSerializable;
 
 /**
@@ -28,7 +27,7 @@ use JsonSerializable;
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Domain implements Countable, JsonSerializable
+final class Domain implements DomainInterface, JsonSerializable
 {
     use IDNAConverterTrait;
 
@@ -36,6 +35,11 @@ final class Domain implements Countable, JsonSerializable
      * @var string|null
      */
     private $domain;
+
+    /**
+     * @var string[]
+     */
+    private $labels;
 
     /**
      * @var PublicSuffix
@@ -66,32 +70,13 @@ final class Domain implements Countable, JsonSerializable
      * @param string|null  $domain
      * @param PublicSuffix $publicSuffix
      */
-    public function __construct($domain = null, PublicSuffix $publicSuffix = null)
+    public function __construct(string $domain = null, PublicSuffix $publicSuffix = null)
     {
-        $this->domain = $this->setDomain($domain);
+        list($this->domain, $this->labels) = $this->setDomain($domain);
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
+        $this->assertValidState();
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
-    }
-
-    /**
-     * Normalize the given domain.
-     *
-     * @param string|null $domain
-     *
-     * @return string|null
-     */
-    private function setDomain(string $domain = null)
-    {
-        if (null === $domain) {
-            return null;
-        }
-
-        if (false !== strpos($domain, '%')) {
-            $domain = rawurldecode($domain);
-        }
-
-        return strtolower($domain);
     }
 
     /**
@@ -103,12 +88,11 @@ final class Domain implements Countable, JsonSerializable
      */
     private function setPublicSuffix(PublicSuffix $publicSuffix = null): PublicSuffix
     {
-        $publicSuffix = $publicSuffix ?? new PublicSuffix();
-        if (null === $publicSuffix->getContent()) {
-            return $publicSuffix;
-        }
-
-        if (null === $this->domain || false === strpos($this->domain, '.')) {
+        if (null === $publicSuffix
+            || null === $this->domain
+            || false === strpos($this->domain, '.')
+            || count($this->labels) === count($publicSuffix)
+        ) {
             return new PublicSuffix();
         }
 
@@ -116,9 +100,21 @@ final class Domain implements Countable, JsonSerializable
     }
 
     /**
-     * Computes the registrable domain part.
+     * assert the domain internal state is valid
      *
-     * @return string|null
+     * @throws Exception if the public suffix does not match the domain
+     */
+    protected function assertValidState()
+    {
+        foreach ($this->publicSuffix as $offset => $label) {
+            if ($label !== $this->labels[$offset]) {
+                throw new Exception(sprintf('The submitted public suffix `%s` is invalid for the given domain `%s`', $this->publicSuffix->getContent(), $this->domain));
+            }
+        }
+    }
+
+    /**
+     * Computes the registrable domain part.
      */
     private function setRegistrableDomain()
     {
@@ -129,9 +125,6 @@ final class Domain implements Countable, JsonSerializable
         $labels = explode('.', $this->domain);
         $countLabels = count($labels);
         $countPublicSuffixLabels = count($this->publicSuffix);
-        if ($countLabels === $countPublicSuffixLabels) {
-            return null;
-        }
 
         return implode('.', array_slice($labels, $countLabels - $countPublicSuffixLabels - 1));
     }
@@ -160,13 +153,27 @@ final class Domain implements Countable, JsonSerializable
     /**
      * {@inheritdoc}
      */
+    public function getIterator()
+    {
+        foreach ($this->labels as $offset => $label) {
+            yield $label;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function jsonSerialize()
     {
-        return array_merge([
+        return [
             'domain' => $this->domain,
             'registrableDomain' => $this->registrableDomain,
             'subDomain' => $this->subDomain,
-        ], $this->publicSuffix->jsonSerialize());
+            'publicSuffix' => $this->publicSuffix->getContent(),
+            'isKnown' => $this->isKnown(),
+            'isICANN' => $this->isICANN(),
+            'isPrivate' => $this->isPrivate(),
+        ];
     }
 
     /**
@@ -182,19 +189,11 @@ final class Domain implements Countable, JsonSerializable
      */
     public function count()
     {
-        if (null === $this->domain) {
-            return 0;
-        }
-
-        return count(explode('.', $this->domain));
+        return count($this->labels);
     }
 
     /**
-     * Returns the domain content.
-     *
-     * This method should return null on seriously malformed domain name
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getContent()
     {
@@ -206,7 +205,7 @@ final class Domain implements Countable, JsonSerializable
      *
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @deprecated deprecated since version 5.3
+     * @deprecated 5.3 deprecated
      * @see Domain::getContent
      *
      * This method should return null on seriously malformed domain name
@@ -216,6 +215,26 @@ final class Domain implements Countable, JsonSerializable
     public function getDomain()
     {
         return $this->getContent();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLabel(int $offset)
+    {
+        if ($offset < 0) {
+            $offset += count($this->labels);
+        }
+
+        return $this->labels[$offset] ?? null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function keys(string $label): array
+    {
+        return array_keys($this->labels, $label, true);
     }
 
     /**
@@ -258,7 +277,7 @@ final class Domain implements Countable, JsonSerializable
     }
 
     /**
-     * Tells whether the public suffix has been matching rule in a Public Suffix List.
+     * Tells whether the public suffix has a matching rule in a Public Suffix List.
      *
      * @return bool
      */
@@ -288,45 +307,41 @@ final class Domain implements Countable, JsonSerializable
     }
 
     /**
-     * Converts the domain to its IDNA ASCII form.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with is content converted to its IDNA ASCII form
-     *
-     * @throws Exception if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     *
-     * @return self
+     * {@inheritdoc}
      */
-    public function toAscii(): self
+    public function toAscii()
     {
-        if (null === $this->domain || false !== strpos($this->domain, 'xn--')) {
+        static $pattern = '/[^\x20-\x7f]/';
+        if (null === $this->domain || !preg_match($pattern, $this->domain)) {
             return $this;
         }
 
-        $newDomain = $this->idnToAscii($this->domain);
-        if ($newDomain === $this->domain) {
-            return $this;
-        }
+        $clone = clone $this;
+        $clone->domain = $this->idnToAscii($this->domain);
+        $clone->labels = array_reverse(explode('.', $clone->domain));
+        $clone->publicSuffix = $this->publicSuffix->toAscii();
+        $clone->registrableDomain = $clone->setRegistrableDomain();
+        $clone->subDomain = $clone->setSubDomain();
 
-        return new self($newDomain, $this->publicSuffix->toAscii());
+        return $clone;
     }
 
     /**
-     * Converts the domain to its IDNA UTF8 form.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with is content converted to its IDNA UTF8 form
-     *
-     * @throws Exception if the domain can not be converted to Unicode using IDN UTS46 algorithm
-     *
-     * @return self
+     * {@inheritdoc}
      */
-    public function toUnicode(): self
+    public function toUnicode()
     {
         if (null === $this->domain || false === strpos($this->domain, 'xn--')) {
             return $this;
         }
 
-        return new self($this->idnToUnicode($this->domain), $this->publicSuffix->toUnicode());
+        $clone = clone $this;
+        $clone->domain = $this->idnToUnicode($this->domain);
+        $clone->labels = array_reverse(explode('.', $clone->domain));
+        $clone->publicSuffix = $this->publicSuffix->toUnicode();
+        $clone->registrableDomain = $clone->setRegistrableDomain();
+        $clone->subDomain = $clone->setSubDomain();
+
+        return $clone;
     }
 }

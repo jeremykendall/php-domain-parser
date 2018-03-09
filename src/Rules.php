@@ -19,8 +19,6 @@ namespace Pdp;
  */
 final class Rules
 {
-    use IDNAConverterTrait;
-
     const ALL_DOMAINS = 'ALL_DOMAINS';
     const ICANN_DOMAINS = 'ICANN_DOMAINS';
     const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
@@ -78,7 +76,7 @@ final class Rules
     }
 
     /**
-     * new instance.
+     * New instance.
      *
      * @param array $rules
      */
@@ -102,12 +100,12 @@ final class Rules
      */
     public function getPublicSuffix(string $domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
     {
-        if (null === $domain || !$this->isMatchable($domain)) {
-            throw new Exception(sprintf('The submitted domain `%s` is invalid or malformed', $domain));
-        }
         $this->validateSection($section);
+        if (!$this->isMatchable($domainObj = new Domain($domain))) {
+            throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $domain));
+        }
 
-        return $this->findPublicSuffix($domain, $section);
+        return $this->findPublicSuffix($domainObj, $section);
     }
 
     /**
@@ -121,29 +119,16 @@ final class Rules
     public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
     {
         $this->validateSection($section);
-        if (null === $domain || !$this->isMatchable($domain)) {
+        try {
+            $domain = new Domain($domain);
+            if (!$this->isMatchable($domain)) {
+                return $domain;
+            }
+
+            return new Domain($domain->getContent(), $this->findPublicSuffix($domain, $section));
+        } catch (Exception $e) {
             return new Domain();
         }
-
-        try {
-            return new Domain($domain, $this->findPublicSuffix($domain, $section));
-        } catch (Exception $e) {
-            return new Domain($domain);
-        }
-    }
-
-    /**
-     * Tells whether the given domain can be resolved.
-     *
-     * @param string $domain
-     *
-     * @return bool
-     */
-    private function isMatchable($domain): bool
-    {
-        return strpos($domain, '.') > 0
-            && strlen($domain) === strcspn($domain, '][')
-            && !filter_var($domain, FILTER_VALIDATE_IP);
     }
 
     /**
@@ -168,22 +153,35 @@ final class Rules
     }
 
     /**
+     * Tells whether the given domain can be resolved.
+     *
+     * @param DomainInterface $domain
+     *
+     * @return bool
+     */
+    private function isMatchable(DomainInterface $domain): bool
+    {
+        return 1 < count($domain)
+            && 0 < strpos($domain->getContent(), '.');
+    }
+
+    /**
      * Returns the matched public suffix.
      *
-     * @param string $domain
-     * @param string $section
+     * @param DomainInterface $domain
+     * @param string          $section
      *
      * @return PublicSuffix
      */
-    private function findPublicSuffix(string $domain, string $section): PublicSuffix
+    private function findPublicSuffix(DomainInterface $domain, string $section): PublicSuffix
     {
-        $reverseLabels = array_reverse(explode('.', $this->normalizeDomain($domain)));
-        $icann = $this->findPublicSuffixFromSection($reverseLabels, self::ICANN_DOMAINS);
+        $asciiDomain = $domain->toAscii();
+        $icann = $this->findPublicSuffixFromSection($asciiDomain, self::ICANN_DOMAINS);
         if (self::ICANN_DOMAINS === $section) {
             return $this->normalizePublicSuffix($icann, $domain);
         }
 
-        $private = $this->findPublicSuffixFromSection($reverseLabels, self::PRIVATE_DOMAINS);
+        $private = $this->findPublicSuffixFromSection($asciiDomain, self::PRIVATE_DOMAINS);
         if (count($private) > count($icann)) {
             return $this->normalizePublicSuffix($private, $domain);
         }
@@ -196,38 +194,18 @@ final class Rules
     }
 
     /**
-     * Normalizes a domain name.
-     *
-     * "The domain must be canonicalized in the normal way for hostnames - lower-case, Punycode."
-     *
-     * @see https://tools.ietf.org/html/rfc3492
-     *
-     * @param string $domain
-     *
-     * @return string
-     */
-    private function normalizeDomain(string $domain): string
-    {
-        try {
-            return $this->idnToAscii($domain);
-        } catch (Exception $e) {
-            return '';
-        }
-    }
-
-    /**
      * Returns the public suffix matched against a given PSL section.
      *
-     * @param array  $labels
-     * @param string $section
+     * @param DomainInterface $domain
+     * @param string          $section
      *
      * @return PublicSuffix
      */
-    private function findPublicSuffixFromSection(array $labels, string $section): PublicSuffix
+    private function findPublicSuffixFromSection(DomainInterface $domain, string $section): PublicSuffix
     {
         $rules = $this->rules[$section] ?? [];
         $matches = [];
-        foreach ($labels as $label) {
+        foreach ($domain as $label) {
             //match exception rule
             if (isset($rules[$label], $rules[$label]['!'])) {
                 break;
@@ -248,30 +226,28 @@ final class Rules
             $rules = $rules[$label];
         }
 
-        $foundLabels = array_reverse(array_filter($matches, 'strlen'));
-        if (empty($foundLabels)) {
+        if (empty($matches)) {
             return new PublicSuffix();
         }
 
-        return new PublicSuffix(implode('.', $foundLabels), $section);
+        return new PublicSuffix(implode('.', array_reverse($matches)), $section);
     }
 
     /**
      * Normalize the found Public Suffix against its domain name.
      *
-     * @param PublicSuffix $publicSuffix
-     * @param string       $domain
+     * @param PublicSuffix    $publicSuffix
+     * @param DomainInterface $domain
      *
      * @return PublicSuffix
      */
-    private function normalizePublicSuffix(PublicSuffix $publicSuffix, string $domain): PublicSuffix
+    private function normalizePublicSuffix(PublicSuffix $publicSuffix, DomainInterface $domain): PublicSuffix
     {
         if (null === $publicSuffix->getContent()) {
-            $labels = explode('.', $domain);
-            $publicSuffix = new PublicSuffix($this->idnToAscii(array_pop($labels)));
+            $publicSuffix = new PublicSuffix($domain->getLabel(0));
         }
 
-        if (false === strpos($domain, 'xn--')) {
+        if (false === strpos($domain->getContent() ?? '', 'xn--')) {
             return $publicSuffix->toUnicode();
         }
 

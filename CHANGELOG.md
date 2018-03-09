@@ -6,12 +6,14 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
+- `Pdp\DomainInterface` interface implemented by `Pdp\Domain` and `Pdp\PublicSuffix`
 - `Pdp\Domain::getContent` returns the Domain name value replaces `Pdp\Domain::getDomain`
 - `Pdp\Domain` implements the `Countable` interface.
 
 ### Fixed
 
 - `Pdp\Domain` domain part computation (public suffix, registrable domain and sub domain)
+- `Pdp\Domain` and `Pdp\PublicSuffix` host validation compliance to RFC improved
 
 ### Deprecated
 

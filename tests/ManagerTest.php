@@ -6,14 +6,17 @@ namespace Pdp\Tests;
 
 use org\bovigo\vfs\vfsStream;
 use Pdp\Cache;
+use Pdp\Converter;
 use Pdp\CurlHttpClient;
 use Pdp\Exception;
 use Pdp\Manager;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @coversDefaultClass Pdp\Manager
+ */
 class ManagerTest extends TestCase
 {
-    protected $manager;
     protected $cachePool;
     protected $cacheDir;
     protected $root;
@@ -25,35 +28,70 @@ class ManagerTest extends TestCase
         vfsStream::create(['cache' => []], $this->root);
         $this->cacheDir = vfsStream::url('pdp/cache');
         $this->cachePool = new Cache($this->cacheDir);
-        $this->manager = new Manager($this->cachePool, new CurlHttpClient());
     }
 
     public function tearDown()
     {
-        $this->manager = null;
         $this->cachePool = null;
         $this->cacheDir = null;
         $this->root = null;
     }
 
+    /**
+     * @covers ::__construct
+     * @covers ::getRules
+     * @covers ::getCacheKey
+     * @covers ::refreshRules
+     * @covers \Pdp\Converter
+     */
     public function testRefreshRules()
     {
-        $previous = $this->manager->getRules();
-        $this->assertTrue($this->manager->refreshRules($this->sourceUrl));
-        $this->assertEquals($previous, $this->manager->getRules());
+        $manager = new Manager($this->cachePool, new CurlHttpClient());
+        $previous = $manager->getRules();
+        $this->assertTrue($manager->refreshRules($this->sourceUrl));
+        $this->assertEquals($previous, $manager->getRules());
     }
 
+    /**
+     * @covers ::__construct
+     * @covers ::getRules
+     * @covers ::getCacheKey
+     * @covers ::refreshRules
+     * @covers \Pdp\Converter
+     */
     public function testRebuildRulesFromRemoveSource()
     {
-        $previous = $this->manager->getRules($this->sourceUrl);
+        $manager = new Manager($this->cachePool, new CurlHttpClient());
+        $previous = $manager->getRules($this->sourceUrl);
         $this->cachePool->clear(); //delete all local cache
-        $list = $this->manager->getRules($this->sourceUrl);
-        $this->assertEquals($previous, $this->manager->getRules($this->sourceUrl));
+        $list = $manager->getRules($this->sourceUrl);
+        $this->assertEquals($previous, $manager->getRules($this->sourceUrl));
     }
 
+    /**
+     * @covers ::__construct
+     * @covers ::getRules
+     * @covers ::getCacheKey
+     * @covers ::refreshRules
+     * @covers \Pdp\Converter
+     */
     public function testGetRulesThrowsException()
     {
         $this->expectException(Exception::class);
-        $this->manager->getRules('https://google.com');
+        $manager = new Manager($this->cachePool, new CurlHttpClient());
+        $manager->getRules('https://google.com');
+    }
+
+    /**
+     * @covers \Pdp\Converter::convert
+     * @covers \Pdp\Converter::getSection
+     * @covers \Pdp\Converter::addRule
+     * @covers \Pdp\Converter::idnToAscii
+     */
+    public function testConvertThrowsExceptionWithInvalidContent()
+    {
+        $this->expectException(Exception::class);
+        $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
+        (new Converter())->convert($content);
     }
 }
