@@ -44,6 +44,24 @@ class CacheTest extends TestCase
         $this->root = null;
     }
 
+    public function testConstructorOnEmptyCachePath()
+    {
+        $cache = new Cache('');
+        $this->assertNull($cache->get('invalid_key'));
+    }
+
+    public function testConstructorOnParentCachePathIsNotExisted()
+    {
+        $cache = new Cache(vfsStream::url('pdp/cache_not_exist'));
+        $this->assertNull($cache->get('invalid_key'));
+    }
+
+    public function testSetOnNotWritableCachePath()
+    {
+        $cache = new Cache('/bin');
+        $this->assertFalse($cache->set('key', 'value'));
+    }
+
     /**
      * @dataProvider storableValuesProvider
      *
