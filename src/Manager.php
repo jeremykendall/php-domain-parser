@@ -53,20 +53,26 @@ final class Manager
      *
      * @param string $source_url the Public Suffix List URL
      *
+     * @throws Exception If the PSL can not be fetch from the source URL and its cache backend
+     * @throws Exception If the PSL cache copy is corrupted
+     *
      * @return Rules
      */
     public function getRules(string $source_url = self::PSL_URL): Rules
     {
         $cacheKey = $this->getCacheKey($source_url);
-        if (null !== ($rules = $this->cache->get($cacheKey))) {
-            return new Rules(json_decode($rules, true));
-        }
+        $rules = $this->cache->get($cacheKey);
 
-        if (!$this->refreshRules($source_url)) {
+        if (null === $rules && !$this->refreshRules($source_url)) {
             throw new Exception(sprintf('Unable to load the public suffix list rules for %s', $source_url));
         }
 
-        return new Rules(json_decode($this->cache->get($cacheKey), true));
+        $rules = json_decode($rules ?? $this->cache->get($cacheKey), true);
+        if (JSON_ERROR_NONE === json_last_error()) {
+            return new Rules($rules);
+        }
+
+        throw new Exception('The public suffix list cache is corrupted: '.json_last_error_msg(), json_last_error());
     }
 
     /**
@@ -92,16 +98,18 @@ final class Manager
      *
      * @param string $source_url the Public Suffix List URL
      *
+     * @throws If the PSL can not be converted to JSON format
+     *
      * @return bool
      */
     public function refreshRules(string $source_url = self::PSL_URL): bool
     {
         $content = $this->http->getContent($source_url);
-        $rules = (new Converter())->convert($content);
-        if (empty($rules[Rules::ICANN_DOMAINS]) || empty($rules[Rules::PRIVATE_DOMAINS])) {
-            return false;
+        $rules = json_encode((new Converter())->convert($content));
+        if (JSON_ERROR_NONE === json_last_error()) {
+            return $this->cache->set($this->getCacheKey($source_url), $rules);
         }
 
-        return $this->cache->set($this->getCacheKey($source_url), json_encode($rules));
+        throw new Exception('The public suffix list JSON conversion failed: '.json_last_error_msg(), json_last_error());
     }
 }
