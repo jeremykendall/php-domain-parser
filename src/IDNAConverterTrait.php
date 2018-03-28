@@ -133,7 +133,7 @@ trait IDNAConverterTrait
             throw new Exception(sprintf('The domain `%s` is invalid: this is an IPv4 host', $domain));
         }
 
-        $formatted_domain = strtolower(rawurldecode($domain));
+        $formatted_domain = mb_strtolower(rawurldecode($domain));
 
         // Note that unreserved is purposely missing . as it is used to separate labels.
         static $domain_name = '/(?(DEFINE)
