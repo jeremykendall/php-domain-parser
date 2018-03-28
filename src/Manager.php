@@ -98,18 +98,13 @@ final class Manager
      *
      * @param string $source_url the Public Suffix List URL
      *
-     * @throws If the PSL can not be converted to JSON format
-     *
      * @return bool
      */
     public function refreshRules(string $source_url = self::PSL_URL): bool
     {
         $content = $this->http->getContent($source_url);
         $rules = json_encode((new Converter())->convert($content));
-        if (JSON_ERROR_NONE === json_last_error()) {
-            return $this->cache->set($this->getCacheKey($source_url), $rules);
-        }
 
-        throw new Exception('The public suffix list JSON conversion failed: '.json_last_error_msg(), json_last_error());
+        return $this->cache->set($this->getCacheKey($source_url), $rules);
     }
 }

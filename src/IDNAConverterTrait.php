@@ -133,7 +133,7 @@ trait IDNAConverterTrait
             throw new Exception(sprintf('The domain `%s` is invalid: this is an IPv4 host', $domain));
         }
 
-        $formatted_domain = strtolower(rawurldecode($domain));
+        $formatted_domain = rawurldecode($domain);
 
         // Note that unreserved is purposely missing . as it is used to separate labels.
         static $domain_name = '/(?(DEFINE)
@@ -144,7 +144,8 @@ trait IDNAConverterTrait
             )
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
         if (preg_match($domain_name, $formatted_domain)) {
-            return [$formatted_domain, array_reverse(explode('.', $formatted_domain))];
+            $domain = strtolower($formatted_domain);
+            return [$domain, array_reverse(explode('.', $domain))];
         }
 
         // a domain name can not contains URI delimiters or space
@@ -162,7 +163,8 @@ trait IDNAConverterTrait
         //if a domain name contains UTF-8 chars it must be convertible using IDNA UTS46
         idn_to_ascii($formatted_domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
         if (0 === $arr['errors']) {
-            return [$formatted_domain, array_reverse(explode('.', $formatted_domain))];
+            $domain = strtolower($formatted_domain);
+            return [$domain, array_reverse(explode('.', $domain))];
         }
 
         throw new Exception(sprintf('The domain `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));

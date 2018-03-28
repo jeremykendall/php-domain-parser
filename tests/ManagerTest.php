@@ -11,6 +11,7 @@ use Pdp\CurlHttpClient;
 use Pdp\Exception;
 use Pdp\Manager;
 use PHPUnit\Framework\TestCase;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * @coversDefaultClass Pdp\Manager
@@ -75,11 +76,105 @@ class ManagerTest extends TestCase
      * @covers ::refreshRules
      * @covers \Pdp\Converter
      */
-    public function testGetRulesThrowsException()
+    public function testGetRulesThrowsExceptionIfNotCacheCanBeRetrieveOrRefresh()
     {
+        $cachePool = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return null;
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
         $this->expectException(Exception::class);
-        $manager = new Manager($this->cachePool, new CurlHttpClient());
+        $manager = new Manager($cachePool, new CurlHttpClient());
         $manager->getRules('https://google.com');
+    }
+
+
+    /**
+     * @covers ::__construct
+     * @covers ::getRules
+     */
+    public function testGetRulesThrowsExceptionIfTheCacheIsCorrupted()
+    {
+        $cachePool = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return '{"foo":"bar",}'; //malformed json
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
+        $this->expectException(Exception::class);
+        $manager = new Manager($cachePool, new CurlHttpClient());
+        $manager->getRules();
     }
 
     /**
