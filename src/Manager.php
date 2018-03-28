@@ -86,7 +86,7 @@ final class Manager
     {
         static $cacheKeyPrefix = 'PSL_FULL';
 
-        return $cacheKeyPrefix.'_'.md5(strtolower($str));
+        return $cacheKeyPrefix.'_'.md5(mb_strtolower($str));
     }
 
     /**

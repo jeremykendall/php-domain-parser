@@ -104,7 +104,7 @@ final class Converter
         // "The domain and all rules must be canonicalized in the normal way
         // for hostnames - lower-case, Punycode (RFC 3492)."
 
-        $part = $this->idnToAscii(strtolower($part));
+        $part = $this->idnToAscii(mb_strtolower($part));
         $isDomain = true;
         if (0 === strpos($part, '!')) {
             $part = substr($part, 1);
