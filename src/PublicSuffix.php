@@ -131,13 +131,13 @@ final class PublicSuffix implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getLabel(int $offset)
+    public function getLabel(int $key)
     {
-        if ($offset < 0) {
-            $offset += count($this->labels);
+        if ($key < 0) {
+            $key += count($this->labels);
         }
 
-        return $this->labels[$offset] ?? null;
+        return $this->labels[$key] ?? null;
     }
 
     /**

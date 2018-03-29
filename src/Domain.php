@@ -220,13 +220,13 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getLabel(int $offset)
+    public function getLabel(int $key)
     {
-        if ($offset < 0) {
-            $offset += count($this->labels);
+        if ($key < 0) {
+            $key += count($this->labels);
         }
 
-        return $this->labels[$offset] ?? null;
+        return $this->labels[$key] ?? null;
     }
 
     /**
@@ -309,7 +309,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function toAscii(): self
+    public function toAscii()
     {
         static $pattern = '/[^\x20-\x7f]/';
         if (null === $this->domain || !preg_match($pattern, $this->domain)) {
@@ -329,7 +329,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function toUnicode(): self
+    public function toUnicode()
     {
         if (null === $this->domain || false === strpos($this->domain, 'xn--')) {
             return $this;
@@ -345,6 +345,16 @@ final class Domain implements DomainInterface, JsonSerializable
         return $clone;
     }
 
+    /**
+     * Returns a new domain name with a different public suffix.
+     *
+     * @param PublicSuffix $publicSuffix
+     *
+     * @throws Exception if the domain can not contain a public suffix
+     * @throws Exception if the public suffix can not be assign to the domain name
+     *
+     * @return self
+     */
     public function withPublicSuffix(PublicSuffix $publicSuffix): self
     {
         if ($this->publicSuffix == $publicSuffix) {
@@ -360,21 +370,18 @@ final class Domain implements DomainInterface, JsonSerializable
             return $clone;
         }
 
+        if (null === $this->domain || false === strpos($this->domain, '.')) {
+            throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
+        }
+
         static $pattern = '/[^\x20-\x7f]/';
         if (preg_match($pattern, $this->domain)) {
             $publicSuffix = $publicSuffix->toUnicode();
         }
 
-        if (null === $this->domain || false === strpos($this->domain, '.') || $this->domain === $publicSuffix->getContent()) {
-            throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
-        }
-
-        if ($publicSuffix->getContent() !== substr($this->domain, - strlen($publicSuffix->getContent()))) {
-            throw new Exception(sprintf(
-                'the public suffix `%s` can not be assign to the domain name `%s`',
-                $publicSuffix->getContent(),
-                $this->domain
-            ));
+        $publicSuffixContent = $publicSuffix->getContent();
+        if ($this->domain === $publicSuffixContent || $publicSuffixContent !== substr($this->domain, - strlen($publicSuffixContent))) {
+            throw new Exception(sprintf('the public suffix `%s` can not be assign to the domain name `%s`', $publicSuffixContent, $this->domain));
         }
 
         $clone = clone $this;

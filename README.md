@@ -90,7 +90,7 @@ The `Pdp\Domain` implements the `Pdp\DomainInterface`
 interface DomainInterface extends Countable, IteratorAggregate
 {
     public function getContent(): ?string
-    public function getLabel(int $offset): ?string
+    public function getLabel(int $key): ?string
     public function keys(string $label): int[]
     public function toUnicode(): static;
     public function toAscii(): static;
@@ -110,6 +110,7 @@ final class Domain implements DomainInterface, JsonSerializable
     public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
+    public function withPublicSuffix(PublicSuffix $publicSuffix): self;
 }
 ~~~
 

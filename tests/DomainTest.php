@@ -366,6 +366,16 @@ class DomainTest extends TestCase
                 'public suffix' => new PublicSuffix('be', Rules::ICANN_DOMAINS),
                 'expected' => 'be',
             ],
+            'idn domain name' => [
+                'domain' =>  new Domain('Яндекс.РФ', new PublicSuffix('рф', Rules::ICANN_DOMAINS)),
+                'public suffix' => new PublicSuffix('рф', Rules::ICANN_DOMAINS),
+                'expected' => 'рф',
+            ],
+            'idn domain name with ascii public suffix' => [
+                'domain' =>  new Domain('Яндекс.РФ', new PublicSuffix('рф', Rules::ICANN_DOMAINS)),
+                'public suffix' => new PublicSuffix('xn--p1ai', Rules::ICANN_DOMAINS),
+                'expected' => 'рф',
+            ],
         ];
     }
 
@@ -401,5 +411,16 @@ class DomainTest extends TestCase
                 'public suffix' => $publicSuffix,
             ],
         ];
+    }
+
+    /**
+     * @covers ::withPublicSuffix
+     */
+    public function testWithPublicSuffixReturnsInstance()
+    {
+        $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
+        $domain = new Domain('ulb.ac.be', $publicSuffix);
+        $this->assertSame($domain, $domain->withPublicSuffix($publicSuffix));
+        $this->assertNotSame($domain, $domain->withPublicSuffix(new PublicSuffix('ac.be', Rules::PRIVATE_DOMAINS)));
     }
 }
