@@ -64,7 +64,11 @@ final class Rules
      */
     public static function createFromString(string $content): self
     {
-        return new self((new Converter())->convert($content));
+        static $converter;
+
+        $converter = $converter ?? new Converter();
+
+        return new self($converter->convert($content));
     }
 
     /**

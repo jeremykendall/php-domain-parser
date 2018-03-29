@@ -410,6 +410,10 @@ class DomainTest extends TestCase
                 'domain' => new Domain('ac.be'),
                 'public suffix' => $publicSuffix,
             ],
+            'partial public suffix' => [
+                'domain' => $domain,
+                'public suffix' => new PublicSuffix('c.be'),
+            ],
         ];
     }
 

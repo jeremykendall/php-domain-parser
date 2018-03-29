@@ -380,7 +380,7 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         $publicSuffixContent = $publicSuffix->getContent();
-        if ($this->domain === $publicSuffixContent || $publicSuffixContent !== substr($this->domain, - strlen($publicSuffixContent))) {
+        if ($this->domain === $publicSuffixContent || '.'.$publicSuffixContent !== substr($this->domain, - strlen($publicSuffixContent) - 1)) {
             throw new Exception(sprintf('the public suffix `%s` can not be assign to the domain name `%s`', $publicSuffixContent, $this->domain));
         }
 
