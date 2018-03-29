@@ -36,10 +36,10 @@ final class Converter
     public function convert(string $content): array
     {
         $rules = [Rules::ICANN_DOMAINS => [], Rules::PRIVATE_DOMAINS => []];
+        $section = '';
         $file = new SplTempFileObject();
         $file->fwrite($content);
         $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
-        $section = '';
         foreach ($file as $line) {
             $section = $this->getSection($section, $line);
             if ('' !== $section && false === strpos($line, '//')) {
@@ -60,20 +60,13 @@ final class Converter
      */
     private function getSection(string $section, string $line): string
     {
-        if ('' === $section && 0 === strpos($line, '// ===BEGIN ICANN DOMAINS===')) {
-            return Rules::ICANN_DOMAINS;
-        }
-
-        if (Rules::ICANN_DOMAINS === $section && 0 === strpos($line, '// ===END ICANN DOMAINS===')) {
-            return '';
-        }
-
-        if ('' === $section && 0 === strpos($line, '// ===BEGIN PRIVATE DOMAINS===')) {
-            return Rules::PRIVATE_DOMAINS;
-        }
-
-        if (Rules::PRIVATE_DOMAINS === $section && 0 === strpos($line, '// ===END PRIVATE DOMAINS===')) {
-            return '';
+        static $section_list = [
+            'ICANN' => ['BEGIN' => Rules::ICANN_DOMAINS, 'END' => ''],
+            'PRIVATE' => ['BEGIN' => Rules::PRIVATE_DOMAINS, 'END' => ''],
+        ];
+        static $pattern = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
+        if (preg_match($pattern, $line, $matches)) {
+            return $section_list[$matches['type']][$matches['point']];
         }
 
         return $section;
@@ -97,26 +90,21 @@ final class Converter
      */
     private function addRule(array $list, array $rule_parts): array
     {
-        $part = array_pop($rule_parts);
-
         // Adheres to canonicalization rule from the "Formal Algorithm" section
         // of https://publicsuffix.org/list/
         // "The domain and all rules must be canonicalized in the normal way
         // for hostnames - lower-case, Punycode (RFC 3492)."
 
-        $part = $this->idnToAscii($part);
+        $rule = $this->idnToAscii(array_pop($rule_parts));
         $isDomain = true;
-        if (0 === strpos($part, '!')) {
-            $part = substr($part, 1);
+        if (0 === strpos($rule, '!')) {
+            $rule = substr($rule, 1);
             $isDomain = false;
         }
 
-        if (!isset($list[$part])) {
-            $list[$part] = $isDomain ? [] : ['!' => ''];
-        }
-
+        $list[$rule] = $list[$rule] ?? ($isDomain ? [] : ['!' => '']);
         if ($isDomain && !empty($rule_parts)) {
-            $list[$part] = $this->addRule($list[$part], $rule_parts);
+            $list[$rule] = $this->addRule($list[$rule], $rule_parts);
         }
 
         return $list;
