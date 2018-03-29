@@ -67,10 +67,10 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * New instance.
      *
-     * @param string|null  $domain
+     * @param mixed        $domain
      * @param PublicSuffix $publicSuffix
      */
-    public function __construct(string $domain = null, PublicSuffix $publicSuffix = null)
+    public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
         list($this->domain, $this->labels) = $this->setDomain($domain);
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix ?? new PublicSuffix());
@@ -125,11 +125,10 @@ final class Domain implements DomainInterface, JsonSerializable
             return null;
         }
 
-        $labels = explode('.', $this->domain);
-        $countLabels = count($labels);
-        $countPublicSuffixLabels = count($this->publicSuffix);
-
-        return implode('.', array_slice($labels, $countLabels - $countPublicSuffixLabels - 1));
+        return implode('.', array_slice(
+            explode('.', $this->domain),
+            count($this->labels) - count($this->publicSuffix) - 1
+        ));
     }
 
     /**
@@ -143,14 +142,17 @@ final class Domain implements DomainInterface, JsonSerializable
             return null;
         }
 
-        $labels = explode('.', $this->domain);
-        $countLabels = count($labels);
-        $countLabelsToRemove = count(explode('.', $this->registrableDomain));
-        if ($countLabels === $countLabelsToRemove) {
+        $nbLabels = count($this->labels);
+        $nbRegistrableLabels = count($this->publicSuffix) + 1;
+        if ($nbLabels === $nbRegistrableLabels) {
             return null;
         }
 
-        return implode('.', array_slice($labels, 0, $countLabels - $countLabelsToRemove));
+        return implode('.', array_slice(
+            explode('.', $this->domain),
+            0,
+            $nbLabels - $nbRegistrableLabels
+        ));
     }
 
     /**

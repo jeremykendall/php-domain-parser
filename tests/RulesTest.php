@@ -9,8 +9,10 @@ use Pdp\CurlHttpClient;
 use Pdp\Domain;
 use Pdp\Exception;
 use Pdp\Manager;
+use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 /**
  * @coversDefaultClass Pdp\Rules
@@ -72,11 +74,23 @@ class RulesTest extends TestCase
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\Domain::isKnown
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testNullWillReturnNullDomain()
     {
         $domain = $this->rules->resolve('COM');
         $this->assertFalse($domain->isKnown());
+    }
+
+
+    /**
+     * @covers ::resolve
+     * @covers \Pdp\IDNAConverterTrait::setDomain
+     */
+    public function testThrowsTypeErrorOnWrongInput()
+    {
+        $this->expectException(TypeError::class);
+        $this->rules->resolve(date_create());
     }
 
     /**
@@ -98,6 +112,7 @@ class RulesTest extends TestCase
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\Domain::isKnown
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testIsSuffixValidFalse()
     {
@@ -119,6 +134,7 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testIsSuffixValidTrue()
     {
@@ -142,6 +158,7 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testIsSuffixValidFalseWithPunycoded()
     {
@@ -165,6 +182,7 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testSubDomainIsNull()
     {
@@ -177,7 +195,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers \Pdp\Domain::setDomain
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testWithInvalidDomainName()
     {
@@ -191,6 +209,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testWithPrivateDomain()
     {
@@ -207,6 +226,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testWithPrivateDomainInvalid()
     {
@@ -224,6 +244,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testWithPrivateDomainValid()
     {
@@ -241,6 +262,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testWithICANNDomainInvalid()
     {
@@ -250,6 +272,37 @@ class RulesTest extends TestCase
         $this->assertTrue($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
         $this->assertSame('ac.be', $domain->getPublicSuffix());
+    }
+
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setDomain
+     */
+    public function testWithDomainObject()
+    {
+        $domain = new Domain('private.ulb.ac.be', new PublicSuffix('ac.be', Rules::ICANN_DOMAINS));
+        $newDomain = $this->rules->resolve($domain);
+        $this->assertSame('private.ulb.ac.be', $domain->getDomain());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertSame('ac.be', $domain->getPublicSuffix());
+        $this->assertSame($domain, $newDomain);
+    }
+
+    /**
+     * @covers ::getPublicSuffix
+     * @covers \Pdp\IDNAConverterTrait::setDomain
+     */
+    public function testWithDomainInterfaceObject()
+    {
+        $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
+        $psl = $this->rules->getPublicSuffix($publicSuffix);
+        $this->assertEquals($publicSuffix, $psl);
     }
 
     /**
@@ -274,6 +327,7 @@ class RulesTest extends TestCase
      * @param mixed $domain
      * @param mixed $expectedDomain
      * @covers ::resolve
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      * @covers \Pdp\Domain::setPublicSuffix
      * @covers \Pdp\Domain::getPublicSuffix
      */
@@ -289,8 +343,8 @@ class RulesTest extends TestCase
      * @param mixed $domain
      * @param mixed $expectedDomain
      * @covers ::resolve
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      * @covers \Pdp\Domain::withPublicSuffix
-     * @covers \Pdp\Domain::setDomain
      * @covers \Pdp\Domain::getContent
      */
     public function testGetDomain($publicSuffix, $registrableDomain, $domain, $expectedDomain)
@@ -331,8 +385,8 @@ class RulesTest extends TestCase
      *
      * @covers ::getPublicSuffix
      * @covers ::validateSection
-     * @covers \Pdp\Domain::setDomain
      * @covers ::isMatchable
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testGetPublicSuffixThrowsException($domain, $section)
     {
@@ -360,7 +414,7 @@ class RulesTest extends TestCase
      * @covers ::getPublicSuffix
      * @covers ::validateSection
      * @covers ::isMatchable
-     * @covers \Pdp\PublicSuffix::setDomain
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      * @dataProvider validPublicSectionProvider
      *
      * @param string|null $domain
@@ -419,6 +473,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::getRegistrableDomain
+     * @covers \Pdp\IDNAConverterTrait::setDomain
      */
     public function testPublicSuffixSpec()
     {

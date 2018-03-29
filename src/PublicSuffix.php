@@ -56,10 +56,10 @@ final class PublicSuffix implements DomainInterface, JsonSerializable
     /**
      * New instance.
      *
-     * @param string|null $publicSuffix
-     * @param string      $section
+     * @param mixed  $publicSuffix
+     * @param string $section
      */
-    public function __construct(string $publicSuffix = null, string $section = '')
+    public function __construct($publicSuffix = null, string $section = '')
     {
         list($this->publicSuffix, $this->labels) = $this->setDomain($publicSuffix);
         $this->section = $this->setSection($section);

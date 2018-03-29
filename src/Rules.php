@@ -92,8 +92,8 @@ final class Rules
     /**
      * Determines the public suffix for a given domain.
      *
-     * @param string|null $domain
-     * @param string      $section
+     * @param mixed  $domain
+     * @param string $section
      *
      * @throws Exception
      *                   If the Domain is invalid or malformed
@@ -102,20 +102,21 @@ final class Rules
      *
      * @return PublicSuffix
      */
-    public function getPublicSuffix(string $domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
+    public function getPublicSuffix($domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
     {
         $this->validateSection($section);
-        if (!$this->isMatchable($domainObj = new Domain($domain))) {
-            throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $domain));
+        $domain = $domain instanceof Domain ? $domain : new Domain($domain);
+        if (!$this->isMatchable($domain)) {
+            throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
         }
 
-        $publicSuffix = $this->findPublicSuffix($domainObj, $section);
+        $publicSuffix = $this->findPublicSuffix($domain, $section);
         if (null === $publicSuffix->getContent()) {
-            $publicSuffix = new PublicSuffix($domainObj->getLabel(0));
+            $publicSuffix = new PublicSuffix($domain->getLabel(0));
         }
 
         static $pattern = '/[^\x20-\x7f]/';
-        if (preg_match($pattern, $domainObj->getContent())) {
+        if (preg_match($pattern, $domain->getContent())) {
             return $publicSuffix->toUnicode();
         }
 
@@ -125,16 +126,16 @@ final class Rules
     /**
      * Returns PSL info for a given domain.
      *
-     * @param string|null $domain
-     * @param string      $section
+     * @param mixed  $domain
+     * @param string $section
      *
      * @return Domain
      */
-    public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
+    public function resolve($domain = null, string $section = self::ALL_DOMAINS): Domain
     {
         $this->validateSection($section);
         try {
-            $domain = new Domain($domain);
+            $domain = $domain instanceof Domain ? $domain : new Domain($domain);
             if (!$this->isMatchable($domain)) {
                 return $domain;
             }

@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use TypeError;
+
 /**
  * @internal Domain name validator
  *
@@ -113,14 +115,18 @@ trait IDNAConverterTrait
      *
      * For example: setDomain('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];
      *
-     * @param string|null $domain
+     * @param mixed $domain
      *
      * @throws Exception If the domain is invalid
      *
      * @return array
      */
-    private function setDomain(string $domain = null): array
+    private function setDomain($domain = null): array
     {
+        if ($domain instanceof DomainInterface) {
+            return [$domain->getContent(), iterator_to_array($domain, false)];
+        }
+
         if (null === $domain) {
             return [$domain, []];
         }
@@ -129,6 +135,11 @@ trait IDNAConverterTrait
             return [$domain, ['']];
         }
 
+        if (!is_scalar($domain) && !method_exists($domain, '__toString')) {
+            throw new TypeError(sprintf('The domain must be a scalar, a stringable object, a DomainInterface object or null; `%s` given', gettype($domain)));
+        }
+
+        $domain = (string) $domain;
         if (filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             throw new Exception(sprintf('The domain `%s` is invalid: this is an IPv4 host', $domain));
         }

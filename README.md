@@ -63,8 +63,8 @@ final class Rules
     public static function createFromPath(string $path, $context = null): self
     public static function createFromString(string $content): self
     public function __construct(array $rules)
-    public function getPublicSuffix(string $domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
-    public function resolve(string $domain = null, string $section = self::ALL_DOMAINS): Domain
+    public function getPublicSuffix($domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
+    public function resolve($domain = null, string $section = self::ALL_DOMAINS): Domain
 }
 ~~~
 
@@ -104,6 +104,7 @@ But also enable returns informations about the domain parts and its public suffi
 
 final class Domain implements DomainInterface, JsonSerializable
 {
+    public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     public function getPublicSuffix(): ?string
     public function getRegistrableDomain(): ?string
     public function getSubDomain(); ?string
@@ -188,6 +189,7 @@ The `Rules::getPublicSuffix` method expects the same arguments as `Rules::resolv
 
 final class PublicSuffix implements DomainInterface, JsonSerializable
 {
+    public function __construct($publicSuffix = null)
     public function isKnown(): bool;
     public function isICANN(): bool;
     public function isPrivate(): bool;
