@@ -7,6 +7,7 @@ namespace Pdp\Tests;
 use Pdp\Domain;
 use Pdp\Exception;
 use Pdp\PublicSuffix;
+use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -327,6 +328,77 @@ class DomainTest extends TestCase
                 'expectedSuffix' => null,
                 'expectedIDNDomain' => 'www.xn--85x722f.xn--55qx5d.cn',
                 'expectedIDNSuffix' => null,
+            ],
+        ];
+    }
+
+    /**
+     * @param Domain       $domain
+     * @param PublicSuffix $publicSuffix
+     * @param string|null  $expected
+     *
+     * @covers ::withPublicSuffix
+     * @dataProvider withPublicSuffixWorksProvider
+     */
+    public function testWithPublicSuffixWorks(Domain $domain, PublicSuffix $publicSuffix, $expected)
+    {
+        $this->assertSame($expected, $domain->withPublicSuffix($publicSuffix)->getPublicSuffix());
+    }
+
+    public function withPublicSuffixWorksProvider()
+    {
+        $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
+        $domain = new Domain('ulb.ac.be', $publicSuffix);
+
+        return [
+            'null public suffix' => [
+                'domain' => $domain,
+                'public suffix' => new PublicSuffix(),
+                'expected' => null,
+            ],
+            'same public suffix' => [
+                'domain' => $domain,
+                'public suffix' => $publicSuffix,
+                'expected' => 'ac.be',
+            ],
+            'update public suffix' => [
+                'domain' => $domain,
+                'public suffix' => new PublicSuffix('be', Rules::ICANN_DOMAINS),
+                'expected' => 'be',
+            ],
+        ];
+    }
+
+    /**
+     * @param Domain       $domain
+     * @param PublicSuffix $publicSuffix
+     *
+     * @covers ::withPublicSuffix
+     * @dataProvider withPublicSuffixFailsProvider
+     */
+    public function testWithPublicSuffixFails(Domain $domain, PublicSuffix $publicSuffix)
+    {
+        $this->expectException(Exception::class);
+        $domain->withPublicSuffix($publicSuffix);
+    }
+
+    public function withPublicSuffixFailsProvider()
+    {
+        $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
+        $domain = new Domain('ulb.ac.be', $publicSuffix);
+
+        return [
+            'public suffix mismatch' => [
+                'domain' => $domain,
+                'public suffix' => new PublicSuffix('ac.fr'),
+            ],
+            'domain name can not contains public suffix' => [
+                'domain' => new Domain('localhost'),
+                'public suffix' => $publicSuffix,
+            ],
+            'domain name is equal to public suffix' => [
+                'domain' => new Domain('ac.be'),
+                'public suffix' => $publicSuffix,
             ],
         ];
     }

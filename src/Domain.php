@@ -309,7 +309,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function toAscii()
+    public function toAscii(): self
     {
         static $pattern = '/[^\x20-\x7f]/';
         if (null === $this->domain || !preg_match($pattern, $this->domain)) {
@@ -329,7 +329,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function toUnicode()
+    public function toUnicode(): self
     {
         if (null === $this->domain || false === strpos($this->domain, 'xn--')) {
             return $this;
@@ -339,6 +339,46 @@ final class Domain implements DomainInterface, JsonSerializable
         $clone->domain = $this->idnToUnicode($this->domain);
         $clone->labels = array_reverse(explode('.', $clone->domain));
         $clone->publicSuffix = $this->publicSuffix->toUnicode();
+        $clone->registrableDomain = $clone->setRegistrableDomain();
+        $clone->subDomain = $clone->setSubDomain();
+
+        return $clone;
+    }
+
+    public function withPublicSuffix(PublicSuffix $publicSuffix): self
+    {
+        if ($this->publicSuffix == $publicSuffix) {
+            return $this;
+        }
+
+        if (null === $publicSuffix->getContent()) {
+            $clone = clone $this;
+            $clone->publicSuffix = $publicSuffix;
+            $clone->registrableDomain = $clone->setRegistrableDomain();
+            $clone->subDomain = $clone->setSubDomain();
+
+            return $clone;
+        }
+
+        static $pattern = '/[^\x20-\x7f]/';
+        if (preg_match($pattern, $this->domain)) {
+            $publicSuffix = $publicSuffix->toUnicode();
+        }
+
+        if (null === $this->domain || false === strpos($this->domain, '.') || $this->domain === $publicSuffix->getContent()) {
+            throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
+        }
+
+        if ($publicSuffix->getContent() !== substr($this->domain, - strlen($publicSuffix->getContent()))) {
+            throw new Exception(sprintf(
+                'the public suffix `%s` can not be assign to the domain name `%s`',
+                $publicSuffix->getContent(),
+                $this->domain
+            ));
+        }
+
+        $clone = clone $this;
+        $clone->publicSuffix = $publicSuffix;
         $clone->registrableDomain = $clone->setRegistrableDomain();
         $clone->subDomain = $clone->setSubDomain();
 

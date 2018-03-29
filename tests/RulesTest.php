@@ -95,7 +95,6 @@ class RulesTest extends TestCase
      * @covers ::isMatchable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers ::normalizePublicSuffix
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\Domain::isKnown
@@ -112,11 +111,11 @@ class RulesTest extends TestCase
      * @covers ::isMatchable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers ::normalizePublicSuffix
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
@@ -135,11 +134,11 @@ class RulesTest extends TestCase
      * @covers ::isMatchable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers ::normalizePublicSuffix
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
@@ -158,11 +157,11 @@ class RulesTest extends TestCase
      * @covers ::isMatchable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers ::normalizePublicSuffix
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
@@ -191,7 +190,6 @@ class RulesTest extends TestCase
      * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers ::normalizePublicSuffix
      * @covers \Pdp\PublicSuffix::setSection
      */
     public function testWithPrivateDomain()
@@ -208,7 +206,6 @@ class RulesTest extends TestCase
      * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers ::normalizePublicSuffix
      * @covers \Pdp\PublicSuffix::setSection
      */
     public function testWithPrivateDomainInvalid()
@@ -226,7 +223,6 @@ class RulesTest extends TestCase
      * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers ::normalizePublicSuffix
      * @covers \Pdp\PublicSuffix::setSection
      */
     public function testWithPrivateDomainValid()
@@ -244,7 +240,6 @@ class RulesTest extends TestCase
      * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers ::normalizePublicSuffix
      * @covers \Pdp\PublicSuffix::setSection
      */
     public function testWithICANNDomainInvalid()
@@ -294,6 +289,7 @@ class RulesTest extends TestCase
      * @param mixed $domain
      * @param mixed $expectedDomain
      * @covers ::resolve
+     * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::setDomain
      * @covers \Pdp\Domain::getContent
      */
@@ -365,13 +361,33 @@ class RulesTest extends TestCase
      * @covers ::validateSection
      * @covers ::isMatchable
      * @covers \Pdp\PublicSuffix::setDomain
+     * @dataProvider validPublicSectionProvider
+     *
+     * @param string|null $domain
+     * @param string|null $expected
      */
-    public function testPublicSuffixSection()
+    public function testPublicSuffixSection($domain, $expected)
     {
-        $expected = 'рф';
-        $domain = 'Яндекс.РФ';
         $publicSuffix =  $this->rules->getPublicSuffix($domain);
         $this->assertSame($expected, $publicSuffix->getContent());
+    }
+
+    public function validPublicSectionProvider()
+    {
+        return [
+            'idn domain' => [
+                'domain' => 'Яндекс.РФ',
+                'expected' => 'рф',
+            ],
+            'ascii domain' => [
+                'domain' => 'ulb.ac.be',
+                'expected' => 'ac.be',
+            ],
+            'unknown tld' => [
+                'domain' => 'yours.truly.faketld',
+                'expected' => 'faketld',
+            ],
+        ];
     }
 
     /**
@@ -401,6 +417,7 @@ class RulesTest extends TestCase
      *
      * @covers ::resolve
      * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::getRegistrableDomain
      */
     public function testPublicSuffixSpec()

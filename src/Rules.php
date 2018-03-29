@@ -105,7 +105,17 @@ final class Rules
             throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $domain));
         }
 
-        return $this->findPublicSuffix($domainObj, $section);
+        $publicSuffix = $this->findPublicSuffix($domainObj, $section);
+        if (null === $publicSuffix->getContent()) {
+            $publicSuffix = new PublicSuffix($domainObj->getLabel(0));
+        }
+
+        static $pattern = '/[^\x20-\x7f]/';
+        if (preg_match($pattern, $domainObj->getContent())) {
+            return $publicSuffix->toUnicode();
+        }
+
+        return $publicSuffix;
     }
 
     /**
@@ -125,7 +135,12 @@ final class Rules
                 return $domain;
             }
 
-            return new Domain($domain->getContent(), $this->findPublicSuffix($domain, $section));
+            $publicSuffix = $this->findPublicSuffix($domain, $section);
+            if (null === $publicSuffix->getContent()) {
+                $publicSuffix = new PublicSuffix($domain->getLabel(0));
+            }
+
+            return $domain->withPublicSuffix($publicSuffix);
         } catch (Exception $e) {
             return new Domain();
         }
@@ -178,19 +193,19 @@ final class Rules
         $asciiDomain = $domain->toAscii();
         $icann = $this->findPublicSuffixFromSection($asciiDomain, self::ICANN_DOMAINS);
         if (self::ICANN_DOMAINS === $section) {
-            return $this->normalizePublicSuffix($icann, $domain);
+            return $icann;
         }
 
         $private = $this->findPublicSuffixFromSection($asciiDomain, self::PRIVATE_DOMAINS);
         if (count($private) > count($icann)) {
-            return $this->normalizePublicSuffix($private, $domain);
+            return $private;
         }
 
         if (self::ALL_DOMAINS === $section) {
-            return $this->normalizePublicSuffix($icann, $domain);
+            return $icann;
         }
 
-        return $this->normalizePublicSuffix(new PublicSuffix(), $domain);
+        return new PublicSuffix();
     }
 
     /**
@@ -231,26 +246,5 @@ final class Rules
         }
 
         return new PublicSuffix(implode('.', array_reverse($matches)), $section);
-    }
-
-    /**
-     * Normalize the found Public Suffix against its domain name.
-     *
-     * @param PublicSuffix    $publicSuffix
-     * @param DomainInterface $domain
-     *
-     * @return PublicSuffix
-     */
-    private function normalizePublicSuffix(PublicSuffix $publicSuffix, DomainInterface $domain): PublicSuffix
-    {
-        if (null === $publicSuffix->getContent()) {
-            $publicSuffix = new PublicSuffix($domain->getLabel(0));
-        }
-
-        if (false === strpos($domain->getContent() ?? '', 'xn--')) {
-            return $publicSuffix->toUnicode();
-        }
-
-        return $publicSuffix;
     }
 }

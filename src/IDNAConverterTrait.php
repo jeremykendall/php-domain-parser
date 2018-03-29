@@ -73,7 +73,7 @@ trait IDNAConverterTrait
     {
         static $pattern = '/[^\x20-\x7f]/';
         if (!preg_match($pattern, $domain)) {
-            return $domain;
+            return strtolower($domain);
         }
 
         $output = idn_to_ascii($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
@@ -145,6 +145,7 @@ trait IDNAConverterTrait
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
         if (preg_match($domain_name, $formatted_domain)) {
             $domain = strtolower($formatted_domain);
+
             return [$domain, array_reverse(explode('.', $domain))];
         }
 
@@ -161,10 +162,11 @@ trait IDNAConverterTrait
         }
 
         //if a domain name contains UTF-8 chars it must be convertible using IDNA UTS46
-        idn_to_ascii($formatted_domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        $ascii_domain = idn_to_ascii($formatted_domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
         if (0 === $arr['errors']) {
-            $domain = strtolower($formatted_domain);
-            return [$domain, array_reverse(explode('.', $domain))];
+            $idn_domain = $this->idnToUnicode($ascii_domain);
+
+            return [$idn_domain, array_reverse(explode('.', $idn_domain))];
         }
 
         throw new Exception(sprintf('The domain `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
