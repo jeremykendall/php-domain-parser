@@ -16,46 +16,56 @@ use PHPUnit\Framework\TestCase;
 class DomainTest extends TestCase
 {
     /**
-     * @dataProvider invalidRegistrableDomainProvider
-     *
-     * @param string|null $domain
-     * @param string|null $publicSuffix
-     *
      * @covers ::__construct
      * @covers ::setPublicSuffix
      * @covers ::setRegistrableDomain
      * @covers ::setSubDomain
-     * @covers ::assertValidState
      * @covers ::getPublicSuffix
      * @covers ::getRegistrableDomain
      * @covers ::getSubDomain
      */
-    public function testRegistrableDomainIsNullWithFoundDomain($domain, $publicSuffix)
+    public function testRegistrableDomainIsNullWithFoundDomain()
     {
-        $domain = new Domain($domain, new PublicSuffix($publicSuffix));
+        $domain = new Domain('faketld', null);
         $this->assertNull($domain->getPublicSuffix());
         $this->assertNull($domain->getRegistrableDomain());
         $this->assertNull($domain->getSubDomain());
     }
 
-    public function invalidRegistrableDomainProvider()
-    {
-        return [
-            'domain and suffix are the same' => ['co.uk', 'co.uk'],
-            'domain has no labels' => ['faketld', 'faketld'],
-            'public suffix is null' => ['faketld', null],
-            'domain is null' => [null, 'faketld'],
-        ];
-    }
-
     /**
      * @covers ::__construct
-     * @covers ::assertValidState
+     * @covers ::setPublicSuffix
+     *
+     * @dataProvider provideWrongConstructor
+     * @param mixed $domain
+     * @param mixed $publicSuffix
      */
-    public function testConstructorThrowsExceptionOnMisMatchPublicSuffixDomain()
+    public function testConstructorThrowsExceptionOnMisMatchPublicSuffixDomain($domain, $publicSuffix)
     {
         $this->expectException(Exception::class);
-        new Domain('www.ulb.ac.be', new PublicSuffix('com'));
+        new Domain($domain, new PublicSuffix($publicSuffix));
+    }
+
+    public function provideWrongConstructor()
+    {
+        return [
+            'public suffix mismatch' => [
+                'domain' => 'www.ulb.ac.be',
+                'publicSuffix' => 'com',
+            ],
+            'domain and public suffix are the same' => [
+                'domain' => 'co.uk',
+                'publicSuffix' => 'co.uk',
+            ],
+            'domain has no labels' => [
+                'domain' => 'localhost',
+                'publicSuffix' => 'localhost',
+            ],
+            'domain is null' => [
+                'domain' => null,
+                'publicSuffix' => 'com',
+            ],
+        ];
     }
 
     /**
@@ -159,7 +169,6 @@ class DomainTest extends TestCase
      *
      * @covers ::setDomain
      * @covers ::setPublicSuffix
-     * @covers ::assertValidState
      * @covers ::setRegistrableDomain
      * @covers ::setSubDomain
      * @covers ::getDomain
@@ -259,7 +268,6 @@ class DomainTest extends TestCase
      *
      * @covers ::setDomain
      * @covers ::setPublicSuffix
-     * @covers ::assertValidState
      * @covers ::setRegistrableDomain
      * @covers ::setSubDomain
      * @covers ::getDomain
@@ -413,6 +421,10 @@ class DomainTest extends TestCase
             'partial public suffix' => [
                 'domain' => $domain,
                 'public suffix' => new PublicSuffix('c.be'),
+            ],
+            'mismatch idn public suffix' => [
+                'domain' => new Domain('www.食狮.公司.cn'),
+                'public suffix' => new PublicSuffix('cn.公司'),
             ],
         ];
     }
