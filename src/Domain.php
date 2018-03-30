@@ -353,6 +353,14 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * Returns a new domain name with a different public suffix.
      *
+     * The Public Suffix must be valid for the given domain name.
+     * ex: if the domain name is www.ulb.ac.be the only valid public suffixes
+     * are: be, ac.be, ulb.ac.be, or the null public suffix. Any other public
+     * suffix will throw an Exception.
+     *
+     * This method does not change the domain name value it only updates/changes/removes
+     * a valid public suffix for the given domain name.
+     *
      * @param PublicSuffix $publicSuffix
      *
      * @return self
