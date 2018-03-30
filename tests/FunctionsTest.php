@@ -52,9 +52,17 @@ class FunctionsTest extends TestCase
                 'isIcann' => false,
                 'isPrivate' => false,
             ],
-            'prepend a null domain' => [
+            'prepend with a null domain' => [
                 'domain' => 'example.com',
                 'host' => null,
+                'expected' => 'example.com',
+                'isKnown' => false,
+                'isIcann' => false,
+                'isPrivate' => false,
+            ],
+            'prepend a null domain' => [
+                'domain' => null,
+                'host' => 'example.com',
                 'expected' => 'example.com',
                 'isKnown' => false,
                 'isIcann' => false,
@@ -178,7 +186,15 @@ class FunctionsTest extends TestCase
                 'isIcann' => false,
                 'isPrivate' => false,
             ],
-            'adding a null public suffix returns the domain only' => [
+            'append a null domain' => [
+                'domain' => null,
+                'host' => 'example.com',
+                'expected' => 'example.com',
+                'isKnown' => false,
+                'isIcann' => false,
+                'isPrivate' => false,
+            ],
+            'append with a null domain' => [
                 'domain' => 'example.com',
                 'host' => null,
                 'expected' => 'example.com',

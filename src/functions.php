@@ -33,8 +33,12 @@ function append($host, $subject): Domain
         return $subject;
     }
 
-    static $pattern = '/[^\x20-\x7f]/';
     $dContent = $subject->getContent();
+    if (null === $dContent) {
+        return $host instanceof DomainInterface ? new Domain($host) : $host;
+    }
+
+    static $pattern = '/[^\x20-\x7f]/';
     $host = preg_match($pattern, $dContent) ? $host->toUnicode() : $host->toAscii();
     $domain = new Domain($dContent.'.'.$host->getContent());
 
@@ -64,7 +68,7 @@ function prepend($host, $subject): Domain
     }
 
     if (!$host instanceof DomainInterface) {
-        $host = new PublicSuffix($host);
+        $host = new Domain($host);
     }
 
     if (null === $host->getContent()) {
@@ -72,6 +76,10 @@ function prepend($host, $subject): Domain
     }
 
     $dContent = $subject->getContent();
+    if (null === $dContent) {
+        return $host instanceof DomainInterface ? new Domain($host) : $host;
+    }
+
     static $pattern = '/[^\x20-\x7f]/';
     $host = preg_match($pattern, $dContent) ? $host->toUnicode() : $host->toAscii();
 
