@@ -14,7 +14,7 @@ namespace Pdp;
 use JsonSerializable;
 
 /**
- * Public Suffix Value Object
+ * Public Suffix Value Object.
  *
  * WARNING: "Some people use the PSL to determine what is a valid domain name
  * and what isn't. This is dangerous, particularly in these days where new
@@ -26,7 +26,7 @@ use JsonSerializable;
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class PublicSuffix implements DomainInterface, JsonSerializable
+final class PublicSuffix implements DomainInterface, JsonSerializable, SectionInterface
 {
     use IDNAConverterTrait;
 
@@ -54,7 +54,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable
     }
 
     /**
-     * Create an new instance from a Domain object
+     * Create an new instance from a Domain object.
      *
      * @param Domain $domain
      *
@@ -67,10 +67,10 @@ final class PublicSuffix implements DomainInterface, JsonSerializable
         }
 
         if ($domain->isICANN()) {
-            return new self($domain->getPublicSuffix(), Rules::ICANN_DOMAINS);
+            return new self($domain->getPublicSuffix(), self::ICANN_DOMAINS);
         }
 
-        return new self($domain->getPublicSuffix(), Rules::PRIVATE_DOMAINS);
+        return new self($domain->getPublicSuffix(), self::PRIVATE_DOMAINS);
     }
 
     /**
@@ -86,7 +86,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable
     }
 
     /**
-     * Set the public suffix section
+     * Set the public suffix section.
      *
      * @param string $section
      *
@@ -185,7 +185,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable
      */
     public function isICANN(): bool
     {
-        return Rules::ICANN_DOMAINS === $this->section;
+        return self::ICANN_DOMAINS === $this->section;
     }
 
     /**
@@ -195,7 +195,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable
      */
     public function isPrivate(): bool
     {
-        return Rules::PRIVATE_DOMAINS === $this->section;
+        return self::PRIVATE_DOMAINS === $this->section;
     }
 
     /**

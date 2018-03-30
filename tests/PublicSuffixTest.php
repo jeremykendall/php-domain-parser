@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
+use Pdp\Domain;
 use Pdp\Exception;
 use Pdp\PublicSuffix;
+use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -132,5 +134,39 @@ class PublicSuffixTest extends TestCase
     {
         $domain = new PublicSuffix('master.example.com');
         $this->assertSame([2], $domain->keys('master'));
+    }
+
+    /**
+     * @covers ::createFromDomain
+     * @dataProvider createFromDomainProvider
+     *
+     * @param Domain      $domain
+     * @param null|string $expected
+     */
+    public function testCreateFromDomainWorks(Domain $domain, $expected)
+    {
+        $result = PublicSuffix::createFromDomain($domain);
+        $this->assertSame($expected, $result->getContent());
+        $this->assertSame($result->isKnown(), $domain->isKnown());
+        $this->assertSame($result->isICANN(), $domain->isICANN());
+        $this->assertSame($result->isPrivate(), $domain->isPrivate());
+    }
+
+    public function createFromDomainProvider()
+    {
+        return [
+            [
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS)),
+                'expected' => 'be',
+            ],
+            [
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('bébé.be', Rules::PRIVATE_DOMAINS)),
+                'expected' => 'bébé.be',
+            ],
+            [
+                'domain' => new Domain('www.bébé.be'),
+                'expected' => null,
+            ],
+        ];
     }
 }

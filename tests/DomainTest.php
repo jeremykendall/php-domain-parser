@@ -341,19 +341,19 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @param Domain       $domain
-     * @param PublicSuffix $publicSuffix
-     * @param string|null  $expected
+     * @param Domain      $domain
+     * @param mixed       $publicSuffix
+     * @param string|null $expected
      *
-     * @covers ::withPublicSuffix
-     * @dataProvider withPublicSuffixWorksProvider
+     * @covers ::resolve
+     * @dataProvider resolvePassProvider
      */
-    public function testWithPublicSuffixWorks(Domain $domain, PublicSuffix $publicSuffix, $expected)
+    public function testResolveWorks(Domain $domain, $publicSuffix, $expected)
     {
-        $this->assertSame($expected, $domain->withPublicSuffix($publicSuffix)->getPublicSuffix());
+        $this->assertSame($expected, $domain->resolve($publicSuffix)->getPublicSuffix());
     }
 
-    public function withPublicSuffixWorksProvider()
+    public function resolvePassProvider()
     {
         $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
         $domain = new Domain('ulb.ac.be', $publicSuffix);
@@ -364,9 +364,19 @@ class DomainTest extends TestCase
                 'public suffix' => new PublicSuffix(),
                 'expected' => null,
             ],
+            'null public suffix (with null value)' => [
+                'domain' => $domain,
+                'public suffix' => null,
+                'expected' => null,
+            ],
             'same public suffix' => [
                 'domain' => $domain,
                 'public suffix' => $publicSuffix,
+                'expected' => 'ac.be',
+            ],
+            'same public suffix (with string value)' => [
+                'domain' => $domain,
+                'public suffix' => 'ac.be',
                 'expected' => 'ac.be',
             ],
             'update public suffix' => [
@@ -391,16 +401,16 @@ class DomainTest extends TestCase
      * @param Domain       $domain
      * @param PublicSuffix $publicSuffix
      *
-     * @covers ::withPublicSuffix
-     * @dataProvider withPublicSuffixFailsProvider
+     * @covers ::resolve
+     * @dataProvider resolveFailsProvider
      */
-    public function testWithPublicSuffixFails(Domain $domain, PublicSuffix $publicSuffix)
+    public function testResolveFails(Domain $domain, PublicSuffix $publicSuffix)
     {
         $this->expectException(Exception::class);
-        $domain->withPublicSuffix($publicSuffix);
+        $domain->resolve($publicSuffix);
     }
 
-    public function withPublicSuffixFailsProvider()
+    public function resolveFailsProvider()
     {
         $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
         $domain = new Domain('ulb.ac.be', $publicSuffix);
@@ -430,13 +440,400 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withPublicSuffix
+     * @covers ::resolve
      */
-    public function testWithPublicSuffixReturnsInstance()
+    public function testResolveReturnsInstance()
     {
         $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
         $domain = new Domain('ulb.ac.be', $publicSuffix);
-        $this->assertSame($domain, $domain->withPublicSuffix($publicSuffix));
-        $this->assertNotSame($domain, $domain->withPublicSuffix(new PublicSuffix('ac.be', Rules::PRIVATE_DOMAINS)));
+        $this->assertSame($domain, $domain->resolve($publicSuffix));
+        $this->assertNotSame($domain, $domain->resolve(new PublicSuffix('ac.be', Rules::PRIVATE_DOMAINS)));
+    }
+
+    /**
+     * @covers ::withSubDomain
+     * @dataProvider withSubDomainWorksProvider
+     *
+     * @param Domain      $domain
+     * @param mixed       $subdomain
+     * @param null|string $expected
+     */
+    public function testWithSubDomainWorks(Domain $domain, $subdomain, $expected)
+    {
+        $result = $domain->withSubDomain($subdomain);
+        $this->assertSame($expected, $result->getSubDomain());
+        $this->assertSame($domain->getPublicSuffix(), $result->getPublicSuffix());
+        $this->assertSame($domain->getRegistrableDomain(), $result->getRegistrableDomain());
+        $this->assertSame($domain->isKnown(), $result->isKnown());
+        $this->assertSame($domain->isICANN(), $result->isICANN());
+        $this->assertSame($domain->isPrivate(), $result->isPrivate());
+    }
+
+    public function withSubDomainWorksProvider()
+    {
+        return [
+            'simple addition' => [
+                'domain' => new Domain('example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS)),
+                'subdomain' => 'www',
+                'expected' => 'www',
+            ],
+            'simple addition IDN (1)' => [
+                'domain' => new Domain('example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS)),
+                'subdomain' => 'bébé',
+                'expected' => 'xn--bb-bjab',
+            ],
+            'simple addition IDN (2)' => [
+                'domain' => new Domain('Яндекс.РФ', new PublicSuffix('рф', Rules::ICANN_DOMAINS)),
+                'subdomain' => 'bébé',
+                'expected' => 'bébé',
+            ],
+            'simple removal' => [
+                'domain' => new Domain('www.example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS)),
+                'subdomain' => null,
+                'expected' => null,
+            ],
+            'simple removal IDN' => [
+                'domain' =>  new Domain('bébé.Яндекс.РФ', new PublicSuffix('рф', Rules::ICANN_DOMAINS)),
+                'subdomain' => 'xn--bb-bjab',
+                'expected' => 'bébé',
+            ],
+        ];
+    }
+
+    /**
+     * @covers ::withSubDomain
+     */
+    public function testWithSubDomainFailsWithNullDomain()
+    {
+        $this->expectException(Exception::class);
+        (new Domain())->withSubDomain('www');
+    }
+
+    /**
+     * @covers ::withSubDomain
+     */
+    public function testWithSubDomainFailsWithOneLabelDomain()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('localhost'))->withSubDomain('www');
+    }
+
+    /**
+     * @covers ::withSubDomain
+     */
+    public function testWithSubDomainWithoutPublicSuffixInfo()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('www.example.com'))->withSubDomain('www');
+    }
+
+    /**
+     * @covers ::withPublicSuffix
+     * @dataProvider withPublicSuffixWorksProvider
+     *
+     * @param Domain      $domain
+     * @param mixed       $publicSuffix
+     * @param null|string $expected
+     * @param bool        $isKnown
+     * @param bool        $isICANN
+     * @param bool        $isPrivate
+     */
+    public function testWithPublicSuffixWorks(
+        Domain $domain,
+        $publicSuffix,
+        $expected,
+        bool $isKnown,
+        bool $isICANN,
+        bool $isPrivate
+    ) {
+        $result = $domain->withPublicSuffix($publicSuffix);
+        $this->assertSame($expected, $result->getPublicSuffix());
+        $this->assertSame($isKnown, $result->isKnown());
+        $this->assertSame($isICANN, $result->isICANN());
+        $this->assertSame($isPrivate, $result->isPrivate());
+    }
+
+    public function withPublicSuffixWorksProvider()
+    {
+        $base_domain = new Domain('example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
+
+        return [
+            'simple update (1)' => [
+                'domain' => $base_domain,
+                'publicSuffix' => 'be',
+                'expected' => 'be',
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
+            'simple update (2)' => [
+                'domain' => $base_domain,
+                'publicSuffix' => new PublicSuffix('github.io', Rules::PRIVATE_DOMAINS),
+                'expected' => 'github.io',
+                'isKnown' => true,
+                'isICANN' => false,
+                'isPrivate' => true,
+            ],
+            'same public suffix but PSL info is changed' => [
+                'domain' => $base_domain,
+                'publicSuffix' => new PublicSuffix('com', Rules::PRIVATE_DOMAINS),
+                'expected' => 'com',
+                'isKnown' => true,
+                'isICANN' => false,
+                'isPrivate' => true,
+            ],
+            'same public suffix but PSL info does not changed' => [
+                'domain' => $base_domain,
+                'publicSuffix' => new PublicSuffix('com', Rules::ICANN_DOMAINS),
+                'expected' => 'com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple update IDN (1)' => [
+                'domain' => $base_domain,
+                'publicSuffix' => new PublicSuffix('рф', Rules::ICANN_DOMAINS),
+                'expected' => 'xn--p1ai',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple update IDN (2)' => [
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS)),
+                'publicSuffix' => new PublicSuffix('xn--p1ai', Rules::ICANN_DOMAINS),
+                'expected' => 'рф',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+        ];
+    }
+
+    /**
+     * @covers ::withPublicSuffix
+     */
+    public function testWithPublicSuffixFailsWithNullDomain()
+    {
+        $this->expectException(Exception::class);
+        (new Domain())->withPublicSuffix('www');
+    }
+
+    /**
+     * @covers ::withPublicSuffix
+     */
+    public function testWithPublicSuffixFailsWithOneLabelDomain()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('localhost'))->withPublicSuffix('www');
+    }
+
+    /**
+     * @covers ::withPublicSuffix
+     */
+    public function testWithPublicSuffixWithoutPublicSuffixInfo()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('www.example.com'))->withPublicSuffix('www');
+    }
+
+    /**
+     * @covers ::withLabel
+     * @dataProvider withLabelWorksProvider
+     *
+     * @param Domain      $domain
+     * @param int         $key
+     * @param mixed       $label
+     * @param null|string $expected
+     * @param bool        $isKnown
+     * @param bool        $isICANN
+     * @param bool        $isPrivate
+     */
+    public function testWithLabelWorks(
+        Domain $domain,
+        int $key,
+        $label,
+        $expected,
+        bool $isKnown,
+        bool $isICANN,
+        bool $isPrivate
+    ) {
+        $result = $domain->withLabel($key, $label);
+        $this->assertSame($expected, $result->getContent());
+        $this->assertSame($isKnown, $result->isKnown());
+        $this->assertSame($isICANN, $result->isICANN());
+        $this->assertSame($isPrivate, $result->isPrivate());
+    }
+
+    public function withLabelWorksProvider()
+    {
+        $base_domain = new Domain('www.example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
+
+        return [
+            'simple replace positive offset' => [
+                'domain' => $base_domain,
+                'key' => 2,
+                'label' => 'shop',
+                'expected' => 'shop.example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple replace negative offset' => [
+                'domain' => $base_domain,
+                'key' => -1,
+                'label' => 'shop',
+                'expected' => 'shop.example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple addition positive offset' => [
+                'domain' => $base_domain,
+                'key' => 3,
+                'label' => 'shop',
+                'expected' => 'shop.www.example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple addition negative offset' => [
+                'domain' => $base_domain,
+                'key' => -4,
+                'label' => 'shop',
+                'expected' => 'shop.www.example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple replace remove PSL info' => [
+                'domain' => $base_domain,
+                'key' => 0,
+                'label' => 'fr',
+                'expected' => 'www.example.fr',
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
+            'replace without any change' => [
+                'domain' => $base_domain,
+                'key' => 2,
+                'label' => 'www',
+                'expected' => 'www.example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple update IDN (1)' => [
+                'domain' => $base_domain,
+                'key' => 2,
+                'label' => 'рф',
+                'expected' => 'xn--p1ai.example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple update IDN (2)' => [
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS)),
+                'key' => 2,
+                'label' => 'xn--p1ai',
+                'expected' => 'рф.bébé.be',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+        ];
+    }
+
+    /**
+     * @covers ::withLabel
+     */
+    public function testWithLabelFailsWithInvalidKey()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('example.com'))->withLabel(-4, 'www');
+    }
+
+    /**
+     * @covers ::withLabel
+     */
+    public function testWithLabelFailsWithInvalidLabel()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('example.com'))->withLabel(-1, 'www.shop');
+    }
+
+    /**
+     * @covers ::withoutLabel
+     * @dataProvider withoutLabelWorksProvider
+     *
+     * @param Domain      $domain
+     * @param int         $key
+     * @param null|string $expected
+     * @param bool        $isKnown
+     * @param bool        $isICANN
+     * @param bool        $isPrivate
+     */
+    public function testWithoutLabelWorks(
+        Domain $domain,
+        int $key,
+        $expected,
+        bool $isKnown,
+        bool $isICANN,
+        bool $isPrivate
+    ) {
+        $result = $domain->withoutLabel($key);
+        $this->assertSame($expected, $result->getContent());
+        $this->assertSame($isKnown, $result->isKnown());
+        $this->assertSame($isICANN, $result->isICANN());
+        $this->assertSame($isPrivate, $result->isPrivate());
+    }
+
+    public function withoutLabelWorksProvider()
+    {
+        $base_domain = new Domain('www.example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
+
+        return [
+            'simple removal positive offset' => [
+                'domain' => $base_domain,
+                'key' => 2,
+                'expected' => 'example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple removal negative offset' => [
+                'domain' => $base_domain,
+                'key' => -1,
+                'expected' => 'example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple removal strip PSL info positive offset' => [
+                'domain' => $base_domain,
+                'key' => 0,
+                'expected' => 'www.example',
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
+            'simple removal strip PSL info negative offset' => [
+                'domain' => $base_domain,
+                'key' => -3,
+                'expected' => 'www.example',
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
+        ];
+    }
+
+    /**
+     * @covers ::withoutLabel
+     */
+    public function testWithoutLabelFailsWithInvalidKey()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('example.com'))->withoutLabel(-3);
     }
 }

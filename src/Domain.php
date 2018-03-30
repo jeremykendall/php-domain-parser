@@ -14,7 +14,7 @@ namespace Pdp;
 use JsonSerializable;
 
 /**
- * Domain Value Object
+ * Domain Value Object.
  *
  * WARNING: "Some people use the PSL to determine what is a valid domain name
  * and what isn't. This is dangerous, particularly in these days where new
@@ -351,22 +351,31 @@ final class Domain implements DomainInterface, JsonSerializable
     }
 
     /**
-     * Returns a new domain name with a different public suffix.
+     * Returns a Domain object with a new resolve public suffix.
      *
      * The Public Suffix must be valid for the given domain name.
      * ex: if the domain name is www.ulb.ac.be the only valid public suffixes
      * are: be, ac.be, ulb.ac.be, or the null public suffix. Any other public
      * suffix will throw an Exception.
      *
-     * This method does not change the domain name value it only updates/changes/removes
-     * a valid public suffix for the given domain name.
+     * This method does not change the domain conent it only updates/changes/removes
+     * its public suffix information.
      *
-     * @param PublicSuffix $publicSuffix
+     * @param mixed $publicSuffix
      *
      * @return self
      */
-    public function withPublicSuffix(PublicSuffix $publicSuffix): self
+    public function resolve($publicSuffix): self
     {
+        if (!$publicSuffix instanceof PublicSuffix) {
+            $publicSuffix = new PublicSuffix($publicSuffix);
+        }
+
+        static $pattern = '/[^\x20-\x7f]/';
+        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
+            $publicSuffix = $publicSuffix->toUnicode();
+        }
+
         if ($this->publicSuffix == $publicSuffix) {
             return $this;
         }
@@ -377,5 +386,177 @@ final class Domain implements DomainInterface, JsonSerializable
         $clone->subDomain = $clone->setSubDomain();
 
         return $clone;
+    }
+
+    /**
+     * Returns an instance with the specified sub domain added.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the modified domain with the new sub domain
+     *
+     * @param mixed $subDomain the subdomain to add
+     *
+     * @throws Exception If the Sub domain is invalid or can not be added to the current Domain
+     *
+     * @return self
+     */
+    public function withSubDomain($subDomain): self
+    {
+        if (!$subDomain instanceof PublicSuffix) {
+            $subDomain = new PublicSuffix($subDomain);
+        }
+
+        if (null === $this->publicSuffix->getContent()) {
+            throw new Exception('A subdomain can not be added to domain without a public suffix.');
+        }
+
+        static $pattern = '/[^\x20-\x7f]/';
+        $subDomain = $subDomain->toAscii();
+        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
+            $subDomain = $subDomain->toUnicode();
+        }
+
+        $subDomain = $subDomain->getContent();
+        if ($subDomain === $this->subDomain) {
+            return $this;
+        }
+
+        $newDomain = $this->registrableDomain;
+        if (null !== $subDomain) {
+            $newDomain = $subDomain.'.'.$newDomain;
+        }
+
+        return new Domain($newDomain, $this->publicSuffix);
+    }
+
+    /**
+     * Returns an instance with the specified public suffix added.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the modified component with the new public suffix
+     *
+     * @param mixed $publicSuffix
+     *
+     * @throws Exception If the public suffix is invalid or can not be added to the current Domain
+     *
+     * @return self
+     */
+    public function withPublicSuffix($publicSuffix): self
+    {
+        if (!$publicSuffix instanceof PublicSuffix) {
+            $publicSuffix = new PublicSuffix($publicSuffix);
+        }
+
+        if (null === $this->publicSuffix->getContent()) {
+            throw new Exception('A public suffix can not be added to domain without a public suffix.');
+        }
+
+        static $pattern = '/[^\x20-\x7f]/';
+        $publicSuffix = $publicSuffix->toAscii();
+        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
+            $publicSuffix = $publicSuffix->toUnicode();
+        }
+
+        if ($this->publicSuffix == $publicSuffix) {
+            return $this;
+        }
+
+        $newDomain = $this->labels[count($this->publicSuffix)];
+        if (null !== $this->subDomain) {
+            $newDomain = $this->subDomain.'.'.$newDomain;
+        }
+
+        if (null !== $publicSuffix->getContent()) {
+            $newDomain .= '.'.$publicSuffix->getContent();
+        }
+
+        return new Domain($newDomain, $publicSuffix);
+    }
+
+    /**
+     * Returns an instance with the specified label added at the specified key.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the modified domain with the new label
+     *
+     * @param int   $key
+     * @param mixed $label
+     *
+     * @throws Exception If the key is out of bounds
+     * @throws Exception If the label is invalid
+     *
+     * @return self
+     */
+    public function withLabel(int $key, $label): self
+    {
+        if (!$label instanceof PublicSuffix) {
+            $label = new PublicSuffix($label);
+        }
+
+        if (null === $label->getContent() || 1 !== count($label)) {
+            throw new Exception(sprintf('The label `%s` is invalid', $label->getContent()));
+        }
+
+        static $pattern = '/[^\x20-\x7f]/';
+        $label = $label->toAscii();
+        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
+            $label = $label->toUnicode();
+        }
+
+        $label = $label->getContent();
+        $nb_labels = count($this->labels);
+        $offset = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => - $nb_labels - 1, 'max_range' => $nb_labels]]);
+        if (false === $offset) {
+            throw new Exception(sprintf('the given key `%s` is invalid', $key));
+        }
+
+        if ($offset < 0) {
+            $offset = $nb_labels + $offset;
+        }
+
+        if ($label === ($this->labels[$offset] ?? null)) {
+            return $this;
+        }
+
+        $labels = $this->labels;
+        $labels[$offset] = $label;
+
+        return new Domain(
+            implode('.', array_reverse($labels)),
+            $offset < 0 || null === $this->publicSuffix->getLabel($offset) ? $this->publicSuffix : null
+        );
+    }
+
+    /**
+     * Returns an instance with the label at the specified key removed.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the modified domain with the label removed
+     *
+     * @param int $key
+     *
+     * @throws Exception If the key is out of bounds
+     *
+     * @return self
+     */
+    public function withoutLabel(int $key): self
+    {
+        $nb_labels = count($this->labels);
+        $offset = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => - $nb_labels, 'max_range' => $nb_labels - 1]]);
+        if (false === $offset) {
+            throw new Exception(sprintf('the given key `%s` is invalid', $key));
+        }
+
+        if ($offset < 0) {
+            $offset = $nb_labels + $offset;
+        }
+
+        $labels = $this->labels;
+        unset($labels[$offset]);
+
+        return new Domain(
+            implode('.', array_reverse($labels)),
+            $offset < 0 || null == $this->publicSuffix->getLabel($offset) ? $this->publicSuffix : null
+        );
     }
 }

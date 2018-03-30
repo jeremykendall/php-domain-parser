@@ -6,15 +6,15 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
+- `Pdp\SectionInterface` interface implemented by `Pdp\Rules` and `Pdp\PublicSuffix`
 - `Pdp\DomainInterface` interface implemented by `Pdp\Domain` and `Pdp\PublicSuffix`
-- `Pdp\Domain::getContent` returns the Domain name value replaces `Pdp\Domain::getDomain`
 - `Pdp\Domain` implements the `Countable` interface.
-- `Pdp\Domain::withPublicSuffix` returns a new Domain object with a different Public Suffix
+- `Pdp\Domain::getContent` returns the Domain name value replaces `Pdp\Domain::getDomain`
+- `Pdp\Domain::withPublicSuffix` updates the `Pdp\Domain` public suffix part.
+- `Pdp\Domain::withSubDomain` updates the `Pdp\Domain` sub domain part.
+- `Pdp\Domain::withLabel` adds a new label to the `Pdp\Domain`.
+- `Pdp\Domain::withoutLabel` removes a label from the `Pdp\Domain`.
 - `Pdp\PublicSuffix::createFromDomain` returns a new `Pdp\PublicSuffix` object from a `Pdp\Domain`object
-- `Pdp\append` append a host to a domain name
-- `Pdp\prepend` prepend a host to a domain name
-- `Pdp\replace` replace a label from the domain name
-- `Pdp\public_suffix_replace` replace the domain name public suffix
 
 ### Fixed
 

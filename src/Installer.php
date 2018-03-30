@@ -15,14 +15,14 @@ use Composer\Script\Event;
 use Throwable;
 
 /**
- * A class to manage PSL ICANN Section rules updates
+ * A class to manage PSL ICANN Section rules updates.
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Installer
 {
     /**
-     * Script to update the local cache using composer hook
+     * Script to update the local cache using composer hook.
      *
      * @param Event $event
      */
@@ -75,7 +75,7 @@ final class Installer
     }
 
     /**
-     * Detect the vendor path
+     * Detect the vendor path.
      *
      * @param Event $event
      *
@@ -99,7 +99,7 @@ final class Installer
     }
 
     /**
-     * Detect the I/O interface to use
+     * Detect the I/O interface to use.
      *
      * @param Event|null $event
      *

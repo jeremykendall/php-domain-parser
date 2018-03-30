@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 /**
- * Simple cURL Http client
+ * Simple cURL Http client.
  *
  * Lifted pretty much completely from William Durand's excellent Geocoder
  * project
@@ -26,14 +26,14 @@ namespace Pdp;
 final class CurlHttpClient implements HttpClient
 {
     /**
-     * Additionnal cURL options
+     * Additionnal cURL options.
      *
      * @var array
      */
     private $options;
 
     /**
-     * new instance
+     * new instance.
      *
      * @param array $options additional cURL options
      */

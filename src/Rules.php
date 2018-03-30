@@ -12,19 +12,15 @@ declare(strict_types=1);
 namespace Pdp;
 
 /**
- * A class to resolve domain name against the Public Suffix list
+ * A class to resolve domain name against the Public Suffix list.
  *
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Rules
+final class Rules implements SectionInterface
 {
-    const ALL_DOMAINS = 'ALL_DOMAINS';
-    const ICANN_DOMAINS = 'ICANN_DOMAINS';
-    const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
-
     /**
-     * PSL rules as a multidimentional associative array
+     * PSL rules as a multidimentional associative array.
      *
      * @var array
      */
@@ -145,7 +141,7 @@ final class Rules
                 $publicSuffix = new PublicSuffix($domain->getLabel(0));
             }
 
-            return $domain->withPublicSuffix($publicSuffix);
+            return $domain->resolve($publicSuffix);
         } catch (Exception $e) {
             return new Domain();
         }

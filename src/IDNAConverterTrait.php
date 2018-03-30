@@ -21,7 +21,7 @@ use TypeError;
 trait IDNAConverterTrait
 {
     /**
-     * Get and format IDN conversion error message
+     * Get and format IDN conversion error message.
      *
      * @param int $error_bit
      *
@@ -30,7 +30,7 @@ trait IDNAConverterTrait
     private static function getIdnErrors(int $error_bit): string
     {
         /**
-         * IDNA errors
+         * IDNA errors.
          *
          * @see http://icu-project.org/apiref/icu4j/com/ibm/icu/text/IDNA.Error.html
          */
@@ -108,7 +108,7 @@ trait IDNAConverterTrait
     }
 
     /**
-     * Filter and format the domain to ensure it is valid
+     * Filter and format the domain to ensure it is valid.
      *
      * Returns an array containing the formatted domain name in lowercase
      * with its associated labels in reverse order

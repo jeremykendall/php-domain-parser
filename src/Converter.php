@@ -21,13 +21,13 @@ use SplTempFileObject;
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Converter
+final class Converter implements SectionInterface
 {
     use IDNAConverterTrait;
 
     /**
      * Convert the Public Suffix List into
-     * an associative, multidimensional array
+     * an associative, multidimensional array.
      *
      * @param string $content
      *
@@ -35,7 +35,7 @@ final class Converter
      */
     public function convert(string $content): array
     {
-        $rules = [Rules::ICANN_DOMAINS => [], Rules::PRIVATE_DOMAINS => []];
+        $rules = [self::ICANN_DOMAINS => [], self::PRIVATE_DOMAINS => []];
         $section = '';
         $file = new SplTempFileObject();
         $file->fwrite($content);
@@ -61,8 +61,8 @@ final class Converter
     private function getSection(string $section, string $line): string
     {
         static $section_list = [
-            'ICANN' => ['BEGIN' => Rules::ICANN_DOMAINS, 'END' => ''],
-            'PRIVATE' => ['BEGIN' => Rules::PRIVATE_DOMAINS, 'END' => ''],
+            'ICANN' => ['BEGIN' => self::ICANN_DOMAINS, 'END' => ''],
+            'PRIVATE' => ['BEGIN' => self::PRIVATE_DOMAINS, 'END' => ''],
         ];
         static $pattern = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
         if (preg_match($pattern, $line, $matches)) {

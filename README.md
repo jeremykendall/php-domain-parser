@@ -42,35 +42,118 @@ Installation
 $ composer require jeremykendall/php-domain-parser
 ~~~
 
-Documentation
+Usage
 --------
 
-### Domain name resolution
-
-The `Pdp\Rules` object is responsible for public suffix resolution for a given domain.
+### Parsing a domain name.
 
 ~~~php
 <?php
 
-namespace Pdp;
+use Pdp\Cache;
+use Pdp\CurlHttpClient;
+use Pdp\Manager;
 
-final class Rules
-{
-    const ALL_DOMAINS = 'ALL_DOMAINS';
-    const ICANN_DOMAINS = 'ICANN_DOMAINS';
-    const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
+$manager = new Manager(new Cache(), new CurlHttpClient());
+$rules = $manager->getRules(); //$rules is a Pdp\Rules object
 
-    public static function createFromPath(string $path, $context = null): self
-    public static function createFromString(string $content): self
-    public function __construct(array $rules)
-    public function getPublicSuffix($domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
-    public function resolve($domain = null, string $section = self::ALL_DOMAINS): Domain
-}
+$domain = $rules->resolve('www.ulb.ac.be');
+echo json_encode($domain, JSON_PRETTY_PRINT);
+// returns
+//  {
+//      "domain": "www.ulb.ac.be",
+//      "registrableDomain": "ulb.ac.be",
+//      "subDomain": "www",
+//      "publicSuffix": "ac.be",
+//      "isKnown": true,
+//      "isICANN": true,
+//      "isPrivate": false
+//  }
+
+$publicSuffix = $rules->getPublicSuffix('www.ulb.ac.be');
+echo json_encode($publicSuffix, JSON_PRETTY_PRINT);
+// returns
+//  {
+//      "publicSuffix": "ac.be",
+//      "isKnown": true,
+//      "isICANN": true,
+//      "isPrivate": false
+//  }
 ~~~
 
-#### Usage
+Using the above code you can parse and get public suffix informations about any valid domain name.
 
-Public suffix resolution is done using the `Pdp\Rules::resolve` method which expects at most two parameters:
+### Manipulating the domain name
+
+The `Pdp\Domain` returned by the `Pdp\Rules::resolve` method is an immutable value object representing a valid domain name. This object let's you access all the domain name properties as well as the public suffix informations attached to it using the following methods.
+
+~~~php
+public function Domain::getLabel(int $key): ?string
+public function Domain::keys(?string $label): int[]
+public function Domain::getContent(): ?string
+public function Domain::getPublicSuffix(): ?string
+public function Domain::getRegistrableDomain(): ?string
+public function Domain::getSubDomain(); ?string
+public function Domain::isKnown(): bool;
+public function Domain::isICANN(): bool;
+public function Domain::isPrivate(): bool;
+~~~
+
+*The getter methods returns normalized and lowercased domain labels or `null` if no value was found for a particular domain part.*
+
+The `Pdp\Domain` object also implements PHP's `Countable` and `IteratorAggregate` interfaces to ease counting and iterating over the domain labels as well as PHP's `JsonSerializable` interfaces to output a JSON array with all the useful informations regarding the domain name.
+
+Once you have a `Pdp\Domain` object can also modify its content using the following methods:
+
+~~~php
+public function Domain::toAscii(): self
+public function Domain::toUnicode(): self
+public function Domain::withPublicSuffix($publicSuffix): self
+public function Domain::withSubDomain($subDomain): self
+public function Domain::withLabel(int $key, $label): self
+public function Domain::withoutLabel(int $key): self
+public function Domain::resolve($publicSuffix): self
+~~~
+
+Because the `Pdp\Domain` object is immutable:
+
+- If the method change any of the current object property, a new object is returned.
+- If a modification is not possible a `Pdp\Exception` exception is thrown.
+
+~~~php
+$manager = new Manager(new Cache(), new CurlHttpClient());
+$rules = $manager->getRules();
+$domain = $rules->resolve('www.bbc.co.uk');
+$newDomain = $domain
+    ->withPublicSuffix('com')
+    ->withSubDomain('shop')
+    ->withLabel(-2, 'example')
+;
+$newDomain->getContent(); //returns shop.example.com;
+$newDomain->isKnown(); //return false;
+~~~
+
+**WARNING: in the example above the PSL info are lost because the newly attached public suffix had none.**
+
+To avoid this data loss you should use an already resolved public suffix.
+
+~~~php
+$manager = new Manager(new Cache(), new CurlHttpClient());
+$rules = $manager->getRules();
+$domain = $rules->resolve('www.bbc.co.uk');
+$newPublicSuffix = $rules->getPublicSuffix('example.com');
+$newDomain = $domain
+    ->withPublicSuffix($newPublicSuffix)
+    ->withSubDomain('shop')
+    ->withLabel(-2, 'example')
+;
+$newDomain->getContent(); //returns shop.example.com;
+$newDomain->isKnown(); //return true;
+~~~
+
+### Getting the domain public suffix information.
+
+The `Pdp\Rules` object is responsible for public suffix resolution for a given domain. Public suffix resolution is done using the `Pdp\Rules::resolve` or `Pdp\Rules::getPublicSuffix` methods which expects at most two parameters:
 
 - `$domain` a domain name as a string
 - `$section` a string which specifies which section of the PSL you want to validate the given domain against. The possible values are:
@@ -80,40 +163,7 @@ Public suffix resolution is done using the `Pdp\Rules::resolve` method which exp
 
 By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
 
-The `Pdp\Rules::resolve` returns a `Pdp\Domain` object.
-
-The `Pdp\Domain` implements the `Pdp\DomainInterface`
-
-~~~php
-<?php
-
-interface DomainInterface extends Countable, IteratorAggregate
-{
-    public function getContent(): ?string
-    public function getLabel(int $key): ?string
-    public function keys(string $label): int[]
-    public function toUnicode(): static;
-    public function toAscii(): static;
-}
-~~~
-
-But also enable returns informations about the domain parts and its public suffix status.
-
-~~~php
-<?php
-
-final class Domain implements DomainInterface, JsonSerializable
-{
-    public function __construct($domain = null, PublicSuffix $publicSuffix = null)
-    public function getPublicSuffix(): ?string
-    public function getRegistrableDomain(): ?string
-    public function getSubDomain(); ?string
-    public function isKnown(): bool;
-    public function isICANN(): bool;
-    public function isPrivate(): bool;
-    public function withPublicSuffix(PublicSuffix $publicSuffix): self;
-}
-~~~
+While the `Pdp\Rules::resolve` returns a `Pdp\Domain` object, the `Pdp\Rules::getPublicSuffix` returns a `Pdp\PublicSuffix` object.
 
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
@@ -127,25 +177,6 @@ $pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_su
 $rules = Rules::createFromPath($pdp_url);
 
 $domain = $rules->resolve('www.Ulb.AC.be'); //using Rules::ALL_DOMAINS
-$domain->getContent();           //returns 'www.ulb.ac.be'
-$domain->getPublicSuffix();      //returns 'ac.be'
-$domain->getRegistrableDomain(); //returns 'ulb.ac.be'
-$domain->getSubDomain();         //returns 'www'
-$domain->getLabel(0)             //returns 'be'
-$domain->getLabel(-1)            //returns 'www'
-$domain->keys('ulb')             //returns [2]
-$domain->isKnown();              //returns true
-$domain->isICANN();              //returns true
-$domain->isPrivate();            //returns false
-echo json_encode(iterator_to_array($domain), JSON_PRETTY_PRINT);
-// returns
-//  [
-//      'be',
-//      'ac',
-//      'ulb',
-//      'www'
-//  ]
-
 echo json_encode($domain, JSON_PRETTY_PRINT);
 // returns
 //  {
@@ -174,33 +205,11 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //  }
 ~~~
 
-- All `Pdp\Domain` getter methods returns normalized and lowercased domain labels or `null` if no value was found for a particular domain part.
-
 **The domain public suffix status depends on the PSL section used to resolve it:**
 
 - `Pdp\Domain::isKnown` returns `true` if the public suffix is found in the selected PSL;
 - `Pdp\Domain::isICANN` returns `true` if the public suffix is found using a PSL which includes the ICANN DOMAINS section;
 - `Pdp\Domain::isPrivate` returns `true` if the public suffix is found using a PSL which includes the PRIVATE DOMAINS section;
-
-The `Rules::getPublicSuffix` method expects the same arguments as `Rules::resolve` but returns a `Pdp\PublicSuffix` object instead.
-
-~~~php
-<?php
-
-final class PublicSuffix implements DomainInterface, JsonSerializable
-{
-    public function __construct($publicSuffix = null)
-    public function isKnown(): bool;
-    public function isICANN(): bool;
-    public function isPrivate(): bool;
-}
-~~~
-
-While `Rules::resolve` will only throws an exception if the section value is invalid, the `Rules::getPublicSuffix` is more restrictive and will additionnally throw if:
-
-- The domain name is invalid or seriously malformed
-- No public suffix can be match against the submitted domain.
-- The public suffix can not be normalized using the domain encoding.
 
 **WARNING:**
 
@@ -287,7 +296,7 @@ $retval = $manager->refreshRules('https://publicsuffix.org/list/public_suffix_li
 if ($retval) {
     //the local cache has been updated
 } else {
-    //the local cache has not been updated
+    //the local cache was not updated
 }
 ~~~
 
@@ -357,7 +366,6 @@ You can also add a composer script in your `composer.json` file to update the PS
     }
 }
 ~~~
-
 
 If you prefer using your own implementations you should:
 
