@@ -17,7 +17,7 @@ namespace Pdp;
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Rules implements SectionInterface
+final class Rules implements PublicSuffixListSection
 {
     /**
      * PSL rules as a multidimentional associative array.

@@ -35,16 +35,16 @@ interface DomainInterface extends Countable, IteratorAggregate
     /**
      * Retrieves a single domain label.
      *
-     * If $offset is non-negative, the returned value will be the label at $offset position.
-     * If $offset is negative, the returned value will be the label at $offset position from the end.
+     * If $key is non-negative, the returned value will be the label at $key position from the start.
+     * If $key is negative, the returned value will be the label at $key position from the end.
      *
-     * If no label is found the submitted $offset the returned value will be null.
+     * If no label is found the submitted $key the returned value will be null.
      *
-     * @param int $offset the label offset
+     * @param int $key the label offset
      *
      * @return string|null
      */
-    public function getLabel(int $offset);
+    public function getLabel(int $key);
 
     /**
      * Returns the associated key for each label.

@@ -26,7 +26,7 @@ use JsonSerializable;
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class PublicSuffix implements DomainInterface, JsonSerializable, SectionInterface
+final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuffixListSection
 {
     use IDNAConverterTrait;
 

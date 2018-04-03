@@ -21,7 +21,7 @@ use SplTempFileObject;
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Converter implements SectionInterface
+final class Converter implements PublicSuffixListSection
 {
     use IDNAConverterTrait;
 

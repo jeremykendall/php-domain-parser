@@ -35,8 +35,9 @@ class DomainTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::setPublicSuffix
-     *
+     * @covers ::normalize
      * @dataProvider provideWrongConstructor
+     *
      * @param mixed $domain
      * @param mixed $publicSuffix
      */
@@ -111,12 +112,14 @@ class DomainTest extends TestCase
     }
 
     /**
+     * @covers ::normalize
+     * @covers ::getIterator
+     * @covers ::count
      * @dataProvider countableProvider
+     *
      * @param string|null $domain
      * @param int         $nbLabels
      * @param string[]    $labels
-     * @covers ::getIterator
-     * @covers ::count
      */
     public function testCountable($domain, $nbLabels, $labels)
     {
@@ -159,16 +162,9 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @dataProvider toUnicodeProvider
-     * @param null|string $domain
-     * @param null|string $publicSuffix
-     * @param null|string $expectedDomain
-     * @param null|string $expectedSuffix
-     * @param null|string $expectedIDNDomain
-     * @param null|string $expectedIDNSuffix
-     *
      * @covers ::setDomain
      * @covers ::setPublicSuffix
+     * @covers ::normalize
      * @covers ::setRegistrableDomain
      * @covers ::setSubDomain
      * @covers ::getDomain
@@ -177,6 +173,14 @@ class DomainTest extends TestCase
      * @covers ::idnToUnicode
      * @covers ::toUnicode
      * @covers \Pdp\PublicSuffix::toUnicode
+     * @dataProvider toUnicodeProvider
+     *
+     * @param null|string $domain
+     * @param null|string $publicSuffix
+     * @param null|string $expectedDomain
+     * @param null|string $expectedSuffix
+     * @param null|string $expectedIDNDomain
+     * @param null|string $expectedIDNSuffix
      */
     public function testToIDN(
         $domain,
@@ -258,16 +262,9 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @dataProvider toAsciiProvider
-     * @param null|string $domain
-     * @param null|string $publicSuffix
-     * @param null|string $expectedDomain
-     * @param null|string $expectedSuffix
-     * @param null|string $expectedAsciiDomain
-     * @param null|string $expectedAsciiSuffix
-     *
      * @covers ::setDomain
      * @covers ::setPublicSuffix
+     * @covers ::normalize
      * @covers ::setRegistrableDomain
      * @covers ::setSubDomain
      * @covers ::getDomain
@@ -276,6 +273,14 @@ class DomainTest extends TestCase
      * @covers ::idnToAscii
      * @covers ::toAscii
      * @covers \Pdp\PublicSuffix::toAscii
+     *
+     * @dataProvider toAsciiProvider
+     * @param null|string $domain
+     * @param null|string $publicSuffix
+     * @param null|string $expectedDomain
+     * @param null|string $expectedSuffix
+     * @param null|string $expectedAsciiDomain
+     * @param null|string $expectedAsciiSuffix
      */
     public function testToAscii(
         $domain,
@@ -341,12 +346,12 @@ class DomainTest extends TestCase
     }
 
     /**
+     * @covers ::resolve
+     * @dataProvider resolvePassProvider
+     *
      * @param Domain      $domain
      * @param mixed       $publicSuffix
      * @param string|null $expected
-     *
-     * @covers ::resolve
-     * @dataProvider resolvePassProvider
      */
     public function testResolveWorks(Domain $domain, $publicSuffix, $expected)
     {
@@ -398,11 +403,11 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @param Domain       $domain
-     * @param PublicSuffix $publicSuffix
-     *
      * @covers ::resolve
      * @dataProvider resolveFailsProvider
+     *
+     * @param Domain       $domain
+     * @param PublicSuffix $publicSuffix
      */
     public function testResolveFails(Domain $domain, PublicSuffix $publicSuffix)
     {
@@ -700,9 +705,9 @@ class DomainTest extends TestCase
                 'domain' => $base_domain,
                 'key' => -4,
                 'label' => 'shop',
-                'expected' => 'shop.www.example.com',
-                'isKnown' => true,
-                'isICANN' => true,
+                'expected' => 'www.example.com.shop',
+                'isKnown' => false,
+                'isICANN' => false,
                 'isPrivate' => false,
             ],
             'simple replace remove PSL info' => [

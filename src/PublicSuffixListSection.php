@@ -16,7 +16,7 @@ namespace Pdp;
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-interface SectionInterface
+interface PublicSuffixListSection
 {
     const ALL_DOMAINS = 'ALL_DOMAINS';
     const ICANN_DOMAINS = 'ICANN_DOMAINS';

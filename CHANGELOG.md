@@ -6,7 +6,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
-- `Pdp\SectionInterface` interface implemented by `Pdp\Rules` and `Pdp\PublicSuffix`
+- `Pdp\PublicSuffixListSection` interface implemented by `Pdp\Rules` and `Pdp\PublicSuffix`
 - `Pdp\DomainInterface` interface implemented by `Pdp\Domain` and `Pdp\PublicSuffix`
 - `Pdp\Domain` implements the `Countable` interface.
 - `Pdp\Domain::getContent` returns the Domain name value replaces `Pdp\Domain::getDomain`

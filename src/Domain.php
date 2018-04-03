@@ -99,11 +99,7 @@ final class Domain implements DomainInterface, JsonSerializable
             throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
         }
 
-        static $pattern = '/[^\x20-\x7f]/';
-        if (preg_match($pattern, $this->domain)) {
-            $publicSuffix = $publicSuffix->toUnicode();
-        }
-
+        $publicSuffix = $this->normalize($publicSuffix);
         $publicSuffixContent = $publicSuffix->getContent();
         if ($this->domain === $publicSuffixContent) {
             throw new Exception(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $publicSuffixContent, $this->domain));
@@ -114,6 +110,23 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         return $publicSuffix;
+    }
+
+    /**
+     * Normalize the domain name encoding content.
+     *
+     * @param mixed $domain
+     *
+     * @return mixed
+     */
+    private function normalize($domain)
+    {
+        static $pattern = '/[^\x20-\x7f]/';
+        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
+            return $domain->toUnicode();
+        }
+
+        return $domain->toAscii();
     }
 
     /**
@@ -358,8 +371,8 @@ final class Domain implements DomainInterface, JsonSerializable
      * are: be, ac.be, ulb.ac.be, or the null public suffix. Any other public
      * suffix will throw an Exception.
      *
-     * This method does not change the domain conent it only updates/changes/removes
-     * its public suffix information.
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the modified Public Suffix Information.
      *
      * @param mixed $publicSuffix
      *
@@ -371,11 +384,7 @@ final class Domain implements DomainInterface, JsonSerializable
             $publicSuffix = new PublicSuffix($publicSuffix);
         }
 
-        static $pattern = '/[^\x20-\x7f]/';
-        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
-            $publicSuffix = $publicSuffix->toUnicode();
-        }
-
+        $publicSuffix = $this->normalize($publicSuffix);
         if ($this->publicSuffix == $publicSuffix) {
             return $this;
         }
@@ -392,7 +401,7 @@ final class Domain implements DomainInterface, JsonSerializable
      * Returns an instance with the specified sub domain added.
      *
      * This method MUST retain the state of the current instance, and return
-     * an instance that contains the modified domain with the new sub domain
+     * an instance that contains the new sub domain
      *
      * @param mixed $subDomain the subdomain to add
      *
@@ -407,33 +416,30 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if (null === $this->publicSuffix->getContent()) {
-            throw new Exception('A subdomain can not be added to domain without a public suffix.');
+            throw new Exception('A subdomain can not be added to a domain without a public suffix part.');
         }
 
-        static $pattern = '/[^\x20-\x7f]/';
-        $subDomain = $subDomain->toAscii();
-        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
-            $subDomain = $subDomain->toUnicode();
-        }
-
-        $subDomain = $subDomain->getContent();
-        if ($subDomain === $this->subDomain) {
+        $subDomain = $this->normalize($subDomain);
+        if ($this->subDomain === $subDomain->getContent()) {
             return $this;
         }
 
-        $newDomain = $this->registrableDomain;
-        if (null !== $subDomain) {
-            $newDomain = $subDomain.'.'.$newDomain;
-        }
+        $clone = clone $this;
+        $clone->labels = array_merge(
+            array_slice($this->labels, 0, count($this->publicSuffix) + 1),
+            iterator_to_array($subDomain)
+        );
+        $clone->domain = implode('.', array_reverse($clone->labels));
+        $clone->subDomain = $subDomain->getContent();
 
-        return new Domain($newDomain, $this->publicSuffix);
+        return $clone;
     }
 
     /**
      * Returns an instance with the specified public suffix added.
      *
      * This method MUST retain the state of the current instance, and return
-     * an instance that contains the modified component with the new public suffix
+     * an instance that contains the new public suffix
      *
      * @param mixed $publicSuffix
      *
@@ -451,33 +457,31 @@ final class Domain implements DomainInterface, JsonSerializable
             throw new Exception('A public suffix can not be added to domain without a public suffix.');
         }
 
-        static $pattern = '/[^\x20-\x7f]/';
-        $publicSuffix = $publicSuffix->toAscii();
-        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
-            $publicSuffix = $publicSuffix->toUnicode();
-        }
-
+        $publicSuffix = $this->normalize($publicSuffix);
         if ($this->publicSuffix == $publicSuffix) {
             return $this;
         }
 
-        $newDomain = $this->labels[count($this->publicSuffix)];
-        if (null !== $this->subDomain) {
-            $newDomain = $this->subDomain.'.'.$newDomain;
-        }
+        $clone = clone $this;
+        $clone->labels = array_merge(
+            iterator_to_array($publicSuffix),
+            array_slice($this->labels, count($this->publicSuffix))
+        );
+        $clone->domain = implode('.', array_reverse($clone->labels));
+        $clone->publicSuffix = $publicSuffix;
+        $clone->registrableDomain = $this->labels[count($this->publicSuffix)].'.'.$publicSuffix->getContent();
 
-        if (null !== $publicSuffix->getContent()) {
-            $newDomain .= '.'.$publicSuffix->getContent();
-        }
-
-        return new Domain($newDomain, $publicSuffix);
+        return $clone;
     }
 
     /**
      * Returns an instance with the specified label added at the specified key.
      *
      * This method MUST retain the state of the current instance, and return
-     * an instance that contains the modified domain with the new label
+     * an instance that contains the new label
+     *
+     * If $key is non-negative, the added label will be the label at $key position from the start.
+     * If $key is negative, the added label will be the label at $key position from the end.
      *
      * @param int   $key
      * @param mixed $label
@@ -493,45 +497,52 @@ final class Domain implements DomainInterface, JsonSerializable
             $label = new PublicSuffix($label);
         }
 
-        if (null === $label->getContent() || 1 !== count($label)) {
+        if (1 !== count($label)) {
             throw new Exception(sprintf('The label `%s` is invalid', $label->getContent()));
         }
 
-        static $pattern = '/[^\x20-\x7f]/';
-        $label = $label->toAscii();
-        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
-            $label = $label->toUnicode();
-        }
-
-        $label = $label->getContent();
         $nb_labels = count($this->labels);
         $offset = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => - $nb_labels - 1, 'max_range' => $nb_labels]]);
         if (false === $offset) {
             throw new Exception(sprintf('the given key `%s` is invalid', $key));
         }
 
-        if ($offset < 0) {
+        if (0 > $offset) {
             $offset = $nb_labels + $offset;
         }
 
+        $label = $this->normalize($label)->getContent();
         if ($label === ($this->labels[$offset] ?? null)) {
             return $this;
         }
 
-        $labels = $this->labels;
-        $labels[$offset] = $label;
+        $clone = clone $this;
+        $clone->labels[$offset] = $label;
+        ksort($clone->labels);
+        $clone->labels = array_values($clone->labels);
+        $clone->domain = implode('.', array_reverse($clone->labels));
+        if (null !== $this->publicSuffix->getLabel($offset)) {
+            $clone->publicSuffix = new PublicSuffix();
+            $clone->registrableDomain = null;
+            $clone->subDomain = null;
 
-        return new Domain(
-            implode('.', array_reverse($labels)),
-            $offset < 0 || null === $this->publicSuffix->getLabel($offset) ? $this->publicSuffix : null
-        );
+            return $clone;
+        }
+
+        $clone->registrableDomain = $clone->setRegistrableDomain();
+        $clone->subDomain = $clone->setSubDomain();
+
+        return $clone;
     }
 
     /**
      * Returns an instance with the label at the specified key removed.
      *
      * This method MUST retain the state of the current instance, and return
-     * an instance that contains the modified domain with the label removed
+     * an instance without the specified label
+     *
+     * If $key is non-negative, the removed label will be the label at $key position from the start.
+     * If $key is negative, the removed label will be the label at $key position from the end.
      *
      * @param int $key
      *
@@ -547,16 +558,24 @@ final class Domain implements DomainInterface, JsonSerializable
             throw new Exception(sprintf('the given key `%s` is invalid', $key));
         }
 
-        if ($offset < 0) {
+        if (0 > $offset) {
             $offset = $nb_labels + $offset;
         }
 
-        $labels = $this->labels;
-        unset($labels[$offset]);
+        $clone = clone $this;
+        unset($clone->labels[$offset]);
+        $clone->domain = implode('.', array_reverse($clone->labels));
+        if (null !== $this->publicSuffix->getLabel($offset)) {
+            $clone->publicSuffix = new PublicSuffix();
+            $clone->registrableDomain = null;
+            $clone->subDomain = null;
 
-        return new Domain(
-            implode('.', array_reverse($labels)),
-            $offset < 0 || null == $this->publicSuffix->getLabel($offset) ? $this->publicSuffix : null
-        );
+            return $clone;
+        }
+
+        $clone->registrableDomain = $clone->setRegistrableDomain();
+        $clone->subDomain = $clone->setSubDomain();
+
+        return $clone;
     }
 }

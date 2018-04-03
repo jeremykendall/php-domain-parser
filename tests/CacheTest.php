@@ -480,9 +480,6 @@ class CacheTest extends TestCase
         $this->assertEquals([], $expected);
     }
 
-    /**
-     * @expectException \Psr\SimpleCache\InvalidArgumentException
-     */
     public function testDeleteMultipleInvalidArg()
     {
         $this->expectException(InvalidArgumentException::class);

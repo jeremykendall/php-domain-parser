@@ -91,11 +91,12 @@ class PublicSuffixTest extends TestCase
     }
 
     /**
+     * @covers ::count
      * @dataProvider countableProvider
+     *
      * @param string|null $domain
      * @param int         $nbLabels
      * @param string[]    $labels
-     * @covers ::count
      */
     public function testCountable($domain, $nbLabels, $labels)
     {

@@ -306,14 +306,15 @@ class RulesTest extends TestCase
     }
 
     /**
+     * @covers ::resolve
+     * @covers \Pdp\Domain::setRegistrableDomain
+     * @covers \Pdp\Domain::getRegistrableDomain
      * @dataProvider parseDataProvider
+     *
      * @param mixed $publicSuffix
      * @param mixed $registrableDomain
      * @param mixed $domain
      * @param mixed $expectedDomain
-     * @covers ::resolve
-     * @covers \Pdp\Domain::setRegistrableDomain
-     * @covers \Pdp\Domain::getRegistrableDomain
      */
     public function testGetRegistrableDomain($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
@@ -321,15 +322,16 @@ class RulesTest extends TestCase
     }
 
     /**
-     * @dataProvider parseDataProvider
-     * @param mixed $publicSuffix
-     * @param mixed $registrableDomain
-     * @param mixed $domain
-     * @param mixed $expectedDomain
      * @covers ::resolve
      * @covers \Pdp\IDNAConverterTrait::setDomain
      * @covers \Pdp\Domain::setPublicSuffix
      * @covers \Pdp\Domain::getPublicSuffix
+     * @dataProvider parseDataProvider
+     *
+     * @param mixed $publicSuffix
+     * @param mixed $registrableDomain
+     * @param mixed $domain
+     * @param mixed $expectedDomain
      */
     public function testGetPublicSuffix($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
@@ -337,15 +339,16 @@ class RulesTest extends TestCase
     }
 
     /**
-     * @dataProvider parseDataProvider
-     * @param mixed $publicSuffix
-     * @param mixed $registrableDomain
-     * @param mixed $domain
-     * @param mixed $expectedDomain
      * @covers ::resolve
      * @covers \Pdp\IDNAConverterTrait::setDomain
      * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::getContent
+     * @dataProvider parseDataProvider
+     *
+     * @param mixed $publicSuffix
+     * @param mixed $registrableDomain
+     * @param mixed $domain
+     * @param mixed $expectedDomain
      */
     public function testGetDomain($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
@@ -379,14 +382,14 @@ class RulesTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidParseProvider
-     * @param mixed $domain
-     * @param mixed $section
-     *
      * @covers ::getPublicSuffix
      * @covers ::validateSection
      * @covers ::isMatchable
      * @covers \Pdp\IDNAConverterTrait::setDomain
+     * @dataProvider invalidParseProvider
+     *
+     * @param mixed $domain
+     * @param mixed $section
      */
     public function testGetPublicSuffixThrowsException($domain, $section)
     {
