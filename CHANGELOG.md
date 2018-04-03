@@ -14,6 +14,8 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 - `Pdp\Domain::withSubDomain` updates the `Pdp\Domain` sub domain part.
 - `Pdp\Domain::withLabel` adds a new label to the `Pdp\Domain`.
 - `Pdp\Domain::withoutLabel` removes a label from the `Pdp\Domain`.
+- `Pdp\Domain::resolve` attach a public suffix to the `Pdp\Domain`.
+- `Pdp\Domain::isResolvable` tell whether the current `Pdp\Domain` can have a public suffix attached to it or not.
 - `Pdp\PublicSuffix::createFromDomain` returns a new `Pdp\PublicSuffix` object from a `Pdp\Domain`object
 
 ### Fixed

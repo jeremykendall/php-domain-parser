@@ -82,7 +82,7 @@ final class Converter implements PublicSuffixListSection
      * distribution
      *
      * @param array $list       Initially an empty array, this eventually
-     *                          becomes the array representation of the Public Suffix List
+     *                          becomes the array representation of a Public Suffix List section
      * @param array $rule_parts One line (rule) from the Public Suffix List
      *                          exploded on '.', or the remaining portion of that array during recursion
      *

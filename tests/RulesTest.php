@@ -70,7 +70,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers ::isMatchable
+     * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\Domain::isKnown
@@ -106,7 +106,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers ::isMatchable
+     * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -123,7 +123,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers ::isMatchable
+     * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -147,7 +147,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers ::isMatchable
+     * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -171,7 +171,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers ::isMatchable
+     * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -385,7 +385,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::getPublicSuffix
      * @covers ::validateSection
-     * @covers ::isMatchable
+     * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\IDNAConverterTrait::setDomain
      * @dataProvider invalidParseProvider
      *
@@ -417,7 +417,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::getPublicSuffix
      * @covers ::validateSection
-     * @covers ::isMatchable
+     * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\IDNAConverterTrait::setDomain
      * @dataProvider validPublicSectionProvider
      *

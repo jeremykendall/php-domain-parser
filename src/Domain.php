@@ -95,7 +95,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return new PublicSuffix();
         }
 
-        if (null === $this->domain || false === strpos($this->domain, '.')) {
+        if (!$this->isResolvable()) {
             throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
         }
 
@@ -264,7 +264,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * The registered or registrable domain is the public suffix plus one additional label.
      *
-     * This method should return null if the registrable domain is the same as the public suffix.
+     * This method returns null if the registrable domain is equal to the public suffix.
      *
      * @return string|null registrable domain
      */
@@ -278,8 +278,8 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * The sub domain represents the remaining labels without the registrable domain.
      *
-     * This method should return null if the registrable domain is null
-     * This method should return null if the registrable domain is the same as the public suffix
+     * This method returns null if the registrable domain is null
+     * This method returns null if the registrable domain is equal to the public suffix
      *
      * @return string|null registrable domain
      */
@@ -296,6 +296,16 @@ final class Domain implements DomainInterface, JsonSerializable
     public function getPublicSuffix()
     {
         return $this->publicSuffix->getContent();
+    }
+
+    /**
+     * Tells whether the given domain can be resolved.
+     *
+     * @return bool
+     */
+    public function isResolvable(): bool
+    {
+        return 2 <= count($this->labels);
     }
 
     /**
@@ -433,10 +443,7 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         $clone = clone $this;
-        $clone->labels = array_merge(
-            array_slice($this->labels, 0, count($this->publicSuffix) + 1),
-            iterator_to_array($subDomain)
-        );
+        $clone->labels = array_merge(array_slice($this->labels, 0, count($this->publicSuffix) + 1), iterator_to_array($subDomain));
         $clone->domain = implode('.', array_reverse($clone->labels));
         $clone->subDomain = $subDomain->getContent();
 
@@ -462,7 +469,7 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if (null === $this->publicSuffix->getContent()) {
-            throw new Exception('A public suffix can not be added to domain without a public suffix.');
+            throw new Exception('A public suffix can not be added to a domain without a public suffix part.');
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
@@ -471,10 +478,7 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         $clone = clone $this;
-        $clone->labels = array_merge(
-            iterator_to_array($publicSuffix),
-            array_slice($this->labels, count($this->publicSuffix))
-        );
+        $clone->labels = array_merge(iterator_to_array($publicSuffix), array_slice($this->labels, count($this->publicSuffix)));
         $clone->domain = implode('.', array_reverse($clone->labels));
         $clone->publicSuffix = $publicSuffix;
         $clone->registrableDomain = $this->labels[count($this->publicSuffix)].'.'.$publicSuffix->getContent();

@@ -102,16 +102,11 @@ final class Rules implements PublicSuffixListSection
     {
         $this->validateSection($section);
         $domain = $domain instanceof Domain ? $domain : new Domain($domain);
-        if (!$this->isMatchable($domain)) {
+        if (!$domain->isResolvable()) {
             throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
         }
 
-        $publicSuffix = $this->findPublicSuffix($domain, $section);
-        if (null === $publicSuffix->getContent()) {
-            $publicSuffix = new PublicSuffix($domain->getLabel(0));
-        }
-
-        return PublicSuffix::createFromDomain($domain->resolve($publicSuffix));
+        return PublicSuffix::createFromDomain($domain->resolve($this->findPublicSuffix($domain, $section)));
     }
 
     /**
@@ -127,16 +122,11 @@ final class Rules implements PublicSuffixListSection
         $this->validateSection($section);
         try {
             $domain = $domain instanceof Domain ? $domain : new Domain($domain);
-            if (!$this->isMatchable($domain)) {
+            if (!$domain->isResolvable()) {
                 return $domain;
             }
 
-            $publicSuffix = $this->findPublicSuffix($domain, $section);
-            if (null === $publicSuffix->getContent()) {
-                $publicSuffix = new PublicSuffix($domain->getLabel(0));
-            }
-
-            return $domain->resolve($publicSuffix);
+            return $domain->resolve($this->findPublicSuffix($domain, $section));
         } catch (Exception $e) {
             return new Domain();
         }
@@ -156,24 +146,11 @@ final class Rules implements PublicSuffixListSection
         }
 
         $rules = $this->rules[$section] ?? null;
-        if (null !== $rules && is_array($rules)) {
+        if (is_array($rules)) {
             return;
         }
 
         throw new Exception(sprintf('%s is an unknown Public Suffix List section', $section));
-    }
-
-    /**
-     * Tells whether the given domain can be resolved.
-     *
-     * @param DomainInterface $domain
-     *
-     * @return bool
-     */
-    private function isMatchable(DomainInterface $domain): bool
-    {
-        return 1 < count($domain)
-            && 0 < strpos($domain->getContent(), '.');
     }
 
     /**
@@ -201,7 +178,7 @@ final class Rules implements PublicSuffixListSection
             return $icann;
         }
 
-        return new PublicSuffix();
+        return new PublicSuffix($domain->getLabel(0));
     }
 
     /**
@@ -214,7 +191,7 @@ final class Rules implements PublicSuffixListSection
      */
     private function findPublicSuffixFromSection(DomainInterface $domain, string $section): PublicSuffix
     {
-        $rules = $this->rules[$section] ?? [];
+        $rules = $this->rules[$section];
         $matches = [];
         foreach ($domain as $label) {
             //match exception rule
@@ -238,7 +215,7 @@ final class Rules implements PublicSuffixListSection
         }
 
         if (empty($matches)) {
-            return new PublicSuffix();
+            return new PublicSuffix($domain->getLabel(0));
         }
 
         return new PublicSuffix(implode('.', array_reverse($matches)), $section);
