@@ -300,9 +300,10 @@ class RulesTest extends TestCase
      */
     public function testWithDomainInterfaceObject()
     {
-        $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
-        $psl = $this->rules->getPublicSuffix($publicSuffix);
-        $this->assertEquals($publicSuffix, $psl);
+        $this->assertSame(
+            'ac.be',
+            $this->rules->getPublicSuffix(new PublicSuffix('ul.ac.be', Rules::ICANN_DOMAINS))->getContent()
+        );
     }
 
     /**

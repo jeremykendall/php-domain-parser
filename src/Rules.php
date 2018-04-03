@@ -111,12 +111,7 @@ final class Rules implements PublicSuffixListSection
             $publicSuffix = new PublicSuffix($domain->getLabel(0));
         }
 
-        static $pattern = '/[^\x20-\x7f]/';
-        if (preg_match($pattern, $domain->getContent())) {
-            return $publicSuffix->toUnicode();
-        }
-
-        return $publicSuffix;
+        return PublicSuffix::createFromDomain($domain->resolve($publicSuffix));
     }
 
     /**

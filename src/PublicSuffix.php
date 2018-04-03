@@ -203,8 +203,12 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     public function toAscii()
     {
-        static $pattern = '/[^\x20-\x7f]/';
-        if (null === $this->publicSuffix || !preg_match($pattern, $this->publicSuffix)) {
+        if (null === $this->publicSuffix) {
+            return $this;
+        }
+
+        $publicSuffix = $this->idnToAscii($this->publicSuffix);
+        if ($publicSuffix === $this->publicSuffix) {
             return $this;
         }
 

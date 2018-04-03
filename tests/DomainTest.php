@@ -347,6 +347,7 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::normalize
      * @dataProvider resolvePassProvider
      *
      * @param Domain      $domain

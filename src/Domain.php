@@ -115,18 +115,22 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * Normalize the domain name encoding content.
      *
-     * @param mixed $domain
+     * @param mixed $subject
      *
      * @return mixed
      */
-    private function normalize($domain)
+    private function normalize($subject)
     {
-        static $pattern = '/[^\x20-\x7f]/';
-        if (null !== $this->domain && preg_match($pattern, $this->domain)) {
-            return $domain->toUnicode();
+        if (null === $this->domain || null === $subject->getContent()) {
+            return $subject;
         }
 
-        return $domain->toAscii();
+        static $pattern = '/[^\x20-\x7f]/';
+        if (!preg_match($pattern, $this->domain)) {
+            return $subject->toAscii();
+        }
+
+        return $subject->toUnicode();
     }
 
     /**
@@ -329,13 +333,17 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function toAscii()
     {
-        static $pattern = '/[^\x20-\x7f]/';
-        if (null === $this->domain || !preg_match($pattern, $this->domain)) {
+        if (null === $this->domain) {
+            return $this;
+        }
+
+        $domain = $this->idnToAscii($this->domain);
+        if ($domain === $this->domain) {
             return $this;
         }
 
         $clone = clone $this;
-        $clone->domain = $this->idnToAscii($this->domain);
+        $clone->domain = $domain;
         $clone->labels = array_reverse(explode('.', $clone->domain));
         $clone->publicSuffix = $this->publicSuffix->toAscii();
         $clone->registrableDomain = $clone->setRegistrableDomain();
