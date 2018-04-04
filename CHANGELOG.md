@@ -27,6 +27,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 ### Deprecated
 
 - `Pdp\Domain::getDomain` use instead `Pdp\Domain::getContent`
+- `Pdp\PublicSuffixListSection::ALL_DOMAINS` use the empty string instead
 
 ### Removed
 

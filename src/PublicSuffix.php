@@ -90,15 +90,22 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      *
      * @param string $section
      *
+     * @throws Exception if the submitted section is not supported
+     *
      * @return string
      */
     private function setSection(string $section): string
     {
-        if ('' === $this->publicSuffix || null === $this->publicSuffix) {
+        if (in_array($this->publicSuffix, ['', null], true) || self::ALL_DOMAINS === $section) {
             return '';
         }
 
-        return $section;
+        static $section_list = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
+        if (in_array($section, $section_list, true)) {
+            return $section;
+        }
+
+        throw new Exception(sprintf('`%s` is an unknown Public Suffix List section', $section));
     }
 
     /**

@@ -94,6 +94,7 @@ public function Domain::getContent(): ?string
 public function Domain::getPublicSuffix(): ?string
 public function Domain::getRegistrableDomain(): ?string
 public function Domain::getSubDomain(); ?string
+public function Domain::isResolvable(): bool;
 public function Domain::isKnown(): bool;
 public function Domain::isICANN(): bool;
 public function Domain::isPrivate(): bool;
@@ -157,11 +158,11 @@ The `Pdp\Rules` object is responsible for public suffix resolution for a given d
 
 - `$domain` a domain name as a string
 - `$section` a string which specifies which section of the PSL you want to validate the given domain against. The possible values are:
-    - `Rules::ALL_DOMAINS`, to validate against the full PSL.
     - `Rules::ICANN_DOMAINS`, to validate against the PSL ICANN DOMAINS section only.
     - `Rules::PRIVATE_DOMAINS`, to validate against the PSL PRIVATE DOMAINS section only.
+    - the empty string to validate against all the PSL sections.
 
-By default, the `$section` argument is equal to `Rules::ALL_DOMAINS`. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
+By default, the `$section` argument is equal to the empty string. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
 
 While the `Pdp\Rules::resolve` returns a `Pdp\Domain` object, the `Pdp\Rules::getPublicSuffix` returns a `Pdp\PublicSuffix` object.
 
@@ -176,7 +177,7 @@ use Pdp\Converter;
 $pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
 $rules = Rules::createFromPath($pdp_url);
 
-$domain = $rules->resolve('www.Ulb.AC.be'); //using Rules::ALL_DOMAINS
+$domain = $rules->resolve('www.Ulb.AC.be'); // resolution is done against all the sections available
 echo json_encode($domain, JSON_PRETTY_PRINT);
 // returns
 //  {

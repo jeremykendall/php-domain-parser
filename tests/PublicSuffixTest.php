@@ -58,6 +58,16 @@ class PublicSuffixTest extends TestCase
     }
 
     /**
+     * @covers ::__construct
+     * @covers ::setSection
+     */
+    public function testSetSectionThrowsException()
+    {
+        $this->expectException(Exception::class);
+        new PublicSuffix('ac.be', 'foobar');
+    }
+
+    /**
      * @covers ::toUnicode
      * @covers ::idnToUnicode
      */

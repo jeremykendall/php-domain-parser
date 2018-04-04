@@ -100,7 +100,7 @@ final class Rules implements PublicSuffixListSection
      */
     public function getPublicSuffix($domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
     {
-        $this->validateSection($section);
+        $section = $this->validateSection($section);
         $domain = $domain instanceof Domain ? $domain : new Domain($domain);
         if (!$domain->isResolvable()) {
             throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
@@ -119,7 +119,7 @@ final class Rules implements PublicSuffixListSection
      */
     public function resolve($domain = null, string $section = self::ALL_DOMAINS): Domain
     {
-        $this->validateSection($section);
+        $section = $this->validateSection($section);
         try {
             $domain = $domain instanceof Domain ? $domain : new Domain($domain);
             if (!$domain->isResolvable()) {
@@ -138,16 +138,18 @@ final class Rules implements PublicSuffixListSection
      * @param string $section
      *
      * @throws Exception if the submitted section is not supported
+     *
+     * @return string
      */
-    private function validateSection(string $section)
+    private function validateSection(string $section): string
     {
-        if (self::ALL_DOMAINS === $section) {
-            return;
+        if (self::ALL_DOMAINS === $section || '' === $section) {
+            return '';
         }
 
         $rules = $this->rules[$section] ?? null;
         if (is_array($rules)) {
-            return;
+            return $section;
         }
 
         throw new Exception(sprintf('%s is an unknown Public Suffix List section', $section));
@@ -174,11 +176,11 @@ final class Rules implements PublicSuffixListSection
             return $private;
         }
 
-        if (self::ALL_DOMAINS === $section) {
-            return $icann;
+        if (self::PRIVATE_DOMAINS === $section) {
+            return new PublicSuffix($domain->getLabel(0));
         }
 
-        return new PublicSuffix($domain->getLabel(0));
+        return $icann;
     }
 
     /**
