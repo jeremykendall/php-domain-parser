@@ -75,7 +75,7 @@ trait IDNAConverterTrait
     {
         static $pattern = '/[^\x20-\x7f]/';
         if (!preg_match($pattern, $domain)) {
-            return strtolower($domain);
+            return mb_strtolower($domain);
         }
 
         $output = idn_to_ascii($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
