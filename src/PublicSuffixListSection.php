@@ -18,11 +18,6 @@ namespace Pdp;
  */
 interface PublicSuffixListSection
 {
-    /**
-     * @deprecated 5.3
-     */
-    const ALL_DOMAINS = 'ALL_DOMAINS';
-
     const ICANN_DOMAINS = 'ICANN_DOMAINS';
 
     const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';

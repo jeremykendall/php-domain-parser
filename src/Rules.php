@@ -20,6 +20,11 @@ namespace Pdp;
 final class Rules implements PublicSuffixListSection
 {
     /**
+     * @deprecated 5.3
+     */
+    const ALL_DOMAINS = 'ALL_DOMAINS';
+
+    /**
      * PSL rules as a multidimentional associative array.
      *
      * @var array

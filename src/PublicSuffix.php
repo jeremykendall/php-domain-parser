@@ -96,7 +96,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     private function setSection(string $section): string
     {
-        if (in_array($this->publicSuffix, ['', null], true) || self::ALL_DOMAINS === $section) {
+        if (in_array($this->publicSuffix, ['', null], true)) {
             return '';
         }
 
