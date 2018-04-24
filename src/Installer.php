@@ -87,12 +87,10 @@ final class Installer
             return $event->getComposer()->getConfig()->get('vendor-dir');
         }
 
-        if (is_dir($vendor = dirname(__DIR__, 2).'/vendor')) {
-            return $vendor;
-        }
-
-        if (is_dir($vendor = dirname(__DIR__, 5).'/vendor')) {
-            return $vendor;
+        for ($i = 2; $i <= 5; $i++) {
+            if (is_dir($vendor = dirname(__DIR__, $i).'/vendor')) {
+                return $vendor;
+            }
         }
 
         return null;
