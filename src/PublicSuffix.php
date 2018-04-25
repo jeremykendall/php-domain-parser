@@ -81,7 +81,11 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     public function __construct($publicSuffix = null, string $section = '')
     {
-        list($this->publicSuffix, $this->labels) = $this->setDomain($publicSuffix);
+        $this->labels = $this->setLabels($publicSuffix);
+        if (!empty($this->labels)) {
+            $this->publicSuffix = implode('.', array_reverse($this->labels));
+        }
+
         $this->section = $this->setSection($section);
     }
 
@@ -153,6 +157,14 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     public function getContent()
     {
         return $this->publicSuffix;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString()
+    {
+        return (string) $this->publicSuffix;
     }
 
     /**

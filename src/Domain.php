@@ -72,7 +72,10 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
-        list($this->domain, $this->labels) = $this->setDomain($domain);
+        $this->labels = $this->setLabels($domain);
+        if (!empty($this->labels)) {
+            $this->domain = implode('.', array_reverse($this->labels));
+        }
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix ?? new PublicSuffix());
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
@@ -92,7 +95,7 @@ final class Domain implements DomainInterface, JsonSerializable
     private function setPublicSuffix(PublicSuffix $publicSuffix): PublicSuffix
     {
         if (null === $publicSuffix->getContent()) {
-            return new PublicSuffix();
+            return $publicSuffix;
         }
 
         if (!$this->isResolvable()) {
@@ -115,11 +118,11 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * Normalize the domain name encoding content.
      *
-     * @param mixed $subject
+     * @param PublicSuffix $subject
      *
-     * @return mixed
+     * @return PublicSuffix
      */
-    private function normalize($subject)
+    private function normalize(PublicSuffix $subject): PublicSuffix
     {
         if (null === $this->domain || null === $subject->getContent()) {
             return $subject;
@@ -135,6 +138,8 @@ final class Domain implements DomainInterface, JsonSerializable
 
     /**
      * Computes the registrable domain part.
+     *
+     * @return string|null
      */
     private function setRegistrableDomain()
     {
@@ -223,6 +228,14 @@ final class Domain implements DomainInterface, JsonSerializable
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function __toString()
+    {
+        return (string) $this->domain;
+    }
+
+    /**
      * Returns the full domain name.
      *
      * DEPRECATION WARNING! This method will be removed in the next major point release
@@ -301,11 +314,16 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * Tells whether the given domain can be resolved.
      *
+     * A domain is resolvable if:
+     *     - it contains at least 2 labels
+     *     - it is not a absolute domain (end with a '.' character)
+     *
      * @return bool
      */
     public function isResolvable(): bool
     {
-        return 2 <= count($this->labels);
+        return 2 <= count($this->labels)
+            && '.' !== substr($this->domain, -1, 1);
     }
 
     /**
@@ -506,13 +524,14 @@ final class Domain implements DomainInterface, JsonSerializable
     public function withLabel(int $key, $label): self
     {
         if (!$label instanceof PublicSuffix) {
-            $label = new PublicSuffix($label);
+            $label = $this->normalize(new PublicSuffix($label));
         }
 
-        if (1 !== count($label)) {
-            throw new Exception(sprintf('The label `%s` is invalid', $label->getContent()));
+        if (1 != count($label)) {
+            throw new Exception(sprintf('The label `%s` is invalid', (string) $label));
         }
 
+        $label = (string) $label;
         $nb_labels = count($this->labels);
         $offset = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => - $nb_labels - 1, 'max_range' => $nb_labels]]);
         if (false === $offset) {
@@ -523,15 +542,16 @@ final class Domain implements DomainInterface, JsonSerializable
             $offset = $nb_labels + $offset;
         }
 
-        $label = $this->normalize($label)->getContent();
         if ($label === ($this->labels[$offset] ?? null)) {
             return $this;
         }
 
+        $labels = $this->labels;
+        $labels[$offset] = $label;
+        ksort($labels);
+
         $clone = clone $this;
-        $clone->labels[$offset] = $label;
-        ksort($clone->labels);
-        $clone->labels = array_values($clone->labels);
+        $clone->labels = array_values($labels);
         $clone->domain = implode('.', array_reverse($clone->labels));
         if (null !== $this->publicSuffix->getLabel($offset)) {
             $clone->publicSuffix = new PublicSuffix();

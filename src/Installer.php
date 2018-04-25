@@ -105,11 +105,7 @@ final class Installer
      */
     private static function getIO(Event $event = null)
     {
-        if (null !== $event) {
-            return $event->getIO();
-        }
-
-        return new class() {
+        return null !== $event ? $event->getIO() : new class() {
             public function write($messages, bool $newline = true, int $verbosity = 2)
             {
                 $this->doWrite($messages, $newline, false, $verbosity);

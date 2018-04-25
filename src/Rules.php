@@ -103,7 +103,7 @@ final class Rules implements PublicSuffixListSection
      *
      * @return PublicSuffix
      */
-    public function getPublicSuffix($domain = null, string $section = self::ALL_DOMAINS): PublicSuffix
+    public function getPublicSuffix($domain, string $section = self::ALL_DOMAINS): PublicSuffix
     {
         $section = $this->validateSection($section);
         $domain = $domain instanceof Domain ? $domain : new Domain($domain);
@@ -122,7 +122,7 @@ final class Rules implements PublicSuffixListSection
      *
      * @return Domain
      */
-    public function resolve($domain = null, string $section = self::ALL_DOMAINS): Domain
+    public function resolve($domain, string $section = self::ALL_DOMAINS): Domain
     {
         $section = $this->validateSection($section);
         try {

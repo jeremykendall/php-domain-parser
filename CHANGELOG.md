@@ -8,26 +8,26 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - `Pdp\PublicSuffixListSection` interface implemented by `Pdp\Rules` and `Pdp\PublicSuffix`
 - `Pdp\DomainInterface` interface implemented by `Pdp\Domain` and `Pdp\PublicSuffix`
-- `Pdp\Domain` implements the `Countable` interface.
-- `Pdp\Domain::getContent` returns the Domain name value replaces `Pdp\Domain::getDomain`
+- `Pdp\Domain::getContent` replaces `Pdp\Domain::getDomain`
 - `Pdp\Domain::withPublicSuffix` updates the `Pdp\Domain` public suffix part.
 - `Pdp\Domain::withSubDomain` updates the `Pdp\Domain` sub domain part.
 - `Pdp\Domain::withLabel` adds a new label to the `Pdp\Domain`.
 - `Pdp\Domain::withoutLabel` removes a label from the `Pdp\Domain`.
 - `Pdp\Domain::resolve` attach a public suffix to the `Pdp\Domain`.
-- `Pdp\Domain::isResolvable` tell whether the current `Pdp\Domain` can have a public suffix attached to it or not.
+- `Pdp\Domain::isResolvable` tells whether the current `Pdp\Domain` can have a public suffix attached to it or not.
 - `Pdp\PublicSuffix::createFromDomain` returns a new `Pdp\PublicSuffix` object from a `Pdp\Domain`object
 
 ### Fixed
 
 - `Pdp\Domain` domain part computation (public suffix, registrable domain and sub domain)
 - `Pdp\Domain` and `Pdp\PublicSuffix` host validation compliance to RFC improved
-- Improved `Pdp\Converter` and `Pdp\Manager` class to better report error on IDN conversion.
+- Improve `Pdp\Converter` and `Pdp\Manager` class to better report error on IDN conversion.
+- Improve `Pdp\Installer` vendor directory resolution see [PR #222](https://github.com/jeremykendall/php-domain-parser/pull/222)
 
 ### Deprecated
 
 - `Pdp\Domain::getDomain` use instead `Pdp\Domain::getContent`
-- `Pdp\PublicSuffixListSection::ALL_DOMAINS` use the empty string instead
+- `Pdp\Rules::ALL_DOMAINS` use the empty string instead
 
 ### Removed
 

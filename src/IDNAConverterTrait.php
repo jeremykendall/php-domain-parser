@@ -113,26 +113,26 @@ trait IDNAConverterTrait
      * Returns an array containing the formatted domain name in lowercase
      * with its associated labels in reverse order
      *
-     * For example: setDomain('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];
+     * For example: setLabels('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];
      *
      * @param mixed $domain
      *
      * @throws Exception If the domain is invalid
      *
-     * @return array
+     * @return string[]
      */
-    private function setDomain($domain = null): array
+    private function setLabels($domain = null): array
     {
         if ($domain instanceof DomainInterface) {
-            return [$domain->getContent(), iterator_to_array($domain, false)];
+            return iterator_to_array($domain, false);
         }
 
         if (null === $domain) {
-            return [$domain, []];
+            return [];
         }
 
         if ('' === $domain) {
-            return [$domain, ['']];
+            return [''];
         }
 
         if (!is_scalar($domain) && !method_exists($domain, '__toString')) {
@@ -155,9 +155,7 @@ trait IDNAConverterTrait
             )
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
         if (preg_match($domain_name, $formatted_domain)) {
-            $domain = strtolower($formatted_domain);
-
-            return [$domain, array_reverse(explode('.', $domain))];
+            return array_reverse(explode('.', strtolower($formatted_domain)));
         }
 
         // a domain name can not contains URI delimiters or space
@@ -175,9 +173,7 @@ trait IDNAConverterTrait
         //if a domain name contains UTF-8 chars it must be convertible using IDNA UTS46
         $ascii_domain = idn_to_ascii($formatted_domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
         if (0 === $arr['errors']) {
-            $idn_domain = $this->idnToUnicode($ascii_domain);
-
-            return [$idn_domain, array_reverse(explode('.', $idn_domain))];
+            return array_reverse(explode('.', $this->idnToUnicode($ascii_domain)));
         }
 
         throw new Exception(sprintf('The domain `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));

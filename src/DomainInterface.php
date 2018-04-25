@@ -33,6 +33,13 @@ interface DomainInterface extends Countable, IteratorAggregate
     public function getContent();
 
     /**
+     * Returns the domain content as a string.
+     *
+     * @return string
+     */
+    public function __toString();
+
+    /**
      * Retrieves a single domain label.
      *
      * If $key is non-negative, the returned value will be the label at $key position from the start.
@@ -81,4 +88,13 @@ interface DomainInterface extends Countable, IteratorAggregate
      * @return static
      */
     public function toUnicode();
+
+
+    /**
+     * {@inheritdoc}
+     *
+     * The external iterator iterates over the DomainInterface labels
+     * from the right-most label to the left-most label.
+     */
+    public function getIterator();
 }

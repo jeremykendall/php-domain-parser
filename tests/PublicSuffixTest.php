@@ -19,6 +19,7 @@ class PublicSuffixTest extends TestCase
      * @covers ::__construct
      * @covers ::__set_state
      * @covers ::__debugInfo
+     * @covers ::__toString
      * @covers ::jsonSerialize
      * @covers ::getIterator
      */
@@ -32,11 +33,12 @@ class PublicSuffixTest extends TestCase
             json_encode($publicSuffix->__debugInfo()),
             json_encode($publicSuffix)
         );
+        $this->assertSame('ac.be', (string) $publicSuffix);
     }
 
     /**
      * @covers ::__construct
-     * @covers ::setDomain
+     * @covers ::setLabels
      * @covers ::setSection
      * @covers ::getContent
      * @covers ::toUnicode
@@ -48,7 +50,7 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::setDomain
+     * @covers ::setLabels
      * @covers ::idnToAscii
      */
     public function testPSToAsciiThrowsException()

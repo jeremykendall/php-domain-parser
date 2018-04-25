@@ -71,7 +71,7 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::setDomain
+     * @covers ::setLabels
      * @covers ::getIdnErrors
      */
     public function testToAsciiThrowsException()
@@ -95,6 +95,7 @@ class DomainTest extends TestCase
      * @covers ::__construct
      * @covers ::__set_state
      * @covers ::__debugInfo
+     * @covers ::__toString
      * @covers ::jsonSerialize
      * @covers ::getIterator
      */
@@ -109,6 +110,7 @@ class DomainTest extends TestCase
             json_encode($domain->__debugInfo()),
             json_encode($domain)
         );
+        $this->assertSame('www.ulb.ac.be', (string) $domain);
     }
 
     /**
@@ -162,7 +164,7 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::setDomain
+     * @covers ::setLabels
      * @covers ::setPublicSuffix
      * @covers ::normalize
      * @covers ::setRegistrableDomain
@@ -262,7 +264,7 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::setDomain
+     * @covers ::setLabels
      * @covers ::setPublicSuffix
      * @covers ::normalize
      * @covers ::setRegistrableDomain
