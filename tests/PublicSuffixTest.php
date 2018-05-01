@@ -51,6 +51,41 @@ class PublicSuffixTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::setLabels
+     * @covers ::setSection
+     * @covers ::isKnown
+     * @covers ::isICANN
+     * @covers ::isPrivate
+     * @dataProvider PSProvider
+     *
+     * @param string|null $publicSuffix
+     * @param string      $section
+     * @param bool        $isKnown
+     * @param bool        $isIcann
+     * @param bool        $isPrivate
+     */
+    public function testSetSection($publicSuffix, string $section, bool $isKnown, bool $isIcann, bool $isPrivate)
+    {
+        $ps = new PublicSuffix($publicSuffix, $section);
+
+        $this->assertSame($isKnown, $ps->isKnown());
+        $this->assertSame($isIcann, $ps->isICANN());
+        $this->assertSame($isPrivate, $ps->isPrivate());
+    }
+
+    public function PSProvider()
+    {
+        return [
+            [null, PublicSuffix::ICANN_DOMAINS, false, false, false],
+            ['', PublicSuffix::ICANN_DOMAINS, false, false, false],
+            ['foo', PublicSuffix::ICANN_DOMAINS, true, true, false],
+            ['foo', PublicSuffix::PRIVATE_DOMAINS, true, false, true],
+            ['foo.', PublicSuffix::PRIVATE_DOMAINS, false, false, false],
+        ];
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::setLabels
      * @covers ::idnToAscii
      */
     public function testPSToAsciiThrowsException()

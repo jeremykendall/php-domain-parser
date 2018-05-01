@@ -100,7 +100,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     private function setSection(string $section): string
     {
-        if (in_array($this->publicSuffix, ['', null], true)) {
+        if (in_array($this->publicSuffix, ['', null], true) || '.' === substr($this->publicSuffix, -1, 1)) {
             return '';
         }
 
