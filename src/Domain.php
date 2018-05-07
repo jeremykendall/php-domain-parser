@@ -1,12 +1,16 @@
 <?php
+
 /**
  * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
  *
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
 declare(strict_types=1);
 
 namespace Pdp;
@@ -23,9 +27,6 @@ use JsonSerializable;
  * valid. The DNS is the proper source for this innormalizeion. If you must use
  * it for this purpose, please do not bake static copies of the PSL into your
  * software with no update mechanism."
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Domain implements DomainInterface, JsonSerializable
 {
@@ -122,7 +123,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @return PublicSuffix
      */
-    private function normalize(PublicSuffix $subject): PublicSuffix
+    private function normalize($subject)
     {
         if (null === $this->domain || null === $subject->getContent()) {
             return $subject;
@@ -370,14 +371,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->domain = $domain;
-        $clone->labels = array_reverse(explode('.', $clone->domain));
-        $clone->publicSuffix = $this->publicSuffix->toAscii();
-        $clone->registrableDomain = $clone->setRegistrableDomain();
-        $clone->subDomain = $clone->setSubDomain();
-
-        return $clone;
+        return new self($domain, $this->publicSuffix);
     }
 
     /**
@@ -389,14 +383,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->domain = $this->idnToUnicode($this->domain);
-        $clone->labels = array_reverse(explode('.', $clone->domain));
-        $clone->publicSuffix = $this->publicSuffix->toUnicode();
-        $clone->registrableDomain = $clone->setRegistrableDomain();
-        $clone->subDomain = $clone->setSubDomain();
-
-        return $clone;
+        return new self($this->idnToUnicode($this->domain), $this->publicSuffix);
     }
 
     /**
@@ -425,12 +412,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->publicSuffix = $clone->setPublicSuffix($publicSuffix);
-        $clone->registrableDomain = $clone->setRegistrableDomain();
-        $clone->subDomain = $clone->setSubDomain();
-
-        return $clone;
+        return new self($this->domain, $publicSuffix);
     }
 
     /**
@@ -460,12 +442,9 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->labels = array_merge(array_slice($this->labels, 0, count($this->publicSuffix) + 1), iterator_to_array($subDomain));
-        $clone->domain = implode('.', array_reverse($clone->labels));
-        $clone->subDomain = $subDomain->getContent();
+        $labels = array_merge(array_slice($this->labels, 0, count($this->publicSuffix) + 1), iterator_to_array($subDomain));
 
-        return $clone;
+        return new self(implode('.', array_reverse(array_values($labels))), $this->publicSuffix);
     }
 
     /**
@@ -495,13 +474,9 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->labels = array_merge(iterator_to_array($publicSuffix), array_slice($this->labels, count($this->publicSuffix)));
-        $clone->domain = implode('.', array_reverse($clone->labels));
-        $clone->publicSuffix = $publicSuffix;
-        $clone->registrableDomain = $this->labels[count($this->publicSuffix)].'.'.$publicSuffix->getContent();
+        $labels = array_merge(iterator_to_array($publicSuffix), array_slice($this->labels, count($this->publicSuffix)));
 
-        return $clone;
+        return new self(implode('.', array_reverse(array_values($labels))), $publicSuffix);
     }
 
     /**
@@ -523,15 +498,14 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function withLabel(int $key, $label): self
     {
-        if (!$label instanceof PublicSuffix) {
-            $label = $this->normalize(new PublicSuffix($label));
+        if (!$label instanceof Domain) {
+            $label = new Domain($label);
         }
 
         if (1 != count($label)) {
             throw new Exception(sprintf('The label `%s` is invalid', (string) $label));
         }
 
-        $label = (string) $label;
         $nb_labels = count($this->labels);
         $offset = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => - $nb_labels - 1, 'max_range' => $nb_labels]]);
         if (false === $offset) {
@@ -542,29 +516,23 @@ final class Domain implements DomainInterface, JsonSerializable
             $offset = $nb_labels + $offset;
         }
 
-        if ($label === ($this->labels[$offset] ?? null)) {
+        if (($this->labels[$offset] ?? null) === (string) $label) {
             return $this;
         }
 
-        $labels = $this->labels;
-        $labels[$offset] = $label;
-        ksort($labels);
-
-        $clone = clone $this;
-        $clone->labels = array_values($labels);
-        $clone->domain = implode('.', array_reverse($clone->labels));
-        if (null !== $this->publicSuffix->getLabel($offset)) {
-            $clone->publicSuffix = new PublicSuffix();
-            $clone->registrableDomain = null;
-            $clone->subDomain = null;
-
-            return $clone;
+        if (null !== $this->domain) {
+            static $pattern = '/[^\x20-\x7f]/';
+            $label = !preg_match($pattern, $this->domain) ? $label->toAscii() : $label->toUnicode();
         }
 
-        $clone->registrableDomain = $clone->setRegistrableDomain();
-        $clone->subDomain = $clone->setSubDomain();
+        $labels = $this->labels;
+        $labels[$offset] = (string) $label;
+        ksort($labels);
 
-        return $clone;
+        return new self(
+            implode('.', array_reverse(array_values($labels))),
+            null === $this->publicSuffix->getLabel($offset) ? $this->publicSuffix : null
+        );
     }
 
     /**
@@ -594,20 +562,12 @@ final class Domain implements DomainInterface, JsonSerializable
             $offset = $nb_labels + $offset;
         }
 
-        $clone = clone $this;
-        unset($clone->labels[$offset]);
-        $clone->domain = implode('.', array_reverse($clone->labels));
-        if (null !== $this->publicSuffix->getLabel($offset)) {
-            $clone->publicSuffix = new PublicSuffix();
-            $clone->registrableDomain = null;
-            $clone->subDomain = null;
+        $labels = $this->labels;
+        unset($labels[$offset]);
 
-            return $clone;
-        }
-
-        $clone->registrableDomain = $clone->setRegistrableDomain();
-        $clone->subDomain = $clone->setSubDomain();
-
-        return $clone;
+        return new self(
+            implode('.', array_reverse(array_values($labels))),
+            null === $this->publicSuffix->getLabel($offset) ? $this->publicSuffix : null
+        );
     }
 }

@@ -1,12 +1,16 @@
 <?php
+
 /**
  * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
  *
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
 declare(strict_types=1);
 
 namespace Pdp;
@@ -82,11 +86,29 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     public function __construct($publicSuffix = null, string $section = '')
     {
         $this->labels = $this->setLabels($publicSuffix);
-        if (!empty($this->labels)) {
-            $this->publicSuffix = implode('.', array_reverse($this->labels));
+        $this->publicSuffix = $this->setPublicSuffix();
+        $this->section = $this->setSection($section);
+    }
+
+    /**
+     * Set the public suffix content.
+     *
+     * @throws Exception if the public suffix labels are invalid
+     *
+     * @return string|null
+     */
+    private function setPublicSuffix()
+    {
+        if (empty($this->labels)) {
+            return null;
         }
 
-        $this->section = $this->setSection($section);
+        $publicSuffix = implode('.', array_reverse($this->labels));
+        if ('' !== reset($this->labels)) {
+            return $publicSuffix;
+        }
+
+        throw new Exception(sprintf('The public suffix `%s` is invalid', $publicSuffix));
     }
 
     /**
@@ -100,16 +122,16 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     private function setSection(string $section): string
     {
-        if (in_array($this->publicSuffix, ['', null], true) || '.' === substr($this->publicSuffix, -1, 1)) {
+        static $section_list = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
+        if (!in_array($section, $section_list, true)) {
+            throw new Exception(sprintf('`%s` is an unknown Public Suffix List section', $section));
+        }
+
+        if (null === $this->publicSuffix) {
             return '';
         }
 
-        static $section_list = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
-        if (in_array($section, $section_list, true)) {
-            return $section;
-        }
-
-        throw new Exception(sprintf('`%s` is an unknown Public Suffix List section', $section));
+        return $section;
     }
 
     /**
@@ -232,8 +254,8 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         }
 
         $clone = clone $this;
-        $clone->publicSuffix = $this->idnToAscii($this->publicSuffix);
-        $clone->labels = array_reverse(explode('.', $clone->publicSuffix));
+        $clone->publicSuffix = $publicSuffix;
+        $clone->labels = array_reverse(explode('.', $publicSuffix));
 
         return $clone;
     }

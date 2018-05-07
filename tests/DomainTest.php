@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * PHP Domain Parser: Public Suffix List based URL parsing.
+ *
+ * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
+ * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Pdp\Tests;
@@ -764,10 +775,19 @@ class DomainTest extends TestCase
     /**
      * @covers ::withLabel
      */
-    public function testWithLabelFailsWithInvalidLabel()
+    public function testWithLabelFailsWithInvalidLabel1()
     {
         $this->expectException(Exception::class);
         (new Domain('example.com'))->withLabel(-1, 'www.shop');
+    }
+
+    /**
+     * @covers ::withLabel
+     */
+    public function testWithLabelFailsWithInvalidLabel2()
+    {
+        $this->expectException(Exception::class);
+        (new Domain('example.com'))->withLabel(-1, '');
     }
 
     /**

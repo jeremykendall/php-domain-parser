@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * PHP Domain Parser: Public Suffix List based URL parsing.
+ *
+ * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
+ * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Pdp\Tests;
@@ -51,6 +62,7 @@ class PublicSuffixTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::setLabels
+     * @covers ::setPublicSuffix
      * @covers ::setSection
      * @covers ::isKnown
      * @covers ::isICANN
@@ -66,7 +78,6 @@ class PublicSuffixTest extends TestCase
     public function testSetSection($publicSuffix, string $section, bool $isKnown, bool $isIcann, bool $isPrivate)
     {
         $ps = new PublicSuffix($publicSuffix, $section);
-
         $this->assertSame($isKnown, $ps->isKnown());
         $this->assertSame($isIcann, $ps->isICANN());
         $this->assertSame($isPrivate, $ps->isPrivate());
@@ -76,10 +87,30 @@ class PublicSuffixTest extends TestCase
     {
         return [
             [null, PublicSuffix::ICANN_DOMAINS, false, false, false],
-            ['', PublicSuffix::ICANN_DOMAINS, false, false, false],
             ['foo', PublicSuffix::ICANN_DOMAINS, true, true, false],
             ['foo', PublicSuffix::PRIVATE_DOMAINS, true, false, true],
-            ['foo.', PublicSuffix::PRIVATE_DOMAINS, false, false, false],
+        ];
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::setLabels
+     * @covers ::setPublicSuffix
+     * @dataProvider invalidPublicSuffixProvider
+     *
+     * @param mixed $publicSuffix
+     */
+    public function testConstructorThrowsException($publicSuffix)
+    {
+        $this->expectException(Exception::class);
+        new PublicSuffix($publicSuffix);
+    }
+
+    public function invalidPublicSuffixProvider()
+    {
+        return [
+            'empty string' => [''],
+            'absolute host' => ['foo.'],
         ];
     }
 
@@ -119,12 +150,24 @@ class PublicSuffixTest extends TestCase
      * @covers ::toUnicode
      * @covers ::idnToAscii
      * @covers ::idnToUnicode
+     *
+     * @dataProvider testConversionReturnsTheSameInstanceProvider
+     *
+     * @param string|null $publicSuffix
      */
-    public function testConversionReturnsTheSameInstance()
+    public function testConversionReturnsTheSameInstance($publicSuffix)
     {
-        $instance = new PublicSuffix('ac.be');
+        $instance = new PublicSuffix($publicSuffix);
         $this->assertSame($instance->toUnicode(), $instance);
         $this->assertSame($instance->toAscii(), $instance);
+    }
+
+    public function testConversionReturnsTheSameInstanceProvider()
+    {
+        return [
+            'ascii only domain' => ['ac.be'],
+            'null domain' => [null],
+        ];
     }
 
     /**
@@ -156,7 +199,6 @@ class PublicSuffixTest extends TestCase
     {
         return [
             'null' => [null, 0, []],
-            'empty string' => ['', 1, ['']],
             'simple' => ['foo.bar.baz', 3, ['baz', 'bar', 'foo']],
             'unicode' => ['www.食狮.公司.cn', 4, ['cn', '公司', '食狮', 'www']],
         ];
