@@ -151,7 +151,7 @@ class PublicSuffixTest extends TestCase
      * @covers ::idnToAscii
      * @covers ::idnToUnicode
      *
-     * @dataProvider testConversionReturnsTheSameInstanceProvider
+     * @dataProvider conversionReturnsTheSameInstanceProvider
      *
      * @param string|null $publicSuffix
      */
@@ -162,7 +162,7 @@ class PublicSuffixTest extends TestCase
         $this->assertSame($instance->toAscii(), $instance);
     }
 
-    public function testConversionReturnsTheSameInstanceProvider()
+    public function conversionReturnsTheSameInstanceProvider()
     {
         return [
             'ascii only domain' => ['ac.be'],

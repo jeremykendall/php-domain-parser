@@ -123,7 +123,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @return PublicSuffix
      */
-    private function normalize($subject)
+    private function normalize(PublicSuffix $subject): PublicSuffix
     {
         if (null === $this->domain || null === $subject->getContent()) {
             return $subject;
@@ -323,8 +323,7 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function isResolvable(): bool
     {
-        return 2 <= count($this->labels)
-            && '.' !== substr($this->domain, -1, 1);
+        return 1 < count($this->labels) && '.' !== substr($this->domain, -1, 1);
     }
 
     /**

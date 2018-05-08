@@ -152,12 +152,12 @@ final class Rules implements PublicSuffixListSection
      */
     private function validateSection(string $section): string
     {
-        if (self::ALL_DOMAINS === $section || '' === $section) {
-            return '';
+        if (self::ALL_DOMAINS === $section) {
+            $section = '';
         }
 
-        $rules = $this->rules[$section] ?? null;
-        if (is_array($rules)) {
+        static $section_list = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
+        if (in_array($section, $section_list, true)) {
             return $section;
         }
 
@@ -202,7 +202,7 @@ final class Rules implements PublicSuffixListSection
      */
     private function findPublicSuffixFromSection(DomainInterface $domain, string $section): PublicSuffix
     {
-        $rules = $this->rules[$section];
+        $rules = $this->rules[$section] ?? [];
         $matches = [];
         foreach ($domain as $label) {
             //match exception rule

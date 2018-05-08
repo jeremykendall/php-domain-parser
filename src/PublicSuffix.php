@@ -66,15 +66,14 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     public static function createFromDomain(Domain $domain): self
     {
-        if (!$domain->isKnown()) {
-            return new self($domain->getPublicSuffix());
-        }
-
+        $section = '';
         if ($domain->isICANN()) {
-            return new self($domain->getPublicSuffix(), self::ICANN_DOMAINS);
+            $section = self::ICANN_DOMAINS;
+        } elseif ($domain->isPrivate()) {
+            $section = self::PRIVATE_DOMAINS;
         }
 
-        return new self($domain->getPublicSuffix(), self::PRIVATE_DOMAINS);
+        return new self($domain->getPublicSuffix(), $section);
     }
 
     /**
