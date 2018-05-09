@@ -113,7 +113,7 @@ public function Domain::toUnicode(): self
 public function Domain::withPublicSuffix($publicSuffix): self
 public function Domain::withSubDomain($subDomain): self
 public function Domain::withLabel(int $key, $label): self
-public function Domain::withoutLabel(int $key): self
+public function Domain::withoutLabels(int $key, int ...$keys): self
 public function Domain::resolve($publicSuffix): self
 ~~~
 

@@ -20,6 +20,7 @@ use Pdp\Exception;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 /**
  * @coversDefaultClass Pdp\Domain
@@ -760,7 +761,25 @@ class DomainTest extends TestCase
                 'isICANN' => true,
                 'isPrivate' => false,
             ],
+            'replace a domain with multiple label' => [
+                'domain' => $base_domain,
+                'key' => -1,
+                'label' => 'www.shop',
+                'expected' => 'www.shop.example.com',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
         ];
+    }
+
+    /**
+     * @covers ::withLabel
+     */
+    public function testWithLabelFailsWithTypeError()
+    {
+        $this->expectException(TypeError::class);
+        (new Domain('example.com'))->withLabel(-4, null);
     }
 
     /**
@@ -775,15 +794,6 @@ class DomainTest extends TestCase
     /**
      * @covers ::withLabel
      */
-    public function testWithLabelFailsWithInvalidLabel1()
-    {
-        $this->expectException(Exception::class);
-        (new Domain('example.com'))->withLabel(-1, 'www.shop');
-    }
-
-    /**
-     * @covers ::withLabel
-     */
     public function testWithLabelFailsWithInvalidLabel2()
     {
         $this->expectException(Exception::class);
@@ -791,8 +801,8 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withoutLabel
-     * @dataProvider withoutLabelWorksProvider
+     * @covers ::withoutLabels
+     * @dataProvider withoutLabelsWorksProvider
      *
      * @param Domain      $domain
      * @param int         $key
@@ -801,7 +811,7 @@ class DomainTest extends TestCase
      * @param bool        $isICANN
      * @param bool        $isPrivate
      */
-    public function testWithoutLabelWorks(
+    public function testWithoutLabelsWorks(
         Domain $domain,
         int $key,
         $expected,
@@ -809,14 +819,14 @@ class DomainTest extends TestCase
         bool $isICANN,
         bool $isPrivate
     ) {
-        $result = $domain->withoutLabel($key);
+        $result = $domain->withoutLabels($key);
         $this->assertSame($expected, $result->getContent());
         $this->assertSame($isKnown, $result->isKnown());
         $this->assertSame($isICANN, $result->isICANN());
         $this->assertSame($isPrivate, $result->isPrivate());
     }
 
-    public function withoutLabelWorksProvider()
+    public function withoutLabelsWorksProvider()
     {
         $base_domain = new Domain('www.example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
 
@@ -857,11 +867,19 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withoutLabel
+     * @covers ::withoutLabels
      */
-    public function testWithoutLabelFailsWithInvalidKey()
+    public function testWithoutLabelsFailsWithInvalidKey()
     {
         $this->expectException(Exception::class);
-        (new Domain('example.com'))->withoutLabel(-3);
+        (new Domain('example.com'))->withoutLabels(-3);
+    }
+
+    /**
+     * @covers ::withoutLabels
+     */
+    public function testWithoutLabelsWorksWithMultipleKeys()
+    {
+        $this->assertNull((new Domain('www.example.com'))->withoutLabels(0, 1, 2)->getContent());
     }
 }

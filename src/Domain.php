@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
+use TypeError;
 
 /**
  * Domain Value Object.
@@ -428,12 +429,12 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function withSubDomain($subDomain): self
     {
-        if (!$subDomain instanceof PublicSuffix) {
-            $subDomain = new PublicSuffix($subDomain);
-        }
-
         if (null === $this->publicSuffix->getContent()) {
             throw new Exception('A subdomain can not be added to a domain without a public suffix part.');
+        }
+
+        if (!$subDomain instanceof PublicSuffix) {
+            $subDomain = new PublicSuffix($subDomain);
         }
 
         $subDomain = $this->normalize($subDomain);
@@ -497,12 +498,12 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function withLabel(int $key, $label): self
     {
-        if (!$label instanceof Domain) {
-            $label = new Domain($label);
+        if (null === $label) {
+            throw new TypeError('The label must be a scalar or a stringable object `NULL` given');
         }
 
-        if (1 != count($label)) {
-            throw new Exception(sprintf('The label `%s` is invalid', (string) $label));
+        if (!$label instanceof Domain) {
+            $label = new Domain($label);
         }
 
         $nb_labels = count($this->labels);
@@ -544,29 +545,49 @@ final class Domain implements DomainInterface, JsonSerializable
      * If $key is negative, the removed label will be the label at $key position from the end.
      *
      * @param int $key
+     * @param int ...$keys remaining keys to remove
      *
      * @throws Exception If the key is out of bounds
      *
      * @return self
      */
-    public function withoutLabel(int $key): self
+    public function withoutLabels(int $key, int ...$keys): self
     {
+        array_unshift($keys, $key);
         $nb_labels = count($this->labels);
-        $offset = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => - $nb_labels, 'max_range' => $nb_labels - 1]]);
-        if (false === $offset) {
-            throw new Exception(sprintf('the given key `%s` is invalid', $key));
+        $options = ['options' => ['min_range' => - $nb_labels, 'max_range' => $nb_labels - 1]];
+        $mapper = function (int $key) use ($options, $nb_labels): int {
+            if (false === ($offset = filter_var($key, FILTER_VALIDATE_INT, $options))) {
+                throw new Exception(sprintf('the key `%s` is invalid', $key));
+            }
+
+            if (0 > $offset) {
+                return $nb_labels + $offset;
+            }
+
+            return $offset;
+        };
+
+        $deleted_keys = array_keys(array_count_values(array_map($mapper, $keys)));
+
+        $filter = function ($key) use ($deleted_keys): bool {
+            return !in_array($key, $deleted_keys, true);
+        };
+
+        $labels = array_filter($this->labels, $filter, ARRAY_FILTER_USE_KEY);
+        if (empty($labels)) {
+            return new self();
         }
 
-        if (0 > $offset) {
-            $offset = $nb_labels + $offset;
+        $domain = implode('.', array_reverse(array_values($labels)));
+        $publicSuffixContent = $this->publicSuffix->getContent();
+
+        if (null === $publicSuffixContent ||
+            '.'.$publicSuffixContent !== substr($domain, - strlen($publicSuffixContent) - 1)
+        ) {
+            return new self($domain);
         }
 
-        $labels = $this->labels;
-        unset($labels[$offset]);
-
-        return new self(
-            implode('.', array_reverse(array_values($labels))),
-            null === $this->publicSuffix->getLabel($offset) ? $this->publicSuffix : null
-        );
+        return new self($domain, $this->publicSuffix);
     }
 }
