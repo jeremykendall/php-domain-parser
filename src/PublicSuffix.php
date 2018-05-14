@@ -148,12 +148,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     public function jsonSerialize()
     {
-        return [
-            'publicSuffix' => $this->publicSuffix,
-            'isKnown' => $this->isKnown(),
-            'isICANN' => $this->isICANN(),
-            'isPrivate' => $this->isPrivate(),
-        ];
+        return $this->__debugInfo();
     }
 
     /**
@@ -161,7 +156,12 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     public function __debugInfo()
     {
-        return $this->jsonSerialize();
+        return [
+            'publicSuffix' => $this->publicSuffix,
+            'isKnown' => $this->isKnown(),
+            'isICANN' => $this->isICANN(),
+            'isPrivate' => $this->isPrivate(),
+        ];
     }
 
     /**

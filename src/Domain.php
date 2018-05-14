@@ -105,13 +105,13 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
-        $publicSuffixContent = $publicSuffix->getContent();
-        if ($this->domain === $publicSuffixContent) {
-            throw new Exception(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $publicSuffixContent, $this->domain));
+        $psContent = $publicSuffix->getContent();
+        if ($this->domain === $psContent) {
+            throw new Exception(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
         }
 
-        if ('.'.$publicSuffixContent !== substr($this->domain, - strlen($publicSuffixContent) - 1)) {
-            throw new Exception(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $publicSuffixContent, $this->domain));
+        if ('.'.$psContent !== substr($this->domain, - strlen($psContent) - 1)) {
+            throw new Exception(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
         }
 
         return $publicSuffix;
@@ -194,6 +194,14 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function jsonSerialize()
     {
+        return $this->__debugInfo();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __debugInfo()
+    {
         return [
             'domain' => $this->domain,
             'registrableDomain' => $this->registrableDomain,
@@ -203,14 +211,6 @@ final class Domain implements DomainInterface, JsonSerializable
             'isICANN' => $this->isICANN(),
             'isPrivate' => $this->isPrivate(),
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __debugInfo()
-    {
-        return $this->jsonSerialize();
     }
 
     /**
@@ -433,18 +433,52 @@ final class Domain implements DomainInterface, JsonSerializable
             throw new Exception('A subdomain can not be added to a domain without a public suffix part.');
         }
 
-        if (!$subDomain instanceof PublicSuffix) {
-            $subDomain = new PublicSuffix($subDomain);
+        $subDomain = $this->filterSubDomain($subDomain);
+        $subLabels = [];
+        if (null !== $subDomain) {
+            static $pattern = '/[^\x20-\x7f]/';
+            $method = !preg_match($pattern, $this->domain) ? 'idnToAscii' : 'idnToUnicode';
+
+            $subDomain = $this->$method($subDomain);
+            $subLabels = array_reverse(explode('.', $subDomain));
         }
 
-        $subDomain = $this->normalize($subDomain);
-        if ($this->subDomain === $subDomain->getContent()) {
+        if ($this->subDomain === $subDomain) {
             return $this;
         }
 
-        $labels = array_merge(array_slice($this->labels, 0, count($this->publicSuffix) + 1), iterator_to_array($subDomain));
+        $labels = array_merge(
+            array_slice($this->labels, 0, count($this->publicSuffix) + 1),
+            $subLabels
+        );
 
-        return new self(implode('.', array_reverse(array_values($labels))), $this->publicSuffix);
+        return new self(implode('.', array_reverse($labels)), $this->publicSuffix);
+    }
+
+    /**
+     * Filter a subdomain to update the domain part.
+     *
+     * @param mixed $subDomain
+     *
+     * @throws TypeError if the sub domain can not be converted
+     *
+     * @return string|null
+     */
+    private function filterSubDomain($subDomain)
+    {
+        if ($subDomain instanceof DomainInterface) {
+            return $subDomain->getContent();
+        }
+
+        if (null === $subDomain) {
+            return $subDomain;
+        }
+
+        if (is_scalar($subDomain) || method_exists($subDomain, '__toString')) {
+            return (string) $subDomain;
+        }
+
+        throw new TypeError(sprintf('The label must be a scalar, a stringable object or NULL, `%s` given', gettype($subDomain)));
     }
 
     /**
@@ -461,12 +495,12 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function withPublicSuffix($publicSuffix): self
     {
-        if (!$publicSuffix instanceof PublicSuffix) {
-            $publicSuffix = new PublicSuffix($publicSuffix);
-        }
-
         if (null === $this->publicSuffix->getContent()) {
             throw new Exception('A public suffix can not be added to a domain without a public suffix part.');
+        }
+
+        if (!$publicSuffix instanceof PublicSuffix) {
+            $publicSuffix = new PublicSuffix($publicSuffix);
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
@@ -474,9 +508,40 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        $labels = array_merge(iterator_to_array($publicSuffix), array_slice($this->labels, count($this->publicSuffix)));
+        $labels = array_merge(
+            iterator_to_array($publicSuffix),
+            array_slice($this->labels, count($this->publicSuffix))
+        );
 
-        return new self(implode('.', array_reverse(array_values($labels))), $publicSuffix);
+        return new self(implode('.', array_reverse($labels)), $publicSuffix);
+    }
+
+    /**
+     * Appends a label to the domain.
+     *
+     * @see ::withLabel
+     *
+     * @param mixed $label
+     *
+     * @return self
+     */
+    public function prepend($label): self
+    {
+        return $this->withLabel(count($this->labels), $label);
+    }
+
+    /**
+     * Prepends a label to the domain.
+     *
+     * @see ::withLabel
+     *
+     * @param mixed $label
+     *
+     * @return self
+     */
+    public function append($label): self
+    {
+        return $this->withLabel(- count($this->labels) - 1, $label);
     }
 
     /**
@@ -498,40 +563,33 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function withLabel(int $key, $label): self
     {
-        if (null === $label) {
-            throw new TypeError('The label must be a scalar or a stringable object `NULL` given');
-        }
-
-        if (!$label instanceof Domain) {
-            $label = new Domain($label);
-        }
-
         $nb_labels = count($this->labels);
-        $offset = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => - $nb_labels - 1, 'max_range' => $nb_labels]]);
-        if (false === $offset) {
+        if ($key < - $nb_labels - 1 || $key > $nb_labels) {
             throw new Exception(sprintf('the given key `%s` is invalid', $key));
         }
 
-        if (0 > $offset) {
-            $offset = $nb_labels + $offset;
+        if (0 > $key) {
+            $key = $nb_labels + $key;
         }
 
-        if (($this->labels[$offset] ?? null) === (string) $label) {
+        if (!is_scalar($label) && !method_exists($label, '__toString')) {
+            throw new TypeError(sprintf('The label must be a scalar or a stringable object `%s` given', gettype($label)));
+        }
+
+        static $pattern = '/[^\x20-\x7f]/';
+        $method = !preg_match($pattern, $this->domain) ? 'idnToAscii' : 'idnToUnicode';
+        $label = $this->$method((string) $label);
+        if (($this->labels[$key] ?? null) === $label) {
             return $this;
         }
 
-        if (null !== $this->domain) {
-            static $pattern = '/[^\x20-\x7f]/';
-            $label = !preg_match($pattern, $this->domain) ? $label->toAscii() : $label->toUnicode();
-        }
-
         $labels = $this->labels;
-        $labels[$offset] = (string) $label;
+        $labels[$key] = $label;
         ksort($labels);
 
         return new self(
-            implode('.', array_reverse(array_values($labels))),
-            null === $this->publicSuffix->getLabel($offset) ? $this->publicSuffix : null
+            implode('.', array_reverse($labels)),
+            null === $this->publicSuffix->getLabel($key) ? $this->publicSuffix : null
         );
     }
 
@@ -551,25 +609,23 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @return self
      */
-    public function withoutLabels(int $key, int ...$keys): self
+    public function withoutLabel(int $key, int ...$keys): self
     {
         array_unshift($keys, $key);
         $nb_labels = count($this->labels);
-        $options = ['options' => ['min_range' => - $nb_labels, 'max_range' => $nb_labels - 1]];
-        $mapper = function (int $key) use ($options, $nb_labels): int {
-            if (false === ($offset = filter_var($key, FILTER_VALIDATE_INT, $options))) {
+        $mapper = function (int $key) use ($nb_labels): int {
+            if (- $nb_labels > $key || $nb_labels - 1 < $key) {
                 throw new Exception(sprintf('the key `%s` is invalid', $key));
             }
 
-            if (0 > $offset) {
-                return $nb_labels + $offset;
+            if (0 > $key) {
+                return $nb_labels + $key;
             }
 
-            return $offset;
+            return $key;
         };
 
         $deleted_keys = array_keys(array_count_values(array_map($mapper, $keys)));
-
         $filter = function ($key) use ($deleted_keys): bool {
             return !in_array($key, $deleted_keys, true);
         };
@@ -580,11 +636,8 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         $domain = implode('.', array_reverse(array_values($labels)));
-        $publicSuffixContent = $this->publicSuffix->getContent();
-
-        if (null === $publicSuffixContent ||
-            '.'.$publicSuffixContent !== substr($domain, - strlen($publicSuffixContent) - 1)
-        ) {
+        $psContent = $this->publicSuffix->getContent();
+        if (null === $psContent || '.'.$psContent !== substr($domain, - strlen($psContent) - 1)) {
             return new self($domain);
         }
 

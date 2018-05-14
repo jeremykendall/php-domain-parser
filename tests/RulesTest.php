@@ -208,7 +208,7 @@ class RulesTest extends TestCase
      * @covers ::validateSection
      * @covers \Pdp\IDNAConverterTrait::setLabels
      */
-    public function testWithInvalidDomainName()
+    public function testWithExceptionName()
     {
         $domain = $this->rules->resolve('_b%C3%A9bé.be-');
         $this->assertNull($domain->getContent());

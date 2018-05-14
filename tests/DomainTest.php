@@ -472,6 +472,7 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::withSubDomain
+     * @covers ::filterSubDomain
      * @dataProvider withSubDomainWorksProvider
      *
      * @param Domain      $domain
@@ -499,7 +500,7 @@ class DomainTest extends TestCase
             ],
             'simple addition IDN (1)' => [
                 'domain' => new Domain('example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS)),
-                'subdomain' => 'bébé',
+                'subdomain' => new Domain('bébé'),
                 'expected' => 'xn--bb-bjab',
             ],
             'simple addition IDN (2)' => [
@@ -522,6 +523,7 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::withSubDomain
+     * @covers ::filterSubDomain
      */
     public function testWithSubDomainFailsWithNullDomain()
     {
@@ -531,6 +533,7 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::withSubDomain
+     * @covers ::filterSubDomain
      */
     public function testWithSubDomainFailsWithOneLabelDomain()
     {
@@ -538,8 +541,24 @@ class DomainTest extends TestCase
         (new Domain('localhost'))->withSubDomain('www');
     }
 
+
     /**
      * @covers ::withSubDomain
+     * @covers ::filterSubDomain
+     */
+    public function testWithSubDomainFailsWithNonStringableObject()
+    {
+        $this->expectException(TypeError::class);
+        (new Domain(
+            'example.com',
+            new PublicSuffix('com', PublicSuffix::ICANN_DOMAINS)
+        ))->withSubDomain(date_create());
+    }
+
+
+    /**
+     * @covers ::withSubDomain
+     * @covers ::filterSubDomain
      */
     public function testWithSubDomainWithoutPublicSuffixInfo()
     {
@@ -779,7 +798,7 @@ class DomainTest extends TestCase
     public function testWithLabelFailsWithTypeError()
     {
         $this->expectException(TypeError::class);
-        (new Domain('example.com'))->withLabel(-4, null);
+        (new Domain('example.com'))->withLabel(1, null);
     }
 
     /**
@@ -801,8 +820,57 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withoutLabels
-     * @dataProvider withoutLabelsWorksProvider
+     * @covers ::append
+     * @covers ::withLabel
+     *
+     * @param string $raw
+     * @param string $append
+     * @param string $expected
+     *
+     * @dataProvider validAppend
+     */
+    public function testAppend($raw, $append, $expected)
+    {
+        $this->assertSame($expected, (string) (new Domain($raw))->append($append));
+    }
+
+    public function validAppend()
+    {
+        return [
+            ['secure.example.com', '8.8.8.8', 'secure.example.com.8.8.8.8'],
+            ['secure.example.com', 'master', 'secure.example.com.master'],
+            ['secure.example.com', 'master.', 'secure.example.com.master.'],
+            ['example.com', '', 'example.com.'],
+        ];
+    }
+
+    /**
+     * @covers ::prepend
+     * @covers ::withLabel
+     *
+     * @param string $raw
+     * @param string $prepend
+     * @param string $expected
+     *
+     * @dataProvider validPrepend
+     */
+    public function testPrepend($raw, $prepend, $expected)
+    {
+        $this->assertSame($expected, (string) (new Domain($raw))->prepend($prepend));
+    }
+
+    public function validPrepend()
+    {
+        return [
+            ['secure.example.com', 'master', 'master.secure.example.com'],
+            ['secure.example.com', '127.0.0.1', '127.0.0.1.secure.example.com'],
+            ['secure.example.com.', 'master', 'master.secure.example.com.'],
+        ];
+    }
+
+    /**
+     * @covers ::withoutLabel
+     * @dataProvider withoutLabelWorksProvider
      *
      * @param Domain      $domain
      * @param int         $key
@@ -811,7 +879,7 @@ class DomainTest extends TestCase
      * @param bool        $isICANN
      * @param bool        $isPrivate
      */
-    public function testWithoutLabelsWorks(
+    public function testwithoutLabelWorks(
         Domain $domain,
         int $key,
         $expected,
@@ -819,14 +887,14 @@ class DomainTest extends TestCase
         bool $isICANN,
         bool $isPrivate
     ) {
-        $result = $domain->withoutLabels($key);
+        $result = $domain->withoutLabel($key);
         $this->assertSame($expected, $result->getContent());
         $this->assertSame($isKnown, $result->isKnown());
         $this->assertSame($isICANN, $result->isICANN());
         $this->assertSame($isPrivate, $result->isPrivate());
     }
 
-    public function withoutLabelsWorksProvider()
+    public function withoutLabelWorksProvider()
     {
         $base_domain = new Domain('www.example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
 
@@ -867,19 +935,19 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withoutLabels
+     * @covers ::withoutLabel
      */
-    public function testWithoutLabelsFailsWithInvalidKey()
+    public function testwithoutLabelFailsWithInvalidKey()
     {
         $this->expectException(Exception::class);
-        (new Domain('example.com'))->withoutLabels(-3);
+        (new Domain('example.com'))->withoutLabel(-3);
     }
 
     /**
-     * @covers ::withoutLabels
+     * @covers ::withoutLabel
      */
-    public function testWithoutLabelsWorksWithMultipleKeys()
+    public function testwithoutLabelWorksWithMultipleKeys()
     {
-        $this->assertNull((new Domain('www.example.com'))->withoutLabels(0, 1, 2)->getContent());
+        $this->assertNull((new Domain('www.example.com'))->withoutLabel(0, 1, 2)->getContent());
     }
 }
