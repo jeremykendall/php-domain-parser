@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Pdp\Exception\InvalidDomain;
 use TypeError;
 
 /**
@@ -71,7 +72,7 @@ trait IDNAConverterTrait
      *
      * @param string $domain
      *
-     * @throws Exception if the string can not be converted to ASCII using IDN UTS46 algorithm
+     * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
      *
      * @return string
      */
@@ -87,7 +88,7 @@ trait IDNAConverterTrait
             return $output;
         }
 
-        throw new Exception(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
     }
 
     /**
@@ -97,7 +98,7 @@ trait IDNAConverterTrait
      *
      * @param string $domain
      *
-     * @throws Exception if the string can not be converted to UNICODE using IDN UTS46 algorithm
+     * @throws InvalidDomain if the string can not be converted to UNICODE using IDN UTS46 algorithm
      *
      * @return string
      */
@@ -108,7 +109,7 @@ trait IDNAConverterTrait
             return $output;
         }
 
-        throw new Exception(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
     }
 
     /**
@@ -121,7 +122,7 @@ trait IDNAConverterTrait
      *
      * @param mixed $domain
      *
-     * @throws Exception If the domain is invalid
+     * @throws InvalidDomain If the domain is invalid
      *
      * @return string[]
      */
@@ -145,7 +146,7 @@ trait IDNAConverterTrait
 
         $domain = (string) $domain;
         if (filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            throw new Exception(sprintf('The domain `%s` is invalid: this is an IPv4 host', $domain));
+            throw new InvalidDomain(sprintf('The domain `%s` is invalid: this is an IPv4 host', $domain));
         }
 
         $formatted_domain = rawurldecode($domain);
@@ -165,13 +166,13 @@ trait IDNAConverterTrait
         // a domain name can not contains URI delimiters or space
         static $gen_delims = '/[:\/?#\[\]@ ]/';
         if (preg_match($gen_delims, $formatted_domain)) {
-            throw new Exception(sprintf('The domain `%s` is invalid: it contains invalid characters', $domain));
+            throw new InvalidDomain(sprintf('The domain `%s` is invalid: it contains invalid characters', $domain));
         }
 
         // if the domain name does not contains UTF-8 chars then it is malformed
         static $pattern = '/[^\x20-\x7f]/';
         if (!preg_match($pattern, $formatted_domain)) {
-            throw new Exception(sprintf('The domain `%s` is invalid: the labels are malformed', $domain));
+            throw new InvalidDomain(sprintf('The domain `%s` is invalid: the labels are malformed', $domain));
         }
 
         //if a domain name contains UTF-8 chars it must be convertible using IDNA UTS46
@@ -180,6 +181,6 @@ trait IDNAConverterTrait
             return array_reverse(explode('.', $this->idnToUnicode($ascii_domain)));
         }
 
-        throw new Exception(sprintf('The domain `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        throw new InvalidDomain(sprintf('The domain `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
     }
 }

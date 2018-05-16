@@ -15,6 +15,9 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Pdp\Exception\CouldNotLoadRules;
+use Pdp\Exception\CouldNotResolvePublicSuffix;
+
 /**
  * A class to resolve domain name against the Public Suffix list.
  *
@@ -41,6 +44,8 @@ final class Rules implements PublicSuffixListSection
      * @param string        $path
      * @param null|resource $context
      *
+     * @throws CouldNotLoadRules If the rules can not be loaded from the path
+     *
      * @return self
      */
     public static function createFromPath(string $path, $context = null): self
@@ -51,7 +56,7 @@ final class Rules implements PublicSuffixListSection
         }
 
         if (!($resource = @fopen(...$args))) {
-            throw new Exception(sprintf('`%s`: failed to open stream: No such file or directory', $path));
+            throw new CouldNotLoadRules(sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
 
         $content = stream_get_contents($resource);
@@ -100,10 +105,7 @@ final class Rules implements PublicSuffixListSection
      * @param mixed  $domain
      * @param string $section
      *
-     * @throws Exception
-     *                   If the Domain is invalid or malformed
-     *                   If the section is invalid or not supported
-     *                   If the PublicSuffix can not be converted using against the domain encoding.
+     * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
      *
      * @return PublicSuffix
      */
@@ -112,7 +114,7 @@ final class Rules implements PublicSuffixListSection
         $section = $this->validateSection($section);
         $domain = $domain instanceof Domain ? $domain : new Domain($domain);
         if (!$domain->isResolvable()) {
-            throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
+            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
         }
 
         return PublicSuffix::createFromDomain($domain->resolve($this->findPublicSuffix($domain, $section)));
@@ -161,7 +163,7 @@ final class Rules implements PublicSuffixListSection
             return $section;
         }
 
-        throw new Exception(sprintf('%s is an unknown Public Suffix List section', $section));
+        throw new CouldNotResolvePublicSuffix(sprintf('%s is an unknown Public Suffix List section', $section));
     }
 
     /**

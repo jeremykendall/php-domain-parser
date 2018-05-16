@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
+use Pdp\Exception\InvalidDomain;
 
 /**
  * Public Suffix Value Object.
@@ -92,7 +93,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * Set the public suffix content.
      *
-     * @throws Exception if the public suffix labels are invalid
+     * @throws InvalidDomain if the public suffix is invalid
      *
      * @return string|null
      */
@@ -107,7 +108,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             return $publicSuffix;
         }
 
-        throw new Exception(sprintf('The public suffix `%s` is invalid', $publicSuffix));
+        throw new InvalidDomain(sprintf('The public suffix `%s` is invalid', $publicSuffix));
     }
 
     /**
@@ -115,7 +116,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      *
      * @param string $section
      *
-     * @throws Exception if the submitted section is not supported
+     * @throws InvalidDomain if the submitted section is not supported
      *
      * @return string
      */
@@ -123,7 +124,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     {
         static $section_list = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
         if (!in_array($section, $section_list, true)) {
-            throw new Exception(sprintf('`%s` is an unknown Public Suffix List section', $section));
+            throw new InvalidDomain(sprintf('`%s` is an unknown Public Suffix List section', $section));
         }
 
         if (null === $this->publicSuffix) {

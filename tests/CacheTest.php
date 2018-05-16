@@ -154,8 +154,8 @@ class CacheTest extends TestCase
         $this->cache->set('foo', 'bar', 1);
         $this->assertEquals('bar', $this->cache->get('foo'));
 
-        // Wait 2 seconds so the cache expires
-        usleep(2000000);
+        // Wait 3 seconds so the cache expires
+        sleep(3);
         $this->assertNull($this->cache->get('foo'));
     }
 
@@ -168,8 +168,8 @@ class CacheTest extends TestCase
         $this->cache->set('foo', 'bar', new DateInterval('PT1S'));
         $this->assertEquals('bar', $this->cache->get('foo'));
 
-        // Wait 2 seconds so the cache expires
-        usleep(2000000);
+        // Wait 3 seconds so the cache expires
+        sleep(3);
         $this->assertNull($this->cache->get('foo'));
     }
 

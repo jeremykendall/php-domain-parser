@@ -16,6 +16,8 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
+use Pdp\Exception\CouldNotProcessDomain;
+use Pdp\Exception\InvalidDomain;
 use TypeError;
 
 /**
@@ -88,9 +90,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @param PublicSuffix $publicSuffix
      *
-     * @throws Exception If the domain can not contain a public suffix
-     * @throws Exception If the domain value is the same as the public suffix value
-     * @throws Exception If the domain can not be match with the public suffix
+     * @throws InvalidDomain If the public suffic can not be attached to the domain
      *
      * @return PublicSuffix
      */
@@ -101,17 +101,17 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if (!$this->isResolvable()) {
-            throw new Exception(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
+            throw new InvalidDomain(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
         $psContent = $publicSuffix->getContent();
         if ($this->domain === $psContent) {
-            throw new Exception(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
+            throw new InvalidDomain(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
         }
 
         if ('.'.$psContent !== substr($this->domain, - strlen($psContent) - 1)) {
-            throw new Exception(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
+            throw new InvalidDomain(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
         }
 
         return $publicSuffix;
@@ -423,14 +423,14 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @param mixed $subDomain the subdomain to add
      *
-     * @throws Exception If the Sub domain is invalid or can not be added to the current Domain
+     * @throws CouldNotProcessDomain If the Sub domain can not be added to the current Domain
      *
      * @return self
      */
     public function withSubDomain($subDomain): self
     {
         if (null === $this->publicSuffix->getContent()) {
-            throw new Exception('A subdomain can not be added to a domain without a public suffix part.');
+            throw new CouldNotProcessDomain('A subdomain can not be added to a domain without a public suffix part.');
         }
 
         $subDomain = $this->filterSubDomain($subDomain);
@@ -489,14 +489,14 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @param mixed $publicSuffix
      *
-     * @throws Exception If the public suffix is invalid or can not be added to the current Domain
+     * @throws CouldNotProcessDomain If the public suffix can not be added to the current Domain
      *
      * @return self
      */
     public function withPublicSuffix($publicSuffix): self
     {
         if (null === $this->publicSuffix->getContent()) {
-            throw new Exception('A public suffix can not be added to a domain without a public suffix part.');
+            throw new CouldNotProcessDomain('A public suffix can not be added to a domain without a public suffix part.');
         }
 
         if (!$publicSuffix instanceof PublicSuffix) {
@@ -556,8 +556,7 @@ final class Domain implements DomainInterface, JsonSerializable
      * @param int   $key
      * @param mixed $label
      *
-     * @throws Exception If the key is out of bounds
-     * @throws Exception If the label is invalid
+     * @throws CouldNotProcessDomain If the key is out of bounds
      *
      * @return self
      */
@@ -565,7 +564,7 @@ final class Domain implements DomainInterface, JsonSerializable
     {
         $nb_labels = count($this->labels);
         if ($key < - $nb_labels - 1 || $key > $nb_labels) {
-            throw new Exception(sprintf('the given key `%s` is invalid', $key));
+            throw new CouldNotProcessDomain(sprintf('the given key `%s` is invalid', $key));
         }
 
         if (0 > $key) {
@@ -605,7 +604,7 @@ final class Domain implements DomainInterface, JsonSerializable
      * @param int $key
      * @param int ...$keys remaining keys to remove
      *
-     * @throws Exception If the key is out of bounds
+     * @throws CouldNotProcessDomain If the key is out of bounds
      *
      * @return self
      */
@@ -613,29 +612,30 @@ final class Domain implements DomainInterface, JsonSerializable
     {
         array_unshift($keys, $key);
         $nb_labels = count($this->labels);
-        $mapper = function (int $key) use ($nb_labels): int {
+        foreach ($keys as &$key) {
             if (- $nb_labels > $key || $nb_labels - 1 < $key) {
-                throw new Exception(sprintf('the key `%s` is invalid', $key));
+                throw new CouldNotProcessDomain(sprintf('the key `%s` is invalid', $key));
             }
 
             if (0 > $key) {
-                return $nb_labels + $key;
+                $key += $nb_labels;
             }
+        }
+        unset($key);
 
-            return $key;
-        };
+        $deleted_keys = array_keys(array_count_values($keys));
+        $labels = [];
+        foreach ($this->labels as $key => $label) {
+            if (!in_array($key, $deleted_keys, true)) {
+                $labels[] = $label;
+            }
+        }
 
-        $deleted_keys = array_keys(array_count_values(array_map($mapper, $keys)));
-        $filter = function ($key) use ($deleted_keys): bool {
-            return !in_array($key, $deleted_keys, true);
-        };
-
-        $labels = array_filter($this->labels, $filter, ARRAY_FILTER_USE_KEY);
         if (empty($labels)) {
             return new self();
         }
 
-        $domain = implode('.', array_reverse(array_values($labels)));
+        $domain = implode('.', array_reverse($labels));
         $psContent = $this->publicSuffix->getContent();
         if (null === $psContent || '.'.$psContent !== substr($domain, - strlen($psContent) - 1)) {
             return new self($domain);

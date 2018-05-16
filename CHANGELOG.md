@@ -18,6 +18,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 - `Pdp\Domain::resolve` attach a public suffix to the `Pdp\Domain`.
 - `Pdp\Domain::isResolvable` tells whether the current `Pdp\Domain` can have a public suffix attached to it or not.
 - `Pdp\PublicSuffix::createFromDomain` returns a new `Pdp\PublicSuffix` object from a `Pdp\Domain`object
+- `Pdp\Exception` sub namespace to organize exception. All exception extends the `Pdp\Exception` class to prevent BC break.
 
 ### Fixed
 

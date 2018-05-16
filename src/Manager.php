@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Pdp\Exception\CouldNotLoadRules;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -57,8 +58,7 @@ final class Manager
      *
      * @param string $source_url the Public Suffix List URL
      *
-     * @throws Exception If the PSL can not be fetch from the source URL and its cache backend
-     * @throws Exception If the PSL cache copy is corrupted
+     * @throws CouldNotLoadRules If the PSL rules can not be loaded
      *
      * @return Rules
      */
@@ -68,7 +68,7 @@ final class Manager
         $cacheRules = $this->cache->get($cacheKey);
 
         if (null === $cacheRules && !$this->refreshRules($source_url)) {
-            throw new Exception(sprintf('Unable to load the public suffix list rules for %s', $source_url));
+            throw new CouldNotLoadRules(sprintf('Unable to load the public suffix list rules for %s', $source_url));
         }
 
         $rules = json_decode($cacheRules ?? $this->cache->get($cacheKey), true);
@@ -76,7 +76,7 @@ final class Manager
             return new Rules($rules);
         }
 
-        throw new Exception('The public suffix list cache is corrupted: '.json_last_error_msg(), json_last_error());
+        throw new CouldNotLoadRules('The public suffix list cache is corrupted: '.json_last_error_msg(), json_last_error());
     }
 
     /**
