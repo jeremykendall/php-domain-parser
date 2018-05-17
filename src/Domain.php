@@ -16,8 +16,10 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
-use Pdp\Exception\CouldNotProcessDomain;
-use Pdp\Exception\InvalidDomain;
+use Pdp\Exception\CouldNotResolvePublicSuffix;
+use Pdp\Exception\CouldNotResolveSubDomain;
+use Pdp\Exception\InvalidLabel;
+use Pdp\Exception\InvalidLabelKey;
 use TypeError;
 
 /**
@@ -34,6 +36,11 @@ use TypeError;
 final class Domain implements DomainInterface, JsonSerializable
 {
     use IDNAConverterTrait;
+
+    /**
+     * @internal
+     */
+    const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
     /**
      * @var string|null
@@ -90,7 +97,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @param PublicSuffix $publicSuffix
      *
-     * @throws InvalidDomain If the public suffic can not be attached to the domain
+     * @throws CouldNotResolvePublicSuffix If the public suffic can not be attached to the domain
      *
      * @return PublicSuffix
      */
@@ -101,17 +108,17 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if (!$this->isResolvable()) {
-            throw new InvalidDomain(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
+            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
         $psContent = $publicSuffix->getContent();
         if ($this->domain === $psContent) {
-            throw new InvalidDomain(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
+            throw new CouldNotResolvePublicSuffix(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
         }
 
         if ('.'.$psContent !== substr($this->domain, - strlen($psContent) - 1)) {
-            throw new InvalidDomain(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
+            throw new CouldNotResolvePublicSuffix(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
         }
 
         return $publicSuffix;
@@ -130,8 +137,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $subject;
         }
 
-        static $pattern = '/[^\x20-\x7f]/';
-        if (!preg_match($pattern, $this->domain)) {
+        if (!preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
             return $subject->toAscii();
         }
 
@@ -416,89 +422,20 @@ final class Domain implements DomainInterface, JsonSerializable
     }
 
     /**
-     * Returns an instance with the specified sub domain added.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the new sub domain
-     *
-     * @param mixed $subDomain the subdomain to add
-     *
-     * @throws CouldNotProcessDomain If the Sub domain can not be added to the current Domain
-     *
-     * @return self
-     */
-    public function withSubDomain($subDomain): self
-    {
-        if (null === $this->publicSuffix->getContent()) {
-            throw new CouldNotProcessDomain('A subdomain can not be added to a domain without a public suffix part.');
-        }
-
-        $subDomain = $this->filterSubDomain($subDomain);
-        $subLabels = [];
-        if (null !== $subDomain) {
-            static $pattern = '/[^\x20-\x7f]/';
-            $method = !preg_match($pattern, $this->domain) ? 'idnToAscii' : 'idnToUnicode';
-
-            $subDomain = $this->$method($subDomain);
-            $subLabels = array_reverse(explode('.', $subDomain));
-        }
-
-        if ($this->subDomain === $subDomain) {
-            return $this;
-        }
-
-        $labels = array_merge(
-            array_slice($this->labels, 0, count($this->publicSuffix) + 1),
-            $subLabels
-        );
-
-        return new self(implode('.', array_reverse($labels)), $this->publicSuffix);
-    }
-
-    /**
-     * Filter a subdomain to update the domain part.
-     *
-     * @param mixed $subDomain
-     *
-     * @throws TypeError if the sub domain can not be converted
-     *
-     * @return string|null
-     */
-    private function filterSubDomain($subDomain)
-    {
-        if ($subDomain instanceof DomainInterface) {
-            return $subDomain->getContent();
-        }
-
-        if (null === $subDomain) {
-            return $subDomain;
-        }
-
-        if (is_scalar($subDomain) || method_exists($subDomain, '__toString')) {
-            return (string) $subDomain;
-        }
-
-        throw new TypeError(sprintf('The label must be a scalar, a stringable object or NULL, `%s` given', gettype($subDomain)));
-    }
-
-    /**
      * Returns an instance with the specified public suffix added.
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the new public suffix
      *
-     * @param mixed $publicSuffix
+     * If the domain already has a public suffix it will be replaced by the new value
+     * otherwise the public suffix content is added to or remove from the current domain.
      *
-     * @throws CouldNotProcessDomain If the public suffix can not be added to the current Domain
+     * @param mixed $publicSuffix
      *
      * @return self
      */
     public function withPublicSuffix($publicSuffix): self
     {
-        if (null === $this->publicSuffix->getContent()) {
-            throw new CouldNotProcessDomain('A public suffix can not be added to a domain without a public suffix part.');
-        }
-
         if (!$publicSuffix instanceof PublicSuffix) {
             $publicSuffix = new PublicSuffix($publicSuffix);
         }
@@ -508,16 +445,77 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        $labels = array_merge(
-            iterator_to_array($publicSuffix),
-            array_slice($this->labels, count($this->publicSuffix))
-        );
+        $domain = implode('.', array_reverse(array_slice($this->labels, count($this->publicSuffix))));
+        if (null === $publicSuffix->getContent()) {
+            return new self($domain);
+        }
 
-        return new self(implode('.', array_reverse($labels)), $publicSuffix);
+        return new self($domain.'.'.$publicSuffix->getContent(), $publicSuffix);
     }
 
     /**
-     * Appends a label to the domain.
+     * Returns an instance with the specified sub domain added.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the new sub domain
+     *
+     * @param mixed $subDomain the subdomain to add
+     *
+     * @throws CouldNotResolveSubDomain If the Sub domain can not be added to the current Domain
+     *
+     * @return self
+     */
+    public function withSubDomain($subDomain): self
+    {
+        if (null === $this->registrableDomain) {
+            throw new CouldNotResolveSubDomain('A subdomain can not be added to a domain without a registrable domain part.');
+        }
+
+        $subDomain = $this->normalizeContent($subDomain);
+        if ($this->subDomain === $subDomain) {
+            return $this;
+        }
+
+        if (null === $subDomain) {
+            return new self($this->registrableDomain, $this->publicSuffix);
+        }
+
+        return new self($subDomain.'.'.$this->registrableDomain, $this->publicSuffix);
+    }
+
+    /**
+     * Filter a subdomain to update the domain part.
+     *
+     * @param mixed $domain
+     *
+     * @throws TypeError if the domain can not be converted
+     *
+     * @return string|null
+     */
+    private function normalizeContent($domain)
+    {
+        if ($domain instanceof DomainInterface) {
+            $domain = $domain->getContent();
+        }
+
+        if (null === $domain) {
+            return $domain;
+        }
+
+        if (!is_scalar($domain) && !method_exists($domain, '__toString')) {
+            throw new TypeError(sprintf('The domain or label must be a scalar, a stringable object or NULL, `%s` given', gettype($domain)));
+        }
+
+        $domain = (string) $domain;
+        if (preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
+            return $this->idnToUnicode($domain);
+        }
+
+        return $this->idnToAscii($domain);
+    }
+
+    /**
+     * Prepends a label to the domain.
      *
      * @see ::withLabel
      *
@@ -531,7 +529,7 @@ final class Domain implements DomainInterface, JsonSerializable
     }
 
     /**
-     * Prepends a label to the domain.
+     * Appends a label to the domain.
      *
      * @see ::withLabel
      *
@@ -556,7 +554,8 @@ final class Domain implements DomainInterface, JsonSerializable
      * @param int   $key
      * @param mixed $label
      *
-     * @throws CouldNotProcessDomain If the key is out of bounds
+     * @throws InvalidLabelKey If the key is out of bounds
+     * @throws InvalidLabel    If the label is converted to the NULL value
      *
      * @return self
      */
@@ -564,20 +563,18 @@ final class Domain implements DomainInterface, JsonSerializable
     {
         $nb_labels = count($this->labels);
         if ($key < - $nb_labels - 1 || $key > $nb_labels) {
-            throw new CouldNotProcessDomain(sprintf('the given key `%s` is invalid', $key));
+            throw new InvalidLabelKey(sprintf('the given key `%s` is invalid', $key));
         }
 
         if (0 > $key) {
             $key = $nb_labels + $key;
         }
 
-        if (!is_scalar($label) && !method_exists($label, '__toString')) {
-            throw new TypeError(sprintf('The label must be a scalar or a stringable object `%s` given', gettype($label)));
+        $label = $this->normalizeContent($label);
+        if (null === $label) {
+            throw new InvalidLabel(sprintf('The label can not be NULL'));
         }
 
-        static $pattern = '/[^\x20-\x7f]/';
-        $method = !preg_match($pattern, $this->domain) ? 'idnToAscii' : 'idnToUnicode';
-        $label = $this->$method((string) $label);
         if (($this->labels[$key] ?? null) === $label) {
             return $this;
         }
@@ -586,10 +583,11 @@ final class Domain implements DomainInterface, JsonSerializable
         $labels[$key] = $label;
         ksort($labels);
 
-        return new self(
-            implode('.', array_reverse($labels)),
-            null === $this->publicSuffix->getLabel($key) ? $this->publicSuffix : null
-        );
+        if (null !== $this->publicSuffix->getLabel($key)) {
+            return new self(implode('.', array_reverse($labels)));
+        }
+
+        return new self(implode('.', array_reverse($labels)), $this->publicSuffix);
     }
 
     /**
@@ -604,7 +602,7 @@ final class Domain implements DomainInterface, JsonSerializable
      * @param int $key
      * @param int ...$keys remaining keys to remove
      *
-     * @throws CouldNotProcessDomain If the key is out of bounds
+     * @throws InvalidLabelKey If the key is out of bounds
      *
      * @return self
      */
@@ -614,7 +612,7 @@ final class Domain implements DomainInterface, JsonSerializable
         $nb_labels = count($this->labels);
         foreach ($keys as &$key) {
             if (- $nb_labels > $key || $nb_labels - 1 < $key) {
-                throw new CouldNotProcessDomain(sprintf('the key `%s` is invalid', $key));
+                throw new InvalidLabelKey(sprintf('the key `%s` is invalid', $key));
             }
 
             if (0 > $key) {

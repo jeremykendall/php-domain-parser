@@ -30,6 +30,25 @@ final class Converter implements PublicSuffixListSection
     use IDNAConverterTrait;
 
     /**
+     * @internal
+     */
+    const PSL_SECTION = [
+        'ICANN' => [
+            'BEGIN' => self::ICANN_DOMAINS,
+            'END' => '',
+        ],
+        'PRIVATE' => [
+            'BEGIN' => self::PRIVATE_DOMAINS,
+            'END' => '',
+        ],
+    ];
+
+    /**
+     * @internal
+     */
+    const REGEX_PSL_SECTION = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
+
+    /**
      * Convert the Public Suffix List into
      * an associative, multidimensional array.
      *
@@ -64,13 +83,8 @@ final class Converter implements PublicSuffixListSection
      */
     private function getSection(string $section, string $line): string
     {
-        static $section_list = [
-            'ICANN' => ['BEGIN' => self::ICANN_DOMAINS, 'END' => ''],
-            'PRIVATE' => ['BEGIN' => self::PRIVATE_DOMAINS, 'END' => ''],
-        ];
-        static $pattern = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
-        if (preg_match($pattern, $line, $matches)) {
-            return $section_list[$matches['type']][$matches['point']];
+        if (preg_match(self::REGEX_PSL_SECTION, $line, $matches)) {
+            return self::PSL_SECTION[$matches['type']][$matches['point']];
         }
 
         return $section;

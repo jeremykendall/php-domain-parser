@@ -45,7 +45,7 @@ $ composer require jeremykendall/php-domain-parser
 Usage
 --------
 
-### Parsing a domain name.
+### Domain name parsing.
 
 ~~~php
 <?php
@@ -57,7 +57,7 @@ use Pdp\Manager;
 $manager = new Manager(new Cache(), new CurlHttpClient());
 $rules = $manager->getRules(); //$rules is a Pdp\Rules object
 
-$domain = $rules->resolve('www.ulb.ac.be');
+$domain = $rules->resolve('www.ulb.ac.be'); //$domain is a Pdp\Domain object
 echo json_encode($domain, JSON_PRETTY_PRINT);
 // returns
 //  {
@@ -69,52 +69,45 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //      "isICANN": true,
 //      "isPrivate": false
 //  }
-
-$publicSuffix = $rules->getPublicSuffix('www.ulb.ac.be');
-echo json_encode($publicSuffix, JSON_PRETTY_PRINT);
-// returns
-//  {
-//      "publicSuffix": "ac.be",
-//      "isKnown": true,
-//      "isICANN": true,
-//      "isPrivate": false
-//  }
 ~~~
 
-Using the above code you can parse and get public suffix informations about any valid domain name.
+Using the above code you can parse any valid domain name.
 
-### Manipulating the domain name
-
-The `Pdp\Domain` returned by the `Pdp\Rules::resolve` method is an immutable value object representing a valid domain name. This object let's you access all the domain name properties as well as the public suffix informations attached to it using the following methods.
+The returned `Pdp\Domain` object is an immutable value object representing a valid domain name. This object let's you access the domain properties.
 
 ~~~php
 public function Domain::__toString(): string
 public function Domain::getContent(): ?string
+public function Domain::getLabel(int $key): ?string
+public function Domain::keys(?string $label): int[]
+public function Domain::toAscii(): self
+public function Domain::toUnicode(): self
+public function Domain::isResolvable(): bool;
+~~~
+
+as well as its public suffix informations attached to it by the `Pdp\Rules::resolve` method.
+
+~~~php
 public function Domain::getPublicSuffix(): ?string
 public function Domain::getRegistrableDomain(): ?string
 public function Domain::getSubDomain(); ?string
-public function Domain::getLabel(int $key): ?string
-public function Domain::keys(?string $label): int[]
-public function Domain::isResolvable(): bool;
 public function Domain::isKnown(): bool;
 public function Domain::isICANN(): bool;
 public function Domain::isPrivate(): bool;
 ~~~
 
-*The getter methods returns normalized and lowercased domain labels or `null` if no value was found for a particular domain part.*
+*The getter methods return normalized and lowercased domain labels or `null` if no value was found for a particular domain part.*
 
-The `Pdp\Domain` object also implements PHP's `Countable` and `IteratorAggregate` interfaces to ease counting and iterating over the domain labels as well as PHP's `JsonSerializable` interfaces to output a JSON array with all the useful informations regarding the domain name.
+The `Pdp\Domain` object also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the object properties.
 
-Once you have a `Pdp\Domain` object can also modify its content using the following methods:
+Once you have a `Pdp\Domain` object you can also modify its content using the following methods:
 
 ~~~php
-public function Domain::toAscii(): self
-public function Domain::toUnicode(): self
-public function Domain::withPublicSuffix($publicSuffix): self
-public function Domain::withSubDomain($subDomain): self
 public function Domain::withLabel(int $key, $label): self
 public function Domain::withoutLabel(int $key, int ...$keys): self
 public function Domain::resolve($publicSuffix): self
+public function Domain::withPublicSuffix($publicSuffix): self
+public function Domain::withSubDomain($subDomain): self
 ~~~
 
 Because the `Pdp\Domain` object is immutable:
@@ -123,37 +116,40 @@ Because the `Pdp\Domain` object is immutable:
 - If a modification is not possible a `Pdp\Exception` exception is thrown.
 
 ~~~php
-$manager = new Manager(new Cache(), new CurlHttpClient());
-$rules = $manager->getRules();
 $domain = $rules->resolve('www.bbc.co.uk');
 $newDomain = $domain
     ->withPublicSuffix('com')
     ->withSubDomain('shop')
     ->withLabel(-2, 'example')
 ;
-$newDomain->getContent(); //returns shop.example.com;
-$newDomain->isKnown(); //return false;
+$newDomain->getContent();      //returns 'shop.example.com';
+$newDomain->getPublicSuffix(); //returns 'com';
+$newDomain->isKnown();         //return false;
 ~~~
 
-**WARNING: in the example above the PSL info are lost because the newly attached public suffix had none.**
+**WARNING: in the example above the public suffix informations are lost because the newly attached public suffix had none.**
 
 To avoid this data loss you should use an already resolved public suffix.
 
 ~~~php
-$manager = new Manager(new Cache(), new CurlHttpClient());
-$rules = $manager->getRules();
 $domain = $rules->resolve('www.bbc.co.uk');
-$newPublicSuffix = $rules->getPublicSuffix('example.com');
+$newPublicSuffix = $rules->getPublicSuffix('example.com'); //$newPublicSuffix is a Pdp\PublicSuffix object
 $newDomain = $domain
     ->withPublicSuffix($newPublicSuffix)
     ->withSubDomain('shop')
     ->withLabel(-2, 'example')
 ;
-$newDomain->getContent(); //returns shop.example.com;
-$newDomain->isKnown(); //return true;
+$newDomain->getContent();      //returns 'shop.example.com';
+$newDomain->getPublicSuffix(); //returns 'com';
+$newDomain->isKnown();         //return true;
 ~~~
 
-### Getting the domain public suffix information.
+The `Pdp\PublicSuffix` is an immutable value object which exposes the same methods as the `Pdp\Domain` object minus
+
+- all the modifying methods, **`toAscii` and `toUnicode` excluded**.
+- `getPublicSuffix`, `getRegistrableDomain`, `getSubDomain`, `isResolvable`
+
+### Public suffix information resolution.
 
 ~~~php
 <?php
@@ -185,15 +181,12 @@ Both methods expect the same arguments:
 
 By default, the `$section` argument is equal to the empty string. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
 
-The `Pdp\PublicSuffix` object exposes the same methods as the `Pdp\Domain` object minus all the modifying methods, `toAscii` and `toUnicode` excluded.
-
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
 ~~~php
 <?php
 
 use Pdp\Rules;
-use Pdp\Converter;
 
 $pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
 $rules = Rules::createFromPath($pdp_url);
@@ -212,9 +205,9 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //      "isPrivate": false
 //  }
 
-//The same domain will yield a different result using the PSL ICANN DOMAIN SECTION only
+//The same domain will return a different result using the PSL PRIVATE DOMAIN SECTION only
 
-$domain = $rules->resolve('www.Ulb.AC.be', Rules::ICANN_DOMAINS);
+$domain = $rules->resolve('www.Ulb.AC.be', Rules::PRIVATE_DOMAINS);
 echo json_encode($domain, JSON_PRETTY_PRINT);
 // returns
 //  {
@@ -352,17 +345,7 @@ use Pdp\Manager;
 $manager = new Manager(new Cache(), new CurlHttpClient());
 $rules = $manager->getRules('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
 $domain = $rules->resolve('www.ulb.ac.be');
-echo json_encode($domain, JSON_PRETTY_PRINT);
-// returns
-//  {
-//      "domain": "www.ulb.ac.be",
-//      "registrableDomain": "ulb.ac.be",
-//      "subDomain": "www",
-//      "publicSuffix": "ac.be",
-//      "isKnown": true,
-//      "isICANN": true,
-//      "isPrivate": false
-//  }
+echo $domain->getPublicSuffix(); // print 'ac.be'
 ~~~
 
 ### Automatic Updates
@@ -435,9 +418,10 @@ final class GuzzleHttpClientAdapter implements HttpClient
 }
 
 $dbh = new PDO('mysql:dbname=testdb;host=127.0.0.1', 'dbuser', 'dbpass');
-$symfonyCache = new PDOCache($dbh, 'psl', 86400);
-$guzzleAdapter = new GuzzleHttpClientAdapter(new GuzzleClient());
-$manager = new Manager($symfonyCache, $guzzleAdapter);
+$manager = new Manager(
+    new PDOCache($dbh, 'psl', 86400),
+    new GuzzleHttpClientAdapter(new GuzzleClient())
+);
 $manager->refreshRules();
 //the rules are saved to the database for 1 day
 //the rules are fetched using GuzzlClient

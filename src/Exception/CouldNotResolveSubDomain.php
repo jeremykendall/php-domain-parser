@@ -17,6 +17,6 @@ namespace Pdp\Exception;
 
 use Pdp\Exception as BaseException;
 
-class CouldNotProcessDomain extends BaseException
+class CouldNotResolveSubDomain extends BaseException
 {
 }

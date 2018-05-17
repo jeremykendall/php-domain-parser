@@ -19,7 +19,8 @@ use org\bovigo\vfs\vfsStream;
 use Pdp\Cache;
 use Pdp\Converter;
 use Pdp\CurlHttpClient;
-use Pdp\Exception;
+use Pdp\Exception\CouldNotLoadRules;
+use Pdp\Exception\InvalidDomain;
 use Pdp\Manager;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
@@ -130,7 +131,7 @@ class ManagerTest extends TestCase
             }
         };
 
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotLoadRules::class);
         $manager = new Manager($cachePool, new CurlHttpClient());
         $manager->getRules('https://google.com');
     }
@@ -183,7 +184,7 @@ class ManagerTest extends TestCase
             }
         };
 
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotLoadRules::class);
         $manager = new Manager($cachePool, new CurlHttpClient());
         $manager->getRules();
     }
@@ -196,7 +197,7 @@ class ManagerTest extends TestCase
      */
     public function testConvertThrowsExceptionWithInvalidContent()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidDomain::class);
         $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
         (new Converter())->convert($content);
     }

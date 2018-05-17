@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
+use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\InvalidDomain;
 
 /**
@@ -34,6 +35,11 @@ use Pdp\Exception\InvalidDomain;
 final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuffixListSection
 {
     use IDNAConverterTrait;
+
+    /**
+     * @internal
+     */
+    const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
 
     /**
      * @var string|null
@@ -116,15 +122,14 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      *
      * @param string $section
      *
-     * @throws InvalidDomain if the submitted section is not supported
+     * @throws CouldNotResolvePublicSuffix if the submitted section is not supported
      *
      * @return string
      */
     private function setSection(string $section): string
     {
-        static $section_list = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
-        if (!in_array($section, $section_list, true)) {
-            throw new InvalidDomain(sprintf('`%s` is an unknown Public Suffix List section', $section));
+        if (!in_array($section, self::PSL_SECTION, true)) {
+            throw new CouldNotResolvePublicSuffix(sprintf('`%s` is an unknown Public Suffix List section', $section));
         }
 
         if (null === $this->publicSuffix) {

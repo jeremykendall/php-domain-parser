@@ -16,7 +16,11 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use Pdp\Domain;
-use Pdp\Exception;
+use Pdp\Exception\CouldNotResolvePublicSuffix;
+use Pdp\Exception\CouldNotResolveSubDomain;
+use Pdp\Exception\InvalidDomain;
+use Pdp\Exception\InvalidLabel;
+use Pdp\Exception\InvalidLabelKey;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
@@ -55,7 +59,7 @@ class DomainTest extends TestCase
      */
     public function testConstructorThrowsExceptionOnMisMatchPublicSuffixDomain($domain, $publicSuffix)
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolvePublicSuffix::class);
         new Domain($domain, new PublicSuffix($publicSuffix));
     }
 
@@ -88,7 +92,7 @@ class DomainTest extends TestCase
      */
     public function testToAsciiThrowsException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidDomain::class);
         new Domain('a⒈com');
     }
 
@@ -99,7 +103,7 @@ class DomainTest extends TestCase
      */
     public function testToUnicodeThrowsException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidDomain::class);
         (new Domain('xn--a-ecp.ru'))->toUnicode();
     }
 
@@ -426,7 +430,7 @@ class DomainTest extends TestCase
      */
     public function testResolveFails(Domain $domain, PublicSuffix $publicSuffix)
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolvePublicSuffix::class);
         $domain->resolve($publicSuffix);
     }
 
@@ -472,7 +476,7 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::withSubDomain
-     * @covers ::filterSubDomain
+     * @covers ::normalizeContent
      * @dataProvider withSubDomainWorksProvider
      *
      * @param Domain      $domain
@@ -523,28 +527,28 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::withSubDomain
-     * @covers ::filterSubDomain
+     * @covers ::normalizeContent
      */
     public function testWithSubDomainFailsWithNullDomain()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolveSubDomain::class);
         (new Domain())->withSubDomain('www');
     }
 
     /**
      * @covers ::withSubDomain
-     * @covers ::filterSubDomain
+     * @covers ::normalizeContent
      */
     public function testWithSubDomainFailsWithOneLabelDomain()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolveSubDomain::class);
         (new Domain('localhost'))->withSubDomain('www');
     }
 
 
     /**
      * @covers ::withSubDomain
-     * @covers ::filterSubDomain
+     * @covers ::normalizeContent
      */
     public function testWithSubDomainFailsWithNonStringableObject()
     {
@@ -558,11 +562,11 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::withSubDomain
-     * @covers ::filterSubDomain
+     * @covers ::normalizeContent
      */
     public function testWithSubDomainWithoutPublicSuffixInfo()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolveSubDomain::class);
         (new Domain('www.example.com'))->withSubDomain('www');
     }
 
@@ -645,6 +649,22 @@ class DomainTest extends TestCase
                 'isICANN' => true,
                 'isPrivate' => false,
             ],
+            'adding the public suffix to a single label domain' => [
+                'domain' => new Domain('localhost'),
+                'publicSuffix' => 'www',
+                'expected' => 'www',
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
+            'removing the public suffix list' => [
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS)),
+                'publicSuffix' => null,
+                'expected' => null,
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
         ];
     }
 
@@ -653,26 +673,8 @@ class DomainTest extends TestCase
      */
     public function testWithPublicSuffixFailsWithNullDomain()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidDomain::class);
         (new Domain())->withPublicSuffix('www');
-    }
-
-    /**
-     * @covers ::withPublicSuffix
-     */
-    public function testWithPublicSuffixFailsWithOneLabelDomain()
-    {
-        $this->expectException(Exception::class);
-        (new Domain('localhost'))->withPublicSuffix('www');
-    }
-
-    /**
-     * @covers ::withPublicSuffix
-     */
-    public function testWithPublicSuffixWithoutPublicSuffixInfo()
-    {
-        $this->expectException(Exception::class);
-        (new Domain('www.example.com'))->withPublicSuffix('www');
     }
 
     /**
@@ -797,7 +799,7 @@ class DomainTest extends TestCase
      */
     public function testWithLabelFailsWithTypeError()
     {
-        $this->expectException(TypeError::class);
+        $this->expectException(InvalidLabel::class);
         (new Domain('example.com'))->withLabel(1, null);
     }
 
@@ -806,7 +808,7 @@ class DomainTest extends TestCase
      */
     public function testWithLabelFailsWithInvalidKey()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidLabelKey::class);
         (new Domain('example.com'))->withLabel(-4, 'www');
     }
 
@@ -815,7 +817,7 @@ class DomainTest extends TestCase
      */
     public function testWithLabelFailsWithInvalidLabel2()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidDomain::class);
         (new Domain('example.com'))->withLabel(-1, '');
     }
 
@@ -939,7 +941,7 @@ class DomainTest extends TestCase
      */
     public function testwithoutLabelFailsWithInvalidKey()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidLabelKey::class);
         (new Domain('example.com'))->withoutLabel(-3);
     }
 

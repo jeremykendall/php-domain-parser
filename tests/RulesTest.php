@@ -18,7 +18,9 @@ namespace Pdp\Tests;
 use Pdp\Cache;
 use Pdp\CurlHttpClient;
 use Pdp\Domain;
-use Pdp\Exception;
+use Pdp\Exception\CouldNotLoadRules;
+use Pdp\Exception\CouldNotResolvePublicSuffix;
+use Pdp\Exception\InvalidDomain;
 use Pdp\Manager;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
@@ -64,7 +66,7 @@ class RulesTest extends TestCase
      */
     public function testCreateFromPathThrowsException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotLoadRules::class);
         Rules::createFromPath('/foo/bar.dat');
     }
 
@@ -110,7 +112,7 @@ class RulesTest extends TestCase
      */
     public function testResolveThrowsExceptionOnWrongDomainType()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolvePublicSuffix::class);
         $this->rules->resolve('www.example.com', 'foobar');
     }
 
@@ -417,9 +419,9 @@ class RulesTest extends TestCase
      * @param mixed $domain
      * @param mixed $section
      */
-    public function testGetPublicSuffixThrowsException($domain, $section)
+    public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix($domain, $section)
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolvePublicSuffix::class);
         $this->rules->getPublicSuffix($domain, $section);
     }
 
@@ -428,9 +430,33 @@ class RulesTest extends TestCase
         $long_label = implode('.', array_fill(0, 62, 'a'));
 
         return [
+            'single label host' => ['localhost', Rules::ICANN_DOMAINS],
+        ];
+    }
+
+    /**
+     * @covers ::getPublicSuffix
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @dataProvider invalidDomainParseProvider
+     *
+     * @param mixed $domain
+     * @param mixed $section
+     */
+    public function testGetPublicSuffixThrowsInvalidDomainException($domain, $section)
+    {
+        $this->expectException(InvalidDomain::class);
+        $this->rules->getPublicSuffix($domain, $section);
+    }
+
+    public function invalidDomainParseProvider()
+    {
+        $long_label = implode('.', array_fill(0, 62, 'a'));
+
+        return [
             'IPv6' => ['[::1]', Rules::ICANN_DOMAINS],
             'IPv4' => ['192.168.1.2', Rules::ICANN_DOMAINS],
-            'single label host' => ['localhost', Rules::ICANN_DOMAINS],
             'multiple label with URI delimiter' => ['local.ho/st', Rules::ICANN_DOMAINS],
             'invalid host: label too long' => [implode('', array_fill(0, 64, 'a')).'.com', Rules::ICANN_DOMAINS],
             'invalid host: host too long' => ["$long_label.$long_label.$long_label. $long_label.$long_label", Rules::ICANN_DOMAINS],
@@ -438,6 +464,7 @@ class RulesTest extends TestCase
             'invalid host: host contains space' => ['re view.com', Rules::ICANN_DOMAINS],
         ];
     }
+
 
     /**
      * @covers ::getPublicSuffix

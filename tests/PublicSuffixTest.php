@@ -16,7 +16,8 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use Pdp\Domain;
-use Pdp\Exception;
+use Pdp\Exception\CouldNotResolvePublicSuffix;
+use Pdp\Exception\InvalidDomain;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
@@ -102,7 +103,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testConstructorThrowsException($publicSuffix)
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidDomain::class);
         new PublicSuffix($publicSuffix);
     }
 
@@ -121,7 +122,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testPSToAsciiThrowsException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidDomain::class);
         new PublicSuffix('a⒈com');
     }
 
@@ -131,7 +132,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testSetSectionThrowsException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolvePublicSuffix::class);
         new PublicSuffix('ac.be', 'foobar');
     }
 
@@ -141,7 +142,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testToUnicodeThrowsException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidDomain::class);
         (new PublicSuffix('xn--a-ecp.ru'))->toUnicode();
     }
 

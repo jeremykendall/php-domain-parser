@@ -32,6 +32,11 @@ final class Rules implements PublicSuffixListSection
     const ALL_DOMAINS = 'ALL_DOMAINS';
 
     /**
+     * @internal
+     */
+    const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
+
+    /**
      * PSL rules as a multidimentional associative array.
      *
      * @var array
@@ -158,8 +163,7 @@ final class Rules implements PublicSuffixListSection
             $section = '';
         }
 
-        static $section_list = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
-        if (in_array($section, $section_list, true)) {
+        if (in_array($section, self::PSL_SECTION, true)) {
             return $section;
         }
 
