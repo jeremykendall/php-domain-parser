@@ -98,7 +98,7 @@ public function Domain::isPrivate(): bool;
 
 *The getter methods return normalized and lowercased domain labels or `null` if no value was found for a particular domain part.*
 
-The `Pdp\Domain` object also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the object properties.
+The `Pdp\Domain` object also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the domain labels and properties.
 
 Once you have a `Pdp\Domain` object you can also modify its content using the following methods:
 
@@ -129,7 +129,7 @@ $newDomain->isKnown();         //return false;
 
 **WARNING: in the example above the public suffix informations are lost because the newly attached public suffix had none.**
 
-To avoid this data loss you should use an already resolved public suffix.
+To avoid this data loss you should use a `Pdp\PublicSuffix` object instead.
 
 ~~~php
 $domain = $rules->resolve('www.bbc.co.uk');
@@ -149,7 +149,7 @@ The `Pdp\PublicSuffix` is an immutable value object which exposes the same metho
 - all the modifying methods, **`toAscii` and `toUnicode` excluded**.
 - `getPublicSuffix`, `getRegistrableDomain`, `getSubDomain`, `isResolvable`
 
-### Public suffix information resolution.
+### Public suffix resolution.
 
 ~~~php
 <?php
@@ -184,12 +184,8 @@ By default, the `$section` argument is equal to the empty string. If an unsuppor
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
 ~~~php
-<?php
-
-use Pdp\Rules;
-
 $pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
-$rules = Rules::createFromPath($pdp_url);
+$rules = Pdp\Rules::createFromPath($pdp_url);
 
 $domain = $rules->resolve('www.Ulb.AC.be'); // resolution is done against all the sections available
 echo $domain; // returns www.ulb.ac.be
@@ -301,13 +297,7 @@ The `Pdp\Manager::refreshRules` method enables refreshing your local copy of the
 The method returns a boolean value which is `true` on success.
 
 ~~~php
-<?php
-
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
-use Pdp\Manager;
-
-$manager = new Manager(new Cache(), new CurlHttpClient());
+$manager = new Pdp\Manager(new Pdp\Cache(), new Pdp\CurlHttpClient());
 $retval = $manager->refreshRules('https://publicsuffix.org/list/public_suffix_list.dat');
 if ($retval) {
     //the local cache has been updated
@@ -338,11 +328,7 @@ On error, the method throws an `Pdp\Exception`.
 ~~~php
 <?php
 
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
-use Pdp\Manager;
-
-$manager = new Manager(new Cache(), new CurlHttpClient());
+$manager = new Pdp\Manager(new Pdp\Cache(), new Pdp\CurlHttpClient());
 $rules = $manager->getRules('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
 $domain = $rules->resolve('www.ulb.ac.be');
 echo $domain->getPublicSuffix(); // print 'ac.be'
