@@ -160,9 +160,9 @@ public function Domain::getSubDomain(); ?string
 public function Domain::isKnown(): bool;
 public function Domain::isICANN(): bool;
 public function Domain::isPrivate(): bool;
-public function Domain::resolve($publicSuffix): self
-public function Domain::withPublicSuffix($publicSuffix): self
-public function Domain::withSubDomain($subDomain): self
+public function Domain::resolve($publicSuffix): Domain
+public function Domain::withPublicSuffix($publicSuffix): Domain
+public function Domain::withSubDomain($subDomain): Domain
 ~~~
 
 Here's a more complex example:
@@ -218,8 +218,8 @@ final class Rules
     public static function createFromPath(string $path, $context = null): Rules
     public static function createFromString(string $content): Rules
     public function __construct(array $rules)
-    public function resolve($domain, $section = ''): Domain
-    public function getPublicSuffix($domain, $section = ''): PublicSuffix
+    public function resolve($domain, string $section = ''): Domain
+    public function getPublicSuffix($domain, string $section = ''): PublicSuffix
 }
 ~~~
 
