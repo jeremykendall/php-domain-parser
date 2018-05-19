@@ -507,6 +507,10 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         $domain = (string) $domain;
+        if (null === $this->domain) {
+            return $domain;
+        }
+
         if (preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
             return $this->idnToUnicode($domain);
         }

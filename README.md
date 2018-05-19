@@ -45,7 +45,71 @@ $ composer require jeremykendall/php-domain-parser
 Usage
 --------
 
-### Domain name parsing.
+### Domain
+
+~~~php
+<?php
+
+use Pdp\Domain;
+
+$domain = new Domain('www.ExAmple.com');
+$domain->getContent(); // www.example.com
+echo $domain; // www.example.com
+echo $domain->getLabel(0); // 'com'
+echo $domain->getLabel(-1); // 'www'
+$domain->keys('example'); // array(1)
+count($domain); //returns 3
+~~~
+
+The `Pdp\Domain` object is an immutable value object representing a valid domain name. This object let's you access the domain properties.
+
+~~~php
+public function Domain::__toString(): string
+public function Domain::getContent(): ?string
+public function Domain::getLabel(int $key): ?string
+public function Domain::keys(?string $label): int[]
+~~~
+
+*The getter methods return normalized and lowercased domain labels or `null` if no value was found for a particular domain part.*
+
+The `Pdp\Domain` object also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the domain labels and properties.
+
+Once you have a `Pdp\Domain` object you can also modify its content using the following methods:
+
+~~~php
+public function Domain::toAscii(): Domain
+public function Domain::toUnicode(): Domain
+public function Domain::withLabel(int $key, $label): Domain
+public function Domain::withoutLabel(int $key, int ...$keys): Domain
+~~~
+
+~~~php
+<?php
+
+use Pdp\Domain;
+
+$domain = new Domain('www.bébé.be');
+$domain->getContent();     // 'www.bébé.be'
+echo $domain->toAscii();   // 'www.xn--bb-bjab.be'
+echo $domain->toUnicode(); // 'www.bébé.be'
+$newDomain = $domain
+    ->withLabel(-1, 'shop')
+    ->withLabel(0, 'com')
+    ->withoutLabel(1)
+;
+echo $domain;   // 'www.bébé.be'
+echo $newDomain // 'shop.com'
+~~~
+
+Because the `Pdp\Domain` object is immutable:
+
+- If the method change any of the current object property, a new object is returned.
+- If a modification is not possible a `Pdp\Exception` exception is thrown.
+
+**WARNING: URI and URL accept registered name which encompass domain name. Therefore, some URI host are invalid domain name and will trigger an exception if you try to instantiate a `Pdp\Domain` with them.**
+
+
+### Public suffix resolution.
 
 ~~~php
 <?php
@@ -71,21 +135,23 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 //  }
 ~~~
 
-Using the above code you can parse any valid domain name.
+Using the above code you can parse, validate and resolve a domain name and its public suffix status against a Public suffix list.
 
-The returned `Pdp\Domain` object is an immutable value object representing a valid domain name. This object let's you access the domain properties.
+The `Pdp\Domain` object can tell whether a public suffix can be attached to it using the `Pdp\Domain::isResolvable` method.
 
 ~~~php
-public function Domain::__toString(): string
-public function Domain::getContent(): ?string
-public function Domain::getLabel(int $key): ?string
-public function Domain::keys(?string $label): int[]
-public function Domain::toAscii(): self
-public function Domain::toUnicode(): self
-public function Domain::isResolvable(): bool;
+<?php
+
+use Pdp\Domain;
+
+$domain = new Domain('www.ExAmple.com');
+$domain->isResolvable(); //returns true;
+
+$altDomain = new Domain('localhost');
+$altDomain->isResolvable(); //returns false;
 ~~~
 
-as well as its public suffix informations attached to it by the `Pdp\Rules::resolve` method.
+Furthermore, the `Pdp\Domain` object let's you access and modify its related public suffix properties using the following methods:
 
 ~~~php
 public function Domain::getPublicSuffix(): ?string
@@ -94,29 +160,20 @@ public function Domain::getSubDomain(); ?string
 public function Domain::isKnown(): bool;
 public function Domain::isICANN(): bool;
 public function Domain::isPrivate(): bool;
-~~~
-
-*The getter methods return normalized and lowercased domain labels or `null` if no value was found for a particular domain part.*
-
-The `Pdp\Domain` object also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the domain labels and properties.
-
-Once you have a `Pdp\Domain` object you can also modify its content using the following methods:
-
-~~~php
-public function Domain::withLabel(int $key, $label): self
-public function Domain::withoutLabel(int $key, int ...$keys): self
 public function Domain::resolve($publicSuffix): self
 public function Domain::withPublicSuffix($publicSuffix): self
 public function Domain::withSubDomain($subDomain): self
 ~~~
 
-Because the `Pdp\Domain` object is immutable:
-
-- If the method change any of the current object property, a new object is returned.
-- If a modification is not possible a `Pdp\Exception` exception is thrown.
+Here's a more complex example:
 
 ~~~php
 $domain = $rules->resolve('www.bbc.co.uk');
+$domain->getContent();      //returns 'www.bbc.co.uk';
+$domain->getPublicSuffix(); //returns 'co.uk';
+$domain->isKnown();         //return true;
+$domain->isICANN();         //return true;
+
 $newDomain = $domain
     ->withPublicSuffix('com')
     ->withSubDomain('shop')
@@ -149,7 +206,7 @@ The `Pdp\PublicSuffix` is an immutable value object which exposes the same metho
 - all the modifying methods, **`toAscii` and `toUnicode` excluded**.
 - `getPublicSuffix`, `getRegistrableDomain`, `getSubDomain`, `isResolvable`
 
-### Public suffix resolution.
+### Public suffix resolution rules.
 
 ~~~php
 <?php

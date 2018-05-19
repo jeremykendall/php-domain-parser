@@ -679,6 +679,7 @@ class DomainTest extends TestCase
 
     /**
      * @covers ::withLabel
+     * @covers ::normalizeContent
      * @dataProvider withLabelWorksProvider
      *
      * @param Domain      $domain
@@ -710,6 +711,15 @@ class DomainTest extends TestCase
         $base_domain = new Domain('www.example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
 
         return [
+            'null domain' => [
+                'domain' => new Domain(),
+                'key' => 0,
+                'label' => 'localhost',
+                'expected' => 'localhost',
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
             'simple replace positive offset' => [
                 'domain' => $base_domain,
                 'key' => 2,
