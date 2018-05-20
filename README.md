@@ -45,42 +45,84 @@ $ composer require jeremykendall/php-domain-parser
 Usage
 --------
 
-### Domain
+### Public suffix resolution.
+
+~~~php
+<?php
+
+use Pdp\Cache;
+use Pdp\CurlHttpClient;
+use Pdp\Manager;
+
+$manager = new Manager(new Cache(), new CurlHttpClient());
+$rules = $manager->getRules(); //$rules is a Pdp\Rules object
+
+$domain = $rules->resolve('www.ulb.ac.be'); //$domain is a Pdp\Domain object
+echo $domain->getContent();            // 'www.ulb.ac.be'
+echo $domain->getPublicSuffix();       // 'ac.be'
+echo $domain->getRegistrableDomain();  // 'ulb.ac.be'
+echo $domain->getSubDomain();          // 'www'
+$domain->isResolvable();               // returns true
+$domain->isKnown();                    // returns true
+$domain->isICANN();                    // returns true
+$domain->isPrivate();                  // returns false
+
+
+$altDomain = $rules->getPublicSuffix('thephpleague.github.io'); //$altDomain is a Pdp\PublicSuffix object
+echo $altDomain->getContent(); // 'github.io'
+$altDomain->isKnown();         // returns true
+$altDomain->isICANN();         // returns false
+$altDomain->isPrivate();       // returns true
+~~~
+
+Using the above code you have parse, validate and resolve a domain name and its public suffix status against the Public Suffix list.
+
+Documentation
+--------
+
+### Domain objects
 
 ~~~php
 <?php
 
 use Pdp\Domain;
+use Pdp\PublicSuffix;
 
-$domain = new Domain('www.ExAmple.com');
-$domain->getContent(); // www.example.com
-echo $domain; // www.example.com
-echo $domain->getLabel(0); // 'com'
-echo $domain->getLabel(-1); // 'www'
-$domain->keys('example'); // array(1)
-count($domain); //returns 3
+$publicSuffix = new PublicSuffix('com');
+$domain = new Domain('www.bébé.ExAmple.com', $publicSuffix);
+$domain->getContent();             // www.bébé.example.com
+echo $domain;                      // www.bébé.example.com
+echo $domain->getLabel(0);         // 'com'
+echo $domain->getLabel(-1);        // 'www'
+$domain->keys('example');          // array(1)
+count($domain);                    //returns 4
+$domain->getPublicSuffix();        // 'com'
+$domain->getRegistrableDomain();   // 'example.com'
+$domain->getSubDomain();           // 'www.bébé'
+$domain->isKnown();                // returns false
+$domain->isICANN();                // returns false
+$domain->isPrivate();              // returns false
+iterator_to_array($domain, false); // ['com', 'example', 'bébé', 'www']
+$domain->toAscii()->getContent();  // www.xn--bb-bjab.example.com
+echo (new Domain('www.xn--bb-bjab.example.com'))->toAscii() // www.bébé.example.com
 ~~~
 
-The `Pdp\Domain` object is an immutable value object representing a valid domain name. This object let's you access the domain properties.
-
-~~~php
-public function Domain::__toString(): string
-public function Domain::getContent(): ?string
-public function Domain::getLabel(int $key): ?string
-public function Domain::keys(?string $label): int[]
-~~~
+The `Pdp\Domain` and `Pdp\PublicSuffix` objects are an immutable value object representing a valid domain name. These objects let's you access the domain properties.
 
 *The getter methods return normalized and lowercased domain labels or `null` if no value was found for a particular domain part.*
 
-The `Pdp\Domain` object also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the domain labels and properties.
+Theses objects also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the domain labels and properties.
 
-Once you have a `Pdp\Domain` object you can also modify its content using the following methods:
+Modify the domain content is only possible for the `Pdp\Domain` object using the following methods:
 
 ~~~php
-public function Domain::toAscii(): Domain
-public function Domain::toUnicode(): Domain
+public function Domain::isResolvable();
 public function Domain::withLabel(int $key, $label): Domain
 public function Domain::withoutLabel(int $key, int ...$keys): Domain
+public function Domain::append($label): Domain
+public function Domain::prepend($label): Domain
+public function Domain::withPublicSuffix($publicSuffix): Domain
+public function Domain::withSubDomain($subDomain): Domain
 ~~~
 
 ~~~php
@@ -109,34 +151,6 @@ Because the `Pdp\Domain` object is immutable:
 **WARNING: URI and URL accept registered name which encompass domain name. Therefore, some URI host are invalid domain name and will trigger an exception if you try to instantiate a `Pdp\Domain` with them.**
 
 
-### Public suffix resolution.
-
-~~~php
-<?php
-
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
-use Pdp\Manager;
-
-$manager = new Manager(new Cache(), new CurlHttpClient());
-$rules = $manager->getRules(); //$rules is a Pdp\Rules object
-
-$domain = $rules->resolve('www.ulb.ac.be'); //$domain is a Pdp\Domain object
-echo json_encode($domain, JSON_PRETTY_PRINT);
-// returns
-//  {
-//      "domain": "www.ulb.ac.be",
-//      "registrableDomain": "ulb.ac.be",
-//      "subDomain": "www",
-//      "publicSuffix": "ac.be",
-//      "isKnown": true,
-//      "isICANN": true,
-//      "isPrivate": false
-//  }
-~~~
-
-Using the above code you can parse, validate and resolve a domain name and its public suffix status against a Public suffix list.
-
 The `Pdp\Domain` object can tell whether a public suffix can be attached to it using the `Pdp\Domain::isResolvable` method.
 
 ~~~php
@@ -149,20 +163,6 @@ $domain->isResolvable(); //returns true;
 
 $altDomain = new Domain('localhost');
 $altDomain->isResolvable(); //returns false;
-~~~
-
-Furthermore, the `Pdp\Domain` object let's you access and modify its related public suffix properties using the following methods:
-
-~~~php
-public function Domain::getPublicSuffix(): ?string
-public function Domain::getRegistrableDomain(): ?string
-public function Domain::getSubDomain(); ?string
-public function Domain::isKnown(): bool;
-public function Domain::isICANN(): bool;
-public function Domain::isPrivate(): bool;
-public function Domain::resolve($publicSuffix): Domain
-public function Domain::withPublicSuffix($publicSuffix): Domain
-public function Domain::withSubDomain($subDomain): Domain
 ~~~
 
 Here's a more complex example:
@@ -201,12 +201,7 @@ $newDomain->getPublicSuffix(); //returns 'com';
 $newDomain->isKnown();         //return true;
 ~~~
 
-The `Pdp\PublicSuffix` is an immutable value object which exposes the same methods as the `Pdp\Domain` object minus
-
-- all the modifying methods, **`toAscii` and `toUnicode` excluded**.
-- `getPublicSuffix`, `getRegistrableDomain`, `getSubDomain`, `isResolvable`
-
-### Public suffix resolution rules.
+### Pdp\Rules object.
 
 ~~~php
 <?php
@@ -286,7 +281,7 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 
 **Using the PSL to determine what is a valid domain name and what isn't is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace. The DNS is the proper source for this information. If you must use this library for this purpose, please consider integrating a PSL update mechanism into your software.**
 
-### Public Suffix List Maintenance
+### Managing the Public Suffix List
 
 The library comes bundle with a service which enables resolving domain name without the constant network overhead of continously downloading the PSL. The `Pdp\Manager` class retrieves, converts and caches the PSL as well as creates the corresponding `Pdp\Rules` object on demand. It internally uses a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
 
