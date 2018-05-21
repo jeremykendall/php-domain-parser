@@ -45,8 +45,6 @@ $ composer require jeremykendall/php-domain-parser
 Usage
 --------
 
-### Public suffix resolution.
-
 ~~~php
 <?php
 
@@ -201,7 +199,7 @@ $newDomain->getPublicSuffix(); //returns 'com';
 $newDomain->isKnown();         //return true;
 ~~~
 
-### Pdp\Rules object.
+### Public suffix resolution.
 
 ~~~php
 <?php
