@@ -1,25 +1,32 @@
 <?php
+
 /**
  * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
  *
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
 declare(strict_types=1);
 
 namespace Pdp;
 
+use Pdp\Exception\InvalidDomain;
+use TypeError;
+
 /**
- * A Wrapper around INTL IDNA function
+ * @internal Domain name validator
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 trait IDNAConverterTrait
 {
     /**
-     * Get and format IDN conversion error message
+     * Get and format IDN conversion error message.
      *
      * @param int $error_bit
      *
@@ -28,7 +35,7 @@ trait IDNAConverterTrait
     private static function getIdnErrors(int $error_bit): string
     {
         /**
-         * IDNA errors
+         * IDNA errors.
          *
          * @see http://icu-project.org/apiref/icu4j/com/ibm/icu/text/IDNA.Error.html
          */
@@ -63,29 +70,25 @@ trait IDNAConverterTrait
      *
      * This method returns the string converted to IDN ASCII form
      *
-     * @param  string    $host
-     * @throws Exception if the string can not be converted to ASCII using IDN UTS46 algorithm
+     * @param string $domain
+     *
+     * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
      *
      * @return string
      */
-    private function idnToAscii(string $host): string
+    private function idnToAscii(string $domain): string
     {
-        if (false !== strpos($host, '%')) {
-            $host = rawurldecode($host);
+        static $pattern = '/[^\x20-\x7f]/';
+        if (!preg_match($pattern, $domain)) {
+            return strtolower($domain);
         }
 
-        $host = strtolower($host);
-        static $pattern = '/[\pL]+/u';
-        if (!preg_match($pattern, $host)) {
-            return $host;
-        }
-
-        $output = idn_to_ascii($host, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        $output = idn_to_ascii($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
         if (!$arr['errors']) {
             return $output;
         }
 
-        throw new Exception(sprintf('The host `%s` is invalid : %s', $host, self::getIdnErrors($arr['errors'])));
+        throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
     }
 
     /**
@@ -93,18 +96,91 @@ trait IDNAConverterTrait
      *
      * This method returns the string converted to IDN UNICODE form
      *
-     * @param  string    $host
-     * @throws Exception if the string can not be converted to UNICODE using IDN UTS46 algorithm
+     * @param string $domain
+     *
+     * @throws InvalidDomain if the string can not be converted to UNICODE using IDN UTS46 algorithm
      *
      * @return string
      */
-    private function idnToUnicode(string $host): string
+    private function idnToUnicode(string $domain): string
     {
-        $output = idn_to_utf8($host, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        $output = idn_to_utf8($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
         if (!$arr['errors']) {
             return $output;
         }
 
-        throw new Exception(sprintf('The host `%s` is invalid : %s', $host, self::getIdnErrors($arr['errors'])));
+        throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+    }
+
+    /**
+     * Filter and format the domain to ensure it is valid.
+     *
+     * Returns an array containing the formatted domain name in lowercase
+     * with its associated labels in reverse order
+     *
+     * For example: setLabels('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];
+     *
+     * @param mixed $domain
+     *
+     * @throws InvalidDomain If the domain is invalid
+     *
+     * @return string[]
+     */
+    private function setLabels($domain = null): array
+    {
+        if ($domain instanceof DomainInterface) {
+            return iterator_to_array($domain, false);
+        }
+
+        if (null === $domain) {
+            return [];
+        }
+
+        if ('' === $domain) {
+            return [''];
+        }
+
+        if (!is_scalar($domain) && !method_exists($domain, '__toString')) {
+            throw new TypeError(sprintf('The domain must be a scalar, a stringable object, a DomainInterface object or null; `%s` given', gettype($domain)));
+        }
+
+        $domain = (string) $domain;
+        if (filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            throw new InvalidDomain(sprintf('The domain `%s` is invalid: this is an IPv4 host', $domain));
+        }
+
+        $formatted_domain = rawurldecode($domain);
+
+        // Note that unreserved is purposely missing . as it is used to separate labels.
+        static $domain_name = '/(?(DEFINE)
+                (?<unreserved>[a-z0-9_~\-])
+                (?<sub_delims>[!$&\'()*+,;=])
+                (?<encoded>%[A-F0-9]{2})
+                (?<reg_name>(?:(?&unreserved)|(?&sub_delims)|(?&encoded)){1,63})
+            )
+            ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
+        if (preg_match($domain_name, $formatted_domain)) {
+            return array_reverse(explode('.', strtolower($formatted_domain)));
+        }
+
+        // a domain name can not contains URI delimiters or space
+        static $gen_delims = '/[:\/?#\[\]@ ]/';
+        if (preg_match($gen_delims, $formatted_domain)) {
+            throw new InvalidDomain(sprintf('The domain `%s` is invalid: it contains invalid characters', $domain));
+        }
+
+        // if the domain name does not contains UTF-8 chars then it is malformed
+        static $pattern = '/[^\x20-\x7f]/';
+        if (!preg_match($pattern, $formatted_domain)) {
+            throw new InvalidDomain(sprintf('The domain `%s` is invalid: the labels are malformed', $domain));
+        }
+
+        //if a domain name contains UTF-8 chars it must be convertible using IDNA UTS46
+        $ascii_domain = idn_to_ascii($formatted_domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        if (0 === $arr['errors']) {
+            return array_reverse(explode('.', $this->idnToUnicode($ascii_domain)));
+        }
+
+        throw new InvalidDomain(sprintf('The domain `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
     }
 }

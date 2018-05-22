@@ -1,20 +1,29 @@
 <?php
+
 /**
  * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
  *
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
 declare(strict_types=1);
 
 namespace Pdp;
 
 use JsonSerializable;
+use Pdp\Exception\CouldNotResolvePublicSuffix;
+use Pdp\Exception\CouldNotResolveSubDomain;
+use Pdp\Exception\InvalidLabel;
+use Pdp\Exception\InvalidLabelKey;
+use TypeError;
 
 /**
- * Domain Value Object
+ * Domain Value Object.
  *
  * WARNING: "Some people use the PSL to determine what is a valid domain name
  * and what isn't. This is dangerous, particularly in these days where new
@@ -23,18 +32,25 @@ use JsonSerializable;
  * valid. The DNS is the proper source for this innormalizeion. If you must use
  * it for this purpose, please do not bake static copies of the PSL into your
  * software with no update mechanism."
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Domain implements JsonSerializable
+final class Domain implements DomainInterface, JsonSerializable
 {
     use IDNAConverterTrait;
+
+    /**
+     * @internal
+     */
+    const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
     /**
      * @var string|null
      */
     private $domain;
+
+    /**
+     * @var string[]
+     */
+    private $labels;
 
     /**
      * @var PublicSuffix
@@ -62,61 +78,87 @@ final class Domain implements JsonSerializable
     /**
      * New instance.
      *
-     * @param string|null  $domain
+     * @param mixed        $domain
      * @param PublicSuffix $publicSuffix
      */
     public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
-        if (false !== strpos((string) $domain, '%')) {
-            $domain = rawurldecode($domain);
+        $this->labels = $this->setLabels($domain);
+        if (!empty($this->labels)) {
+            $this->domain = implode('.', array_reverse($this->labels));
         }
-
-        if (null !== $domain) {
-            $domain = strtolower($domain);
-        }
-
-        $this->domain = $domain;
-        $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
+        $this->publicSuffix = $this->setPublicSuffix($publicSuffix ?? new PublicSuffix());
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
     }
 
     /**
-     * Filter the PublicSuffix
+     * Sets the public suffix domain part.
      *
-     * @param PublicSuffix|null $publicSuffix
+     * @param PublicSuffix $publicSuffix
+     *
+     * @throws CouldNotResolvePublicSuffix If the public suffic can not be attached to the domain
      *
      * @return PublicSuffix
      */
-    private function setPublicSuffix(PublicSuffix $publicSuffix = null): PublicSuffix
+    private function setPublicSuffix(PublicSuffix $publicSuffix): PublicSuffix
     {
-        if (null === $publicSuffix || null === $this->domain) {
-            return new PublicSuffix();
+        if (null === $publicSuffix->getContent()) {
+            return $publicSuffix;
+        }
+
+        if (!$this->isResolvable()) {
+            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
+        }
+
+        $publicSuffix = $this->normalize($publicSuffix);
+        $psContent = $publicSuffix->getContent();
+        if ($this->domain === $psContent) {
+            throw new CouldNotResolvePublicSuffix(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
+        }
+
+        if ('.'.$psContent !== substr($this->domain, - strlen($psContent) - 1)) {
+            throw new CouldNotResolvePublicSuffix(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
         }
 
         return $publicSuffix;
     }
 
     /**
-     * Compute the registrable domain part.
+     * Normalize the domain name encoding content.
+     *
+     * @param PublicSuffix $subject
+     *
+     * @return PublicSuffix
+     */
+    private function normalize(PublicSuffix $subject): PublicSuffix
+    {
+        if (null === $this->domain || null === $subject->getContent()) {
+            return $subject;
+        }
+
+        if (!preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
+            return $subject->toAscii();
+        }
+
+        return $subject->toUnicode();
+    }
+
+    /**
+     * Computes the registrable domain part.
      *
      * @return string|null
      */
     private function setRegistrableDomain()
     {
-        if (false === strpos((string) $this->domain, '.')) {
+        if (null === $this->publicSuffix->getContent()) {
             return null;
         }
 
-        if (in_array($this->publicSuffix->getContent(), [null, $this->domain], true)) {
-            return null;
-        }
-
-        $nbLabelsToRemove = count($this->publicSuffix) + 1;
-        $domainLabels = explode('.', $this->domain);
-        $registrableDomain = implode('.', array_slice($domainLabels, count($domainLabels) - $nbLabelsToRemove));
-
-        return $registrableDomain;
+        return implode('.', array_slice(
+            explode('.', $this->domain),
+            count($this->labels) - count($this->publicSuffix) - 1
+        ));
     }
 
     /**
@@ -130,16 +172,27 @@ final class Domain implements JsonSerializable
             return null;
         }
 
-        $nbLabelsToRemove = count($this->publicSuffix) + 1;
-        $domainLabels = explode('.', $this->domain);
-        $countLabels = count($domainLabels);
-        if ($countLabels === $nbLabelsToRemove) {
+        $nbLabels = count($this->labels);
+        $nbRegistrableLabels = count($this->publicSuffix) + 1;
+        if ($nbLabels === $nbRegistrableLabels) {
             return null;
         }
 
-        $subDomain = implode('.', array_slice($domainLabels, 0, $countLabels - $nbLabelsToRemove));
+        return implode('.', array_slice(
+            explode('.', $this->domain),
+            0,
+            $nbLabels - $nbRegistrableLabels
+        ));
+    }
 
-        return $subDomain;
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        foreach ($this->labels as $offset => $label) {
+            yield $label;
+        }
     }
 
     /**
@@ -147,11 +200,7 @@ final class Domain implements JsonSerializable
      */
     public function jsonSerialize()
     {
-        return array_merge([
-            'domain' => $this->domain,
-            'registrableDomain' => $this->registrableDomain,
-            'subDomain' => $this->subDomain,
-        ], $this->publicSuffix->jsonSerialize());
+        return $this->__debugInfo();
     }
 
     /**
@@ -159,11 +208,48 @@ final class Domain implements JsonSerializable
      */
     public function __debugInfo()
     {
-        return $this->jsonSerialize();
+        return [
+            'domain' => $this->domain,
+            'registrableDomain' => $this->registrableDomain,
+            'subDomain' => $this->subDomain,
+            'publicSuffix' => $this->publicSuffix->getContent(),
+            'isKnown' => $this->isKnown(),
+            'isICANN' => $this->isICANN(),
+            'isPrivate' => $this->isPrivate(),
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return count($this->labels);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContent()
+    {
+        return $this->domain;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString()
+    {
+        return (string) $this->domain;
     }
 
     /**
      * Returns the full domain name.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated 5.3 deprecated
+     * @see Domain::getContent
      *
      * This method should return null on seriously malformed domain name
      *
@@ -171,7 +257,27 @@ final class Domain implements JsonSerializable
      */
     public function getDomain()
     {
-        return $this->domain;
+        return $this->getContent();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLabel(int $key)
+    {
+        if ($key < 0) {
+            $key += count($this->labels);
+        }
+
+        return $this->labels[$key] ?? null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function keys(string $label): array
+    {
+        return array_keys($this->labels, $label, true);
     }
 
     /**
@@ -179,7 +285,7 @@ final class Domain implements JsonSerializable
      *
      * The registered or registrable domain is the public suffix plus one additional label.
      *
-     * This method should return null if the registrable domain is the same as the public suffix.
+     * This method returns null if the registrable domain is equal to the public suffix.
      *
      * @return string|null registrable domain
      */
@@ -193,8 +299,8 @@ final class Domain implements JsonSerializable
      *
      * The sub domain represents the remaining labels without the registrable domain.
      *
-     * This method should return null if the registrable domain is null
-     * This method should return null if the registrable domain is the same as the public suffix
+     * This method returns null if the registrable domain is null
+     * This method returns null if the registrable domain is equal to the public suffix
      *
      * @return string|null registrable domain
      */
@@ -214,7 +320,21 @@ final class Domain implements JsonSerializable
     }
 
     /**
-     * Tells whether the public suffix has been matching rule in a Public Suffix List.
+     * Tells whether the given domain can be resolved.
+     *
+     * A domain is resolvable if:
+     *     - it contains at least 2 labels
+     *     - it is not a absolute domain (end with a '.' character)
+     *
+     * @return bool
+     */
+    public function isResolvable(): bool
+    {
+        return 1 < count($this->labels) && '.' !== substr($this->domain, -1, 1);
+    }
+
+    /**
+     * Tells whether the public suffix has a matching rule in a Public Suffix List.
      *
      * @return bool
      */
@@ -244,45 +364,285 @@ final class Domain implements JsonSerializable
     }
 
     /**
-     * Converts the domain to its IDNA ASCII form.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with is content converted to its IDNA ASCII form
-     *
-     * @throws Exception if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     *
-     * @return self
+     * {@inheritdoc}
      */
-    public function toAscii(): self
+    public function toAscii()
     {
-        if (null === $this->domain || false !== strpos($this->domain, 'xn--')) {
+        if (null === $this->domain) {
             return $this;
         }
 
-        $newDomain = $this->idnToAscii($this->domain);
-        if ($newDomain === $this->domain) {
+        $domain = $this->idnToAscii($this->domain);
+        if ($domain === $this->domain) {
             return $this;
         }
 
-        return new self($newDomain, $this->publicSuffix->toAscii());
+        return new self($domain, $this->publicSuffix);
     }
 
     /**
-     * Converts the domain to its IDNA UTF8 form.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with is content converted to its IDNA UTF8 form
-     *
-     * @throws Exception if the domain can not be converted to Unicode using IDN UTS46 algorithm
-     *
-     * @return self
+     * {@inheritdoc}
      */
-    public function toUnicode(): self
+    public function toUnicode()
     {
         if (null === $this->domain || false === strpos($this->domain, 'xn--')) {
             return $this;
         }
 
-        return new self($this->idnToUnicode($this->domain), $this->publicSuffix->toUnicode());
+        return new self($this->idnToUnicode($this->domain), $this->publicSuffix);
+    }
+
+    /**
+     * Returns a Domain object with a new resolve public suffix.
+     *
+     * The Public Suffix must be valid for the given domain name.
+     * ex: if the domain name is www.ulb.ac.be the only valid public suffixes
+     * are: be, ac.be, ulb.ac.be, or the null public suffix. Any other public
+     * suffix will throw an Exception.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the modified Public Suffix Information.
+     *
+     * @param mixed $publicSuffix
+     *
+     * @return self
+     */
+    public function resolve($publicSuffix): self
+    {
+        if (!$publicSuffix instanceof PublicSuffix) {
+            $publicSuffix = new PublicSuffix($publicSuffix);
+        }
+
+        $publicSuffix = $this->normalize($publicSuffix);
+        if ($this->publicSuffix == $publicSuffix) {
+            return $this;
+        }
+
+        return new self($this->domain, $publicSuffix);
+    }
+
+    /**
+     * Returns an instance with the specified public suffix added.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the new public suffix
+     *
+     * If the domain already has a public suffix it will be replaced by the new value
+     * otherwise the public suffix content is added to or remove from the current domain.
+     *
+     * @param mixed $publicSuffix
+     *
+     * @return self
+     */
+    public function withPublicSuffix($publicSuffix): self
+    {
+        if (!$publicSuffix instanceof PublicSuffix) {
+            $publicSuffix = new PublicSuffix($publicSuffix);
+        }
+
+        $publicSuffix = $this->normalize($publicSuffix);
+        if ($this->publicSuffix == $publicSuffix) {
+            return $this;
+        }
+
+        $domain = implode('.', array_reverse(array_slice($this->labels, count($this->publicSuffix))));
+        if (null === $publicSuffix->getContent()) {
+            return new self($domain);
+        }
+
+        return new self($domain.'.'.$publicSuffix->getContent(), $publicSuffix);
+    }
+
+    /**
+     * Returns an instance with the specified sub domain added.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the new sub domain
+     *
+     * @param mixed $subDomain the subdomain to add
+     *
+     * @throws CouldNotResolveSubDomain If the Sub domain can not be added to the current Domain
+     *
+     * @return self
+     */
+    public function withSubDomain($subDomain): self
+    {
+        if (null === $this->registrableDomain) {
+            throw new CouldNotResolveSubDomain('A subdomain can not be added to a domain without a registrable domain part.');
+        }
+
+        $subDomain = $this->normalizeContent($subDomain);
+        if ($this->subDomain === $subDomain) {
+            return $this;
+        }
+
+        if (null === $subDomain) {
+            return new self($this->registrableDomain, $this->publicSuffix);
+        }
+
+        return new self($subDomain.'.'.$this->registrableDomain, $this->publicSuffix);
+    }
+
+    /**
+     * Filter a subdomain to update the domain part.
+     *
+     * @param mixed $domain
+     *
+     * @throws TypeError if the domain can not be converted
+     *
+     * @return string|null
+     */
+    private function normalizeContent($domain)
+    {
+        if ($domain instanceof DomainInterface) {
+            $domain = $domain->getContent();
+        }
+
+        if (null === $domain) {
+            return $domain;
+        }
+
+        if (!is_scalar($domain) && !method_exists($domain, '__toString')) {
+            throw new TypeError(sprintf('The domain or label must be a scalar, a stringable object or NULL, `%s` given', gettype($domain)));
+        }
+
+        $domain = (string) $domain;
+        if (null === $this->domain) {
+            return $domain;
+        }
+
+        if (preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
+            return $this->idnToUnicode($domain);
+        }
+
+        return $this->idnToAscii($domain);
+    }
+
+    /**
+     * Prepends a label to the domain.
+     *
+     * @see ::withLabel
+     *
+     * @param mixed $label
+     *
+     * @return self
+     */
+    public function prepend($label): self
+    {
+        return $this->withLabel(count($this->labels), $label);
+    }
+
+    /**
+     * Appends a label to the domain.
+     *
+     * @see ::withLabel
+     *
+     * @param mixed $label
+     *
+     * @return self
+     */
+    public function append($label): self
+    {
+        return $this->withLabel(- count($this->labels) - 1, $label);
+    }
+
+    /**
+     * Returns an instance with the specified label added at the specified key.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the new label
+     *
+     * If $key is non-negative, the added label will be the label at $key position from the start.
+     * If $key is negative, the added label will be the label at $key position from the end.
+     *
+     * @param int   $key
+     * @param mixed $label
+     *
+     * @throws InvalidLabelKey If the key is out of bounds
+     * @throws InvalidLabel    If the label is converted to the NULL value
+     *
+     * @return self
+     */
+    public function withLabel(int $key, $label): self
+    {
+        $nb_labels = count($this->labels);
+        if ($key < - $nb_labels - 1 || $key > $nb_labels) {
+            throw new InvalidLabelKey(sprintf('the given key `%s` is invalid', $key));
+        }
+
+        if (0 > $key) {
+            $key = $nb_labels + $key;
+        }
+
+        $label = $this->normalizeContent($label);
+        if (null === $label) {
+            throw new InvalidLabel(sprintf('The label can not be NULL'));
+        }
+
+        if (($this->labels[$key] ?? null) === $label) {
+            return $this;
+        }
+
+        $labels = $this->labels;
+        $labels[$key] = $label;
+        ksort($labels);
+
+        if (null !== $this->publicSuffix->getLabel($key)) {
+            return new self(implode('.', array_reverse($labels)));
+        }
+
+        return new self(implode('.', array_reverse($labels)), $this->publicSuffix);
+    }
+
+    /**
+     * Returns an instance with the label at the specified key removed.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance without the specified label
+     *
+     * If $key is non-negative, the removed label will be the label at $key position from the start.
+     * If $key is negative, the removed label will be the label at $key position from the end.
+     *
+     * @param int $key
+     * @param int ...$keys remaining keys to remove
+     *
+     * @throws InvalidLabelKey If the key is out of bounds
+     *
+     * @return self
+     */
+    public function withoutLabel(int $key, int ...$keys): self
+    {
+        array_unshift($keys, $key);
+        $nb_labels = count($this->labels);
+        foreach ($keys as &$key) {
+            if (- $nb_labels > $key || $nb_labels - 1 < $key) {
+                throw new InvalidLabelKey(sprintf('the key `%s` is invalid', $key));
+            }
+
+            if (0 > $key) {
+                $key += $nb_labels;
+            }
+        }
+        unset($key);
+
+        $deleted_keys = array_keys(array_count_values($keys));
+        $labels = [];
+        foreach ($this->labels as $key => $label) {
+            if (!in_array($key, $deleted_keys, true)) {
+                $labels[] = $label;
+            }
+        }
+
+        if (empty($labels)) {
+            return new self();
+        }
+
+        $domain = implode('.', array_reverse($labels));
+        $psContent = $this->publicSuffix->getContent();
+        if (null === $psContent || '.'.$psContent !== substr($domain, - strlen($psContent) - 1)) {
+            return new self($domain);
+        }
+
+        return new self($domain, $this->publicSuffix);
     }
 }

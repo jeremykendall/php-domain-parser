@@ -15,8 +15,14 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Psr\SimpleCache\InvalidArgumentException as PsrCacheException;
-
-class CacheException extends \InvalidArgumentException implements PsrCacheException
+/**
+ * Constants used to name Public Suffix list section.
+ *
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ */
+interface PublicSuffixListSection
 {
+    const ICANN_DOMAINS = 'ICANN_DOMAINS';
+
+    const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 }

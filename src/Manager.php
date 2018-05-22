@@ -1,16 +1,21 @@
 <?php
+
 /**
  * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
  *
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
 declare(strict_types=1);
 
 namespace Pdp;
 
+use Pdp\Exception\CouldNotLoadRules;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -53,23 +58,25 @@ final class Manager
      *
      * @param string $source_url the Public Suffix List URL
      *
+     * @throws CouldNotLoadRules If the PSL rules can not be loaded
+     *
      * @return Rules
      */
     public function getRules(string $source_url = self::PSL_URL): Rules
     {
         $cacheKey = $this->getCacheKey($source_url);
-        $rules = $this->cache->get($cacheKey);
-        if (null !== $rules) {
-            return new Rules(json_decode($rules, true));
+        $cacheRules = $this->cache->get($cacheKey);
+
+        if (null === $cacheRules && !$this->refreshRules($source_url)) {
+            throw new CouldNotLoadRules(sprintf('Unable to load the public suffix list rules for %s', $source_url));
         }
 
-        if (!$this->refreshRules($source_url)) {
-            throw new Exception(sprintf('Unable to load the public suffix list rules for %s', $source_url));
+        $rules = json_decode($cacheRules ?? $this->cache->get($cacheKey), true);
+        if (JSON_ERROR_NONE === json_last_error()) {
+            return new Rules($rules);
         }
 
-        $rules = $this->cache->get($cacheKey);
-
-        return new Rules(json_decode($rules, true));
+        throw new CouldNotLoadRules('The public suffix list cache is corrupted: '.json_last_error_msg(), json_last_error());
     }
 
     /**
@@ -81,9 +88,7 @@ final class Manager
      */
     private function getCacheKey(string $str): string
     {
-        static $cacheKeyPrefix = 'PSL_FULL';
-
-        return $cacheKeyPrefix.'_'.md5(strtolower($str));
+        return 'PSL_FULL_'.md5(strtolower($str));
     }
 
     /**
@@ -99,14 +104,13 @@ final class Manager
      */
     public function refreshRules(string $source_url = self::PSL_URL): bool
     {
-        $content = $this->http->getContent($source_url);
-        $rules = (new Converter())->convert($content);
-        if (empty($rules[Rules::ICANN_DOMAINS]) || empty($rules[Rules::PRIVATE_DOMAINS])) {
-            return false;
-        }
+        static $converter;
 
-        $cacheKey = $this->getCacheKey($source_url);
+        $converter = $converter ?? new Converter();
 
-        return $this->cache->set($cacheKey, json_encode($rules));
+        return $this->cache->set(
+            $this->getCacheKey($source_url),
+            json_encode($converter->convert($this->http->getContent($source_url)))
+        );
     }
 }

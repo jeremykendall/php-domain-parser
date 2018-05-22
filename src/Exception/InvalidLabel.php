@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp;
+namespace Pdp\Exception;
 
-use Psr\SimpleCache\InvalidArgumentException as PsrCacheException;
+use Pdp\Exception as BaseException;
 
-class CacheException extends \InvalidArgumentException implements PsrCacheException
+class InvalidLabel extends BaseException
 {
 }

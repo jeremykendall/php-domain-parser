@@ -1,5 +1,16 @@
 <?php
 
+$header = <<<EOF
+PHP Domain Parser: Public Suffix List based URL parsing.
+
+@see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+
+@copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+EOF;
+
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__.'/src')
     ->in(__DIR__.'/tests')
@@ -10,6 +21,12 @@ return PhpCsFixer\Config::create()
         '@PSR2' => true,
         'array_syntax' => ['syntax' => 'short'],
         'concat_space' => ['spacing' => 'none'],
+        'header_comment' => [
+            'commentType' => 'PHPDoc',
+            'header' => $header,
+            'location' => 'after_open',
+            'separate' => 'both',
+        ],
         'new_with_braces' => true,
         'no_blank_lines_after_phpdoc' => true,
         'no_empty_phpdoc' => true,
@@ -24,6 +41,7 @@ return PhpCsFixer\Config::create()
         'phpdoc_order' => true,
         'phpdoc_scalar' => true,
         'phpdoc_to_comment' => true,
+        'phpdoc_summary' => true,
         'psr0' => true,
         'psr4' => true,
         'return_type_declaration' => ['space_before' => 'none'],

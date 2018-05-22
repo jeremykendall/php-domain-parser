@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * PHP Domain Parser: Public Suffix List based URL parsing.
+ *
+ * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
+ * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Pdp\Tests;
@@ -7,11 +18,18 @@ namespace Pdp\Tests;
 use Pdp\Cache;
 use Pdp\CurlHttpClient;
 use Pdp\Domain;
-use Pdp\Exception;
+use Pdp\Exception\CouldNotLoadRules;
+use Pdp\Exception\CouldNotResolvePublicSuffix;
+use Pdp\Exception\InvalidDomain;
 use Pdp\Manager;
+use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
+/**
+ * @coversDefaultClass Pdp\Rules
+ */
 class RulesTest extends TestCase
 {
     /**
@@ -25,6 +43,11 @@ class RulesTest extends TestCase
         $this->rules = $manager->getRules();
     }
 
+    /**
+     * @covers ::createFromPath
+     * @covers ::createFromString
+     * @covers ::__construct
+     */
     public function testCreateFromPath()
     {
         $context = stream_context_create([
@@ -38,128 +61,284 @@ class RulesTest extends TestCase
         $this->assertInstanceOf(Rules::class, $rules);
     }
 
+    /**
+     * @covers ::createFromPath
+     */
     public function testCreateFromPathThrowsException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotLoadRules::class);
         Rules::createFromPath('/foo/bar.dat');
     }
 
+    /**
+     * @covers ::__set_state
+     * @covers ::__construct
+     */
     public function testDomainInternalPhpMethod()
     {
         $generateRules = eval('return '.var_export($this->rules, true).';');
         $this->assertEquals($this->rules, $generateRules);
     }
 
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\PublicSuffix::isKnown
+     * @covers \Pdp\Domain::isKnown
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
     public function testNullWillReturnNullDomain()
     {
         $domain = $this->rules->resolve('COM');
         $this->assertFalse($domain->isKnown());
     }
 
+
+    /**
+     * @covers ::resolve
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
+    public function testThrowsTypeErrorOnWrongInput()
+    {
+        $this->expectException(TypeError::class);
+        $this->rules->resolve(date_create());
+    }
+
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     */
     public function testResolveThrowsExceptionOnWrongDomainType()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolvePublicSuffix::class);
         $this->rules->resolve('www.example.com', 'foobar');
     }
 
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\PublicSuffix::isKnown
+     * @covers \Pdp\Domain::isKnown
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
     public function testIsSuffixValidFalse()
     {
         $domain = $this->rules->resolve('www.example.faketld');
         $this->assertFalse($domain->isKnown());
-        $this->assertSame('www', $domain->getSubDomain());
     }
 
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\PublicSuffix::isKnown
+     * @covers \Pdp\PublicSuffix::isICANN
+     * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::withPublicSuffix
+     * @covers \Pdp\Domain::isKnown
+     * @covers \Pdp\Domain::isICANN
+     * @covers \Pdp\Domain::isPrivate
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
     public function testIsSuffixValidTrue()
     {
         $domain = $this->rules->resolve('www.example.com', Rules::ICANN_DOMAINS);
         $this->assertTrue($domain->isKnown());
         $this->assertTrue($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
-        $this->assertSame('www', $domain->getSubDomain());
     }
 
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\PublicSuffix::isKnown
+     * @covers \Pdp\PublicSuffix::isICANN
+     * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::withPublicSuffix
+     * @covers \Pdp\Domain::isKnown
+     * @covers \Pdp\Domain::isICANN
+     * @covers \Pdp\Domain::isPrivate
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
     public function testIsSuffixValidFalseWithPunycoded()
     {
         $domain = $this->rules->resolve('www.example.xn--85x722f');
         $this->assertFalse($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
-        $this->assertSame('xn--85x722f', $domain->getPublicSuffix());
-        $this->assertSame('www', $domain->getSubDomain());
     }
 
-    public function testSudDomainIsNull()
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\PublicSuffix::isKnown
+     * @covers \Pdp\PublicSuffix::isICANN
+     * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::withPublicSuffix
+     * @covers \Pdp\Domain::isKnown
+     * @covers \Pdp\Domain::isICANN
+     * @covers \Pdp\Domain::isPrivate
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
+    public function testSubDomainIsNull()
     {
         $domain = $this->rules->resolve('ulb.ac.be', Rules::ICANN_DOMAINS);
         $this->assertTrue($domain->isKnown());
         $this->assertTrue($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
-        $this->assertSame('ac.be', $domain->getPublicSuffix());
-        $this->assertSame('ulb.ac.be', $domain->getRegistrableDomain());
-        $this->assertNull($domain->getSubDomain());
     }
 
-    public function testWithInvalidDomainName()
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
+    public function testWithExceptionName()
     {
         $domain = $this->rules->resolve('_b%C3%A9bé.be-');
-        $this->assertSame('_bébé.be-', $domain->getDomain());
+        $this->assertNull($domain->getContent());
+    }
+
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
+    public function testWithPrivateDomain()
+    {
+        $domain = $this->rules->resolve('thephpleague.github.io');
+        $this->assertTrue($domain->isKnown());
+        $this->assertFalse($domain->isICANN());
+        $this->assertTrue($domain->isPrivate());
+        $this->assertSame('github.io', $domain->getPublicSuffix());
+    }
+
+    /**
+     * @covers ::resolve
+     * @covers \Pdp\Domain::isResolvable
+     */
+    public function testWithAbsoluteHostInvalid()
+    {
+        $domain = $this->rules->resolve('private.ulb.ac.be.');
+        $this->assertSame('private.ulb.ac.be.', $domain->getContent());
         $this->assertFalse($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
         $this->assertNull($domain->getPublicSuffix());
-        $this->assertNull($domain->getRegistrableDomain());
     }
 
-    public function testWithPrivateDomain()
-    {
-        $domain = $this->rules->resolve('thephpleague.github.io');
-        $this->assertSame('thephpleague.github.io', $domain->getDomain());
-        $this->assertTrue($domain->isKnown());
-        $this->assertFalse($domain->isICANN());
-        $this->assertTrue($domain->isPrivate());
-        $this->assertSame('github.io', $domain->getPublicSuffix());
-        $this->assertSame('thephpleague.github.io', $domain->getRegistrableDomain());
-        $this->assertNull($domain->getSubDomain());
-    }
-
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
     public function testWithPrivateDomainInvalid()
     {
         $domain = $this->rules->resolve('private.ulb.ac.be', Rules::PRIVATE_DOMAINS);
-        $this->assertSame('private.ulb.ac.be', $domain->getDomain());
+        $this->assertSame('private.ulb.ac.be', $domain->getContent());
         $this->assertFalse($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
         $this->assertSame('be', $domain->getPublicSuffix());
-        $this->assertSame('ac.be', $domain->getRegistrableDomain());
-        $this->assertSame('private.ulb', $domain->getSubDomain());
     }
 
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
     public function testWithPrivateDomainValid()
     {
         $domain = $this->rules->resolve('thephpleague.github.io', Rules::PRIVATE_DOMAINS);
-        $this->assertSame('thephpleague.github.io', $domain->getDomain());
+        $this->assertSame('thephpleague.github.io', $domain->getContent());
         $this->assertTrue($domain->isKnown());
         $this->assertFalse($domain->isICANN());
         $this->assertTrue($domain->isPrivate());
         $this->assertSame('github.io', $domain->getPublicSuffix());
-        $this->assertSame('thephpleague.github.io', $domain->getRegistrableDomain());
-        $this->assertNull($domain->getSubDomain());
     }
 
+    /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
     public function testWithICANNDomainInvalid()
     {
         $domain = $this->rules->resolve('private.ulb.ac.be');
-        $this->assertSame('private.ulb.ac.be', $domain->getDomain());
+        $this->assertSame('private.ulb.ac.be', $domain->getContent());
         $this->assertTrue($domain->isKnown());
         $this->assertTrue($domain->isICANN());
         $this->assertFalse($domain->isPrivate());
         $this->assertSame('ac.be', $domain->getPublicSuffix());
-        $this->assertSame('ulb.ac.be', $domain->getRegistrableDomain());
-        $this->assertSame('private', $domain->getSubDomain());
     }
 
     /**
+     * @covers ::resolve
+     * @covers ::validateSection
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
+    public function testWithDomainObject()
+    {
+        $domain = new Domain('private.ulb.ac.be', new PublicSuffix('ac.be', Rules::ICANN_DOMAINS));
+        $newDomain = $this->rules->resolve($domain);
+        $this->assertSame('private.ulb.ac.be', $domain->getContent());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertSame('ac.be', $domain->getPublicSuffix());
+        $this->assertSame($domain, $newDomain);
+    }
+
+    /**
+     * @covers ::getPublicSuffix
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     */
+    public function testWithDomainInterfaceObject()
+    {
+        $this->assertSame(
+            'ac.be',
+            $this->rules->getPublicSuffix(new PublicSuffix('ul.ac.be', Rules::ICANN_DOMAINS))->getContent()
+        );
+    }
+
+    /**
+     * @covers ::resolve
+     * @covers \Pdp\Domain::setRegistrableDomain
+     * @covers \Pdp\Domain::getRegistrableDomain
      * @dataProvider parseDataProvider
+     *
      * @param mixed $publicSuffix
      * @param mixed $registrableDomain
      * @param mixed $domain
@@ -171,7 +350,12 @@ class RulesTest extends TestCase
     }
 
     /**
+     * @covers ::resolve
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\Domain::setPublicSuffix
+     * @covers \Pdp\Domain::getPublicSuffix
      * @dataProvider parseDataProvider
+     *
      * @param mixed $publicSuffix
      * @param mixed $registrableDomain
      * @param mixed $domain
@@ -183,7 +367,12 @@ class RulesTest extends TestCase
     }
 
     /**
+     * @covers ::resolve
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\Domain::withPublicSuffix
+     * @covers \Pdp\Domain::getContent
      * @dataProvider parseDataProvider
+     *
      * @param mixed $publicSuffix
      * @param mixed $registrableDomain
      * @param mixed $domain
@@ -191,7 +380,7 @@ class RulesTest extends TestCase
      */
     public function testGetDomain($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
-        $this->assertSame($expectedDomain, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getDomain());
+        $this->assertSame($expectedDomain, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getContent());
     }
 
     public function parseDataProvider()
@@ -216,35 +405,99 @@ class RulesTest extends TestCase
             'IP (5)' => [null, null, '[fe80::3%25eth0]', null],
             'IP (6)' => [null, null, '[fe80::1%2511]', null],
             'fake tld' => ['faketld', 'example.faketld', 'example.faketld', 'example.faketld'],
+            'fake tld with space' => [null, null, 'fake.t ld', null],
         ];
     }
 
     /**
+     * @covers ::getPublicSuffix
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers \Pdp\IDNAConverterTrait::setLabels
      * @dataProvider invalidParseProvider
+     *
      * @param mixed $domain
      * @param mixed $section
      */
-    public function testDetermine($domain, $section)
+    public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix($domain, $section)
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CouldNotResolvePublicSuffix::class);
         $this->rules->getPublicSuffix($domain, $section);
     }
 
     public function invalidParseProvider()
     {
+        $long_label = implode('.', array_fill(0, 62, 'a'));
+
         return [
-            'IPv6' => ['[::1]', Rules::ICANN_DOMAINS],
-            'IPv4' => ['192.168.1.2', Rules::ICANN_DOMAINS],
             'single label host' => ['localhost', Rules::ICANN_DOMAINS],
         ];
     }
 
-    public function testPublicSuffixSection()
+    /**
+     * @covers ::getPublicSuffix
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @dataProvider invalidDomainParseProvider
+     *
+     * @param mixed $domain
+     * @param mixed $section
+     */
+    public function testGetPublicSuffixThrowsInvalidDomainException($domain, $section)
     {
-        $expected = 'рф';
-        $domain = 'Яндекс.РФ';
+        $this->expectException(InvalidDomain::class);
+        $this->rules->getPublicSuffix($domain, $section);
+    }
+
+    public function invalidDomainParseProvider()
+    {
+        $long_label = implode('.', array_fill(0, 62, 'a'));
+
+        return [
+            'IPv6' => ['[::1]', Rules::ICANN_DOMAINS],
+            'IPv4' => ['192.168.1.2', Rules::ICANN_DOMAINS],
+            'multiple label with URI delimiter' => ['local.ho/st', Rules::ICANN_DOMAINS],
+            'invalid host: label too long' => [implode('', array_fill(0, 64, 'a')).'.com', Rules::ICANN_DOMAINS],
+            'invalid host: host too long' => ["$long_label.$long_label.$long_label. $long_label.$long_label", Rules::ICANN_DOMAINS],
+            'invalid host: invalid label according to RFC3986' => ['www.fußball.com-', Rules::ICANN_DOMAINS],
+            'invalid host: host contains space' => ['re view.com', Rules::ICANN_DOMAINS],
+        ];
+    }
+
+
+    /**
+     * @covers ::getPublicSuffix
+     * @covers ::validateSection
+     * @covers \Pdp\Domain::isResolvable
+     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @dataProvider validPublicSectionProvider
+     *
+     * @param string|null $domain
+     * @param string|null $expected
+     */
+    public function testPublicSuffixSection($domain, $expected)
+    {
         $publicSuffix =  $this->rules->getPublicSuffix($domain);
         $this->assertSame($expected, $publicSuffix->getContent());
+    }
+
+    public function validPublicSectionProvider()
+    {
+        return [
+            'idn domain' => [
+                'domain' => 'Яндекс.РФ',
+                'expected' => 'рф',
+            ],
+            'ascii domain' => [
+                'domain' => 'ulb.ac.be',
+                'expected' => 'ac.be',
+            ],
+            'unknown tld' => [
+                'domain' => 'yours.truly.faketld',
+                'expected' => 'faketld',
+            ],
+        ];
     }
 
     /**
@@ -271,6 +524,12 @@ class RulesTest extends TestCase
      *
      * @see
      * http://mxr.mozilla.org/mozilla-central/source/netwerk/test/unit/data/test_psl.txt?raw=1
+     *
+     * @covers ::resolve
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\Domain::withPublicSuffix
+     * @covers \Pdp\Domain::getRegistrableDomain
+     * @covers \Pdp\IDNAConverterTrait::setLabels
      */
     public function testPublicSuffixSpec()
     {

@@ -1,12 +1,16 @@
 <?php
+
 /**
  * PHP Domain Parser: Public Suffix List based URL parsing.
  *
  * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
  *
  * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- * @license   http://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE MIT License
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
 declare(strict_types=1);
 
 namespace Pdp;
@@ -15,14 +19,14 @@ use Composer\Script\Event;
 use Throwable;
 
 /**
- * A class to manage PSL ICANN Section rules updates
+ * A class to manage PSL ICANN Section rules updates.
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 final class Installer
 {
     /**
-     * Script to update the local cache using composer hook
+     * Script to update the local cache using composer hook.
      *
      * @param Event $event
      */
@@ -75,7 +79,7 @@ final class Installer
     }
 
     /**
-     * Detect the vendor path
+     * Detect the vendor path.
      *
      * @param Event $event
      *
@@ -87,19 +91,17 @@ final class Installer
             return $event->getComposer()->getConfig()->get('vendor-dir');
         }
 
-        if (is_dir($vendor = dirname(__DIR__, 2).'/vendor')) {
-            return $vendor;
-        }
-
-        if (is_dir($vendor = dirname(__DIR__, 5).'/vendor')) {
-            return $vendor;
+        for ($i = 2; $i <= 5; $i++) {
+            if (is_dir($vendor = dirname(__DIR__, $i).'/vendor')) {
+                return $vendor;
+            }
         }
 
         return null;
     }
 
     /**
-     * Detect the I/O interface to use
+     * Detect the I/O interface to use.
      *
      * @param Event|null $event
      *
@@ -107,11 +109,7 @@ final class Installer
      */
     private static function getIO(Event $event = null)
     {
-        if (null !== $event) {
-            return $event->getIO();
-        }
-
-        return new class() {
+        return null !== $event ? $event->getIO() : new class() {
             public function write($messages, bool $newline = true, int $verbosity = 2)
             {
                 $this->doWrite($messages, $newline, false, $verbosity);

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * PHP Domain Parser: Public Suffix List based URL parsing.
+ *
+ * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
+ * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Pdp\Tests;
@@ -42,6 +53,24 @@ class CacheTest extends TestCase
         $this->cache = null;
         $this->cacheDir = null;
         $this->root = null;
+    }
+
+    public function testConstructorOnEmptyCachePath()
+    {
+        $cache = new Cache('');
+        $this->assertNull($cache->get('invalid_key'));
+    }
+
+    public function testConstructorOnParentCachePathIsNotExisted()
+    {
+        $cache = new Cache(vfsStream::url('pdp/cache_not_exist'));
+        $this->assertNull($cache->get('invalid_key'));
+    }
+
+    public function testSetOnNotWritableCachePath()
+    {
+        $cache = new Cache('/bin');
+        $this->assertFalse($cache->set('key', 'value'));
     }
 
     /**
@@ -125,8 +154,8 @@ class CacheTest extends TestCase
         $this->cache->set('foo', 'bar', 1);
         $this->assertEquals('bar', $this->cache->get('foo'));
 
-        // Wait 2 seconds so the cache expires
-        usleep(2000000);
+        // Wait 3 seconds so the cache expires
+        sleep(3);
         $this->assertNull($this->cache->get('foo'));
     }
 
@@ -139,8 +168,8 @@ class CacheTest extends TestCase
         $this->cache->set('foo', 'bar', new DateInterval('PT1S'));
         $this->assertEquals('bar', $this->cache->get('foo'));
 
-        // Wait 2 seconds so the cache expires
-        usleep(2000000);
+        // Wait 3 seconds so the cache expires
+        sleep(3);
         $this->assertNull($this->cache->get('foo'));
     }
 
@@ -462,9 +491,6 @@ class CacheTest extends TestCase
         $this->assertEquals([], $expected);
     }
 
-    /**
-     * @expectException \Psr\SimpleCache\InvalidArgumentException
-     */
     public function testDeleteMultipleInvalidArg()
     {
         $this->expectException(InvalidArgumentException::class);

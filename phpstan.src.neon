@@ -1,6 +1,2 @@
 includes:
 - vendor/phpstan/phpstan-strict-rules/rules.neon
-parameters:
-    ignoreErrors:
-        - '#has invalid typehint type Psr\\SimpleCache\\DateInterval#'
-    reportUnmatchedIgnoredErrors: false
