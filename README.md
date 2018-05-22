@@ -51,6 +51,7 @@ Usage
 use Pdp\Cache;
 use Pdp\CurlHttpClient;
 use Pdp\Manager;
+use Pdp\Rules;
 
 $manager = new Manager(new Cache(), new CurlHttpClient());
 $rules = $manager->getRules(); //$rules is a Pdp\Rules object
@@ -66,11 +67,17 @@ $domain->isICANN();                    // returns true
 $domain->isPrivate();                  // returns false
 
 
-$altDomain = $rules->getPublicSuffix('thephpleague.github.io'); //$altDomain is a Pdp\PublicSuffix object
-echo $altDomain->getContent(); // 'github.io'
-$altDomain->isKnown();         // returns true
-$altDomain->isICANN();         // returns false
-$altDomain->isPrivate();       // returns true
+$publicSuffix = $rules->getPublicSuffix('mydomain.github.io', Rules::PRIVATE_DOMAINS); //$publicSuffix is a Pdp\PublicSuffix object
+echo $publicSuffix->getContent(); // 'github.io'
+$publicSuffix->isKnown();         // returns true
+$publicSuffix->isICANN();         // returns false
+$publicSuffix->isPrivate();       // returns true
+
+$altSuffix = $rules->getPublicSuffix('mydomain.github.io', Rules::ICANN_DOMAINS);
+echo $altSuffix->getContent(); // 'io'
+$altSuffix->isKnown();         // returns true
+$altSuffix->isICANN();         // returns true
+$altSuffix->isPrivate();       // returns false
 ~~~
 
 Using the above code you have parse, validate and resolve a domain name and its public suffix status against the Public Suffix list.

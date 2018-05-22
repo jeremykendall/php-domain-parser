@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use RuntimeException;
+use InvalidArgumentException;
 
-class Exception extends RuntimeException
+class Exception extends InvalidArgumentException
 {
 }

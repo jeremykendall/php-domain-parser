@@ -2,7 +2,7 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
-## Next - TBD
+## 5.3.0 - 2018-05-22
 
 ### Added
 
@@ -26,6 +26,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 - `Pdp\Domain` and `Pdp\PublicSuffix` host validation compliance to RFC improved
 - Improve `Pdp\Converter` and `Pdp\Manager` class to better report error on IDN conversion.
 - Improve `Pdp\Installer` vendor directory resolution see [PR #222](https://github.com/jeremykendall/php-domain-parser/pull/222)
+- `Pdp\Exception` nows extends `InvalidArgumentException` instead of `RuntimeException`
 
 ### Deprecated
 
