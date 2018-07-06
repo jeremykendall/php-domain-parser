@@ -27,10 +27,8 @@ use Psr\SimpleCache\CacheInterface;
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Manager
+final class Manager implements ManagerInterface
 {
-    const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
-
     /**
      * @var CacheInterface
      */
@@ -54,13 +52,7 @@ final class Manager
     }
 
     /**
-     * Gets the Public Suffix List Rules.
-     *
-     * @param string $source_url the Public Suffix List URL
-     *
-     * @throws CouldNotLoadRules If the PSL rules can not be loaded
-     *
-     * @return Rules
+     * {@inheritdoc}
      */
     public function getRules(string $source_url = self::PSL_URL): Rules
     {
@@ -92,15 +84,7 @@ final class Manager
     }
 
     /**
-     * Downloads, converts and cache the Public Suffix.
-     *
-     * If a local cache already exists, it will be overwritten.
-     *
-     * Returns true if the refresh was successful
-     *
-     * @param string $source_url the Public Suffix List URL
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function refreshRules(string $source_url = self::PSL_URL): bool
     {
