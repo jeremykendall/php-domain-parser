@@ -15,7 +15,16 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use DateTimeImmutable;
 use SplTempFileObject;
+use const DATE_ATOM;
+use function array_pop;
+use function explode;
+use function preg_match;
+use function sprintf;
+use function strpos;
+use function substr;
+use function trim;
 
 /**
  * Public Suffix List Parser.
@@ -51,10 +60,6 @@ final class Converter implements PublicSuffixListSection
     /**
      * Convert the Public Suffix List into
      * an associative, multidimensional array.
-     *
-     * @param string $content
-     *
-     * @return array
      */
     public function convert(string $content): array
     {
@@ -78,8 +83,6 @@ final class Converter implements PublicSuffixListSection
      *
      * @param string $section the current status
      * @param string $line    the current file line
-     *
-     * @return string
      */
     private function getSection(string $section, string $line): string
     {
@@ -103,8 +106,6 @@ final class Converter implements PublicSuffixListSection
      *                          becomes the array representation of a Public Suffix List section
      * @param array $rule_parts One line (rule) from the Public Suffix List
      *                          exploded on '.', or the remaining portion of that array during recursion
-     *
-     * @return array
      */
     private function addRule(array $list, array $rule_parts): array
     {
@@ -121,10 +122,62 @@ final class Converter implements PublicSuffixListSection
         }
 
         $list[$rule] = $list[$rule] ?? ($isDomain ? [] : ['!' => '']);
-        if ($isDomain && !empty($rule_parts)) {
+        if ($isDomain && [] !== $rule_parts) {
             $list[$rule] = $this->addRule($list[$rule], $rule_parts);
         }
 
         return $list;
+    }
+    /**
+     * Converts the IANA Root Zone Database into a TopLevelDomains collection object.
+     */
+    public function convertRootZoneDatabase(string $content): array
+    {
+        $header = [];
+        $records = [];
+
+        $file = new SplTempFileObject();
+        $file->fwrite($content);
+        $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        foreach ($file as $line) {
+            $line_content = trim($line);
+            if (false === strpos($line_content, '#')) {
+                $records[] = $line_content;
+                continue;
+            }
+
+            if ([] === $header) {
+                $header = $this->getHeaderInfo($line_content);
+                continue;
+            }
+
+            throw new Exception(sprintf('Invalid Version line: %s', $line_content));
+        }
+
+        if ([] === $records || [] === $header) {
+            throw new Exception(sprintf('No TLD or Version header found'));
+        }
+
+        $header['records'] = $records;
+
+        return $header;
+    }
+
+    /**
+     * Extract IANA Root Zone Database header info.
+     */
+    private function getHeaderInfo(string $content): array
+    {
+        if (preg_match('/^\# Version (?<version>\d+), Last Updated (?<update>.*?)$/', $content, $matches)) {
+            $date = DateTimeImmutable::createFromFormat('D M d H:i:s Y e', $matches['update']);
+            $matches['update'] = $date->format(DATE_ATOM);
+
+            return [
+                'version' => $matches['version'],
+                'update' => $matches['update'],
+            ];
+        }
+
+        throw new Exception(sprintf('Invalid Version line: %s', $content));
     }
 }

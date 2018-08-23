@@ -15,15 +15,21 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
+use DateInterval;
+use DateTime;
 use org\bovigo\vfs\vfsStream;
 use Pdp\Cache;
 use Pdp\Converter;
 use Pdp\CurlHttpClient;
+use Pdp\Exception;
 use Pdp\Exception\CouldNotLoadRules;
+use Pdp\Exception\CouldNotLoadTLDs;
 use Pdp\Exception\InvalidDomain;
+use Pdp\HttpClient;
 use Pdp\Manager;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
+use TypeError;
 
 /**
  * @coversDefaultClass Pdp\Manager
@@ -61,8 +67,8 @@ class ManagerTest extends TestCase
     {
         $manager = new Manager($this->cachePool, new CurlHttpClient());
         $previous = $manager->getRules();
-        $this->assertTrue($manager->refreshRules($this->sourceUrl));
-        $this->assertEquals($previous, $manager->getRules());
+        self::assertTrue($manager->refreshRules($this->sourceUrl));
+        self::assertEquals($previous, $manager->getRules());
     }
 
     /**
@@ -78,7 +84,67 @@ class ManagerTest extends TestCase
         $previous = $manager->getRules($this->sourceUrl);
         $this->cachePool->clear(); //delete all local cache
         $list = $manager->getRules($this->sourceUrl);
-        $this->assertEquals($previous, $manager->getRules($this->sourceUrl));
+        self::assertEquals($previous, $manager->getRules($this->sourceUrl));
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getTLDs
+     * @covers ::getCacheKey
+     * @covers ::refreshTLDs
+     * @covers \Pdp\Converter
+     */
+    public function testRefreshTLDs()
+    {
+        $client = new class() implements HttpClient {
+            public function getContent(string $url): string
+            {
+                if ($url === Manager::PSL_URL) {
+                    return file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+                }
+
+                if ($url === Manager::RZD_URL) {
+                    return file_get_contents(__DIR__.'/data/tlds-alpha-by-domain.txt');
+                }
+
+                return '';
+            }
+        };
+
+        $manager = new Manager($this->cachePool, $client);
+        $previous = $manager->getTLDs();
+        self::assertTrue($manager->refreshTLDs());
+        self::assertEquals($previous, $manager->getTLDs());
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getTLDs
+     * @covers ::getCacheKey
+     * @covers ::refreshTLDs
+     * @covers \Pdp\Converter
+     */
+    public function testRebuildTLDsFromRemoveSource()
+    {
+        $client = new class() implements HttpClient {
+            public function getContent(string $url): string
+            {
+                if ($url === Manager::PSL_URL) {
+                    return file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+                }
+
+                if ($url === Manager::RZD_URL) {
+                    return file_get_contents(__DIR__.'/data/tlds-alpha-by-domain.txt');
+                }
+
+                return '';
+            }
+        };
+
+        $manager = new Manager($this->cachePool, $client);
+        $previous = $manager->getTLDs();
+        $this->cachePool->clear(); //delete all local cache
+        self::assertEquals($previous, $manager->getTLDs());
     }
 
     /**
@@ -131,11 +197,65 @@ class ManagerTest extends TestCase
             }
         };
 
-        $this->expectException(CouldNotLoadRules::class);
+        self::expectException(CouldNotLoadRules::class);
         $manager = new Manager($cachePool, new CurlHttpClient());
         $manager->getRules('https://google.com');
     }
 
+    /**
+     * @covers ::__construct
+     * @covers ::getTLDs
+     * @covers ::getCacheKey
+     * @covers ::refreshTLDs
+     * @covers \Pdp\Converter
+     */
+    public function testGetTLDsThrowsExceptionIfNotCacheCanBeRetrieveOrRefresh()
+    {
+        $cachePool = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return null;
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
+        self::expectException(CouldNotLoadTLDs::class);
+        $manager = new Manager($cachePool, new CurlHttpClient());
+        $manager->getTLDs();
+    }
 
     /**
      * @covers ::__construct
@@ -184,9 +304,61 @@ class ManagerTest extends TestCase
             }
         };
 
-        $this->expectException(CouldNotLoadRules::class);
+        self::expectException(CouldNotLoadRules::class);
         $manager = new Manager($cachePool, new CurlHttpClient());
         $manager->getRules();
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getTLDs
+     */
+    public function testGetTLDsThrowsExceptionIfTheCacheIsCorrupted()
+    {
+        $cachePool = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return '{"foo":"bar",}'; //malformed json
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
+        self::expectException(CouldNotLoadTLDs::class);
+        $manager = new Manager($cachePool, new CurlHttpClient());
+        $manager->getTLDs();
     }
 
     /**
@@ -197,8 +369,44 @@ class ManagerTest extends TestCase
      */
     public function testConvertThrowsExceptionWithInvalidContent()
     {
-        $this->expectException(InvalidDomain::class);
+        self::expectException(InvalidDomain::class);
         $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
         (new Converter())->convert($content);
+    }
+
+    /**
+     * @covers \Pdp\Converter::convertRootZoneDatabase
+     * @covers \Pdp\Converter::getHeaderInfo
+     */
+    public function testConvertRootZoneDatabaseThrowsExceptionWithInvalidContent()
+    {
+        self::expectException(Exception::class);
+        $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
+        (new Converter())->convertRootZoneDatabase($content);
+    }
+
+    /**
+     * @dataProvider validTtlProvider
+     */
+    public function testSettingTtl($ttl)
+    {
+        self::assertInstanceOf(Manager::class, new Manager(new Cache(), new CurlHttpClient(), $ttl));
+    }
+
+    public function validTtlProvider()
+    {
+        return [
+            'DateInterval' => [new DateInterval('PT1H')],
+            'null' => [null],
+            'DateTimeInterface' => [new DateTime('+1 DAY')],
+            'string' => ['7 DAYS'],
+            'int' => [86000],
+        ];
+    }
+
+    public function testSettingTtlTrowsException()
+    {
+        self::expectException(TypeError::class);
+        new Manager(new Cache(), new CurlHttpClient(), tmpfile());
     }
 }

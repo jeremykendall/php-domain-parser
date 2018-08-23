@@ -58,7 +58,7 @@ class RulesTest extends TestCase
         ]);
 
         $rules = Rules::createFromPath(__DIR__.'/data/public_suffix_list.dat', $context);
-        $this->assertInstanceOf(Rules::class, $rules);
+        self::assertInstanceOf(Rules::class, $rules);
     }
 
     /**
@@ -66,7 +66,7 @@ class RulesTest extends TestCase
      */
     public function testCreateFromPathThrowsException()
     {
-        $this->expectException(CouldNotLoadRules::class);
+        self::expectException(CouldNotLoadRules::class);
         Rules::createFromPath('/foo/bar.dat');
     }
 
@@ -77,7 +77,7 @@ class RulesTest extends TestCase
     public function testDomainInternalPhpMethod()
     {
         $generateRules = eval('return '.var_export($this->rules, true).';');
-        $this->assertEquals($this->rules, $generateRules);
+        self::assertEquals($this->rules, $generateRules);
     }
 
     /**
@@ -92,7 +92,7 @@ class RulesTest extends TestCase
     public function testNullWillReturnNullDomain()
     {
         $domain = $this->rules->resolve('COM');
-        $this->assertFalse($domain->isKnown());
+        self::assertFalse($domain->isKnown());
     }
 
 
@@ -102,7 +102,7 @@ class RulesTest extends TestCase
      */
     public function testThrowsTypeErrorOnWrongInput()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         $this->rules->resolve(date_create());
     }
 
@@ -112,7 +112,7 @@ class RulesTest extends TestCase
      */
     public function testResolveThrowsExceptionOnWrongDomainType()
     {
-        $this->expectException(CouldNotResolvePublicSuffix::class);
+        self::expectException(CouldNotResolvePublicSuffix::class);
         $this->rules->resolve('www.example.com', 'foobar');
     }
 
@@ -130,7 +130,7 @@ class RulesTest extends TestCase
     public function testIsSuffixValidFalse()
     {
         $domain = $this->rules->resolve('www.example.faketld');
-        $this->assertFalse($domain->isKnown());
+        self::assertFalse($domain->isKnown());
     }
 
     /**
@@ -152,9 +152,9 @@ class RulesTest extends TestCase
     public function testIsSuffixValidTrue()
     {
         $domain = $this->rules->resolve('www.example.com', Rules::ICANN_DOMAINS);
-        $this->assertTrue($domain->isKnown());
-        $this->assertTrue($domain->isICANN());
-        $this->assertFalse($domain->isPrivate());
+        self::assertTrue($domain->isKnown());
+        self::assertTrue($domain->isICANN());
+        self::assertFalse($domain->isPrivate());
     }
 
     /**
@@ -176,9 +176,9 @@ class RulesTest extends TestCase
     public function testIsSuffixValidFalseWithPunycoded()
     {
         $domain = $this->rules->resolve('www.example.xn--85x722f');
-        $this->assertFalse($domain->isKnown());
-        $this->assertFalse($domain->isICANN());
-        $this->assertFalse($domain->isPrivate());
+        self::assertFalse($domain->isKnown());
+        self::assertFalse($domain->isICANN());
+        self::assertFalse($domain->isPrivate());
     }
 
     /**
@@ -200,9 +200,9 @@ class RulesTest extends TestCase
     public function testSubDomainIsNull()
     {
         $domain = $this->rules->resolve('ulb.ac.be', Rules::ICANN_DOMAINS);
-        $this->assertTrue($domain->isKnown());
-        $this->assertTrue($domain->isICANN());
-        $this->assertFalse($domain->isPrivate());
+        self::assertTrue($domain->isKnown());
+        self::assertTrue($domain->isICANN());
+        self::assertFalse($domain->isPrivate());
     }
 
     /**
@@ -213,7 +213,7 @@ class RulesTest extends TestCase
     public function testWithExceptionName()
     {
         $domain = $this->rules->resolve('_b%C3%A9bé.be-');
-        $this->assertNull($domain->getContent());
+        self::assertNull($domain->getContent());
     }
 
     /**
@@ -227,10 +227,10 @@ class RulesTest extends TestCase
     public function testWithPrivateDomain()
     {
         $domain = $this->rules->resolve('thephpleague.github.io');
-        $this->assertTrue($domain->isKnown());
-        $this->assertFalse($domain->isICANN());
-        $this->assertTrue($domain->isPrivate());
-        $this->assertSame('github.io', $domain->getPublicSuffix());
+        self::assertTrue($domain->isKnown());
+        self::assertFalse($domain->isICANN());
+        self::assertTrue($domain->isPrivate());
+        self::assertSame('github.io', $domain->getPublicSuffix());
     }
 
     /**
@@ -240,11 +240,11 @@ class RulesTest extends TestCase
     public function testWithAbsoluteHostInvalid()
     {
         $domain = $this->rules->resolve('private.ulb.ac.be.');
-        $this->assertSame('private.ulb.ac.be.', $domain->getContent());
-        $this->assertFalse($domain->isKnown());
-        $this->assertFalse($domain->isICANN());
-        $this->assertFalse($domain->isPrivate());
-        $this->assertNull($domain->getPublicSuffix());
+        self::assertSame('private.ulb.ac.be.', $domain->getContent());
+        self::assertFalse($domain->isKnown());
+        self::assertFalse($domain->isICANN());
+        self::assertFalse($domain->isPrivate());
+        self::assertNull($domain->getPublicSuffix());
     }
 
     /**
@@ -258,11 +258,11 @@ class RulesTest extends TestCase
     public function testWithPrivateDomainInvalid()
     {
         $domain = $this->rules->resolve('private.ulb.ac.be', Rules::PRIVATE_DOMAINS);
-        $this->assertSame('private.ulb.ac.be', $domain->getContent());
-        $this->assertFalse($domain->isKnown());
-        $this->assertFalse($domain->isICANN());
-        $this->assertFalse($domain->isPrivate());
-        $this->assertSame('be', $domain->getPublicSuffix());
+        self::assertSame('private.ulb.ac.be', $domain->getContent());
+        self::assertFalse($domain->isKnown());
+        self::assertFalse($domain->isICANN());
+        self::assertFalse($domain->isPrivate());
+        self::assertSame('be', $domain->getPublicSuffix());
     }
 
     /**
@@ -276,11 +276,11 @@ class RulesTest extends TestCase
     public function testWithPrivateDomainValid()
     {
         $domain = $this->rules->resolve('thephpleague.github.io', Rules::PRIVATE_DOMAINS);
-        $this->assertSame('thephpleague.github.io', $domain->getContent());
-        $this->assertTrue($domain->isKnown());
-        $this->assertFalse($domain->isICANN());
-        $this->assertTrue($domain->isPrivate());
-        $this->assertSame('github.io', $domain->getPublicSuffix());
+        self::assertSame('thephpleague.github.io', $domain->getContent());
+        self::assertTrue($domain->isKnown());
+        self::assertFalse($domain->isICANN());
+        self::assertTrue($domain->isPrivate());
+        self::assertSame('github.io', $domain->getPublicSuffix());
     }
 
     /**
@@ -294,11 +294,11 @@ class RulesTest extends TestCase
     public function testWithICANNDomainInvalid()
     {
         $domain = $this->rules->resolve('private.ulb.ac.be');
-        $this->assertSame('private.ulb.ac.be', $domain->getContent());
-        $this->assertTrue($domain->isKnown());
-        $this->assertTrue($domain->isICANN());
-        $this->assertFalse($domain->isPrivate());
-        $this->assertSame('ac.be', $domain->getPublicSuffix());
+        self::assertSame('private.ulb.ac.be', $domain->getContent());
+        self::assertTrue($domain->isKnown());
+        self::assertTrue($domain->isICANN());
+        self::assertFalse($domain->isPrivate());
+        self::assertSame('ac.be', $domain->getPublicSuffix());
     }
 
     /**
@@ -313,12 +313,12 @@ class RulesTest extends TestCase
     {
         $domain = new Domain('private.ulb.ac.be', new PublicSuffix('ac.be', Rules::ICANN_DOMAINS));
         $newDomain = $this->rules->resolve($domain);
-        $this->assertSame('private.ulb.ac.be', $domain->getContent());
-        $this->assertTrue($domain->isKnown());
-        $this->assertTrue($domain->isICANN());
-        $this->assertFalse($domain->isPrivate());
-        $this->assertSame('ac.be', $domain->getPublicSuffix());
-        $this->assertSame($domain, $newDomain);
+        self::assertSame('private.ulb.ac.be', $domain->getContent());
+        self::assertTrue($domain->isKnown());
+        self::assertTrue($domain->isICANN());
+        self::assertFalse($domain->isPrivate());
+        self::assertSame('ac.be', $domain->getPublicSuffix());
+        self::assertSame($domain, $newDomain);
     }
 
     /**
@@ -327,7 +327,7 @@ class RulesTest extends TestCase
      */
     public function testWithDomainInterfaceObject()
     {
-        $this->assertSame(
+        self::assertSame(
             'ac.be',
             $this->rules->getPublicSuffix(new PublicSuffix('ul.ac.be', Rules::ICANN_DOMAINS))->getContent()
         );
@@ -339,14 +339,10 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::getRegistrableDomain
      * @dataProvider parseDataProvider
      *
-     * @param mixed $publicSuffix
-     * @param mixed $registrableDomain
-     * @param mixed $domain
-     * @param mixed $expectedDomain
      */
     public function testGetRegistrableDomain($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
-        $this->assertSame($registrableDomain, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getRegistrableDomain());
+        self::assertSame($registrableDomain, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getRegistrableDomain());
     }
 
     /**
@@ -356,14 +352,10 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::getPublicSuffix
      * @dataProvider parseDataProvider
      *
-     * @param mixed $publicSuffix
-     * @param mixed $registrableDomain
-     * @param mixed $domain
-     * @param mixed $expectedDomain
      */
     public function testGetPublicSuffix($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
-        $this->assertSame($publicSuffix, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getPublicSuffix());
+        self::assertSame($publicSuffix, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getPublicSuffix());
     }
 
     /**
@@ -373,14 +365,10 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::getContent
      * @dataProvider parseDataProvider
      *
-     * @param mixed $publicSuffix
-     * @param mixed $registrableDomain
-     * @param mixed $domain
-     * @param mixed $expectedDomain
      */
     public function testGetDomain($publicSuffix, $registrableDomain, $domain, $expectedDomain)
     {
-        $this->assertSame($expectedDomain, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getContent());
+        self::assertSame($expectedDomain, $this->rules->resolve($domain, Rules::ICANN_DOMAINS)->getContent());
     }
 
     public function parseDataProvider()
@@ -416,12 +404,10 @@ class RulesTest extends TestCase
      * @covers \Pdp\IDNAConverterTrait::setLabels
      * @dataProvider invalidParseProvider
      *
-     * @param mixed $domain
-     * @param mixed $section
      */
     public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix($domain, $section)
     {
-        $this->expectException(CouldNotResolvePublicSuffix::class);
+        self::expectException(CouldNotResolvePublicSuffix::class);
         $this->rules->getPublicSuffix($domain, $section);
     }
 
@@ -441,12 +427,10 @@ class RulesTest extends TestCase
      * @covers \Pdp\IDNAConverterTrait::setLabels
      * @dataProvider invalidDomainParseProvider
      *
-     * @param mixed $domain
-     * @param mixed $section
      */
     public function testGetPublicSuffixThrowsInvalidDomainException($domain, $section)
     {
-        $this->expectException(InvalidDomain::class);
+        self::expectException(InvalidDomain::class);
         $this->rules->getPublicSuffix($domain, $section);
     }
 
@@ -479,7 +463,7 @@ class RulesTest extends TestCase
     public function testPublicSuffixSection($domain, $expected)
     {
         $publicSuffix =  $this->rules->getPublicSuffix($domain);
-        $this->assertSame($expected, $publicSuffix->getContent());
+        self::assertSame($expected, $publicSuffix->getContent());
     }
 
     public function validPublicSectionProvider()
@@ -515,7 +499,7 @@ class RulesTest extends TestCase
      */
     public function checkPublicSuffix($input, $expected)
     {
-        $this->assertSame($expected, $this->rules->resolve($input)->getRegistrableDomain());
+        self::assertSame($expected, $this->rules->resolve($input)->getRegistrableDomain());
     }
 
     /**
