@@ -142,7 +142,7 @@ final class Converter implements PublicSuffixListSection
         foreach ($file as $line) {
             $line_content = trim($line);
             if (false === strpos($line_content, '#')) {
-                $records[] = $line_content;
+                $records[] = $this->idnToAscii($line_content);
                 continue;
             }
 

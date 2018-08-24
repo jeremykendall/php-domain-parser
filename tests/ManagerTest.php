@@ -362,6 +362,58 @@ class ManagerTest extends TestCase
     }
 
     /**
+     * @covers ::getTLDs
+     */
+    public function testGetTLDsThrowsExceptionIfTheCacheContentIsCorrupted()
+    {
+        $cachePool = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return '{"foo":"bar"}'; //malformed json
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
+        self::expectException(CouldNotLoadTLDs::class);
+        $manager = new Manager($cachePool, new CurlHttpClient());
+        $manager->getTLDs();
+    }
+
+
+    /**
      * @covers \Pdp\Converter::convert
      * @covers \Pdp\Converter::getSection
      * @covers \Pdp\Converter::addRule

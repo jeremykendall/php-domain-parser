@@ -69,15 +69,6 @@ class TopLevelDomainsTest extends TestCase
     }
 
     /**
-     * @covers ::createFromArray
-     */
-    public function testCreateFromArrayThrowsException()
-    {
-        self::expectException(Exception::class);
-        TopLevelDomains::createFromArray(['/foo/bar.dat']);
-    }
-
-    /**
      * @covers ::__set_state
      * @covers ::__construct
      */
@@ -256,5 +247,16 @@ BAR
 EOF;
         self::expectException(Exception::class);
         TopLevelDomains::createFromString($string);
+    }
+
+
+    /**
+     * @covers \Pdp\Converter::convertRootZoneDatabase
+     * @covers \Pdp\Converter::getHeaderInfo
+     */
+    public function testInvalidFormatToConvertWithEmptyContent()
+    {
+        self::expectException(Exception::class);
+        TopLevelDomains::createFromString('');
     }
 }

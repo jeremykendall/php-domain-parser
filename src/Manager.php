@@ -22,6 +22,7 @@ use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotLoadTLDs;
 use Psr\SimpleCache\CacheInterface;
 use TypeError;
+use const DATE_ATOM;
 use const FILTER_VALIDATE_INT;
 use const JSON_ERROR_NONE;
 use function filter_var;
@@ -77,8 +78,102 @@ final class Manager
     {
         $this->cache = $cache;
         $this->http = $http;
-        $this->ttl = $this->setTtl($ttl);
+        $this->ttl = $this->filterTtl($ttl);
         $this->converter = new Converter();
+    }
+
+    /**
+     * Gets the Public Suffix List Rules.
+     *
+     * @param null|mixed $ttl
+     *
+     * @throws CouldNotLoadRules If the PSL rules can not be loaded
+     */
+    public function getRules(string $url = self::PSL_URL, $ttl = null): Rules
+    {
+        $key = $this->getCacheKey('PSL', $url);
+        $data = $this->cache->get($key);
+
+        if (null === $data && !$this->refreshRules($url, $ttl)) {
+            throw new CouldNotLoadRules(sprintf('Unable to load the public suffix list rules for %s', $url));
+        }
+
+        $data = json_decode($data ?? $this->cache->get($key), true);
+        if (JSON_ERROR_NONE === json_last_error()) {
+            return new Rules($data);
+        }
+
+        throw new CouldNotLoadRules('The public suffix list cache is corrupted: '.json_last_error_msg(), json_last_error());
+    }
+
+    /**
+     * Downloads, converts and cache the Public Suffix.
+     *
+     * If a local cache already exists, it will be overwritten.
+     *
+     * Returns true if the refresh was successful
+     *
+     * @param null|mixed $ttl
+     */
+    public function refreshRules(string $url = self::PSL_URL, $ttl = null): bool
+    {
+        $data = $this->converter->convert($this->http->getContent($url));
+        $key = $this->getCacheKey('PSL', $url);
+        $ttl = $this->filterTtl($ttl) ?? $this->ttl;
+
+        return $this->cache->set($key, json_encode($data), $ttl);
+    }
+
+    /**
+     * Gets the Public Suffix List Rules.
+     *
+     * @param null|mixed $ttl
+     *
+     * @throws Exception If the Top Level Domains can not be returned
+     */
+    public function getTLDs(string $url = self::RZD_URL, $ttl = null): TopLevelDomains
+    {
+        $key = $this->getCacheKey('RZD', $url);
+        $data = $this->cache->get($key);
+
+        if (null === $data && !$this->refreshTLDs($url, $ttl)) {
+            throw new CouldNotLoadTLDs(sprintf('Unable to load the root zone database from %s', $url));
+        }
+
+        $data = json_decode($data ?? $this->cache->get($key), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new CouldNotLoadTLDs('The root zone database cache is corrupted: '.json_last_error_msg(), json_last_error());
+        }
+
+        if (!isset($data['records'], $data['version'], $data['update'])) {
+            throw new CouldNotLoadTLDs(sprintf('The root zone database cache content is corrupted'));
+        }
+
+        return new TopLevelDomains(
+            $data['records'],
+            $data['version'],
+            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['update'])
+        );
+    }
+
+    /**
+     * Downloads, converts and cache the IANA Root Zone TLD.
+     *
+     * If a local cache already exists, it will be overwritten.
+     *
+     * Returns true if the refresh was successful
+     *
+     * @param null|mixed $ttl
+     *
+     * @throws Exception if the source is not validated
+     */
+    public function refreshTLDs(string $url = self::RZD_URL, $ttl = null): bool
+    {
+        $data = $this->converter->convertRootZoneDatabase($this->http->getContent($url));
+        $key = $this->getCacheKey('RZD', $url);
+        $ttl = $this->filterTtl($ttl) ?? $this->ttl;
+
+        return $this->cache->set($key, json_encode($data), $ttl);
     }
 
     /**
@@ -86,7 +181,7 @@ final class Manager
      *
      * @return DateInterval|null
      */
-    private function setTtl($ttl)
+    private function filterTtl($ttl)
     {
         if ($ttl instanceof DateInterval || null === $ttl) {
             return $ttl;
@@ -111,88 +206,10 @@ final class Manager
     }
 
     /**
-     * Gets the Public Suffix List Rules.
-     *
-     * @throws CouldNotLoadRules If the PSL rules can not be loaded
-     */
-    public function getRules(string $url = self::PSL_URL): Rules
-    {
-        $cacheKey = $this->getCacheKey('PSL', $url);
-        $cacheRules = $this->cache->get($cacheKey);
-
-        if (null === $cacheRules && !$this->refreshRules($url)) {
-            throw new CouldNotLoadRules(sprintf('Unable to load the public suffix list rules for %s', $url));
-        }
-
-        $rules = json_decode($cacheRules ?? $this->cache->get($cacheKey), true);
-        if (JSON_ERROR_NONE === json_last_error()) {
-            return new Rules($rules);
-        }
-
-        throw new CouldNotLoadRules('The public suffix list cache is corrupted: '.json_last_error_msg(), json_last_error());
-    }
-
-    /**
      * Returns the cache key according to the source URL.
      */
     private function getCacheKey(string $prefix, string $str): string
     {
-        return $prefix.'_FULL_'.md5(strtolower($str));
-    }
-
-    /**
-     * Downloads, converts and cache the Public Suffix.
-     *
-     * If a local cache already exists, it will be overwritten.
-     *
-     * Returns true if the refresh was successful
-     */
-    public function refreshRules(string $url = self::PSL_URL): bool
-    {
-        $body = $this->http->getContent($url);
-        $cacheData = $this->converter->convert($body);
-        $cacheKey = $this->getCacheKey('PSL', $url);
-
-        return $this->cache->set($cacheKey, json_encode($cacheData), $this->ttl);
-    }
-
-    /**
-     * Gets the Public Suffix List Rules.
-     *
-     * @throws Exception If the Top Level Domains can not be returned
-     */
-    public function getTLDs(string $url = self::RZD_URL): TopLevelDomains
-    {
-        $cacheKey = $this->getCacheKey('RZD', $url);
-        $cacheList = $this->cache->get($cacheKey);
-
-        if (null === $cacheList && !$this->refreshTLDs($url)) {
-            throw new CouldNotLoadTLDs(sprintf('Unable to load the root zone database from %s', $url));
-        }
-
-        $data = json_decode($cacheList ?? $this->cache->get($cacheKey), true);
-        if (JSON_ERROR_NONE === json_last_error()) {
-            return TopLevelDomains::createFromArray($data);
-        }
-
-        throw new CouldNotLoadTLDs('The root zone database cache is corrupted: '.json_last_error_msg(), json_last_error());
-    }
-
-    /**
-     * Downloads, converts and cache the IANA Root Zone TLD.
-     *
-     * If a local cache already exists, it will be overwritten.
-     *
-     * Returns true if the refresh was successful
-     *
-     * @throws Exception if the source is not validated
-     */
-    public function refreshTLDs(string $url = self::RZD_URL): bool
-    {
-        $body = $this->http->getContent($url);
-        $cacheData = $this->converter->convertRootZoneDatabase($body);
-        $cacheKey = $this->getCacheKey('RZD', $url);
-
-        return $this->cache->set($cacheKey, json_encode($cacheData), $this->ttl);
+        return sprintf('%s_FULL_%s', $prefix, md5(strtolower($str)));
     }
 }

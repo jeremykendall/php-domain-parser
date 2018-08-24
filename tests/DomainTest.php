@@ -87,6 +87,7 @@ class DomainTest extends TestCase
      * @dataProvider invalidDomainProvider
      * @covers ::__construct
      * @covers ::setLabels
+     * @covers ::idnToAscii
      * @covers ::getIdnErrors
      */
     public function testToAsciiThrowsException(string $domain)

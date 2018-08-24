@@ -78,17 +78,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
         $converter = $converter ?? new Converter();
 
-        return self::createFromArray($converter->convertRootZoneDatabase($content));
-    }
-
-    /**
-     * Returns a new instance from a array.
-     */
-    public static function createFromArray(array $data): self
-    {
-        if (!isset($data['records'], $data['version'], $data['update'])) {
-            throw new Exception(sprintf('The provided array must share the same structure returned by %s::toArray method', TopLevelDomains::class));
-        }
+        $data = $converter->convertRootZoneDatabase($content);
 
         return new self(
             $data['records'],
