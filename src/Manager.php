@@ -65,11 +65,6 @@ final class Manager
     private $ttl;
 
     /**
-     * @var Converter;
-     */
-    private $converter;
-
-    /**
      * new instance.
      *
      * @param null|mixed $ttl
@@ -79,7 +74,6 @@ final class Manager
         $this->cache = $cache;
         $this->http = $http;
         $this->ttl = $this->filterTtl($ttl);
-        $this->converter = new Converter();
     }
 
     /**
@@ -117,11 +111,15 @@ final class Manager
      */
     public function refreshRules(string $url = self::PSL_URL, $ttl = null): bool
     {
-        $data = $this->converter->convert($this->http->getContent($url));
-        $key = $this->getCacheKey('PSL', $url);
-        $ttl = $this->filterTtl($ttl) ?? $this->ttl;
+        static $converter;
 
-        return $this->cache->set($key, json_encode($data), $ttl);
+        $converter = $converter ?? new Converter();
+
+        return $this->cache->set(
+            $this->getCacheKey('PSL', $url),
+            json_encode($converter->convert($this->http->getContent($url))),
+            $this->filterTtl($ttl) ?? $this->ttl
+        );
     }
 
     /**
@@ -169,11 +167,15 @@ final class Manager
      */
     public function refreshTLDs(string $url = self::RZD_URL, $ttl = null): bool
     {
-        $data = $this->converter->convertRootZoneDatabase($this->http->getContent($url));
-        $key = $this->getCacheKey('RZD', $url);
-        $ttl = $this->filterTtl($ttl) ?? $this->ttl;
+        static $converter;
 
-        return $this->cache->set($key, json_encode($data), $ttl);
+        $converter = $converter ?? new TLDConverter();
+
+        return $this->cache->set(
+            $this->getCacheKey('RZD', $url),
+            json_encode($converter->convert($this->http->getContent($url))),
+            $this->filterTtl($ttl) ?? $this->ttl
+        );
     }
 
     /**

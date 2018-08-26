@@ -7,9 +7,9 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 ### Added
 
 - `Pdp\TopLevelDomains` to allow resolving domain againts IANA Root zone database
+- `Pdp\TLDConverter` converts the IANA Root Zones database into an associative array
 - `Pdp\Manager::getTLDs` a service to return a cache version of the IANA Root zone database
 - `Pdp\Manager::refreshTLDs` a service to refresh the cache version of the IANA Root zone database
-- `Pdp\Converter::convertRootZoneDatabase` converts the IANA Root zone database into an associative array
 -  added a new `$ttl` parameter to improve PSR-16 supports to
 	- `Pdp\Manager::__construct`
 	- `Pdp\Manager::getRules`

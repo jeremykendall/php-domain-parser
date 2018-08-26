@@ -76,9 +76,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     {
         static $converter;
 
-        $converter = $converter ?? new Converter();
+        $converter = $converter ?? new TLDConverter();
 
-        $data = $converter->convertRootZoneDatabase($content);
+        $data = $converter->convert($content);
 
         return new self(
             $data['records'],

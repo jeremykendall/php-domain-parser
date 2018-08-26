@@ -18,12 +18,12 @@ namespace Pdp\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use Pdp\Cache;
-use Pdp\Converter;
 use Pdp\CurlHttpClient;
 use Pdp\Domain;
 use Pdp\Exception;
 use Pdp\Manager;
 use Pdp\PublicSuffix;
+use Pdp\TLDConverter;
 use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use TypeError;
@@ -89,8 +89,8 @@ class TopLevelDomainsTest extends TestCase
         );
         self::assertFalse($collection->isEmpty());
 
-        $converter = new Converter();
-        $data = $converter->convertRootZoneDatabase(file_get_contents(__DIR__.'/data/root_zones.dat'));
+        $converter = new TLDConverter();
+        $data = $converter->convert(file_get_contents(__DIR__.'/data/root_zones.dat'));
         self::assertEquals($data, $collection->toArray());
 
         foreach ($collection as $tld) {
@@ -212,51 +212,5 @@ class TopLevelDomainsTest extends TestCase
                 }
             }],
         ];
-    }
-
-    /**
-     * @covers \Pdp\Converter::convertRootZoneDatabase
-     * @covers \Pdp\Converter::getHeaderInfo
-     */
-    public function testInvalidFormatToConvertWithMultipleHeader()
-    {
-        $string = <<<EOF
-# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
-FOO
-BAR
-# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
-ABARTH
-ABB
-ABBOTT
-ABBVIE
-EOF;
-        self::expectException(Exception::class);
-        TopLevelDomains::createFromString($string);
-    }
-
-    /**
-     * @covers \Pdp\Converter::convertRootZoneDatabase
-     * @covers \Pdp\Converter::getHeaderInfo
-     */
-    public function testInvalidFormatToConvertWithInvalidHeader()
-    {
-        $string = <<<EOF
-# Version 2018082200
-FOO
-BAR
-EOF;
-        self::expectException(Exception::class);
-        TopLevelDomains::createFromString($string);
-    }
-
-
-    /**
-     * @covers \Pdp\Converter::convertRootZoneDatabase
-     * @covers \Pdp\Converter::getHeaderInfo
-     */
-    public function testInvalidFormatToConvertWithEmptyContent()
-    {
-        self::expectException(Exception::class);
-        TopLevelDomains::createFromString('');
     }
 }

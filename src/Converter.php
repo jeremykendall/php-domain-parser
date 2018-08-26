@@ -15,16 +15,12 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use DateTimeImmutable;
 use SplTempFileObject;
-use const DATE_ATOM;
 use function array_pop;
 use function explode;
 use function preg_match;
-use function sprintf;
 use function strpos;
 use function substr;
-use function trim;
 
 /**
  * Public Suffix List Parser.
@@ -127,57 +123,5 @@ final class Converter implements PublicSuffixListSection
         }
 
         return $list;
-    }
-    /**
-     * Converts the IANA Root Zone Database into a TopLevelDomains collection object.
-     */
-    public function convertRootZoneDatabase(string $content): array
-    {
-        $header = [];
-        $records = [];
-
-        $file = new SplTempFileObject();
-        $file->fwrite($content);
-        $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
-        foreach ($file as $line) {
-            $line_content = trim($line);
-            if (false === strpos($line_content, '#')) {
-                $records[] = $this->idnToAscii($line_content);
-                continue;
-            }
-
-            if ([] === $header) {
-                $header = $this->getHeaderInfo($line_content);
-                continue;
-            }
-
-            throw new Exception(sprintf('Invalid Version line: %s', $line_content));
-        }
-
-        if ([] === $records || [] === $header) {
-            throw new Exception(sprintf('No TLD or Version header found'));
-        }
-
-        $header['records'] = $records;
-
-        return $header;
-    }
-
-    /**
-     * Extract IANA Root Zone Database header info.
-     */
-    private function getHeaderInfo(string $content): array
-    {
-        if (preg_match('/^\# Version (?<version>\d+), Last Updated (?<update>.*?)$/', $content, $matches)) {
-            $date = DateTimeImmutable::createFromFormat('D M d H:i:s Y e', $matches['update']);
-            $matches['update'] = $date->format(DATE_ATOM);
-
-            return [
-                'version' => $matches['version'],
-                'update' => $matches['update'],
-            ];
-        }
-
-        throw new Exception(sprintf('Invalid Version line: %s', $content));
     }
 }

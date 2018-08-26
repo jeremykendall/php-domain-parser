@@ -21,7 +21,6 @@ use org\bovigo\vfs\vfsStream;
 use Pdp\Cache;
 use Pdp\Converter;
 use Pdp\CurlHttpClient;
-use Pdp\Exception;
 use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotLoadTLDs;
 use Pdp\Exception\InvalidDomain;
@@ -412,7 +411,6 @@ class ManagerTest extends TestCase
         $manager->getTLDs();
     }
 
-
     /**
      * @covers \Pdp\Converter::convert
      * @covers \Pdp\Converter::getSection
@@ -424,17 +422,6 @@ class ManagerTest extends TestCase
         self::expectException(InvalidDomain::class);
         $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
         (new Converter())->convert($content);
-    }
-
-    /**
-     * @covers \Pdp\Converter::convertRootZoneDatabase
-     * @covers \Pdp\Converter::getHeaderInfo
-     */
-    public function testConvertRootZoneDatabaseThrowsExceptionWithInvalidContent()
-    {
-        self::expectException(Exception::class);
-        $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
-        (new Converter())->convertRootZoneDatabase($content);
     }
 
     /**

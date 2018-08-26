@@ -43,7 +43,6 @@ return PhpCsFixer\Config::create()
         'phpdoc_scalar' => true,
         'phpdoc_to_comment' => true,
         'phpdoc_summary' => true,
-        'psr0' => true,
         'psr4' => true,
         'return_type_declaration' => ['space_before' => 'none'],
         'single_blank_line_before_namespace' => true,
