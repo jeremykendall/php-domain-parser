@@ -30,10 +30,8 @@ use function trim;
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class TLDConverter implements PublicSuffixListSection
+final class TLDConverter
 {
-    use IDNAConverterTrait;
-
     /**
      * @internal
      */
@@ -41,6 +39,8 @@ final class TLDConverter implements PublicSuffixListSection
 
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
+     *
+     * @throws Exception if the content is invalid or can not be correctly parsed and converted
      */
     public function convert(string $content): array
     {
@@ -51,12 +51,13 @@ final class TLDConverter implements PublicSuffixListSection
         foreach ($file as $line) {
             $line = trim($line);
             if ([] === $data) {
-                $data = $this->getHeaderInfo($line);
+                $data = $this->extractHeader($line);
                 continue;
             }
 
             if (false === strpos($line, '#')) {
-                $data['records'][] = $this->idnToAscii($line);
+                $data['records'] = $data['records'] ?? [];
+                $data['records'][] = $this->extractRootZone($line);
                 continue;
             }
 
@@ -72,8 +73,10 @@ final class TLDConverter implements PublicSuffixListSection
 
     /**
      * Extract IANA Root Zone Database header info.
+     *
+     * @throws Exception if the Header line is invalid
      */
-    private function getHeaderInfo(string $content): array
+    private function extractHeader(string $content): array
     {
         if (!preg_match('/^\# Version (?<version>\d+), Last Updated (?<update>.*?)$/', $content, $matches)) {
             throw new Exception(sprintf('Invalid Version line: %s', $content));
@@ -84,5 +87,20 @@ final class TLDConverter implements PublicSuffixListSection
             'update' => DateTimeImmutable::createFromFormat(self::IANA_DATE_FORMAT, $matches['update'])
                 ->format(DATE_ATOM),
         ];
+    }
+
+    /**
+     * Extract IANA Root Zone.
+     *
+     * @throws Exception If the Root Zone is invalid
+     */
+    private function extractRootZone(string $content): string
+    {
+        $tld = (new PublicSuffix($content))->toAscii();
+        if (1 !== $tld->count() || '' === $tld->getContent()) {
+            throw new Exception(sprintf('Invalid Root zone: %s', $content));
+        }
+
+        return (string) $tld;
     }
 }

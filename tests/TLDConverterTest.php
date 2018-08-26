@@ -20,7 +20,7 @@ use Pdp\TLDConverter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass Pdp\TopLevelDomains
+ * @coversDefaultClass Pdp\TLDConverter
  */
 class TLDConverterTest extends TestCase
 {
@@ -36,7 +36,6 @@ class TLDConverterTest extends TestCase
 
     /**
      * @dataProvider invalidContentProvider
-     *
      */
     public function testConverterThrowsException(string $content)
     {
@@ -44,10 +43,6 @@ class TLDConverterTest extends TestCase
         (new TLDConverter())->convert($content);
     }
 
-    /**
-     * @covers ::convert
-     * @covers ::getHeaderInfo
-     */
     public function invalidContentProvider()
     {
         $double_header = <<<EOF
@@ -77,11 +72,35 @@ ABBOTT
 ABBVIE
 EOF;
 
+        $invalid_tld_content = <<<EOF
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+FOO
+BAR
+%ef%bc%85%ef%bc%94%ef%bc%91
+EOF;
+
+        $invalid_tld_content_not_root_zone = <<<EOF
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+FOO
+BAR
+GITHUB.COM
+EOF;
+
+        $invalid_tld_content_empty_tld = <<<EOF
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+FOO
+  
+GITHUB.COM
+EOF;
+
         return [
             'double header' => [$double_header],
             'invalid header' => [$invalid_header],
             'empty content' => [''],
             'header not on the first line' => [$header_no_first_line],
+            'invalid tld content' => [$invalid_tld_content],
+            'invalid root zone' => [$invalid_tld_content_not_root_zone],
+            'empty tld' => [$invalid_tld_content_empty_tld],
         ];
     }
 }
