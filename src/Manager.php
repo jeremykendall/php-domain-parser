@@ -143,14 +143,14 @@ final class Manager
             throw new CouldNotLoadTLDs('The root zone database cache is corrupted: '.json_last_error_msg(), json_last_error());
         }
 
-        if (!isset($data['records'], $data['version'], $data['update'])) {
+        if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
             throw new CouldNotLoadTLDs(sprintf('The root zone database cache content is corrupted'));
         }
 
         return new TopLevelDomains(
             $data['records'],
             $data['version'],
-            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['update'])
+            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate'])
         );
     }
 

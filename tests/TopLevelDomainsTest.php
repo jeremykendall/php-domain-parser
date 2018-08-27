@@ -17,11 +17,8 @@ namespace Pdp\Tests;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
 use Pdp\Domain;
-use Pdp\Exception;
-use Pdp\Manager;
+use Pdp\Exception\CouldNotLoadTLDs;
 use Pdp\PublicSuffix;
 use Pdp\TLDConverter;
 use Pdp\TopLevelDomains;
@@ -37,8 +34,7 @@ class TopLevelDomainsTest extends TestCase
 
     public function setUp()
     {
-        $manager = new Manager(new Cache(), new CurlHttpClient());
-        $this->collection = $manager->getTLDs();
+        $this->collection = TopLevelDomains::createFromPath(__DIR__.'/data/tlds-alpha-by-domain.txt');
     }
 
     /**
@@ -64,7 +60,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testCreateFromPathThrowsException()
     {
-        self::expectException(Exception::class);
+        self::expectException(CouldNotLoadTLDs::class);
         TopLevelDomains::createFromPath('/foo/bar.dat');
     }
 
@@ -85,7 +81,7 @@ class TopLevelDomainsTest extends TestCase
         self::assertSame('2018082200', $collection->getVersion());
         self::assertEquals(
             new DateTimeImmutable('2018-08-22 07:07:01', new DateTimeZone('UTC')),
-            $collection->getLastUpdate()
+            $collection->getModifiedDate()
         );
         self::assertFalse($collection->isEmpty());
 

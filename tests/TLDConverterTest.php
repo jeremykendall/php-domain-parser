@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
-use Pdp\Exception;
+use Pdp\Exception\CouldNotLoadTLDs;
 use Pdp\TLDConverter;
 use PHPUnit\Framework\TestCase;
 
@@ -30,8 +30,9 @@ class TLDConverterTest extends TestCase
         $res = (new TLDConverter())->convert($string);
         self::assertInternalType('array', $res);
         self::assertArrayHasKey('version', $res);
-        self::assertArrayHasKey('update', $res);
+        self::assertArrayHasKey('modifiedDate', $res);
         self::assertArrayHasKey('records', $res);
+        self::assertInternalType('array', $res['records']);
     }
 
     /**
@@ -39,7 +40,7 @@ class TLDConverterTest extends TestCase
      */
     public function testConverterThrowsException(string $content)
     {
-        self::expectException(Exception::class);
+        self::expectException(CouldNotLoadTLDs::class);
         (new TLDConverter())->convert($content);
     }
 

@@ -15,13 +15,10 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
 use Pdp\Domain;
 use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\InvalidDomain;
-use Pdp\Manager;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
@@ -39,8 +36,7 @@ class RulesTest extends TestCase
 
     public function setUp()
     {
-        $manager = new Manager(new Cache(), new CurlHttpClient());
-        $this->rules = $manager->getRules();
+        $this->rules = Rules::createFromPath(__DIR__.'/data/public_suffix_list.dat');
     }
 
     /**

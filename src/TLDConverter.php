@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use DateTimeImmutable;
+use Pdp\Exception\CouldNotLoadTLDs;
 use SplTempFileObject;
 use const DATE_ATOM;
 use function preg_match;
@@ -40,7 +41,7 @@ final class TLDConverter
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
      *
-     * @throws Exception if the content is invalid or can not be correctly parsed and converted
+     * @throws CouldNotLoadTLDs if the content is invalid or can not be correctly parsed and converted
      */
     public function convert(string $content): array
     {
@@ -61,30 +62,30 @@ final class TLDConverter
                 continue;
             }
 
-            throw new Exception(sprintf('Invalid line content: %s', $line));
+            throw new CouldNotLoadTLDs(sprintf('Invalid line content: %s', $line));
         }
 
-        if (isset($data['version'], $data['update'], $data['records'])) {
+        if (isset($data['version'], $data['modifiedDate'], $data['records'])) {
             return $data;
         }
 
-        throw new Exception(sprintf('Invalid content: TLD conversion failed'));
+        throw new CouldNotLoadTLDs(sprintf('Invalid content: TLD conversion failed'));
     }
 
     /**
      * Extract IANA Root Zone Database header info.
      *
-     * @throws Exception if the Header line is invalid
+     * @throws CouldNotLoadTLDs if the Header line is invalid
      */
     private function extractHeader(string $content): array
     {
-        if (!preg_match('/^\# Version (?<version>\d+), Last Updated (?<update>.*?)$/', $content, $matches)) {
-            throw new Exception(sprintf('Invalid Version line: %s', $content));
+        if (!preg_match('/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/', $content, $matches)) {
+            throw new CouldNotLoadTLDs(sprintf('Invalid Version line: %s', $content));
         }
 
         return [
             'version' => $matches['version'],
-            'update' => DateTimeImmutable::createFromFormat(self::IANA_DATE_FORMAT, $matches['update'])
+            'modifiedDate' => DateTimeImmutable::createFromFormat(self::IANA_DATE_FORMAT, $matches['date'])
                 ->format(DATE_ATOM),
         ];
     }
@@ -92,13 +93,18 @@ final class TLDConverter
     /**
      * Extract IANA Root Zone.
      *
-     * @throws Exception If the Root Zone is invalid
+     * @throws CouldNotLoadTLDs If the Root Zone is invalid
      */
     private function extractRootZone(string $content): string
     {
-        $tld = (new PublicSuffix($content))->toAscii();
+        try {
+            $tld = (new PublicSuffix($content))->toAscii();
+        } catch (Exception $e) {
+            throw new CouldNotLoadTLDs(sprintf('Invalid Root zone: %s', $content), 0, $e);
+        }
+
         if (1 !== $tld->count() || '' === $tld->getContent()) {
-            throw new Exception(sprintf('Invalid Root zone: %s', $content));
+            throw new CouldNotLoadTLDs(sprintf('Invalid Root zone: %s', $content));
         }
 
         return (string) $tld;

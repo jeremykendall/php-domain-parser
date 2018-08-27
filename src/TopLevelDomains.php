@@ -33,7 +33,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     /**
      * @var DateTimeImmutable
      */
-    private $update;
+    private $modifiedDate;
 
     /**
      * @var string
@@ -83,7 +83,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         return new self(
             $data['records'],
             $data['version'],
-            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['update'])
+            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate'])
         );
     }
 
@@ -92,17 +92,17 @@ final class TopLevelDomains implements Countable, IteratorAggregate
      */
     public static function __set_state(array $properties): self
     {
-        return new self($properties['records'], $properties['version'], $properties['update']);
+        return new self($properties['records'], $properties['version'], $properties['modifiedDate']);
     }
 
     /**
      * New instance.
      */
-    public function __construct(array $records, string $version, DateTimeInterface $update)
+    public function __construct(array $records, string $version, DateTimeInterface $modifiedDate)
     {
         $this->records = $records;
         $this->version = $version;
-        $this->update = $update instanceof DateTime ? DateTimeImmutable::createFromMutable($update) : $update;
+        $this->modifiedDate = $modifiedDate instanceof DateTime ? DateTimeImmutable::createFromMutable($modifiedDate) : $modifiedDate;
     }
 
     /**
@@ -114,11 +114,11 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
 
     /**
-     * Returns the List Last Update Info.
+     * Returns the List Last Modified Date.
      */
-    public function getLastUpdate(): DateTimeImmutable
+    public function getModifiedDate(): DateTimeImmutable
     {
-        return $this->update;
+        return $this->modifiedDate;
     }
 
     /**
@@ -155,7 +155,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         return [
             'version' => $this->version,
             'records' => $this->records,
-            'update' => $this->update->format(DATE_ATOM),
+            'modifiedDate' => $this->modifiedDate->format(DATE_ATOM),
         ];
     }
 
@@ -166,20 +166,22 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     {
         try {
             $tld = $tld instanceof Domain ? $tld : new Domain($tld);
-            if (1 !== count($tld)) {
-                return false;
-            }
-            $label = $tld->toAscii()->getLabel(0);
-            foreach ($this as $tld) {
-                if ($tld->getContent() === $label) {
-                    return true;
-                }
-            }
-
-            return false;
         } catch (Exception $e) {
             return false;
         }
+
+        if (1 !== count($tld)) {
+            return false;
+        }
+
+        $label = $tld->toAscii()->getLabel(0);
+        foreach ($this as $tld) {
+            if ($tld->getContent() === $label) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -189,20 +191,21 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     {
         try {
             $domain = $domain instanceof Domain ? $domain : new Domain($domain);
-            if (!$domain->isResolvable()) {
-                return $domain;
-            }
-
-            $label = $domain->toAscii()->getLabel(0);
-            foreach ($this as $tld) {
-                if ($tld->getContent() === $label) {
-                    return $domain->resolve($tld);
-                }
-            }
-
-            return $domain->withPublicSuffix(new PublicSuffix());
         } catch (Exception $e) {
             return new Domain();
         }
+
+        if (!$domain->isResolvable()) {
+            return $domain;
+        }
+
+        $label = $domain->toAscii()->getLabel(0);
+        foreach ($this as $tld) {
+            if ($tld->getContent() === $label) {
+                return $domain->resolve($tld);
+            }
+        }
+
+        return $domain->resolve(null);
     }
 }

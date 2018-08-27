@@ -47,8 +47,8 @@ final class CurlHttpClient implements HttpClient
             CURLOPT_FAILONERROR => true,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_HTTPGET => true,
         ];
 
