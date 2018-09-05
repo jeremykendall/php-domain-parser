@@ -18,14 +18,6 @@ namespace Pdp;
 use JsonSerializable;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\InvalidDomain;
-use function array_keys;
-use function array_reverse;
-use function count;
-use function implode;
-use function in_array;
-use function reset;
-use function sprintf;
-use function strpos;
 
 /**
  * Public Suffix Value Object.
@@ -74,6 +66,10 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
     /**
      * Create an new instance from a Domain object.
+     *
+     * @param Domain $domain
+     *
+     * @return self
      */
     public static function createFromDomain(Domain $domain): self
     {
@@ -90,7 +86,8 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * New instance.
      *
-     * @param null|mixed $publicSuffix
+     * @param mixed  $publicSuffix
+     * @param string $section
      */
     public function __construct($publicSuffix = null, string $section = '')
     {
@@ -108,7 +105,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     private function setPublicSuffix()
     {
-        if ([] === $this->labels) {
+        if (empty($this->labels)) {
             return null;
         }
 
@@ -123,7 +120,11 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * Set the public suffix section.
      *
+     * @param string $section
+     *
      * @throws CouldNotResolvePublicSuffix if the submitted section is not supported
+     *
+     * @return string
      */
     private function setSection(string $section): string
     {
@@ -215,6 +216,8 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List.
+     *
+     * @return bool
      */
     public function isKnown(): bool
     {
@@ -223,6 +226,8 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List ICANN Section.
+     *
+     * @return bool
      */
     public function isICANN(): bool
     {
@@ -231,6 +236,8 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List Private Section.
+     *
+     * @return bool
      */
     public function isPrivate(): bool
     {

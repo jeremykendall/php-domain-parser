@@ -22,18 +22,6 @@ use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotLoadTLDs;
 use Psr\SimpleCache\CacheInterface;
 use TypeError;
-use const DATE_ATOM;
-use const FILTER_VALIDATE_INT;
-use const JSON_ERROR_NONE;
-use function filter_var;
-use function is_string;
-use function json_decode;
-use function json_encode;
-use function json_last_error;
-use function json_last_error_msg;
-use function md5;
-use function sprintf;
-use function strtolower;
 
 /**
  * Public Suffix List Manager.
@@ -67,7 +55,9 @@ final class Manager
     /**
      * new instance.
      *
-     * @param null|mixed $ttl
+     * @param CacheInterface $cache
+     * @param HttpClient     $http
+     * @param null|mixed     $ttl
      */
     public function __construct(CacheInterface $cache, HttpClient $http, $ttl = null)
     {
@@ -79,9 +69,12 @@ final class Manager
     /**
      * Gets the Public Suffix List Rules.
      *
-     * @param null|mixed $ttl
+     * @param string     $url the Public Suffix List URL
+     * @param null|mixed $ttl the cache TTL
      *
      * @throws CouldNotLoadRules If the PSL rules can not be loaded
+     *
+     * @return Rules
      */
     public function getRules(string $url = self::PSL_URL, $ttl = null): Rules
     {
@@ -107,7 +100,10 @@ final class Manager
      *
      * Returns true if the refresh was successful
      *
-     * @param null|mixed $ttl
+     * @param string     $url the Public Suffix List URL
+     * @param null|mixed $ttl the cache TTL
+     *
+     * @return bool
      */
     public function refreshRules(string $url = self::PSL_URL, $ttl = null): bool
     {
@@ -125,9 +121,12 @@ final class Manager
     /**
      * Gets the Public Suffix List Rules.
      *
-     * @param null|mixed $ttl
+     * @param string     $url the IANA Root Zone Database URL
+     * @param null|mixed $ttl the cache TTL
      *
      * @throws Exception If the Top Level Domains can not be returned
+     *
+     * @return TopLevelDomains
      */
     public function getTLDs(string $url = self::RZD_URL, $ttl = null): TopLevelDomains
     {
@@ -161,9 +160,10 @@ final class Manager
      *
      * Returns true if the refresh was successful
      *
-     * @param null|mixed $ttl
+     * @param string     $url the IANA Root Zone Database URL
+     * @param null|mixed $ttl the cache TTL
      *
-     * @throws Exception if the source is not validated
+     * @return bool
      */
     public function refreshTLDs(string $url = self::RZD_URL, $ttl = null): bool
     {
@@ -180,6 +180,10 @@ final class Manager
 
     /**
      * set the cache TTL.
+     *
+     * @param null|mixed $ttl the cache TTL
+     *
+     * @throws TypeError if the value type is not recognized
      *
      * @return DateInterval|null
      */
@@ -209,6 +213,11 @@ final class Manager
 
     /**
      * Returns the cache key according to the source URL.
+     *
+     * @param string $prefix
+     * @param string $str
+     *
+     * @return string
      */
     private function getCacheKey(string $prefix, string $str): string
     {

@@ -28,19 +28,20 @@ class TLDConverterTest extends TestCase
     {
         $string = file_get_contents(__DIR__.'/data/root_zones.dat');
         $res = (new TLDConverter())->convert($string);
-        self::assertInternalType('array', $res);
-        self::assertArrayHasKey('version', $res);
-        self::assertArrayHasKey('modifiedDate', $res);
-        self::assertArrayHasKey('records', $res);
-        self::assertInternalType('array', $res['records']);
+        $this->assertInternalType('array', $res);
+        $this->assertArrayHasKey('version', $res);
+        $this->assertArrayHasKey('modifiedDate', $res);
+        $this->assertArrayHasKey('records', $res);
+        $this->assertInternalType('array', $res['records']);
     }
 
     /**
      * @dataProvider invalidContentProvider
+     * @param string $content
      */
     public function testConverterThrowsException(string $content)
     {
-        self::expectException(CouldNotLoadTLDs::class);
+        $this->expectException(CouldNotLoadTLDs::class);
         (new TLDConverter())->convert($content);
     }
 

@@ -21,13 +21,12 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use IteratorAggregate;
 use Pdp\Exception\CouldNotLoadTLDs;
-use const DATE_ATOM;
-use function count;
-use function fclose;
-use function fopen;
-use function sprintf;
-use function stream_get_contents;
 
+/**
+ * A class to resolve domain name against the IANA Root Database.
+ *
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ */
 final class TopLevelDomains implements Countable, IteratorAggregate
 {
     /**
@@ -48,9 +47,12 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     /**
      * Returns a new instance from a file path.
      *
+     * @param string        $path
      * @param null|resource $context
      *
      * @throws Exception If the list can not be loaded from the path
+     *
+     * @return self
      */
     public static function createFromPath(string $path, $context = null): self
     {
@@ -71,6 +73,10 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns a new instance from a string.
+     *
+     * @param string $content
+     *
+     * @return self
      */
     public static function createFromString(string $content): self
     {
@@ -97,6 +103,10 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * New instance.
+     *
+     * @param array             $records
+     * @param string            $version
+     * @param DateTimeInterface $modifiedDate
      */
     public function __construct(array $records, string $version, DateTimeInterface $modifiedDate)
     {
@@ -107,6 +117,8 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns the Version ID.
+     *
+     * @return string
      */
     public function getVersion(): string
     {
@@ -115,6 +127,8 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns the List Last Modified Date.
+     *
+     * @return DateTimeImmutable
      */
     public function getModifiedDate(): DateTimeImmutable
     {
@@ -131,6 +145,8 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Tells whether the list is empty.
+     *
+     * @return bool
      */
     public function isEmpty(): bool
     {
@@ -149,6 +165,8 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns an array representation of the list.
+     *
+     * @return array
      */
     public function toArray(): array
     {
@@ -161,6 +179,10 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Tells whether the submitted TLD is a valid Top Level Domain.
+     *
+     * @param mixed $tld
+     *
+     * @return bool
      */
     public function contains($tld): bool
     {
@@ -186,6 +208,10 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns a domain where its public suffix is the found TLD.
+     *
+     * @param mixed $domain
+     *
+     * @return Domain
      */
     public function resolve($domain): Domain
     {

@@ -21,24 +21,6 @@ use Pdp\Exception\CouldNotResolveSubDomain;
 use Pdp\Exception\InvalidLabel;
 use Pdp\Exception\InvalidLabelKey;
 use TypeError;
-use function array_count_values;
-use function array_keys;
-use function array_reverse;
-use function array_slice;
-use function array_unshift;
-use function count;
-use function explode;
-use function gettype;
-use function implode;
-use function in_array;
-use function is_scalar;
-use function ksort;
-use function method_exists;
-use function preg_match;
-use function sprintf;
-use function strlen;
-use function strpos;
-use function substr;
 
 /**
  * Domain Value Object.
@@ -96,8 +78,8 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * New instance.
      *
-     * @param PublicSuffix $publicSuffix
-     * @param null|mixed   $domain
+     * @param null|mixed        $domain
+     * @param null|PublicSuffix $publicSuffix
      */
     public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
@@ -113,7 +95,11 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * Sets the public suffix domain part.
      *
+     * @param PublicSuffix $publicSuffix
+     *
      * @throws CouldNotResolvePublicSuffix If the public suffic can not be attached to the domain
+     *
+     * @return PublicSuffix
      */
     private function setPublicSuffix(PublicSuffix $publicSuffix): PublicSuffix
     {
@@ -140,6 +126,10 @@ final class Domain implements DomainInterface, JsonSerializable
 
     /**
      * Normalize the domain name encoding content.
+     *
+     * @param PublicSuffix $subject
+     *
+     * @return PublicSuffix
      */
     private function normalize(PublicSuffix $subject): PublicSuffix
     {
@@ -297,7 +287,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * This method returns null if the registrable domain is equal to the public suffix.
      *
-     * @return string|null
+     * @return string|null registrable domain
      */
     public function getRegistrableDomain()
     {
@@ -312,7 +302,7 @@ final class Domain implements DomainInterface, JsonSerializable
      * This method returns null if the registrable domain is null
      * This method returns null if the registrable domain is equal to the public suffix
      *
-     * @return string|null
+     * @return string|null registrable domain
      */
     public function getSubDomain()
     {
@@ -335,6 +325,8 @@ final class Domain implements DomainInterface, JsonSerializable
      * A domain is resolvable if:
      *     - it contains at least 2 labels
      *     - it is not a absolute domain (end with a '.' character)
+     *
+     * @return bool
      */
     public function isResolvable(): bool
     {
@@ -343,6 +335,8 @@ final class Domain implements DomainInterface, JsonSerializable
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List.
+     *
+     * @return bool
      */
     public function isKnown(): bool
     {
@@ -351,6 +345,8 @@ final class Domain implements DomainInterface, JsonSerializable
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List ICANN Section.
+     *
+     * @return bool
      */
     public function isICANN(): bool
     {
@@ -359,6 +355,8 @@ final class Domain implements DomainInterface, JsonSerializable
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List Private Section.
+     *
+     * @return bool
      */
     public function isPrivate(): bool
     {
@@ -404,6 +402,10 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the modified Public Suffix Information.
+     *
+     * @param mixed $publicSuffix
+     *
+     * @return self
      */
     public function resolve($publicSuffix): self
     {
@@ -427,6 +429,10 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * If the domain already has a public suffix it will be replaced by the new value
      * otherwise the public suffix content is added to or remove from the current domain.
+     *
+     * @param mixed $publicSuffix
+     *
+     * @return self
      */
     public function withPublicSuffix($publicSuffix): self
     {
@@ -447,14 +453,18 @@ final class Domain implements DomainInterface, JsonSerializable
         return new self($domain.'.'.$publicSuffix->getContent(), $publicSuffix);
     }
 
+
     /**
      * Returns an instance with the specified sub domain added.
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the new sub domain
      *
+     * @param mixed $subDomain the subdomain to add
      *
      * @throws CouldNotResolveSubDomain If the Sub domain can not be added to the current Domain
+     *
+     * @return self
      */
     public function withSubDomain($subDomain): self
     {
@@ -476,6 +486,8 @@ final class Domain implements DomainInterface, JsonSerializable
 
     /**
      * Filter a subdomain to update the domain part.
+     *
+     * @param mixed $domain
      *
      * @throws TypeError if the domain can not be converted
      *
@@ -511,6 +523,10 @@ final class Domain implements DomainInterface, JsonSerializable
      * Prepends a label to the domain.
      *
      * @see ::withLabel
+     *
+     * @param mixed $label
+     *
+     * @return self
      */
     public function prepend($label): self
     {
@@ -521,6 +537,10 @@ final class Domain implements DomainInterface, JsonSerializable
      * Appends a label to the domain.
      *
      * @see ::withLabel
+     *
+     * @param mixed $label
+     *
+     * @return self
      */
     public function append($label): self
     {
@@ -536,8 +556,13 @@ final class Domain implements DomainInterface, JsonSerializable
      * If $key is non-negative, the added label will be the label at $key position from the start.
      * If $key is negative, the added label will be the label at $key position from the end.
      *
+     * @param int   $key
+     * @param mixed $label
+     *
      * @throws InvalidLabelKey If the key is out of bounds
      * @throws InvalidLabel    If the label is converted to the NULL value
+     *
+     * @return self
      */
     public function withLabel(int $key, $label): self
     {
@@ -579,9 +604,12 @@ final class Domain implements DomainInterface, JsonSerializable
      * If $key is non-negative, the removed label will be the label at $key position from the start.
      * If $key is negative, the removed label will be the label at $key position from the end.
      *
+     * @param int $key
      * @param int ...$keys remaining keys to remove
      *
      * @throws InvalidLabelKey If the key is out of bounds
+     *
+     * @return self
      */
     public function withoutLabel(int $key, int ...$keys): self
     {

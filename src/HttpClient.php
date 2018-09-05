@@ -29,6 +29,7 @@ interface HttpClient
     /**
      * Returns the content fetched from a given URL.
      *
+     * @param string $url
      *
      * @throws HttpClientException If an errors occurs while fetching the content from a given URL
      *

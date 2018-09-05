@@ -71,10 +71,11 @@ class ManagerTest extends TestCase
      * @dataProvider validTtlProvider
      * @covers ::__construct
      * @covers ::filterTtl
+     * @param mixed $ttl
      */
     public function testConstructor($ttl)
     {
-        self::assertInstanceOf(Manager::class, new Manager($this->cachePool, $this->client, $ttl));
+        $this->assertInstanceOf(Manager::class, new Manager($this->cachePool, $this->client, $ttl));
     }
 
     public function validTtlProvider()
@@ -92,9 +93,9 @@ class ManagerTest extends TestCase
      * @covers ::__construct
      * @covers ::filterTtl
      */
-    public function testConstructorTrowsException()
+    public function testConstructorThrowsException()
     {
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
         new Manager($this->cachePool, $this->client, tmpfile());
     }
 
@@ -107,8 +108,8 @@ class ManagerTest extends TestCase
     {
         $manager = new Manager($this->cachePool, $this->client);
         $previous = $manager->getRules();
-        self::assertTrue($manager->refreshRules());
-        self::assertEquals($previous, $manager->getRules());
+        $this->assertTrue($manager->refreshRules());
+        $this->assertEquals($previous, $manager->getRules());
     }
 
     /**
@@ -122,7 +123,7 @@ class ManagerTest extends TestCase
         $previous = $manager->getRules(Manager::PSL_URL);
         $this->cachePool->clear(); //delete all local cache
         $list = $manager->getRules(Manager::PSL_URL);
-        self::assertEquals($previous, $manager->getRules(Manager::PSL_URL));
+        $this->assertEquals($previous, $manager->getRules(Manager::PSL_URL));
     }
 
     /**
@@ -173,7 +174,7 @@ class ManagerTest extends TestCase
             }
         };
 
-        self::expectException(CouldNotLoadRules::class);
+        $this->expectException(CouldNotLoadRules::class);
         $manager = new Manager($cachePool, $this->client);
         $manager->getRules('https://google.com');
     }
@@ -226,7 +227,7 @@ class ManagerTest extends TestCase
             }
         };
 
-        self::expectException(CouldNotLoadRules::class);
+        $this->expectException(CouldNotLoadRules::class);
         $manager = new Manager($cachePool, $this->client);
         $manager->getRules();
     }
@@ -240,8 +241,8 @@ class ManagerTest extends TestCase
     {
         $manager = new Manager($this->cachePool, $this->client);
         $previous = $manager->getTLDs();
-        self::assertTrue($manager->refreshTLDs());
-        self::assertEquals($previous, $manager->getTLDs());
+        $this->assertTrue($manager->refreshTLDs());
+        $this->assertEquals($previous, $manager->getTLDs());
     }
 
     /**
@@ -254,7 +255,7 @@ class ManagerTest extends TestCase
         $manager = new Manager($this->cachePool, $this->client);
         $previous = $manager->getTLDs();
         $this->cachePool->clear(); //delete all local cache
-        self::assertEquals($previous, $manager->getTLDs());
+        $this->assertEquals($previous, $manager->getTLDs());
     }
 
     /**
@@ -305,7 +306,7 @@ class ManagerTest extends TestCase
             }
         };
 
-        self::expectException(CouldNotLoadTLDs::class);
+        $this->expectException(CouldNotLoadTLDs::class);
         $manager = new Manager($cachePool, $this->client);
         $manager->getTLDs();
     }
@@ -358,7 +359,7 @@ class ManagerTest extends TestCase
             }
         };
 
-        self::expectException(CouldNotLoadTLDs::class);
+        $this->expectException(CouldNotLoadTLDs::class);
         $manager = new Manager($cachePool, $this->client);
         $manager->getTLDs();
     }
@@ -411,7 +412,7 @@ class ManagerTest extends TestCase
             }
         };
 
-        self::expectException(CouldNotLoadTLDs::class);
+        $this->expectException(CouldNotLoadTLDs::class);
         $manager = new Manager($cachePool, $this->client);
         $manager->getTLDs();
     }

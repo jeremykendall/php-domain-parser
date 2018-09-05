@@ -17,14 +17,6 @@ namespace Pdp;
 
 use Composer\Script\Event;
 use Throwable;
-use const PHP_EOL;
-use const STDERR;
-use const STDOUT;
-use function dirname;
-use function extension_loaded;
-use function fwrite;
-use function implode;
-use function is_dir;
 
 /**
  * A class to manage PSL ICANN Section rules updates.
@@ -110,6 +102,10 @@ final class Installer
 
     /**
      * Detect the I/O interface to use.
+     *
+     * @param Event|null $event
+     *
+     * @return mixed
      */
     private static function getIO(Event $event = null)
     {

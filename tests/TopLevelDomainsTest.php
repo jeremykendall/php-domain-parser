@@ -52,7 +52,7 @@ class TopLevelDomainsTest extends TestCase
         ]);
 
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat', $context);
-        self::assertInstanceOf(TopLevelDomains::class, $collection);
+        $this->assertInstanceOf(TopLevelDomains::class, $collection);
     }
 
     /**
@@ -60,7 +60,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testCreateFromPathThrowsException()
     {
-        self::expectException(CouldNotLoadTLDs::class);
+        $this->expectException(CouldNotLoadTLDs::class);
         TopLevelDomains::createFromPath('/foo/bar.dat');
     }
 
@@ -71,35 +71,36 @@ class TopLevelDomainsTest extends TestCase
     public function testSetState()
     {
         $collection = eval('return '.var_export($this->collection, true).';');
-        self::assertEquals($this->collection, $collection);
+        $this->assertEquals($this->collection, $collection);
     }
 
     public function testGetterProperties()
     {
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
-        self::assertCount(15, $collection);
-        self::assertSame('2018082200', $collection->getVersion());
-        self::assertEquals(
+        $this->assertCount(15, $collection);
+        $this->assertSame('2018082200', $collection->getVersion());
+        $this->assertEquals(
             new DateTimeImmutable('2018-08-22 07:07:01', new DateTimeZone('UTC')),
             $collection->getModifiedDate()
         );
-        self::assertFalse($collection->isEmpty());
+        $this->assertFalse($collection->isEmpty());
 
         $converter = new TLDConverter();
         $data = $converter->convert(file_get_contents(__DIR__.'/data/root_zones.dat'));
-        self::assertEquals($data, $collection->toArray());
+        $this->assertEquals($data, $collection->toArray());
 
         foreach ($collection as $tld) {
-            self::assertInstanceOf(PublicSuffix::class, $tld);
+            $this->assertInstanceOf(PublicSuffix::class, $tld);
         }
     }
 
     /**
      * @dataProvider validDomainProvider
+     * @param mixed $tld
      */
     public function testResolve($tld)
     {
-        self::assertSame(
+        $this->assertSame(
             (new Domain($tld))->getLabel(0),
             $this->collection->resolve($tld)->getPublicSuffix()
         );
@@ -127,33 +128,34 @@ class TopLevelDomainsTest extends TestCase
 
     public function testResolveThrowsTypeError()
     {
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
         $this->collection->resolve(new DateTimeImmutable());
     }
 
     public function testResolveWithInvalidDomain()
     {
-        self::assertEquals(new Domain(), $this->collection->resolve('###'));
+        $this->assertEquals(new Domain(), $this->collection->resolve('###'));
     }
 
     public function testResolveWithUnResolvableDomain()
     {
         $domain = 'localhost';
-        self::assertEquals(new Domain($domain), $this->collection->resolve($domain));
+        $this->assertEquals(new Domain($domain), $this->collection->resolve($domain));
     }
 
     public function testResolveWithUnregisteredTLD()
     {
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
-        self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix());
+        $this->assertNull($collection->resolve('localhost.locale')->getPublicSuffix());
     }
 
     /**
      * @dataProvider validTldProvider
+     * @param mixed $tld
      */
     public function testContainsReturnsTrue($tld)
     {
-        self::assertTrue($this->collection->contains($tld));
+        $this->assertTrue($this->collection->contains($tld));
     }
 
     public function validTldProvider()
@@ -180,10 +182,11 @@ class TopLevelDomainsTest extends TestCase
 
     /**
      * @dataProvider invalidTldProvider
+     * @param mixed $tld
      */
     public function testContainsReturnsFalse($tld)
     {
-        self::assertFalse($this->collection->contains($tld));
+        $this->assertFalse($this->collection->contains($tld));
     }
 
     public function invalidTldProvider()

@@ -18,16 +18,11 @@ namespace Pdp;
 use DateTimeImmutable;
 use Pdp\Exception\CouldNotLoadTLDs;
 use SplTempFileObject;
-use const DATE_ATOM;
-use function preg_match;
-use function sprintf;
-use function strpos;
-use function trim;
 
 /**
  * IANA Root Zone Database Parser.
  *
- * This class convert the IANA Root Zone Databas into an associative, multidimensional array
+ * This class convert the IANA Root Zone Database into an associative, multidimensional array
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
@@ -41,7 +36,11 @@ final class TLDConverter
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
      *
+     * @param string $content
+     *
      * @throws CouldNotLoadTLDs if the content is invalid or can not be correctly parsed and converted
+     *
+     * @return array
      */
     public function convert(string $content): array
     {
@@ -75,7 +74,11 @@ final class TLDConverter
     /**
      * Extract IANA Root Zone Database header info.
      *
+     * @param string $content
+     *
      * @throws CouldNotLoadTLDs if the Header line is invalid
+     *
+     * @return array
      */
     private function extractHeader(string $content): array
     {
@@ -93,7 +96,11 @@ final class TLDConverter
     /**
      * Extract IANA Root Zone.
      *
+     * @param string $content
+     *
      * @throws CouldNotLoadTLDs If the Root Zone is invalid
+     *
+     * @return string
      */
     private function extractRootZone(string $content): string
     {

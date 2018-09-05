@@ -17,33 +17,6 @@ namespace Pdp;
 
 use Pdp\Exception\InvalidDomain;
 use TypeError;
-use const FILTER_FLAG_IPV4;
-use const FILTER_VALIDATE_IP;
-use const IDNA_ERROR_BIDI;
-use const IDNA_ERROR_CONTEXTJ;
-use const IDNA_ERROR_DISALLOWED;
-use const IDNA_ERROR_DOMAIN_NAME_TOO_LONG;
-use const IDNA_ERROR_EMPTY_LABEL;
-use const IDNA_ERROR_HYPHEN_3_4;
-use const IDNA_ERROR_INVALID_ACE_LABEL;
-use const IDNA_ERROR_LABEL_TOO_LONG;
-use const IDNA_ERROR_LEADING_COMBINING_MARK;
-use const IDNA_ERROR_LEADING_HYPHEN;
-use const IDNA_ERROR_PUNYCODE;
-use const IDNA_ERROR_TRAILING_HYPHEN;
-use function array_reverse;
-use function explode;
-use function gettype;
-use function idn_to_ascii;
-use function idn_to_utf8;
-use function implode;
-use function is_scalar;
-use function iterator_to_array;
-use function method_exists;
-use function preg_match;
-use function rawurldecode;
-use function sprintf;
-use function strtolower;
 
 /**
  * @internal Domain name validator
@@ -54,6 +27,10 @@ trait IDNAConverterTrait
 {
     /**
      * Get and format IDN conversion error message.
+     *
+     * @param int $error_bit
+     *
+     * @return string
      */
     private static function getIdnErrors(int $error_bit): string
     {
@@ -93,7 +70,11 @@ trait IDNAConverterTrait
      *
      * This method returns the string converted to IDN ASCII form
      *
+     * @param string $domain
+     *
      * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
+     *
+     * @return string
      */
     private function idnToAscii(string $domain): string
     {
@@ -120,7 +101,11 @@ trait IDNAConverterTrait
      *
      * This method returns the string converted to IDN UNICODE form
      *
+     * @param string $domain
+     *
      * @throws InvalidDomain if the string can not be converted to UNICODE using IDN UTS46 algorithm
+     *
+     * @return string
      */
     private function idnToUnicode(string $domain): string
     {
@@ -140,9 +125,10 @@ trait IDNAConverterTrait
      *
      * For example: setLabels('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];
      *
+     * @param mixed $domain
      *
-     * @param  null|mixed    $domain
      * @throws InvalidDomain If the domain is invalid
+     *
      * @return string[]
      */
     private function setLabels($domain = null): array

@@ -20,31 +20,6 @@ use FilesystemIterator;
 use Generator;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
-use const DIRECTORY_SEPARATOR;
-use function chmod;
-use function dirname;
-use function file_exists;
-use function file_get_contents;
-use function filemtime;
-use function get_class;
-use function gettype;
-use function is_array;
-use function is_dir;
-use function is_int;
-use function is_object;
-use function is_string;
-use function is_writable;
-use function mkdir;
-use function preg_match;
-use function realpath;
-use function rename;
-use function serialize;
-use function sprintf;
-use function time;
-use function touch;
-use function uniqid;
-use function unlink;
-use function unserialize;
 
 /**
  * A simple file-based PSR-16 cache implementation.
@@ -166,6 +141,10 @@ final class Cache implements CacheInterface
 
     /**
      * Returns the expiration time expressed in the number of seconds since the Unix Epoch.
+     *
+     * @param mixed $ttl
+     *
+     * @return int
      */
     private function getExpireAt($ttl): int
     {

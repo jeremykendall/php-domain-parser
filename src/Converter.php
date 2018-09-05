@@ -17,11 +17,6 @@ namespace Pdp;
 
 use Pdp\Exception\CouldNotLoadRules;
 use SplTempFileObject;
-use function array_pop;
-use function explode;
-use function preg_match;
-use function strpos;
-use function substr;
 
 /**
  * Public Suffix List Parser.
@@ -57,6 +52,10 @@ final class Converter implements PublicSuffixListSection
     /**
      * Convert the Public Suffix List into
      * an associative, multidimensional array.
+     *
+     * @param string $content
+     *
+     * @return array
      */
     public function convert(string $content): array
     {
@@ -80,6 +79,8 @@ final class Converter implements PublicSuffixListSection
      *
      * @param string $section the current status
      * @param string $line    the current file line
+     *
+     * @return string
      */
     private function getSection(string $section, string $line): string
     {
@@ -104,7 +105,9 @@ final class Converter implements PublicSuffixListSection
      * @param array $rule_parts One line (rule) from the Public Suffix List
      *                          exploded on '.', or the remaining portion of that array during recursion
      *
-     * @throws Exception if The domain name is invalid
+     * @throws CouldNotLoadRules if the domain name can not be converted using IDN to ASCII algorithm
+     *
+     * @return array
      */
     private function addRule(array $list, array $rule_parts): array
     {

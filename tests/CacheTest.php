@@ -58,29 +58,30 @@ class CacheTest extends TestCase
     public function testConstructorOnEmptyCachePath()
     {
         $cache = new Cache('');
-        self::assertNull($cache->get('invalid_key'));
+        $this->assertNull($cache->get('invalid_key'));
     }
 
     public function testConstructorOnParentCachePathIsNotExisted()
     {
         $cache = new Cache(vfsStream::url('pdp/cache_not_exist'));
-        self::assertNull($cache->get('invalid_key'));
+        $this->assertNull($cache->get('invalid_key'));
     }
 
     public function testSetOnNotWritableCachePath()
     {
         $cache = new Cache('/bin');
-        self::assertFalse($cache->set('key', 'value'));
+        $this->assertFalse($cache->set('key', 'value'));
     }
 
     /**
      * @dataProvider storableValuesProvider
      *
+     * @param mixed $expected
      */
     public function testSetGet($expected)
     {
         $this->cache->set('foo', $expected);
-        self::assertEquals($expected, $this->cache->get('foo'));
+        $this->assertEquals($expected, $this->cache->get('foo'));
     }
 
     public function storableValuesProvider()
@@ -101,26 +102,26 @@ class CacheTest extends TestCase
     public function testDelete()
     {
         $this->cache->set('foo', 'bar');
-        self::assertEquals('bar', $this->cache->get('foo'));
+        $this->assertEquals('bar', $this->cache->get('foo'));
         $this->cache->delete('foo');
-        self::assertNull($this->cache->get('foo'));
+        $this->assertNull($this->cache->get('foo'));
     }
 
     public function testGetInvalidArg()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->cache->get(null);
     }
 
     public function testInvalidKey()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->cache->get('foo:bar', 'bar');
     }
 
     public function testSetInvalidTTL()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->cache->set('foo', 'bar', date_create());
     }
 
@@ -129,7 +130,7 @@ class CacheTest extends TestCase
      */
     public function testGetNotFound()
     {
-        self::assertNull($this->cache->get('notfound'));
+        $this->assertNull($this->cache->get('notfound'));
     }
 
     /**
@@ -138,7 +139,7 @@ class CacheTest extends TestCase
     public function testGetNotFoundDefault()
     {
         $default = 'chickpeas';
-        self::assertEquals(
+        $this->assertEquals(
             $default,
             $this->cache->get('notfound', $default)
         );
@@ -151,11 +152,11 @@ class CacheTest extends TestCase
     public function testSetExpire()
     {
         $this->cache->set('foo', 'bar', 1);
-        self::assertEquals('bar', $this->cache->get('foo'));
+        $this->assertEquals('bar', $this->cache->get('foo'));
 
         // Wait 3 seconds so the cache expires
         sleep(3);
-        self::assertNull($this->cache->get('foo'));
+        $this->assertNull($this->cache->get('foo'));
     }
 
     /**
@@ -165,22 +166,22 @@ class CacheTest extends TestCase
     public function testSetExpireDateInterval()
     {
         $this->cache->set('foo', 'bar', new DateInterval('PT1S'));
-        self::assertEquals('bar', $this->cache->get('foo'));
+        $this->assertEquals('bar', $this->cache->get('foo'));
 
         // Wait 3 seconds so the cache expires
         sleep(3);
-        self::assertNull($this->cache->get('foo'));
+        $this->assertNull($this->cache->get('foo'));
     }
 
     public function testSetInvalidArg()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->cache->set(null, 'bar');
     }
 
     public function testDeleteInvalidArg()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->cache->delete(null);
     }
 
@@ -191,7 +192,7 @@ class CacheTest extends TestCase
     {
         $this->cache->set('foo', 'bar');
         $this->cache->clear();
-        self::assertNull($this->cache->get('foo'));
+        $this->assertNull($this->cache->get('foo'));
     }
 
     /**
@@ -200,7 +201,7 @@ class CacheTest extends TestCase
     public function testHas()
     {
         $this->cache->set('foo', 'bar');
-        self::assertTrue($this->cache->has('foo'));
+        $this->assertTrue($this->cache->has('foo'));
     }
 
     /**
@@ -208,12 +209,12 @@ class CacheTest extends TestCase
      */
     public function testHasNot()
     {
-        self::assertFalse($this->cache->has('not-found'));
+        $this->assertFalse($this->cache->has('not-found'));
     }
 
     public function testHasInvalidArg()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->cache->has(null);
     }
 
@@ -231,13 +232,13 @@ class CacheTest extends TestCase
         $this->cache->setMultiple($values);
         $result = $this->cache->getMultiple(array_keys($values));
         foreach ($result as $key => $value) {
-            self::assertTrue(isset($values[$key]));
-            self::assertEquals($values[$key], $value);
+            $this->assertTrue(isset($values[$key]));
+            $this->assertEquals($values[$key], $value);
             unset($values[$key]);
         }
 
         // The list of values should now be empty
-        self::assertEquals([], $values);
+        $this->assertEquals([], $values);
     }
 
     /**
@@ -261,13 +262,13 @@ class CacheTest extends TestCase
 
         $result = $this->cache->getMultiple(array_keys($values));
         foreach ($result as $key => $value) {
-            self::assertTrue(isset($values[$key]));
-            self::assertEquals($values[$key], $value);
+            $this->assertTrue(isset($values[$key]));
+            $this->assertEquals($values[$key], $value);
             unset($values[$key]);
         }
 
         // The list of values should now be empty
-        self::assertEquals([], $values);
+        $this->assertEquals([], $values);
     }
 
     /**
@@ -290,13 +291,13 @@ class CacheTest extends TestCase
         $this->cache->setMultiple($values);
         $result = $this->cache->getMultiple($gen());
         foreach ($result as $key => $value) {
-            self::assertTrue(isset($values[$key]));
-            self::assertEquals($values[$key], $value);
+            $this->assertTrue(isset($values[$key]));
+            $this->assertEquals($values[$key], $value);
             unset($values[$key]);
         }
 
         // The list of values should now be empty
-        self::assertEquals([], $values);
+        $this->assertEquals([], $values);
     }
 
     /**
@@ -317,13 +318,13 @@ class CacheTest extends TestCase
         $count = 0;
         foreach ($result as $key => $value) {
             ++$count;
-            self::assertTrue(isset($values[$key]));
-            self::assertEquals($values[$key], $value);
+            $this->assertTrue(isset($values[$key]));
+            $this->assertEquals($values[$key], $value);
             unset($values[$key]);
         }
-        self::assertEquals(3, $count);
+        $this->assertEquals(3, $count);
         // The list of values should now be empty
-        self::assertEquals([], $values);
+        $this->assertEquals([], $values);
     }
 
     /**
@@ -353,14 +354,14 @@ class CacheTest extends TestCase
 
         foreach ($result as $key => $value) {
             ++$count;
-            self::assertTrue(isset($expected[$key]));
-            self::assertEquals($expected[$key], $value);
+            $this->assertTrue(isset($expected[$key]));
+            $this->assertEquals($expected[$key], $value);
             unset($expected[$key]);
         }
-        self::assertEquals(3, $count);
+        $this->assertEquals(3, $count);
 
         // The list of values should now be empty
-        self::assertEquals([], $expected);
+        $this->assertEquals([], $expected);
     }
 
     /**
@@ -390,25 +391,25 @@ class CacheTest extends TestCase
 
         foreach ($result as $key => $value) {
             ++$count;
-            self::assertTrue(isset($expected[$key]));
-            self::assertEquals($expected[$key], $value);
+            $this->assertTrue(isset($expected[$key]));
+            $this->assertEquals($expected[$key], $value);
             unset($expected[$key]);
         }
-        self::assertEquals(3, $count);
+        $this->assertEquals(3, $count);
 
         // The list of values should now be empty
-        self::assertEquals([], $expected);
+        $this->assertEquals([], $expected);
     }
 
     public function testSetMultipleInvalidArg()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->cache->setMultiple(null);
     }
 
     public function testGetMultipleInvalidArg()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $result = $this->cache->getMultiple(null);
         // If $result was a generator, the generator will only error once the
         // first value is requested.
@@ -443,13 +444,13 @@ class CacheTest extends TestCase
         ];
 
         foreach ($result as $key => $value) {
-            self::assertTrue(isset($expected[$key]));
-            self::assertEquals($expected[$key], $value);
+            $this->assertTrue(isset($expected[$key]));
+            $this->assertEquals($expected[$key], $value);
             unset($expected[$key]);
         }
 
         // The list of values should now be empty
-        self::assertEquals([], $expected);
+        $this->assertEquals([], $expected);
     }
 
     /**
@@ -481,18 +482,18 @@ class CacheTest extends TestCase
         ];
 
         foreach ($result as $key => $value) {
-            self::assertTrue(isset($expected[$key]));
-            self::assertEquals($expected[$key], $value);
+            $this->assertTrue(isset($expected[$key]));
+            $this->assertEquals($expected[$key], $value);
             unset($expected[$key]);
         }
 
         // The list of values should now be empty
-        self::assertEquals([], $expected);
+        $this->assertEquals([], $expected);
     }
 
     public function testDeleteMultipleInvalidArg()
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->cache->deleteMultiple(null);
     }
 }

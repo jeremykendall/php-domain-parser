@@ -39,13 +39,13 @@ class PublicSuffixTest extends TestCase
     {
         $publicSuffix = new PublicSuffix('ac.be');
         $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
-        self::assertEquals($publicSuffix, $generatePublicSuffix);
-        self::assertSame(['be', 'ac'], iterator_to_array($publicSuffix));
-        self::assertJsonStringEqualsJsonString(
+        $this->assertEquals($publicSuffix, $generatePublicSuffix);
+        $this->assertSame(['be', 'ac'], iterator_to_array($publicSuffix));
+        $this->assertJsonStringEqualsJsonString(
             json_encode($publicSuffix->__debugInfo()),
             json_encode($publicSuffix)
         );
-        self::assertSame('ac.be', (string) $publicSuffix);
+        $this->assertSame('ac.be', (string) $publicSuffix);
     }
 
     /**
@@ -57,7 +57,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testPSToUnicodeWithUrlEncode()
     {
-        self::assertSame('bébe', (new PublicSuffix('b%C3%A9be'))->toUnicode()->getContent());
+        $this->assertSame('bébe', (new PublicSuffix('b%C3%A9be'))->toUnicode()->getContent());
     }
 
     /**
@@ -71,13 +71,17 @@ class PublicSuffixTest extends TestCase
      * @dataProvider PSProvider
      *
      * @param string|null $publicSuffix
+     * @param string      $section
+     * @param bool        $isKnown
+     * @param bool        $isIcann
+     * @param bool        $isPrivate
      */
     public function testSetSection($publicSuffix, string $section, bool $isKnown, bool $isIcann, bool $isPrivate)
     {
         $ps = new PublicSuffix($publicSuffix, $section);
-        self::assertSame($isKnown, $ps->isKnown());
-        self::assertSame($isIcann, $ps->isICANN());
-        self::assertSame($isPrivate, $ps->isPrivate());
+        $this->assertSame($isKnown, $ps->isKnown());
+        $this->assertSame($isIcann, $ps->isICANN());
+        $this->assertSame($isPrivate, $ps->isPrivate());
     }
 
     public function PSProvider()
@@ -95,10 +99,11 @@ class PublicSuffixTest extends TestCase
      * @covers ::setPublicSuffix
      * @dataProvider invalidPublicSuffixProvider
      *
+     * @param mixed $publicSuffix
      */
     public function testConstructorThrowsException($publicSuffix)
     {
-        self::expectException(InvalidDomain::class);
+        $this->expectException(InvalidDomain::class);
         new PublicSuffix($publicSuffix);
     }
 
@@ -117,7 +122,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testPSToAsciiThrowsException()
     {
-        self::expectException(InvalidDomain::class);
+        $this->expectException(InvalidDomain::class);
         new PublicSuffix('a⒈com');
     }
 
@@ -127,7 +132,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testSetSectionThrowsException()
     {
-        self::expectException(CouldNotResolvePublicSuffix::class);
+        $this->expectException(CouldNotResolvePublicSuffix::class);
         new PublicSuffix('ac.be', 'foobar');
     }
 
@@ -137,7 +142,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testToUnicodeThrowsException()
     {
-        self::expectException(InvalidDomain::class);
+        $this->expectException(InvalidDomain::class);
         (new PublicSuffix('xn--a-ecp.ru'))->toUnicode();
     }
 
@@ -154,8 +159,8 @@ class PublicSuffixTest extends TestCase
     public function testConversionReturnsTheSameInstance($publicSuffix)
     {
         $instance = new PublicSuffix($publicSuffix);
-        self::assertSame($instance->toUnicode(), $instance);
-        self::assertSame($instance->toAscii(), $instance);
+        $this->assertSame($instance->toUnicode(), $instance);
+        $this->assertSame($instance->toAscii(), $instance);
     }
 
     public function conversionReturnsTheSameInstanceProvider()
@@ -173,7 +178,7 @@ class PublicSuffixTest extends TestCase
     public function testToUnicodeReturnsSameInstance()
     {
         $instance = new PublicSuffix('食狮.公司.cn');
-        self::assertSame($instance->toUnicode(), $instance);
+        $this->assertSame($instance->toUnicode(), $instance);
     }
 
     /**
@@ -187,8 +192,8 @@ class PublicSuffixTest extends TestCase
     public function testCountable($domain, $nbLabels, $labels)
     {
         $domain = new PublicSuffix($domain);
-        self::assertCount($nbLabels, $domain);
-        self::assertSame($labels, iterator_to_array($domain));
+        $this->assertCount($nbLabels, $domain);
+        $this->assertSame($labels, iterator_to_array($domain));
     }
 
     public function countableProvider()
@@ -206,11 +211,11 @@ class PublicSuffixTest extends TestCase
     public function testGetLabel()
     {
         $domain = new PublicSuffix('master.example.com');
-        self::assertSame('com', $domain->getLabel(0));
-        self::assertSame('example', $domain->getLabel(1));
-        self::assertSame('master', $domain->getLabel(-1));
-        self::assertNull($domain->getLabel(23));
-        self::assertNull($domain->getLabel(-23));
+        $this->assertSame('com', $domain->getLabel(0));
+        $this->assertSame('example', $domain->getLabel(1));
+        $this->assertSame('master', $domain->getLabel(-1));
+        $this->assertNull($domain->getLabel(23));
+        $this->assertNull($domain->getLabel(-23));
     }
 
     /**
@@ -219,22 +224,23 @@ class PublicSuffixTest extends TestCase
     public function testOffsets()
     {
         $domain = new PublicSuffix('master.example.com');
-        self::assertSame([2], $domain->keys('master'));
+        $this->assertSame([2], $domain->keys('master'));
     }
 
     /**
      * @covers ::createFromDomain
      * @dataProvider createFromDomainProvider
      *
+     * @param Domain      $domain
      * @param null|string $expected
      */
     public function testCreateFromDomainWorks(Domain $domain, $expected)
     {
         $result = PublicSuffix::createFromDomain($domain);
-        self::assertSame($expected, $result->getContent());
-        self::assertSame($result->isKnown(), $domain->isKnown());
-        self::assertSame($result->isICANN(), $domain->isICANN());
-        self::assertSame($result->isPrivate(), $domain->isPrivate());
+        $this->assertSame($expected, $result->getContent());
+        $this->assertSame($result->isKnown(), $domain->isKnown());
+        $this->assertSame($result->isICANN(), $domain->isICANN());
+        $this->assertSame($result->isPrivate(), $domain->isPrivate());
     }
 
     public function createFromDomainProvider()

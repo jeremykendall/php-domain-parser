@@ -17,13 +17,6 @@ namespace Pdp;
 
 use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
-use function array_reverse;
-use function count;
-use function fclose;
-use function fopen;
-use function in_array;
-use function sprintf;
-use function stream_get_contents;
 
 /**
  * A class to resolve domain name against the Public Suffix list.
@@ -53,10 +46,12 @@ final class Rules implements PublicSuffixListSection
     /**
      * Returns a new instance from a file path.
      *
+     * @param string        $path
      * @param null|resource $context
      *
      * @throws CouldNotLoadRules If the rules can not be loaded from the path
      *
+     * @return self
      */
     public static function createFromPath(string $path, $context = null): self
     {
@@ -78,7 +73,9 @@ final class Rules implements PublicSuffixListSection
     /**
      * Returns a new instance from a string.
      *
+     * @param string $content
      *
+     * @return self
      */
     public static function createFromString(string $content): self
     {
@@ -100,6 +97,7 @@ final class Rules implements PublicSuffixListSection
     /**
      * New instance.
      *
+     * @param array $rules
      */
     public function __construct(array $rules)
     {
@@ -109,9 +107,12 @@ final class Rules implements PublicSuffixListSection
     /**
      * Determines the public suffix for a given domain.
      *
+     * @param mixed  $domain
+     * @param string $section
      *
      * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
      *
+     * @return PublicSuffix
      */
     public function getPublicSuffix($domain, string $section = self::ALL_DOMAINS): PublicSuffix
     {
@@ -127,7 +128,10 @@ final class Rules implements PublicSuffixListSection
     /**
      * Returns PSL info for a given domain.
      *
+     * @param mixed  $domain
+     * @param string $section
      *
+     * @return Domain
      */
     public function resolve($domain, string $section = self::ALL_DOMAINS): Domain
     {
@@ -147,9 +151,11 @@ final class Rules implements PublicSuffixListSection
     /**
      * Assert the section status.
      *
+     * @param string $section
      *
      * @throws Exception if the submitted section is not supported
      *
+     * @return string
      */
     private function validateSection(string $section): string
     {
@@ -167,7 +173,10 @@ final class Rules implements PublicSuffixListSection
     /**
      * Returns the matched public suffix.
      *
+     * @param DomainInterface $domain
+     * @param string          $section
      *
+     * @return PublicSuffix
      */
     private function findPublicSuffix(DomainInterface $domain, string $section): PublicSuffix
     {
@@ -192,7 +201,10 @@ final class Rules implements PublicSuffixListSection
     /**
      * Returns the public suffix matched against a given PSL section.
      *
+     * @param DomainInterface $domain
+     * @param string          $section
      *
+     * @return PublicSuffix
      */
     private function findPublicSuffixFromSection(DomainInterface $domain, string $section): PublicSuffix
     {
@@ -219,7 +231,7 @@ final class Rules implements PublicSuffixListSection
             $rules = $rules[$label];
         }
 
-        if ([] === $matches) {
+        if (empty($matches)) {
             return new PublicSuffix($domain->getLabel(0));
         }
 
