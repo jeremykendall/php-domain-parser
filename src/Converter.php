@@ -116,8 +116,7 @@ final class Converter implements PublicSuffixListSection
         // "The domain and all rules must be canonicalized in the normal way
         // for hostnames - lower-case, Punycode (RFC 3492)."
         try {
-            $tld = array_pop($rule_parts);
-            $rule = $this->idnToAscii($tld);
+            $rule = $this->idnToAscii(array_pop($rule_parts));
         } catch (Exception $e) {
             throw new CouldNotLoadRules($e->getMessage(), $e->getCode(), $e);
         }

@@ -225,13 +225,15 @@ final class TopLevelDomains implements Countable, IteratorAggregate
             return $domain;
         }
 
+        $publicSuffix = null;
         $label = $domain->toAscii()->getLabel(0);
         foreach ($this as $tld) {
             if ($tld->getContent() === $label) {
-                return $domain->resolve($tld);
+                $publicSuffix = $tld;
+                break;
             }
         }
 
-        return $domain->resolve(null);
+        return $domain->resolve($publicSuffix);
     }
 }

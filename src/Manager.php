@@ -90,7 +90,7 @@ final class Manager
             return new Rules($data);
         }
 
-        throw new CouldNotLoadRules('The public suffix list cache is corrupted: '.json_last_error_msg(), json_last_error());
+        throw new CouldNotLoadRules(sprintf('The public suffix list cache is corrupted: %s', json_last_error_msg()), json_last_error());
     }
 
     /**
@@ -110,12 +110,9 @@ final class Manager
         static $converter;
 
         $converter = $converter ?? new Converter();
+        $data = json_encode($converter->convert($this->http->getContent($url)));
 
-        return $this->cache->set(
-            $this->getCacheKey('PSL', $url),
-            json_encode($converter->convert($this->http->getContent($url))),
-            $this->filterTtl($ttl) ?? $this->ttl
-        );
+        return $this->cache->set($this->getCacheKey('PSL', $url), $data, $this->filterTtl($ttl) ?? $this->ttl);
     }
 
     /**
@@ -139,11 +136,11 @@ final class Manager
 
         $data = json_decode($data ?? $this->cache->get($key), true);
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new CouldNotLoadTLDs('The root zone database cache is corrupted: '.json_last_error_msg(), json_last_error());
+            throw new CouldNotLoadTLDs(sprintf('The root zone database cache is corrupted: %s', json_last_error_msg()), json_last_error());
         }
 
         if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
-            throw new CouldNotLoadTLDs(sprintf('The root zone database cache content is corrupted'));
+            throw new CouldNotLoadTLDs('The root zone database cache content is corrupted');
         }
 
         return new TopLevelDomains(
@@ -170,12 +167,9 @@ final class Manager
         static $converter;
 
         $converter = $converter ?? new TLDConverter();
+        $data = json_encode($converter->convert($this->http->getContent($url)));
 
-        return $this->cache->set(
-            $this->getCacheKey('RZD', $url),
-            json_encode($converter->convert($this->http->getContent($url))),
-            $this->filterTtl($ttl) ?? $this->ttl
-        );
+        return $this->cache->set($this->getCacheKey('RZD', $url), $data, $this->filterTtl($ttl) ?? $this->ttl);
     }
 
     /**
