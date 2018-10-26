@@ -28,13 +28,13 @@ class ConverterTest extends TestCase
     {
         $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
         $retval = (new Converter())->convert($string);
-        $this->assertNotEmpty($retval[Converter::ICANN_DOMAINS]);
-        $this->assertNotEmpty($retval[Converter::PRIVATE_DOMAINS]);
+        self::assertNotEmpty($retval[Converter::ICANN_DOMAINS]);
+        self::assertNotEmpty($retval[Converter::PRIVATE_DOMAINS]);
     }
 
     public function testConvertThrowsExceptionWithInvalidContent()
     {
-        $this->expectException(CouldNotLoadRules::class);
+        self::expectException(CouldNotLoadRules::class);
         $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
         (new Converter())->convert($content);
     }
@@ -42,12 +42,12 @@ class ConverterTest extends TestCase
     public function testConvertWithEmptyString()
     {
         $retval = (new Converter())->convert('');
-        $this->assertEquals([Converter::ICANN_DOMAINS => [], Converter::PRIVATE_DOMAINS => []], $retval);
+        self::assertEquals([Converter::ICANN_DOMAINS => [], Converter::PRIVATE_DOMAINS => []], $retval);
     }
 
     public function testConvertWithInvalidString()
     {
         $retval = (new Converter())->convert('foobar');
-        $this->assertEquals([Converter::ICANN_DOMAINS => [], Converter::PRIVATE_DOMAINS => []], $retval);
+        self::assertEquals([Converter::ICANN_DOMAINS => [], Converter::PRIVATE_DOMAINS => []], $retval);
     }
 }

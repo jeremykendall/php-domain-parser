@@ -15,6 +15,20 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use function curl_close;
+use function curl_errno;
+use function curl_error;
+use function curl_exec;
+use function curl_init;
+use function curl_setopt_array;
+use const CURLE_OK;
+use const CURLOPT_FAILONERROR;
+use const CURLOPT_FOLLOWLOCATION;
+use const CURLOPT_HTTPGET;
+use const CURLOPT_RETURNTRANSFER;
+use const CURLOPT_SSL_VERIFYHOST;
+use const CURLOPT_SSL_VERIFYPEER;
+
 final class CurlHttpClient implements HttpClient
 {
     /**

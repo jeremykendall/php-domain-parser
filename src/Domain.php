@@ -21,6 +21,22 @@ use Pdp\Exception\CouldNotResolveSubDomain;
 use Pdp\Exception\InvalidLabel;
 use Pdp\Exception\InvalidLabelKey;
 use TypeError;
+use function array_count_values;
+use function array_keys;
+use function array_reverse;
+use function array_slice;
+use function array_unshift;
+use function count;
+use function explode;
+use function gettype;
+use function implode;
+use function in_array;
+use function ksort;
+use function preg_match;
+use function sprintf;
+use function strlen;
+use function strpos;
+use function substr;
 
 /**
  * Domain Value Object.

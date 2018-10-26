@@ -18,6 +18,11 @@ namespace Pdp;
 use DateTimeImmutable;
 use Pdp\Exception\CouldNotLoadTLDs;
 use SplTempFileObject;
+use function preg_match;
+use function sprintf;
+use function strpos;
+use function trim;
+use const DATE_ATOM;
 
 /**
  * IANA Root Zone Database Parser.

@@ -21,6 +21,11 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use IteratorAggregate;
 use Pdp\Exception\CouldNotLoadTLDs;
+use function count;
+use function fclose;
+use function fopen;
+use function stream_get_contents;
+use const DATE_ATOM;
 
 /**
  * A class to resolve domain name against the IANA Root Database.

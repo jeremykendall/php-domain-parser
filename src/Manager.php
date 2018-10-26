@@ -22,6 +22,20 @@ use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotLoadTLDs;
 use Psr\SimpleCache\CacheInterface;
 use TypeError;
+use function filter_var;
+use function gettype;
+use function is_object;
+use function is_string;
+use function json_decode;
+use function json_encode;
+use function json_last_error;
+use function json_last_error_msg;
+use function md5;
+use function sprintf;
+use function strtolower;
+use const DATE_ATOM;
+use const FILTER_VALIDATE_INT;
+use const JSON_ERROR_NONE;
 
 /**
  * Public Suffix List Manager.

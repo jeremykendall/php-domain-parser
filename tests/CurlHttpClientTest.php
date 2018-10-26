@@ -32,8 +32,8 @@ class CurlHttpClientTest extends TestCase
     public function testGetContent()
     {
         $content = (new CurlHttpClient())->getContent('https://www.google.com');
-        $this->assertNotNull($content);
-        $this->assertContains('google', $content);
+        self::assertNotNull($content);
+        self::assertContains('google', $content);
     }
 
     /**
@@ -42,7 +42,7 @@ class CurlHttpClientTest extends TestCase
      */
     public function testThrowsException()
     {
-        $this->expectException(HttpClientException::class);
+        self::expectException(HttpClientException::class);
         (new CurlHttpClient())->getContent('https://qsfsdfqdf.dfsf');
     }
 
@@ -51,7 +51,7 @@ class CurlHttpClientTest extends TestCase
      */
     public function testConstructorThrowsException()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         new CurlHttpClient(['foo' => 'bar']);
     }
 }
