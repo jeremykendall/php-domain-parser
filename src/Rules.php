@@ -17,6 +17,14 @@ namespace Pdp;
 
 use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
+use function array_reverse;
+use function count;
+use function fclose;
+use function fopen;
+use function implode;
+use function in_array;
+use function sprintf;
+use function stream_get_contents;
 
 /**
  * A class to resolve domain name against the Public Suffix list.
@@ -231,7 +239,7 @@ final class Rules implements PublicSuffixListSection
             $rules = $rules[$label];
         }
 
-        if (empty($matches)) {
+        if ([] === $matches) {
             return new PublicSuffix($domain->getLabel(0));
         }
 

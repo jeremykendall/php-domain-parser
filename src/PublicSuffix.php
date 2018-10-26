@@ -18,6 +18,14 @@ namespace Pdp;
 use JsonSerializable;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\InvalidDomain;
+use function array_keys;
+use function array_reverse;
+use function count;
+use function explode;
+use function implode;
+use function in_array;
+use function reset;
+use function sprintf;
 
 /**
  * Public Suffix Value Object.
@@ -105,7 +113,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      */
     private function setPublicSuffix()
     {
-        if (empty($this->labels)) {
+        if ([] === $this->labels) {
             return null;
         }
 

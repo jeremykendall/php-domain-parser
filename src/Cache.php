@@ -20,6 +20,27 @@ use FilesystemIterator;
 use Generator;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
+use function chmod;
+use function dirname;
+use function file_exists;
+use function file_get_contents;
+use function filemtime;
+use function get_class;
+use function gettype;
+use function is_array;
+use function is_int;
+use function is_object;
+use function is_writable;
+use function mkdir;
+use function realpath;
+use function rename;
+use function sprintf;
+use function time;
+use function touch;
+use function uniqid;
+use function unlink;
+use function unserialize;
+use const DIRECTORY_SEPARATOR;
 
 /**
  * A simple file-based PSR-16 cache implementation.

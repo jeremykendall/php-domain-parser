@@ -17,6 +17,14 @@ namespace Pdp;
 
 use Composer\Script\Event;
 use Throwable;
+use function dirname;
+use function extension_loaded;
+use function fwrite;
+use function implode;
+use function is_dir;
+use const PHP_EOL;
+use const STDERR;
+use const STDOUT;
 
 /**
  * A class to manage PSL ICANN Section rules updates.

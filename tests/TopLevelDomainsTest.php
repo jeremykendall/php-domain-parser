@@ -52,7 +52,7 @@ class TopLevelDomainsTest extends TestCase
         ]);
 
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat', $context);
-        $this->assertInstanceOf(TopLevelDomains::class, $collection);
+        self::assertInstanceOf(TopLevelDomains::class, $collection);
     }
 
     /**
@@ -60,7 +60,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testCreateFromPathThrowsException()
     {
-        $this->expectException(CouldNotLoadTLDs::class);
+        self::expectException(CouldNotLoadTLDs::class);
         TopLevelDomains::createFromPath('/foo/bar.dat');
     }
 
@@ -71,26 +71,26 @@ class TopLevelDomainsTest extends TestCase
     public function testSetState()
     {
         $collection = eval('return '.var_export($this->collection, true).';');
-        $this->assertEquals($this->collection, $collection);
+        self::assertEquals($this->collection, $collection);
     }
 
     public function testGetterProperties()
     {
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
-        $this->assertCount(15, $collection);
-        $this->assertSame('2018082200', $collection->getVersion());
-        $this->assertEquals(
+        self::assertCount(15, $collection);
+        self::assertSame('2018082200', $collection->getVersion());
+        self::assertEquals(
             new DateTimeImmutable('2018-08-22 07:07:01', new DateTimeZone('UTC')),
             $collection->getModifiedDate()
         );
-        $this->assertFalse($collection->isEmpty());
+        self::assertFalse($collection->isEmpty());
 
         $converter = new TLDConverter();
         $data = $converter->convert(file_get_contents(__DIR__.'/data/root_zones.dat'));
-        $this->assertEquals($data, $collection->toArray());
+        self::assertEquals($data, $collection->toArray());
 
         foreach ($collection as $tld) {
-            $this->assertInstanceOf(PublicSuffix::class, $tld);
+            self::assertInstanceOf(PublicSuffix::class, $tld);
         }
     }
 
@@ -100,7 +100,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testResolve($tld)
     {
-        $this->assertSame(
+        self::assertSame(
             (new Domain($tld))->getLabel(0),
             $this->collection->resolve($tld)->getPublicSuffix()
         );
@@ -128,25 +128,25 @@ class TopLevelDomainsTest extends TestCase
 
     public function testResolveThrowsTypeError()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         $this->collection->resolve(new DateTimeImmutable());
     }
 
     public function testResolveWithInvalidDomain()
     {
-        $this->assertEquals(new Domain(), $this->collection->resolve('###'));
+        self::assertEquals(new Domain(), $this->collection->resolve('###'));
     }
 
     public function testResolveWithUnResolvableDomain()
     {
         $domain = 'localhost';
-        $this->assertEquals(new Domain($domain), $this->collection->resolve($domain));
+        self::assertEquals(new Domain($domain), $this->collection->resolve($domain));
     }
 
     public function testResolveWithUnregisteredTLD()
     {
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
-        $this->assertNull($collection->resolve('localhost.locale')->getPublicSuffix());
+        self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix());
     }
 
     /**
@@ -155,7 +155,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testContainsReturnsTrue($tld)
     {
-        $this->assertTrue($this->collection->contains($tld));
+        self::assertTrue($this->collection->contains($tld));
     }
 
     public function validTldProvider()
@@ -186,7 +186,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testContainsReturnsFalse($tld)
     {
-        $this->assertFalse($this->collection->contains($tld));
+        self::assertFalse($this->collection->contains($tld));
     }
 
     public function invalidTldProvider()

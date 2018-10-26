@@ -17,6 +17,11 @@ namespace Pdp;
 
 use Pdp\Exception\CouldNotLoadRules;
 use SplTempFileObject;
+use function array_pop;
+use function explode;
+use function preg_match;
+use function strpos;
+use function substr;
 
 /**
  * Public Suffix List Parser.

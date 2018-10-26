@@ -10,6 +10,8 @@ matrix:
       env: VALIDATE_CODING_STYLE=false RUN_PHPSTAN=false IGNORE_PLATFORMS=false
     - php: 7.2
       env: VALIDATE_CODING_STYLE=true RUN_PHPSTAN=true IGNORE_PLATFORMS=false
+    - php: 7.3
+      env: VALIDATE_CODING_STYLE=false RUN_PHPSTAN=false IGNORE_PLATFORMS=true
     - php: nightly
       env: VALIDATE_CODING_STYLE=false RUN_PHPSTAN=false IGNORE_PLATFORMS=true
   allow_failures:
