@@ -78,13 +78,13 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * New instance.
      *
-     * @param mixed        $domain
-     * @param PublicSuffix $publicSuffix
+     * @param null|mixed        $domain
+     * @param null|PublicSuffix $publicSuffix
      */
     public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
         $this->labels = $this->setLabels($domain);
-        if (!empty($this->labels)) {
+        if ([] !== $this->labels) {
             $this->domain = implode('.', array_reverse($this->labels));
         }
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix ?? new PublicSuffix());
@@ -453,6 +453,7 @@ final class Domain implements DomainInterface, JsonSerializable
         return new self($domain.'.'.$publicSuffix->getContent(), $publicSuffix);
     }
 
+
     /**
      * Returns an instance with the specified sub domain added.
      *
@@ -633,7 +634,7 @@ final class Domain implements DomainInterface, JsonSerializable
             }
         }
 
-        if (empty($labels)) {
+        if ([] === $labels) {
             return new self();
         }
 

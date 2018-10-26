@@ -55,7 +55,7 @@ final class Installer
 
         try {
             $manager = new Manager(new Cache(), new CurlHttpClient());
-            if ($manager->refreshRules()) {
+            if ($manager->refreshRules() && $manager->refreshTLDs()) {
                 $io->write([
                     '💪 💪 💪 Your local cache has been successfully updated. 💪 💪 💪',
                     'Have a nice day!',
@@ -91,7 +91,7 @@ final class Installer
             return $event->getComposer()->getConfig()->get('vendor-dir');
         }
 
-        for ($i = 2; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             if (is_dir($vendor = dirname(__DIR__, $i).'/vendor')) {
                 return $vendor;
             }

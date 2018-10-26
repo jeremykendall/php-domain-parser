@@ -86,14 +86,26 @@ class DomainTest extends TestCase
     }
 
     /**
+     * @dataProvider invalidDomainProvider
      * @covers ::__construct
      * @covers ::setLabels
+     * @covers ::idnToAscii
      * @covers ::getIdnErrors
+     * @param string $domain
      */
-    public function testToAsciiThrowsException()
+    public function testToAsciiThrowsException(string $domain)
     {
         $this->expectException(InvalidDomain::class);
-        new Domain('a⒈com');
+        new Domain($domain);
+    }
+
+    public function invalidDomainProvider()
+    {
+        return [
+            'invalid IDN domain' => ['a⒈com'],
+            'invalid IDN domain full size' => ['％００.com'],
+            'invalid IDN domain full size rawurlencode ' => ['%ef%bc%85%ef%bc%94%ef%bc%91.com'],
+        ];
     }
 
     /**
@@ -368,9 +380,9 @@ class DomainTest extends TestCase
      * @covers ::normalize
      * @dataProvider resolvePassProvider
      *
+     * @param string|null $expected
      * @param Domain      $domain
      * @param mixed       $publicSuffix
-     * @param string|null $expected
      */
     public function testResolveWorks(Domain $domain, $publicSuffix, $expected)
     {
@@ -479,9 +491,9 @@ class DomainTest extends TestCase
      * @covers ::normalizeContent
      * @dataProvider withSubDomainWorksProvider
      *
+     * @param null|string $expected
      * @param Domain      $domain
      * @param mixed       $subdomain
-     * @param null|string $expected
      */
     public function testWithSubDomainWorks(Domain $domain, $subdomain, $expected)
     {
@@ -574,9 +586,9 @@ class DomainTest extends TestCase
      * @covers ::withPublicSuffix
      * @dataProvider withPublicSuffixWorksProvider
      *
+     * @param null|string $expected
      * @param Domain      $domain
      * @param mixed       $publicSuffix
-     * @param null|string $expected
      * @param bool        $isKnown
      * @param bool        $isICANN
      * @param bool        $isPrivate
@@ -682,10 +694,10 @@ class DomainTest extends TestCase
      * @covers ::normalizeContent
      * @dataProvider withLabelWorksProvider
      *
+     * @param null|string $expected
      * @param Domain      $domain
      * @param int         $key
      * @param mixed       $label
-     * @param null|string $expected
      * @param bool        $isKnown
      * @param bool        $isICANN
      * @param bool        $isPrivate
@@ -884,9 +896,9 @@ class DomainTest extends TestCase
      * @covers ::withoutLabel
      * @dataProvider withoutLabelWorksProvider
      *
+     * @param null|string $expected
      * @param Domain      $domain
      * @param int         $key
-     * @param null|string $expected
      * @param bool        $isKnown
      * @param bool        $isICANN
      * @param bool        $isPrivate

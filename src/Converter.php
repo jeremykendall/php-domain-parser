@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Pdp\Exception\CouldNotLoadRules;
 use SplTempFileObject;
 
 /**
@@ -104,6 +105,8 @@ final class Converter implements PublicSuffixListSection
      * @param array $rule_parts One line (rule) from the Public Suffix List
      *                          exploded on '.', or the remaining portion of that array during recursion
      *
+     * @throws CouldNotLoadRules if the domain name can not be converted using IDN to ASCII algorithm
+     *
      * @return array
      */
     private function addRule(array $list, array $rule_parts): array
@@ -112,8 +115,12 @@ final class Converter implements PublicSuffixListSection
         // of https://publicsuffix.org/list/
         // "The domain and all rules must be canonicalized in the normal way
         // for hostnames - lower-case, Punycode (RFC 3492)."
+        try {
+            $rule = $this->idnToAscii(array_pop($rule_parts));
+        } catch (Exception $e) {
+            throw new CouldNotLoadRules($e->getMessage(), $e->getCode(), $e);
+        }
 
-        $rule = $this->idnToAscii(array_pop($rule_parts));
         $isDomain = true;
         if (0 === strpos($rule, '!')) {
             $rule = substr($rule, 1);
@@ -121,7 +128,7 @@ final class Converter implements PublicSuffixListSection
         }
 
         $list[$rule] = $list[$rule] ?? ($isDomain ? [] : ['!' => '']);
-        if ($isDomain && !empty($rule_parts)) {
+        if ($isDomain && [] !== $rule_parts) {
             $list[$rule] = $this->addRule($list[$rule], $rule_parts);
         }
 

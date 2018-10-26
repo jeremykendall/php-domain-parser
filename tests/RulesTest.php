@@ -39,8 +39,7 @@ class RulesTest extends TestCase
 
     public function setUp()
     {
-        $manager = new Manager(new Cache(), new CurlHttpClient());
-        $this->rules = $manager->getRules();
+        $this->rules = (new Manager(new Cache(), new CurlHttpClient()))->getRules();
     }
 
     /**
