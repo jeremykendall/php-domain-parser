@@ -19,6 +19,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 ### Fixed
 
 - `Pdp\IDNAConverterTrait::setLabels` improve IDN domain handling
+- `Pdp\IDNAConverterTrait` throws a `UnexpectedValueException` if the Intl extension is misconfigured see [#230](https://github.com/jeremykendall/php-domain-parser/issues/230)
 
 ### Deprecated
 

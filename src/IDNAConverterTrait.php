@@ -17,6 +17,7 @@ namespace Pdp;
 
 use Pdp\Exception\InvalidDomain;
 use TypeError;
+use UnexpectedValueException;
 use function array_reverse;
 use function explode;
 use function gettype;
@@ -119,6 +120,12 @@ trait IDNAConverterTrait
             throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
         }
 
+        // @codeCoverageIgnoreStart
+        if (false === $output) {
+            throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
+        }
+        // @codeCoverageIgnoreEnd
+
         if (false === strpos($output, '%')) {
             return $output;
         }
@@ -140,11 +147,17 @@ trait IDNAConverterTrait
     private function idnToUnicode(string $domain): string
     {
         $output = idn_to_utf8($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (0 === $arr['errors']) {
-            return $output;
+        if (0 !== $arr['errors']) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
         }
 
-        throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        // @codeCoverageIgnoreStart
+        if (false === $output) {
+            throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
+        }
+        // @codeCoverageIgnoreEnd
+
+        return $output;
     }
 
     /**
