@@ -169,16 +169,13 @@ final class Cache implements CacheInterface
      */
     private function getExpireAt($ttl): int
     {
+        $ttl = $ttl ?? self::CACHE_TTL;
         if (is_int($ttl)) {
             return time() + $ttl;
         }
 
         if ($ttl instanceof DateInterval) {
             return date_create_immutable('@'.time())->add($ttl)->getTimestamp();
-        }
-
-        if (null === $ttl) {
-            return time() + self::CACHE_TTL;
         }
 
         throw new CacheException(sprintf('Expected TTL to be an int, a DateInterval or null; received "%s"', is_object($ttl) ? get_class($ttl) : gettype($ttl)));
