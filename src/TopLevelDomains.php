@@ -1,0 +1,244 @@
+<?php
+
+/**
+ * PHP Domain Parser: Public Suffix List based URL parsing.
+ *
+ * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
+ * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+namespace Pdp;
+
+use Countable;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
+use IteratorAggregate;
+use Pdp\Exception\CouldNotLoadTLDs;
+use function count;
+use function fclose;
+use function fopen;
+use function stream_get_contents;
+use const DATE_ATOM;
+
+/**
+ * A class to resolve domain name against the IANA Root Database.
+ *
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ */
+final class TopLevelDomains implements Countable, IteratorAggregate
+{
+    /**
+     * @var DateTimeImmutable
+     */
+    private $modifiedDate;
+
+    /**
+     * @var string
+     */
+    private $version;
+
+    /**
+     * @var array
+     */
+    private $records;
+
+    /**
+     * Returns a new instance from a file path.
+     *
+     * @param string        $path
+     * @param null|resource $context
+     *
+     * @throws Exception If the list can not be loaded from the path
+     *
+     * @return self
+     */
+    public static function createFromPath(string $path, $context = null): self
+    {
+        $args = [$path, 'r', false];
+        if (null !== $context) {
+            $args[] = $context;
+        }
+
+        if (!($resource = @fopen(...$args))) {
+            throw new CouldNotLoadTLDs(sprintf('`%s`: failed to open stream: No such file or directory', $path));
+        }
+
+        $content = stream_get_contents($resource);
+        fclose($resource);
+
+        return self::createFromString($content);
+    }
+
+    /**
+     * Returns a new instance from a string.
+     *
+     * @param string $content
+     *
+     * @return self
+     */
+    public static function createFromString(string $content): self
+    {
+        static $converter;
+
+        $converter = $converter ?? new TLDConverter();
+
+        $data = $converter->convert($content);
+
+        return new self(
+            $data['records'],
+            $data['version'],
+            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate'])
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self($properties['records'], $properties['version'], $properties['modifiedDate']);
+    }
+
+    /**
+     * New instance.
+     *
+     * @param array             $records
+     * @param string            $version
+     * @param DateTimeInterface $modifiedDate
+     */
+    public function __construct(array $records, string $version, DateTimeInterface $modifiedDate)
+    {
+        $this->records = $records;
+        $this->version = $version;
+        $this->modifiedDate = $modifiedDate instanceof DateTime ? DateTimeImmutable::createFromMutable($modifiedDate) : $modifiedDate;
+    }
+
+    /**
+     * Returns the Version ID.
+     *
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        return $this->version;
+    }
+
+    /**
+     * Returns the List Last Modified Date.
+     *
+     * @return DateTimeImmutable
+     */
+    public function getModifiedDate(): DateTimeImmutable
+    {
+        return $this->modifiedDate;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return count($this->records);
+    }
+
+    /**
+     * Tells whether the list is empty.
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return [] === $this->records;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        foreach ($this->records as $tld) {
+            yield (new PublicSuffix($tld, PublicSuffix::ICANN_DOMAINS))->toAscii();
+        }
+    }
+
+    /**
+     * Returns an array representation of the list.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'version' => $this->version,
+            'records' => $this->records,
+            'modifiedDate' => $this->modifiedDate->format(DATE_ATOM),
+        ];
+    }
+
+    /**
+     * Tells whether the submitted TLD is a valid Top Level Domain.
+     *
+     * @param mixed $tld
+     *
+     * @return bool
+     */
+    public function contains($tld): bool
+    {
+        try {
+            $tld = $tld instanceof Domain ? $tld : new Domain($tld);
+        } catch (Exception $e) {
+            return false;
+        }
+
+        if (1 !== count($tld)) {
+            return false;
+        }
+
+        $label = $tld->toAscii()->getLabel(0);
+        foreach ($this as $tld) {
+            if ($tld->getContent() === $label) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns a domain where its public suffix is the found TLD.
+     *
+     * @param mixed $domain
+     *
+     * @return Domain
+     */
+    public function resolve($domain): Domain
+    {
+        try {
+            $domain = $domain instanceof Domain ? $domain : new Domain($domain);
+        } catch (Exception $e) {
+            return new Domain();
+        }
+
+        if (!$domain->isResolvable()) {
+            return $domain;
+        }
+
+        $publicSuffix = null;
+        $label = $domain->toAscii()->getLabel(0);
+        foreach ($this as $tld) {
+            if ($tld->getContent() === $label) {
+                $publicSuffix = $tld;
+                break;
+            }
+        }
+
+        return $domain->resolve($publicSuffix);
+    }
+}

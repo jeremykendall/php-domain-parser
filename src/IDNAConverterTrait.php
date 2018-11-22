@@ -17,6 +17,37 @@ namespace Pdp;
 
 use Pdp\Exception\InvalidDomain;
 use TypeError;
+use UnexpectedValueException;
+use function array_reverse;
+use function explode;
+use function gettype;
+use function idn_to_ascii;
+use function idn_to_utf8;
+use function implode;
+use function is_scalar;
+use function iterator_to_array;
+use function method_exists;
+use function preg_match;
+use function rawurldecode;
+use function sprintf;
+use function strpos;
+use function strtolower;
+use const FILTER_FLAG_IPV4;
+use const FILTER_VALIDATE_IP;
+use const IDNA_ERROR_BIDI;
+use const IDNA_ERROR_CONTEXTJ;
+use const IDNA_ERROR_DISALLOWED;
+use const IDNA_ERROR_DOMAIN_NAME_TOO_LONG;
+use const IDNA_ERROR_EMPTY_LABEL;
+use const IDNA_ERROR_HYPHEN_3_4;
+use const IDNA_ERROR_INVALID_ACE_LABEL;
+use const IDNA_ERROR_LABEL_HAS_DOT;
+use const IDNA_ERROR_LABEL_TOO_LONG;
+use const IDNA_ERROR_LEADING_COMBINING_MARK;
+use const IDNA_ERROR_LEADING_HYPHEN;
+use const IDNA_ERROR_PUNYCODE;
+use const IDNA_ERROR_TRAILING_HYPHEN;
+use const INTL_IDNA_VARIANT_UTS46;
 
 /**
  * @internal Domain name validator
@@ -62,7 +93,7 @@ trait IDNAConverterTrait
             }
         }
 
-        return empty($res) ? 'Unknown IDNA conversion error.' : implode(', ', $res).'.';
+        return [] === $res ? 'Unknown IDNA conversion error.' : implode(', ', $res).'.';
     }
 
     /**
@@ -78,17 +109,28 @@ trait IDNAConverterTrait
      */
     private function idnToAscii(string $domain): string
     {
+        $domain = rawurldecode($domain);
         static $pattern = '/[^\x20-\x7f]/';
         if (!preg_match($pattern, $domain)) {
             return strtolower($domain);
         }
 
         $output = idn_to_ascii($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (!$arr['errors']) {
+        if (0 !== $arr['errors']) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        }
+
+        // @codeCoverageIgnoreStart
+        if (false === $output) {
+            throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
+        }
+        // @codeCoverageIgnoreEnd
+
+        if (false === strpos($output, '%')) {
             return $output;
         }
 
-        throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        throw new InvalidDomain(sprintf('The host `%s` is invalid: it contains invalid characters', $domain));
     }
 
     /**
@@ -105,11 +147,17 @@ trait IDNAConverterTrait
     private function idnToUnicode(string $domain): string
     {
         $output = idn_to_utf8($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (!$arr['errors']) {
-            return $output;
+        if (0 !== $arr['errors']) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
         }
 
-        throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        // @codeCoverageIgnoreStart
+        if (false === $output) {
+            throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
+        }
+        // @codeCoverageIgnoreEnd
+
+        return $output;
     }
 
     /**
@@ -175,12 +223,8 @@ trait IDNAConverterTrait
             throw new InvalidDomain(sprintf('The domain `%s` is invalid: the labels are malformed', $domain));
         }
 
-        //if a domain name contains UTF-8 chars it must be convertible using IDNA UTS46
-        $ascii_domain = idn_to_ascii($formatted_domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (0 === $arr['errors']) {
-            return array_reverse(explode('.', $this->idnToUnicode($ascii_domain)));
-        }
+        $ascii_domain = $this->idnToAscii($domain);
 
-        throw new InvalidDomain(sprintf('The domain `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        return array_reverse(explode('.', $this->idnToUnicode($ascii_domain)));
     }
 }

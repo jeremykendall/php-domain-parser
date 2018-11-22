@@ -15,8 +15,27 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use DateInterval;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Pdp\Exception\CouldNotLoadRules;
+use Pdp\Exception\CouldNotLoadTLDs;
 use Psr\SimpleCache\CacheInterface;
+use TypeError;
+use function filter_var;
+use function gettype;
+use function is_object;
+use function is_string;
+use function json_decode;
+use function json_encode;
+use function json_last_error;
+use function json_last_error_msg;
+use function md5;
+use function sprintf;
+use function strtolower;
+use const DATE_ATOM;
+use const FILTER_VALIDATE_INT;
+use const JSON_ERROR_NONE;
 
 /**
  * Public Suffix List Manager.
@@ -30,6 +49,7 @@ use Psr\SimpleCache\CacheInterface;
 final class Manager
 {
     const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
     /**
      * @var CacheInterface
@@ -42,53 +62,49 @@ final class Manager
     private $http;
 
     /**
+     * @var DateInterval|null
+     */
+    private $ttl;
+
+    /**
      * new instance.
      *
      * @param CacheInterface $cache
      * @param HttpClient     $http
+     * @param null|mixed     $ttl
      */
-    public function __construct(CacheInterface $cache, HttpClient $http)
+    public function __construct(CacheInterface $cache, HttpClient $http, $ttl = null)
     {
         $this->cache = $cache;
         $this->http = $http;
+        $this->ttl = $this->filterTtl($ttl);
     }
 
     /**
      * Gets the Public Suffix List Rules.
      *
-     * @param string $source_url the Public Suffix List URL
+     * @param string     $url the Public Suffix List URL
+     * @param null|mixed $ttl the cache TTL
      *
      * @throws CouldNotLoadRules If the PSL rules can not be loaded
      *
      * @return Rules
      */
-    public function getRules(string $source_url = self::PSL_URL): Rules
+    public function getRules(string $url = self::PSL_URL, $ttl = null): Rules
     {
-        $cacheKey = $this->getCacheKey($source_url);
-        $cacheRules = $this->cache->get($cacheKey);
+        $key = $this->getCacheKey('PSL', $url);
+        $data = $this->cache->get($key);
 
-        if (null === $cacheRules && !$this->refreshRules($source_url)) {
-            throw new CouldNotLoadRules(sprintf('Unable to load the public suffix list rules for %s', $source_url));
+        if (null === $data && !$this->refreshRules($url, $ttl)) {
+            throw new CouldNotLoadRules(sprintf('Unable to load the public suffix list rules for %s', $url));
         }
 
-        $rules = json_decode($cacheRules ?? $this->cache->get($cacheKey), true);
+        $data = json_decode($data ?? $this->cache->get($key), true);
         if (JSON_ERROR_NONE === json_last_error()) {
-            return new Rules($rules);
+            return new Rules($data);
         }
 
-        throw new CouldNotLoadRules('The public suffix list cache is corrupted: '.json_last_error_msg(), json_last_error());
-    }
-
-    /**
-     * Returns the cache key according to the source URL.
-     *
-     * @param string $str
-     *
-     * @return string
-     */
-    private function getCacheKey(string $str): string
-    {
-        return 'PSL_FULL_'.md5(strtolower($str));
+        throw new CouldNotLoadRules(sprintf('The public suffix list cache is corrupted: %s', json_last_error_msg()), json_last_error());
     }
 
     /**
@@ -98,19 +114,121 @@ final class Manager
      *
      * Returns true if the refresh was successful
      *
-     * @param string $source_url the Public Suffix List URL
+     * @param string     $url the Public Suffix List URL
+     * @param null|mixed $ttl the cache TTL
      *
      * @return bool
      */
-    public function refreshRules(string $source_url = self::PSL_URL): bool
+    public function refreshRules(string $url = self::PSL_URL, $ttl = null): bool
     {
         static $converter;
 
         $converter = $converter ?? new Converter();
+        $data = json_encode($converter->convert($this->http->getContent($url)));
 
-        return $this->cache->set(
-            $this->getCacheKey($source_url),
-            json_encode($converter->convert($this->http->getContent($source_url)))
+        return $this->cache->set($this->getCacheKey('PSL', $url), $data, $this->filterTtl($ttl) ?? $this->ttl);
+    }
+
+    /**
+     * Gets the Public Suffix List Rules.
+     *
+     * @param string     $url the IANA Root Zone Database URL
+     * @param null|mixed $ttl the cache TTL
+     *
+     * @throws Exception If the Top Level Domains can not be returned
+     *
+     * @return TopLevelDomains
+     */
+    public function getTLDs(string $url = self::RZD_URL, $ttl = null): TopLevelDomains
+    {
+        $key = $this->getCacheKey('RZD', $url);
+        $data = $this->cache->get($key);
+
+        if (null === $data && !$this->refreshTLDs($url, $ttl)) {
+            throw new CouldNotLoadTLDs(sprintf('Unable to load the root zone database from %s', $url));
+        }
+
+        $data = json_decode($data ?? $this->cache->get($key), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new CouldNotLoadTLDs(sprintf('The root zone database cache is corrupted: %s', json_last_error_msg()), json_last_error());
+        }
+
+        if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
+            throw new CouldNotLoadTLDs('The root zone database cache content is corrupted');
+        }
+
+        return new TopLevelDomains(
+            $data['records'],
+            $data['version'],
+            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate'])
         );
+    }
+
+    /**
+     * Downloads, converts and cache the IANA Root Zone TLD.
+     *
+     * If a local cache already exists, it will be overwritten.
+     *
+     * Returns true if the refresh was successful
+     *
+     * @param string     $url the IANA Root Zone Database URL
+     * @param null|mixed $ttl the cache TTL
+     *
+     * @return bool
+     */
+    public function refreshTLDs(string $url = self::RZD_URL, $ttl = null): bool
+    {
+        static $converter;
+
+        $converter = $converter ?? new TLDConverter();
+        $data = json_encode($converter->convert($this->http->getContent($url)));
+
+        return $this->cache->set($this->getCacheKey('RZD', $url), $data, $this->filterTtl($ttl) ?? $this->ttl);
+    }
+
+    /**
+     * set the cache TTL.
+     *
+     * @param null|mixed $ttl the cache TTL
+     *
+     * @throws TypeError if the value type is not recognized
+     *
+     * @return DateInterval|null
+     */
+    private function filterTtl($ttl)
+    {
+        if ($ttl instanceof DateInterval || null === $ttl) {
+            return $ttl;
+        }
+
+        if ($ttl instanceof DateTimeInterface) {
+            return (new DateTimeImmutable('now', $ttl->getTimezone()))->diff($ttl);
+        }
+
+        if (false !== ($res = filter_var($ttl, FILTER_VALIDATE_INT))) {
+            return new DateInterval('PT'.$res.'S');
+        }
+
+        if (is_string($ttl)) {
+            return DateInterval::createFromDateString($ttl);
+        }
+
+        throw new TypeError(sprintf(
+            'The ttl must an integer, a string or a DateInterval object %s given',
+            is_object($ttl) ? get_class($ttl) : gettype($ttl)
+        ));
+    }
+
+    /**
+     * Returns the cache key according to the source URL.
+     *
+     * @param string $prefix
+     * @param string $str
+     *
+     * @return string
+     */
+    private function getCacheKey(string $prefix, string $str): string
+    {
+        return sprintf('%s_FULL_%s', $prefix, md5(strtolower($str)));
     }
 }

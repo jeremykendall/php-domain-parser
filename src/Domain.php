@@ -21,6 +21,22 @@ use Pdp\Exception\CouldNotResolveSubDomain;
 use Pdp\Exception\InvalidLabel;
 use Pdp\Exception\InvalidLabelKey;
 use TypeError;
+use function array_count_values;
+use function array_keys;
+use function array_reverse;
+use function array_slice;
+use function array_unshift;
+use function count;
+use function explode;
+use function gettype;
+use function implode;
+use function in_array;
+use function ksort;
+use function preg_match;
+use function sprintf;
+use function strlen;
+use function strpos;
+use function substr;
 
 /**
  * Domain Value Object.
@@ -78,13 +94,13 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * New instance.
      *
-     * @param mixed        $domain
-     * @param PublicSuffix $publicSuffix
+     * @param null|mixed        $domain
+     * @param null|PublicSuffix $publicSuffix
      */
     public function __construct($domain = null, PublicSuffix $publicSuffix = null)
     {
         $this->labels = $this->setLabels($domain);
-        if (!empty($this->labels)) {
+        if ([] !== $this->labels) {
             $this->domain = implode('.', array_reverse($this->labels));
         }
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix ?? new PublicSuffix());
@@ -453,6 +469,7 @@ final class Domain implements DomainInterface, JsonSerializable
         return new self($domain.'.'.$publicSuffix->getContent(), $publicSuffix);
     }
 
+
     /**
      * Returns an instance with the specified sub domain added.
      *
@@ -633,7 +650,7 @@ final class Domain implements DomainInterface, JsonSerializable
             }
         }
 
-        if (empty($labels)) {
+        if ([] === $labels) {
             return new self();
         }
 

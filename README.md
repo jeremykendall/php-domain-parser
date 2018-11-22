@@ -3,10 +3,10 @@
 **PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based
 domain parser implemented in PHP.
 
-[![Build Status](https://img.shields.io/travis/jeremykendall/php-domain-parser/master.svg?style=flat-square)](https://travis-ci.org/jeremykendall/php-domain-parser)
-[![Total Downloads](https://img.shields.io/packagist/dt/jeremykendall/php-domain-parser.svg?style=flat-square)](https://packagist.org/packages/jeremykendall/php-domain-parser)
-[![Latest Stable Version](https://img.shields.io/github/release/jeremykendall/php-domain-parser.svg?style=flat-square)](https://github.com/jeremykendall/php-domain-parser/releases)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE)
+[![Build Status][ico-travis]][link-travis]
+[![Total Downloads][ico-packagist]][link-packagist]
+[![Latest Stable Version][ico-release]][link-release]
+[![Software License][ico-license]][link-license]
 
 
 Motivation
@@ -20,7 +20,7 @@ Consider the domain www.pref.okinawa.jp.  In this domain, the
 *public suffix* portion is **okinawa.jp**, the *registrable domain* is
 **pref.okinawa.jp**, and the *subdomain* is **www**. You can't regex that.
 
-PHP Domain Parser is built around accurate Public Suffix List based parsing. For URL parsing, building or manipulation please refer to [libraries](https://packagist.org/packages/sabre/uri?q=uri%20rfc3986&p=0) focused on those area of development.
+PHP Domain Parser is built around accurate Public Suffix List based parsing. For URL parsing, building or manipulation please refer to [libraries][link-parse-library] focused on those area of development.
 
 System Requirements
 -------
@@ -66,7 +66,6 @@ $domain->isKnown();                    // returns true
 $domain->isICANN();                    // returns true
 $domain->isPrivate();                  // returns false
 
-
 $publicSuffix = $rules->getPublicSuffix('mydomain.github.io', Rules::PRIVATE_DOMAINS); //$publicSuffix is a Pdp\PublicSuffix object
 echo $publicSuffix->getContent(); // 'github.io'
 $publicSuffix->isKnown();         // returns true
@@ -78,6 +77,14 @@ echo $altSuffix->getContent(); // 'io'
 $altSuffix->isKnown();         // returns true
 $altSuffix->isICANN();         // returns true
 $altSuffix->isPrivate();       // returns false
+
+$tldList = $manager->getTLDs(); //$tldList is a Pdp\TopLevelDomains object
+$domain = $tldList->resolve('www.ulb.ac.be'); //$domain is a Pdp\Domain object
+$tldList->contains('be'); //returns true
+$tldList->contains('localhost'); //return false
+foreach($tldList as $tld) {
+    //$tld is a Pdp\PublisSuffix object
+}
 ~~~
 
 Using the above code you have parse, validate and resolve a domain name and its public suffix status against the Public Suffix list.
@@ -286,7 +293,50 @@ echo json_encode($domain, JSON_PRETTY_PRINT);
 
 **Using the PSL to determine what is a valid domain name and what isn't is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace. The DNS is the proper source for this information. If you must use this library for this purpose, please consider integrating a PSL update mechanism into your software.**
 
-### Managing the Public Suffix List
+### Top Level Domains resolutions
+
+**since version 5.4**
+
+~~~php
+<?php
+
+namespace Pdp;
+
+final class TopLevelDomains implements Countable, IteratorAggregate
+{
+    public static function createFromPath(string $path, $context = null): Rules
+    public static function createFromString(string $content): Rules
+    public function __construct(array $records, string $version, DateTimeInterface $modifiedDate)
+    public function resolve($domain): Domain
+    public function contains($domain): bool
+    public function isEmpty(): bool
+}
+~~~
+
+The `Pdp\TopLevelDomains` object is responsible for top level domain resolution for a given domain. The resolution is done using a resource which should follow [IANA resource file](https://data.iana.org/TLD/tlds-alpha-by-domain.txt). The class is a collection which contains the list of all top levels domain as registered on the IANA servers.
+
+**THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
+
+~~~php
+$pdp_url = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
+$tldCollection = Pdp\TopLevelDomains::createFromPath($pdp_url);
+
+$result = $tldCollection->contains('be'); // resolution is done against the retrieves list
+
+$domain = $tldCollection->resolve('www.Ulb.Ac.BE');
+// returns
+//  {
+//      "domain": "www.ulb.ac.be",
+//      "registrableDomain": "ac.be",
+//      "subDomain": "www.ulb",
+//      "publicSuffix": "be",
+//      "isKnown": true,
+//      "isICANN": true,
+//      "isPrivate": false
+//  }
+~~~
+
+### Managing the package lists
 
 The library comes bundle with a service which enables resolving domain name without the constant network overhead of continously downloading the PSL. The `Pdp\Manager` class retrieves, converts and caches the PSL as well as creates the corresponding `Pdp\Rules` object on demand. It internally uses a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
 
@@ -300,9 +350,13 @@ use Psr\SimpleCache\CacheInterface;
 final class Manager
 {
     const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
-    public function __construct(CacheInterface $cache, HttpClient $http)
-    public function getRules(string $source_url = self::PSL_URL): Rules
-    public function refreshRules(string $source_url = self::PSL_URL): bool
+    const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
+
+    public function __construct(CacheInterface $cache, HttpClient $http, $ttl = null)
+    public function getRules(string $source_url = self::PSL_URL, $ttl = null): Rules
+    public function refreshRules(string $source_url = self::PSL_URL, $ttl = null): bool
+    public function getTLDs(string $source_url = self::RZD_URL, $ttl = null): Rules
+    public function refreshTLDs(string $source_url = self::RZD_URL, $ttl = null): bool
 }
 ~~~
 
@@ -311,8 +365,17 @@ final class Manager
 To work as intended, the `Pdp\Manager` constructor requires:
 
 - a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object to store the rules locally.
-
 - a `Pdp\HttpClient` object to retrieve the PSL.
+- a `$ttl` argument if you need to set the default $ttl; **since 5.4**
+
+The `$ttl` argument can be:
+
+- an `int` representing time in second (see PSR-16);
+- a `DateInterval` object (see PSR-16);
+- a `DateTimeInterface` object representing the date and time when the item should expire;
+
+**the `$ttl` argument is added to improve PSR-16 interoperability**
+
 
 The `Pdp\HttpClient` is a simple interface which exposes the `HttpClient::getContent` method. This method expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
 If an error occurs while retrieving such body a `HttpClientException` exception is thrown.
@@ -342,15 +405,16 @@ The package comes bundle with:
 - a file cache PSR-16 implementation based on the excellent [FileCache](https://github.com/kodus/file-cache) which **caches the local copy for a maximum of 7 days**.
 - a HTTP client based on the cURL extension.
 
-#### Refreshing the cached PSL
+#### Refreshing the cached PSL and TLD data
 
 ~~~php
 <?php
 
-public Manager::refreshRules(string $source_url = self::PSL_URL): bool
+public Manager::refreshRules(string $source_url = self::PSL_URL, $ttl = null): bool
+public Manager::refreshTLD(string $source_url = self::RZD_URL, $ttl = null): bool
 ~~~
 
-The `Pdp\Manager::refreshRules` method enables refreshing your local copy of the PSL stored with your [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache and retrieved using the Http Client. By default the method will use the `Manager::PSL_URL` as the source URL but you are free to substitute this URL with your own.  
+The both methods method enables refreshing your local copy of the stored resources with your [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache and retrieved using the Http Client. By default the method will use the resource default source URL but you are free to substitute this URL with your own.  
 The method returns a boolean value which is `true` on success.
 
 ~~~php
@@ -363,22 +427,23 @@ if ($retval) {
 }
 ~~~
 
-#### Returning a `Pdp\Rules` object
+#### Returning `Pdp\Rules` and `Pdp\TopLevelDomains` objects
 
 ~~~php
 <?php
 
-public Manager::getRules(string $source_url = self::PSL_URL): Rules
+public Manager::getRules(string $source_url = self::PSL_URL, $ttl = null): Rules
+public Manager::getTLDs(string $source_url = self::RZD_URL, $ttl = null): TopLevelDomains
 ~~~
 
-This method returns a `Rules` object which is instantiated with the PSL rules.
+These methods returns a `Pdp\Rules` or `Pdp\TopLevelDomains` objects seeded with their corresponding data fetch from the cache or from the external resources depending on the submitted `$ttl` argument.
 
-The method takes an optional `$source_url` argument which specifies the PSL source URL. If no local cache exists for the submitted source URL, the method will:
+These methods take an optional `$source_url` argument which specifies the PSL source URL. If no local cache exists for the submitted source URL, the method will:
 
-1. call `Manager::refreshRules` with the given URL to update its local cache
-2. instantiate the `Rules` object with the newly cached data.
+1. call `Manager::refreshRules` with the given URL and `$ttl` argument to update its local cache
+2. instantiate the `Rules` or the `TopLevelDomains` objects with the newly cached data.
 
-On error, the method throws an `Pdp\Exception`.
+On error, theses methods will throw an `Pdp\Exception`.
 
 **THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY**
 
@@ -386,9 +451,9 @@ On error, the method throws an `Pdp\Exception`.
 <?php
 
 $manager = new Pdp\Manager(new Pdp\Cache(), new Pdp\CurlHttpClient());
-$rules = $manager->getRules('https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat');
-$domain = $rules->resolve('www.ulb.ac.be');
-echo $domain->getPublicSuffix(); // print 'ac.be'
+$tldCollection = $manager->getTLDs(self::RZD_URL);
+$domain = $tldCollection->resolve('www.ulb.ac.be');
+echo $domain->getPublicSuffix(); // print 'be'
 ~~~
 
 ### Automatic Updates
@@ -555,3 +620,15 @@ Portions of the `Pdp\Converter` and `Pdp\Rules` are derivative works of the PHP
 [registered-domain-libs](https://github.com/usrflo/registered-domain-libs).
 Those parts of this codebase are heavily commented, and I've included a copy of
 the Apache Software Foundation License 2.0 in this project.
+
+[ico-travis]: https://img.shields.io/travis/jeremykendall/php-domain-parser/master.svg?style=flat-square
+[ico-packagist]: https://img.shields.io/packagist/dt/jeremykendall/php-domain-parser.svg?style=flat-square
+[ico-release]: https://img.shields.io/github/release/jeremykendall/php-domain-parser.svg?style=flat-square
+[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+
+[link-travis]: https://travis-ci.org/jeremykendall/php-domain-parser
+[link-packagist]: https://packagist.org/packages/jeremykendall/php-domain-parser
+[link-release]: https://github.com/jeremykendall/php-domain-parser/releases
+[link-license]: https://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE
+
+[link-parse-library]: https://packagist.org/explore/?query=rfc3986

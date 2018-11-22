@@ -2,6 +2,33 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
+# 5.4.0 - 2018-11-22
+
+### Added
+
+- `Pdp\TopLevelDomains` to allow resolving domain againts IANA Root zone database
+- `Pdp\TLDConverter` converts the IANA Root Zones database into an associative array
+- `Pdp\Manager::getTLDs` a service to return a cache version of the IANA Root zone database
+- `Pdp\Manager::refreshTLDs` a service to refresh the cache version of the IANA Root zone database
+-  added a new `$ttl` parameter to improve PSR-16 supports to
+	- `Pdp\Manager::__construct`
+	- `Pdp\Manager::getRules`
+	- `Pdp\Manager::refreshRules`
+- `Pdp\Exception\CouldNotLoadTLDs` exception
+
+### Fixed
+
+- `Pdp\IDNAConverterTrait::setLabels` improve IDN domain handling
+- `Pdp\IDNAConverterTrait` throws a `UnexpectedValueException` if the Intl extension is misconfigured see [#230](https://github.com/jeremykendall/php-domain-parser/issues/230)
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 5.3.0 - 2018-05-22
 
 ### Added

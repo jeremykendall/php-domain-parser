@@ -15,15 +15,17 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
+use DateInterval;
+use DateTime;
 use org\bovigo\vfs\vfsStream;
 use Pdp\Cache;
-use Pdp\Converter;
-use Pdp\CurlHttpClient;
 use Pdp\Exception\CouldNotLoadRules;
-use Pdp\Exception\InvalidDomain;
+use Pdp\Exception\CouldNotLoadTLDs;
+use Pdp\HttpClient;
 use Pdp\Manager;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
+use TypeError;
 
 /**
  * @coversDefaultClass Pdp\Manager
@@ -33,7 +35,7 @@ class ManagerTest extends TestCase
     protected $cachePool;
     protected $cacheDir;
     protected $root;
-    protected $sourceUrl = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    protected $client;
 
     public function setUp()
     {
@@ -41,6 +43,20 @@ class ManagerTest extends TestCase
         vfsStream::create(['cache' => []], $this->root);
         $this->cacheDir = vfsStream::url('pdp/cache');
         $this->cachePool = new Cache($this->cacheDir);
+        $this->client = new class() implements HttpClient {
+            public function getContent(string $url): string
+            {
+                if ($url === Manager::PSL_URL) {
+                    return file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+                }
+
+                if ($url === Manager::RZD_URL) {
+                    return file_get_contents(__DIR__.'/data/tlds-alpha-by-domain.txt');
+                }
+
+                return '';
+            }
+        };
     }
 
     public function tearDown()
@@ -48,45 +64,72 @@ class ManagerTest extends TestCase
         $this->cachePool = null;
         $this->cacheDir = null;
         $this->root = null;
+        $this->client = null;
+    }
+
+    /**
+     * @dataProvider validTtlProvider
+     * @covers ::__construct
+     * @covers ::filterTtl
+     * @param mixed $ttl
+     */
+    public function testConstructor($ttl)
+    {
+        self::assertInstanceOf(Manager::class, new Manager($this->cachePool, $this->client, $ttl));
+    }
+
+    public function validTtlProvider()
+    {
+        return [
+            'DateInterval' => [new DateInterval('PT1H')],
+            'null' => [null],
+            'DateTimeInterface' => [new DateTime('+1 DAY')],
+            'string' => ['7 DAYS'],
+            'int' => [86000],
+        ];
     }
 
     /**
      * @covers ::__construct
+     * @covers ::filterTtl
+     */
+    public function testConstructorThrowsException()
+    {
+        self::expectException(TypeError::class);
+        new Manager($this->cachePool, $this->client, tmpfile());
+    }
+
+    /**
      * @covers ::getRules
      * @covers ::getCacheKey
      * @covers ::refreshRules
-     * @covers \Pdp\Converter
      */
     public function testRefreshRules()
     {
-        $manager = new Manager($this->cachePool, new CurlHttpClient());
+        $manager = new Manager($this->cachePool, $this->client);
         $previous = $manager->getRules();
-        $this->assertTrue($manager->refreshRules($this->sourceUrl));
-        $this->assertEquals($previous, $manager->getRules());
+        self::assertTrue($manager->refreshRules());
+        self::assertEquals($previous, $manager->getRules());
     }
 
     /**
-     * @covers ::__construct
      * @covers ::getRules
      * @covers ::getCacheKey
      * @covers ::refreshRules
-     * @covers \Pdp\Converter
      */
     public function testRebuildRulesFromRemoveSource()
     {
-        $manager = new Manager($this->cachePool, new CurlHttpClient());
-        $previous = $manager->getRules($this->sourceUrl);
+        $manager = new Manager($this->cachePool, $this->client);
+        $previous = $manager->getRules(Manager::PSL_URL);
         $this->cachePool->clear(); //delete all local cache
-        $list = $manager->getRules($this->sourceUrl);
-        $this->assertEquals($previous, $manager->getRules($this->sourceUrl));
+        $list = $manager->getRules(Manager::PSL_URL);
+        self::assertEquals($previous, $manager->getRules(Manager::PSL_URL));
     }
 
     /**
-     * @covers ::__construct
      * @covers ::getRules
      * @covers ::getCacheKey
      * @covers ::refreshRules
-     * @covers \Pdp\Converter
      */
     public function testGetRulesThrowsExceptionIfNotCacheCanBeRetrieveOrRefresh()
     {
@@ -131,15 +174,15 @@ class ManagerTest extends TestCase
             }
         };
 
-        $this->expectException(CouldNotLoadRules::class);
-        $manager = new Manager($cachePool, new CurlHttpClient());
+        self::expectException(CouldNotLoadRules::class);
+        $manager = new Manager($cachePool, $this->client);
         $manager->getRules('https://google.com');
     }
 
-
     /**
-     * @covers ::__construct
      * @covers ::getRules
+     * @covers ::getCacheKey
+     * @covers ::refreshRules
      */
     public function testGetRulesThrowsExceptionIfTheCacheIsCorrupted()
     {
@@ -184,21 +227,193 @@ class ManagerTest extends TestCase
             }
         };
 
-        $this->expectException(CouldNotLoadRules::class);
-        $manager = new Manager($cachePool, new CurlHttpClient());
+        self::expectException(CouldNotLoadRules::class);
+        $manager = new Manager($cachePool, $this->client);
         $manager->getRules();
     }
 
     /**
-     * @covers \Pdp\Converter::convert
-     * @covers \Pdp\Converter::getSection
-     * @covers \Pdp\Converter::addRule
-     * @covers \Pdp\Converter::idnToAscii
+     * @covers ::getTLDs
+     * @covers ::getCacheKey
+     * @covers ::refreshTLDs
      */
-    public function testConvertThrowsExceptionWithInvalidContent()
+    public function testRefreshTLDs()
     {
-        $this->expectException(InvalidDomain::class);
-        $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
-        (new Converter())->convert($content);
+        $manager = new Manager($this->cachePool, $this->client);
+        $previous = $manager->getTLDs();
+        self::assertTrue($manager->refreshTLDs());
+        self::assertEquals($previous, $manager->getTLDs());
+    }
+
+    /**
+     * @covers ::getTLDs
+     * @covers ::getCacheKey
+     * @covers ::refreshTLDs
+     */
+    public function testRebuildTLDsFromRemoveSource()
+    {
+        $manager = new Manager($this->cachePool, $this->client);
+        $previous = $manager->getTLDs();
+        $this->cachePool->clear(); //delete all local cache
+        self::assertEquals($previous, $manager->getTLDs());
+    }
+
+    /**
+     * @covers ::getTLDs
+     * @covers ::getCacheKey
+     * @covers ::refreshTLDs
+     */
+    public function testGetTLDsThrowsExceptionIfNotCacheCanBeRetrieveOrRefresh()
+    {
+        $cachePool = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return null;
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
+        self::expectException(CouldNotLoadTLDs::class);
+        $manager = new Manager($cachePool, $this->client);
+        $manager->getTLDs();
+    }
+
+    /**
+     * @covers ::getTLDs
+     * @covers ::getCacheKey
+     * @covers ::refreshTLDs
+     */
+    public function testGetTLDsThrowsExceptionIfTheCacheIsCorrupted()
+    {
+        $cachePool = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return '{"foo":"bar",}'; //malformed json
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
+        self::expectException(CouldNotLoadTLDs::class);
+        $manager = new Manager($cachePool, $this->client);
+        $manager->getTLDs();
+    }
+
+    /**
+     * @covers ::getTLDs
+     * @covers ::getCacheKey
+     * @covers ::refreshTLDs
+     */
+    public function testGetTLDsThrowsExceptionIfTheCacheContentIsCorrupted()
+    {
+        $cachePool = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return '{"foo":"bar"}'; //invalid Json
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
+        self::expectException(CouldNotLoadTLDs::class);
+        $manager = new Manager($cachePool, $this->client);
+        $manager->getTLDs();
     }
 }

@@ -17,6 +17,14 @@ namespace Pdp;
 
 use Composer\Script\Event;
 use Throwable;
+use function dirname;
+use function extension_loaded;
+use function fwrite;
+use function implode;
+use function is_dir;
+use const PHP_EOL;
+use const STDERR;
+use const STDOUT;
 
 /**
  * A class to manage PSL ICANN Section rules updates.
@@ -55,7 +63,7 @@ final class Installer
 
         try {
             $manager = new Manager(new Cache(), new CurlHttpClient());
-            if ($manager->refreshRules()) {
+            if ($manager->refreshRules() && $manager->refreshTLDs()) {
                 $io->write([
                     '💪 💪 💪 Your local cache has been successfully updated. 💪 💪 💪',
                     'Have a nice day!',
@@ -91,7 +99,7 @@ final class Installer
             return $event->getComposer()->getConfig()->get('vendor-dir');
         }
 
-        for ($i = 2; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             if (is_dir($vendor = dirname(__DIR__, $i).'/vendor')) {
                 return $vendor;
             }
