@@ -21,6 +21,7 @@ use Generator;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 use function chmod;
+use function date_create_immutable;
 use function dirname;
 use function file_exists;
 use function file_get_contents;
