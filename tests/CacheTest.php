@@ -69,8 +69,14 @@ class CacheTest extends TestCase
 
     public function testSetOnNotWritableCachePath()
     {
+        self::expectException(\InvalidArgumentException::class);
         $cache = new Cache('/bin');
-        self::assertFalse($cache->set('key', 'value'));
+    }
+
+    public function testSetOnNotExistingCachePath()
+    {
+        self::expectException(\InvalidArgumentException::class);
+        $cache = new Cache('/foo/bar');
     }
 
     /**

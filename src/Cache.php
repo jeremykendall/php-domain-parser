@@ -18,6 +18,7 @@ namespace Pdp;
 use DateInterval;
 use FilesystemIterator;
 use Generator;
+use InvalidArgumentException;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 use function chmod;
@@ -86,6 +87,10 @@ final class Cache implements CacheInterface
 
         if (!file_exists($cache_path) && file_exists(dirname($cache_path))) {
             $this->mkdir($cache_path); // ensure that the parent path exists
+        }
+
+        if (! is_writable($cache_path.DIRECTORY_SEPARATOR)) {
+            throw new InvalidArgumentException(sprintf('cache path does not exist or is not writable: %s', $cache_path));
         }
 
         $this->cache_path = $cache_path;
