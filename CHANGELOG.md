@@ -2,6 +2,24 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
+# Next -TBD
+
+### Added
+
+- None
+
+### Fixed
+
+-  Don't swallow cache errors [#232](https://github.com/jeremykendall/php-domain-parser/issues/232)
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 # 5.4.0 - 2018-11-22
 
 ### Added
