@@ -677,6 +677,14 @@ class DomainTest extends TestCase
                 'isICANN' => false,
                 'isPrivate' => false,
             ],
+            'with custom IDNA domain options' =>[
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS), 16, 32),
+                'publicSuffix' => null,
+                'expected' => null,
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
         ];
     }
 
@@ -973,5 +981,151 @@ class DomainTest extends TestCase
     public function testwithoutLabelWorksWithMultipleKeys()
     {
         self::assertNull((new Domain('www.example.com'))->withoutLabel(0, 1, 2)->getContent());
+    }
+    
+    /**
+     * @covers ::__construct
+     * @covers ::setIDNAOptions
+     * @covers ::getIDNAOptions
+     */
+    public function testConstructWithCustomIDNAOptions()
+    {
+        $domain = new Domain('example.com', null, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        self::assertSame([16, 32], $domain->getIDNAOptions());
+    }
+    
+    /**
+     * @dataProvider resolveCustomIDNAOptionsProvider
+     * @param string      $domainName
+     * @param string      $publicSuffix
+     * @param string      $withLabel
+     * @param null|string $expectedContent
+     * @param null|string $expectedAscii
+     * @param null|string $expectedUnicode
+     * @param null|string $expectedRegistrable
+     * @param null|string $expectedSubDomain
+     * @param null|string $expectedWithLabel
+     */
+    public function testResolveWorksWithCustomIDNAOptions(
+        string $domainName,
+        string $publicSuffix,
+        string $withLabel,
+        $expectedContent,
+        $expectedAscii,
+        $expectedUnicode,
+        $expectedRegistrable,
+        $expectedSubDomain,
+        $expectedWithLabel
+    ) {
+        $domain = new Domain(
+            $domainName,
+            new PublicSuffix($publicSuffix),
+            IDNA_NONTRANSITIONAL_TO_ASCII,
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        );
+        self::assertSame($expectedContent, $domain->getContent());
+        self::assertSame($expectedAscii, $domain->toAscii()->getContent());
+        self::assertSame($expectedUnicode, $domain->toUnicode()->getContent());
+        self::assertSame($expectedRegistrable, $domain->getRegistrableDomain());
+        self::assertSame($expectedSubDomain, $domain->getSubDomain());
+        self::assertSame($expectedWithLabel, $domain->withLabel(-1, $withLabel)->getContent());
+    }
+    
+    public function resolveCustomIDNAOptionsProvider()
+    {
+        return [
+            'without deviation characters'=>[
+                'example.com',
+                'com',
+                'größe',
+                'example.com',
+                'example.com',
+                'example.com',
+                'example.com',
+                 null,
+                'xn--gre-6ka8i.com',
+            ],
+            'without deviation characters with label'=>[
+                'www.example.com',
+                'com',
+                'größe',
+                'www.example.com',
+                'www.example.com',
+                'www.example.com',
+                'example.com',
+                'www',
+                'xn--gre-6ka8i.example.com',
+            ],
+            'with deviation in domain'=>[
+                'www.faß.de',
+                'de',
+                'größe',
+                'www.faß.de',
+                'www.xn--fa-hia.de',
+                'www.faß.de',
+                'faß.de',
+                'www',
+                'größe.faß.de',
+            ],
+            'with deviation in label'=>[
+                'faß.test.de',
+                'de',
+                'größe',
+                'faß.test.de',
+                'xn--fa-hia.test.de',
+                'faß.test.de',
+                'test.de',
+                'faß',
+                'größe.test.de',
+            ],
+        ];
+    }
+    
+   
+    public function testInstanceCreationWithCustomIDNAOptions()
+    {
+        $domain = new Domain('example.com', new PublicSuffix('com'), 16, 32);
+        $instance = $domain->toAscii();
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        $instance = $domain->toUnicode();
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        $instance = $domain->withLabel(0, 'foo');
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        $instance = $domain->withoutLabel(0);
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        $instance = $domain->withPublicSuffix(new PublicSuffix('us'));
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        $instance = $domain->withSubDomain('foo');
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        $instance = $domain->append('bar');
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        $instance = $domain->prepend('bar');
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        $instance = $domain->resolve('com');
+        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+    }
+    
+    /**
+     * @covers ::isTransitionalDifferent
+     * @dataProvider transitionalProvider
+     * @param \Pdp\Domain $domain
+     * @param bool        $expected
+     */
+    public function testIsTransitionalDifference(Domain $domain, bool $expected)
+    {
+        self::assertSame($expected, $domain->isTransitionalDifferent());
+    }
+    
+    public function transitionalProvider()
+    {
+        return [
+            'simple' => [new Domain('example.com', new PublicSuffix('com')), false],
+            'idna' => [new Domain('français.fr', new PublicSuffix('fr')), false],
+            'in domain' => [new Domain('faß.de', new PublicSuffix('de')), true],
+            'in domain 2' => [new Domain('βόλος.com', new PublicSuffix('com')), true],
+            'in domain 3' => [new Domain('ශ්‍රී.com', new PublicSuffix('com')), true],
+            'in domain 4' => [new Domain('نامه‌ای.com', new PublicSuffix('com')), true],
+            'in label' => [new Domain('faß.test.de', new PublicSuffix('de')), true],
+        ];
     }
 }

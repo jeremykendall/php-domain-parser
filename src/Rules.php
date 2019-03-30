@@ -135,21 +135,27 @@ final class Rules implements PublicSuffixListSection
 
     /**
      * Returns PSL info for a given domain.
-     *
-     * @param mixed  $domain
-     * @param string $section
-     *
+     * @param  mixed  $domain
+     * @param  string $section
+     * @param  int    $asciiIDNAOption
+     * @param  int    $unicodeIDNAOption
      * @return Domain
      */
-    public function resolve($domain, string $section = self::ALL_DOMAINS): Domain
-    {
+    public function resolve(
+        $domain,
+        string $section = self::ALL_DOMAINS,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): Domain {
         $section = $this->validateSection($section);
         try {
-            $domain = $domain instanceof Domain ? $domain : new Domain($domain);
+            $domain = $domain instanceof Domain
+                ? $domain
+                : new Domain($domain, null, $asciiIDNAOption, $unicodeIDNAOption);
             if (!$domain->isResolvable()) {
                 return $domain;
             }
-
+            
             return $domain->resolve($this->findPublicSuffix($domain, $section));
         } catch (Exception $e) {
             return new Domain();

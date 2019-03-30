@@ -18,6 +18,7 @@ namespace Pdp;
 use JsonSerializable;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\InvalidDomain;
+use Throwable;
 use function array_keys;
 use function array_reverse;
 use function count;
@@ -63,13 +64,32 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * @var string[]
      */
     private $labels;
-
+    
+    /**
+     * @var int
+     */
+    private $asciiIDNAOption = IDNA_DEFAULT;
+    
+    /**
+     * @var int
+     */
+    private $unicodeIDNAOption = IDNA_DEFAULT;
+    
+    /**
+     * @var bool
+     */
+    private $isTransitionalDifferent;
     /**
      * {@inheritdoc}
      */
     public static function __set_state(array $properties): self
     {
-        return new self($properties['publicSuffix'], $properties['section']);
+        return new self(
+            $properties['publicSuffix'],
+            $properties['section'],
+            $properties['asciiIDNAOption'],
+            $properties['unicodeIDNAOption']
+        );
     }
 
     /**
@@ -87,21 +107,28 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         } elseif ($domain->isPrivate()) {
             $section = self::PRIVATE_DOMAINS;
         }
-
-        return new self($domain->getPublicSuffix(), $section);
+        
+        return new self($domain->getPublicSuffix(), $section, ...$domain->getIDNAOptions());
     }
 
     /**
      * New instance.
-     *
      * @param mixed  $publicSuffix
      * @param string $section
+     * @param int    $asciiIDNAOption
+     * @param int    $unicodeIDNAOption
      */
-    public function __construct($publicSuffix = null, string $section = '')
-    {
-        $this->labels = $this->setLabels($publicSuffix);
+    public function __construct(
+        $publicSuffix = null,
+        string $section = '',
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ) {
+        $this->labels = $this->setLabels($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
         $this->publicSuffix = $this->setPublicSuffix();
         $this->section = $this->setSection($section);
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
 
     /**
@@ -261,7 +288,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             return $this;
         }
 
-        $publicSuffix = $this->idnToAscii($this->publicSuffix);
+        $publicSuffix = $this->idnToAscii($this->publicSuffix, $this->asciiIDNAOption);
         if ($publicSuffix === $this->publicSuffix) {
             return $this;
         }
@@ -283,9 +310,34 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         }
 
         $clone = clone $this;
-        $clone->publicSuffix = $this->idnToUnicode($this->publicSuffix);
+        $clone->publicSuffix = $this->idnToUnicode($this->publicSuffix, $this->unicodeIDNAOption);
         $clone->labels = array_reverse(explode('.', $clone->publicSuffix));
 
         return $clone;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getIDNAOptions(): array
+    {
+        return [$this->asciiIDNAOption, $this->unicodeIDNAOption];
+    }
+    
+    /**
+     * return true if domain contains deviation characters.
+     * @see http://unicode.org/reports/tr46/#Transition_Considerations
+     * @return bool
+     **/
+    public function isTransitionalDifferent(): bool
+    {
+        if ($this->isTransitionalDifferent === null) {
+            try {
+                $this->idnToAscii($this->getContent());
+            } catch (Throwable $e) {
+                $this->isTransitionalDifferent = false;
+            }
+        }
+        return $this->isTransitionalDifferent;
     }
 }
