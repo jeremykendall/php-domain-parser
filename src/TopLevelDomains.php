@@ -213,15 +213,17 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns a domain where its public suffix is the found TLD.
-     *
-     * @param mixed $domain
-     *
+     * @param  mixed  $domain
+     * @param  int    $asciiIDNAOption
+     * @param  int    $unicodeIDNAOption
      * @return Domain
      */
-    public function resolve($domain): Domain
+    public function resolve($domain, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): Domain
     {
         try {
-            $domain = $domain instanceof Domain ? $domain : new Domain($domain);
+            $domain = $domain instanceof Domain
+                      ? $domain
+                      : new Domain($domain, null, $asciiIDNAOption, $unicodeIDNAOption);
         } catch (Exception $e) {
             return new Domain();
         }

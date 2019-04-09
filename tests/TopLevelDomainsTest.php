@@ -149,6 +149,11 @@ class TopLevelDomainsTest extends TestCase
         self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix());
     }
 
+    public function testResolveWithIDNAOptions()
+    {
+        $resolved = $this->collection->resolve('foo.de', 16, 32);
+        self::assertSame([16, 32], [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]);
+    }
     /**
      * @dataProvider validTldProvider
      * @param mixed $tld

@@ -241,6 +241,10 @@ class PublicSuffixTest extends TestCase
         self::assertSame($result->isKnown(), $domain->isKnown());
         self::assertSame($result->isICANN(), $domain->isICANN());
         self::assertSame($result->isPrivate(), $domain->isPrivate());
+        self::assertSame(
+            [$result->getAsciiIDNAOption(), $result->getUnicodeIDNAOption()],
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()]
+        );
     }
 
     public function createFromDomainProvider()
@@ -258,6 +262,93 @@ class PublicSuffixTest extends TestCase
                 'domain' => new Domain('www.bébé.be'),
                 'expected' => null,
             ],
+            [
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS), 16, 32),
+                'expected' => 'be',
+            ],
+        ];
+    }
+    
+    /**
+     * @covers ::isTransitionalDifferent
+     *
+     * @dataProvider customIDNAProvider
+     *
+     * @param string $name
+     * @param string $expectedContent
+     * @param string $expectedAscii
+     * @param string $expectedUnicode
+     */
+    public function testResolveWithCustomIDNAOptions(
+        string $name,
+        string $expectedContent,
+        string $expectedAscii,
+        string $expectedUnicode
+    ) {
+        $publicSuffix = new PublicSuffix($name, '', 16, 32);
+        self::assertSame($expectedContent, $publicSuffix->getContent());
+        self::assertSame($expectedAscii, $publicSuffix->toAscii()->getContent());
+        self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->getContent());
+        $instance = $publicSuffix->toUnicode();
+        self::assertSame(
+            [$publicSuffix->getAsciiIDNAOption(), $publicSuffix->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
+        self::assertSame($publicSuffix->isTransitionalDifferent(), $publicSuffix->toAscii()->isTransitionalDifferent());
+    }
+    
+    public function customIDNAProvider()
+    {
+        return [
+            'without deviation characters'=>[
+                'example.com',
+                'example.com',
+                'example.com',
+                'example.com',
+            ],
+            'without deviation characters with label'=>[
+                'www.example.com',
+                'www.example.com',
+                'www.example.com',
+                'www.example.com',
+            ],
+            'with deviation in domain'=>[
+                'www.faß.de',
+                'www.faß.de',
+                'www.xn--fa-hia.de',
+                'www.faß.de',
+            ],
+            'with deviation in label'=>[
+                'faß.test.de',
+                'faß.test.de',
+                'xn--fa-hia.test.de',
+                'faß.test.de',
+            ],
+        ];
+    }
+    
+    /**
+     * @covers ::isTransitionalDifferent
+     *
+     * @dataProvider transitionalProvider
+     * @param \Pdp\PublicSuffix $publicSuffix
+     * @param bool              $expected
+     */
+    public function testIsTransitionalDifference(PublicSuffix $publicSuffix, bool $expected)
+    {
+        self::assertSame($expected, $publicSuffix->isTransitionalDifferent());
+    }
+    
+    public function transitionalProvider()
+    {
+        return [
+            'simple' => [new PublicSuffix('example.com'), false],
+            'idna' => [new PublicSuffix('français.fr'), false],
+            'in domain' => [new PublicSuffix('faß.de'), true],
+            'in domain 2' => [new PublicSuffix('βόλος.com'), true],
+            'in domain 3' => [new PublicSuffix('ශ්‍රී.com'), true],
+            'in domain 4' => [new PublicSuffix('نامه‌ای.com'), true],
+            'in label' => [new PublicSuffix('faß.test.de'), true],
         ];
     }
 }

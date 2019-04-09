@@ -621,6 +621,7 @@ class RulesTest extends TestCase
         $this->checkPublicSuffix('www.食狮.中国', '食狮.中国');
         $this->checkPublicSuffix('shishi.中国', 'shishi.中国');
         $this->checkPublicSuffix('中国', null);
+        $this->checkPublicSuffix('www.faß.de', 'fass.de');
         // Same as above, but punycoded.
         $this->checkPublicSuffix('xn--85x722f.com.cn', 'xn--85x722f.com.cn');
         $this->checkPublicSuffix('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn');
@@ -631,5 +632,14 @@ class RulesTest extends TestCase
         $this->checkPublicSuffix('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s');
         $this->checkPublicSuffix('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s');
         $this->checkPublicSuffix('xn--fiqs8s', null);
+    }
+    
+    public function testResolveWithIDNAOptions()
+    {
+        $resolved = $this->rules->resolve('foo.de', Rules::ICANN_DOMAINS, 16, 32);
+        self::assertSame(
+            [16, 32],
+            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
+        );
     }
 }

@@ -99,4 +99,11 @@ interface DomainInterface extends Countable, IteratorAggregate
      * from the right-most label to the left-most label.
      */
     public function getIterator();
+    
+    /**
+     * return true if domain contains deviation characters.
+     * @see http://unicode.org/reports/tr46/#Transition_Considerations
+     * @return bool
+     **/
+    public function isTransitionalDifferent(): bool;
 }

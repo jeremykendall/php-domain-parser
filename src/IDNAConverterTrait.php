@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use function is_string;
 use Pdp\Exception\InvalidDomain;
 use TypeError;
 use UnexpectedValueException;
@@ -28,6 +29,7 @@ use function is_scalar;
 use function iterator_to_array;
 use function method_exists;
 use function preg_match;
+use function property_exists;
 use function rawurldecode;
 use function sprintf;
 use function strpos;
@@ -103,11 +105,13 @@ trait IDNAConverterTrait
      *
      * @param string $domain
      *
+     * @param int $IDNAOption
+     *
      * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
      *
      * @return string
      */
-    private function idnToAscii(string $domain): string
+    private function idnToAscii(string $domain, int $IDNAOption = IDNA_DEFAULT): string
     {
         $domain = rawurldecode($domain);
         static $pattern = '/[^\x20-\x7f]/';
@@ -115,7 +119,7 @@ trait IDNAConverterTrait
             return strtolower($domain);
         }
 
-        $output = idn_to_ascii($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        $output = idn_to_ascii($domain, $IDNAOption, INTL_IDNA_VARIANT_UTS46, $arr);
         if (0 !== $arr['errors']) {
             throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
         }
@@ -125,7 +129,7 @@ trait IDNAConverterTrait
             throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
         }
         // @codeCoverageIgnoreEnd
-
+        
         if (false === strpos($output, '%')) {
             return $output;
         }
@@ -140,13 +144,15 @@ trait IDNAConverterTrait
      *
      * @param string $domain
      *
+     * @param int $IDNAOption
+     *
      * @throws InvalidDomain if the string can not be converted to UNICODE using IDN UTS46 algorithm
      *
      * @return string
      */
-    private function idnToUnicode(string $domain): string
+    private function idnToUnicode(string $domain, int $IDNAOption = IDNA_DEFAULT): string
     {
-        $output = idn_to_utf8($domain, 0, INTL_IDNA_VARIANT_UTS46, $arr);
+        $output = idn_to_utf8($domain, $IDNAOption, INTL_IDNA_VARIANT_UTS46, $arr);
         if (0 !== $arr['errors']) {
             throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
         }
@@ -162,19 +168,16 @@ trait IDNAConverterTrait
 
     /**
      * Filter and format the domain to ensure it is valid.
-     *
      * Returns an array containing the formatted domain name in lowercase
      * with its associated labels in reverse order
-     *
-     * For example: setLabels('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];
-     *
-     * @param mixed $domain
-     *
+     * For example: setLabels('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];.
+     * @param  mixed         $domain
+     * @param  int           $asciiOption
+     * @param  int           $unicodeOption
      * @throws InvalidDomain If the domain is invalid
-     *
      * @return string[]
      */
-    private function setLabels($domain = null): array
+    private function setLabels($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
     {
         if ($domain instanceof DomainInterface) {
             return iterator_to_array($domain, false);
@@ -222,9 +225,19 @@ trait IDNAConverterTrait
         if (!preg_match($pattern, $formatted_domain)) {
             throw new InvalidDomain(sprintf('The domain `%s` is invalid: the labels are malformed', $domain));
         }
+        
+        $ascii_domain = $this->idnToAscii($domain, $asciiOption);
 
-        $ascii_domain = $this->idnToAscii($domain);
-
-        return array_reverse(explode('.', $this->idnToUnicode($ascii_domain)));
+        return array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
+    }
+    
+    private function hasTransitionalDifference($domain):bool
+    {
+        if(!is_string($domain) || empty($domain)){
+            return false;
+        }
+        $info = [];
+        idn_to_ascii($domain, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46, $info);
+        return (bool)$info['isTransitionalDifferent'] === true;
     }
 }
