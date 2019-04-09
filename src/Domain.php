@@ -106,8 +106,8 @@ final class Domain implements DomainInterface, JsonSerializable
         return new self(
             $properties['domain'],
             $properties['publicSuffix'],
-            $properties['asciiIDNAOption'],
-            $properties['unicodeIDNAOption']
+            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
+            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
         );
     }
     
