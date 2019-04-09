@@ -985,8 +985,6 @@ class DomainTest extends TestCase
     
     /**
      * @covers ::__construct
-     * @covers ::setIDNAOptions
-     * @covers ::getIDNAOptions
      */
     public function testConstructWithCustomIDNAOptions()
     {

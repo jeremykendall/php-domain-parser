@@ -270,7 +270,6 @@ class PublicSuffixTest extends TestCase
     }
     
     /**
-     * @covers ::getIDNAOptions
      * @covers ::isTransitionalDifferent
      *
      * @dataProvider customIDNAProvider
