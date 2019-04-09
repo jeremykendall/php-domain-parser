@@ -124,7 +124,8 @@ final class Domain implements DomainInterface, JsonSerializable
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ) {
-        $this->setIDNAOptions($asciiIDNAOption, $unicodeIDNAOption);
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
         $this->labels = $this->setLabels($domain, $asciiIDNAOption, $unicodeIDNAOption);
         if ([] !== $this->labels) {
             $this->domain = implode('.', array_reverse($this->labels));
@@ -748,11 +749,9 @@ final class Domain implements DomainInterface, JsonSerializable
      * @param  int   $forUnicode
      * @return $this
      */
-    public function setIDNAOptions(int $forAscii, int $forUnicode)
+    public function withIDNAOptions(int $forAscii, int $forUnicode)
     {
-        $this->asciiIDNAOption = $forAscii;
-        $this->unicodeIDNAOption = $forUnicode;
-        return $this;
+        return new self($this->domain, $this->publicSuffix, $forAscii, $forUnicode);
     }
     
     /**
