@@ -241,7 +241,10 @@ class PublicSuffixTest extends TestCase
         self::assertSame($result->isKnown(), $domain->isKnown());
         self::assertSame($result->isICANN(), $domain->isICANN());
         self::assertSame($result->isPrivate(), $domain->isPrivate());
-        self::assertSame($result->getIDNAOptions(), $domain->getIDNAOptions());
+        self::assertSame(
+            [$result->getAsciiIDNAOption(), $result->getUnicodeIDNAOption()],
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()]
+        );
     }
 
     public function createFromDomainProvider()
@@ -287,7 +290,11 @@ class PublicSuffixTest extends TestCase
         self::assertSame($expectedContent, $publicSuffix->getContent());
         self::assertSame($expectedAscii, $publicSuffix->toAscii()->getContent());
         self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->getContent());
-        self::assertSame($publicSuffix->getIDNAOptions(), $publicSuffix->toUnicode()->getIDNAOptions());
+        $instance = $publicSuffix->toUnicode();
+        self::assertSame(
+            [$publicSuffix->getAsciiIDNAOption(), $publicSuffix->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         self::assertSame($publicSuffix->isTransitionalDifferent(), $publicSuffix->toAscii()->isTransitionalDifferent());
     }
     

@@ -108,7 +108,12 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             $section = self::PRIVATE_DOMAINS;
         }
         
-        return new self($domain->getPublicSuffix(), $section, ...$domain->getIDNAOptions());
+        return new self(
+            $domain->getPublicSuffix(),
+            $section,
+            $domain->getAsciiIDNAOption(),
+            $domain->getUnicodeIDNAOption()
+        );
     }
 
     /**
@@ -316,14 +321,15 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         return $clone;
     }
     
-    /**
-     * @return array
-     */
-    public function getIDNAOptions(): array
+    public function getAsciiIDNAOption(): int
     {
-        return [$this->asciiIDNAOption, $this->unicodeIDNAOption];
+        return $this->asciiIDNAOption;
     }
     
+    public function getUnicodeIDNAOption(): int
+    {
+        return $this->unicodeIDNAOption;
+    }
     /**
      * return true if domain contains deviation characters.
      * @see http://unicode.org/reports/tr46/#Transition_Considerations

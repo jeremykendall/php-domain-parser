@@ -421,7 +421,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        return new self($domain, $this->publicSuffix, ...$this->getIDNAOptions());
+        return new self($domain, $this->publicSuffix, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
     }
 
     /**
@@ -436,7 +436,8 @@ final class Domain implements DomainInterface, JsonSerializable
         return new self(
             $this->idnToUnicode($this->domain, $this->unicodeIDNAOption),
             $this->publicSuffix,
-            ...$this->getIDNAOptions()
+            $this->getAsciiIDNAOption(),
+            $this->getUnicodeIDNAOption()
         );
     }
 
@@ -458,7 +459,12 @@ final class Domain implements DomainInterface, JsonSerializable
     public function resolve($publicSuffix): self
     {
         if (!$publicSuffix instanceof PublicSuffix) {
-            $publicSuffix = new PublicSuffix($publicSuffix, '', ...$this->getIDNAOptions());
+            $publicSuffix = new PublicSuffix(
+                $publicSuffix,
+                '',
+                $this->getAsciiIDNAOption(),
+                $this->getUnicodeIDNAOption()
+            );
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
@@ -466,7 +472,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        return new self($this->domain, $publicSuffix, ...$this->getIDNAOptions());
+        return new self($this->domain, $publicSuffix, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
     }
 
     /**
@@ -485,7 +491,12 @@ final class Domain implements DomainInterface, JsonSerializable
     public function withPublicSuffix($publicSuffix): self
     {
         if (!$publicSuffix instanceof PublicSuffix) {
-            $publicSuffix = new PublicSuffix($publicSuffix, '', ...$this->getIDNAOptions());
+            $publicSuffix = new PublicSuffix(
+                $publicSuffix,
+                '',
+                $this->getAsciiIDNAOption(),
+                $this->getUnicodeIDNAOption()
+            );
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
@@ -495,10 +506,15 @@ final class Domain implements DomainInterface, JsonSerializable
 
         $domain = implode('.', array_reverse(array_slice($this->labels, count($this->publicSuffix))));
         if (null === $publicSuffix->getContent()) {
-            return new self($domain, null, ...$this->getIDNAOptions());
+            return new self($domain, null, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
         }
 
-        return new self($domain.'.'.$publicSuffix->getContent(), $publicSuffix, ...$this->getIDNAOptions());
+        return new self(
+            $domain.'.'.$publicSuffix->getContent(),
+            $publicSuffix,
+            $this->getAsciiIDNAOption(),
+            $this->getUnicodeIDNAOption()
+        );
     }
 
 
@@ -526,13 +542,19 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if (null === $subDomain) {
-            return new self($this->registrableDomain, $this->publicSuffix, ...$this->getIDNAOptions());
+            return new self(
+                $this->registrableDomain,
+                $this->publicSuffix,
+                $this->getAsciiIDNAOption(),
+                $this->getUnicodeIDNAOption()
+            );
         }
 
         return new self(
             $subDomain.'.'.$this->registrableDomain,
             $this->publicSuffix,
-            ...$this->getIDNAOptions()
+            $this->getAsciiIDNAOption(),
+            $this->getUnicodeIDNAOption()
         );
     }
 
@@ -641,13 +663,19 @@ final class Domain implements DomainInterface, JsonSerializable
         ksort($labels);
 
         if (null !== $this->publicSuffix->getLabel($key)) {
-            return new self(implode('.', array_reverse($labels)), null, ...$this->getIDNAOptions());
+            return new self(
+                implode('.', array_reverse($labels)),
+                null,
+                $this->getAsciiIDNAOption(),
+                $this->getUnicodeIDNAOption()
+            );
         }
 
         return new self(
             implode('.', array_reverse($labels)),
             $this->publicSuffix,
-            ...$this->getIDNAOptions()
+            $this->getAsciiIDNAOption(),
+            $this->getUnicodeIDNAOption()
         );
     }
 
@@ -691,25 +719,18 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if ([] === $labels) {
-            return new self(null, null, ...$this->getIDNAOptions());
+            return new self(null, null, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
         }
 
         $domain = implode('.', array_reverse($labels));
         $psContent = $this->publicSuffix->getContent();
         if (null === $psContent || '.'.$psContent !== substr($domain, - strlen($psContent) - 1)) {
-            return new self($domain, null, ...$this->getIDNAOptions());
+            return new self($domain, null, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
         }
 
-        return new self($domain, $this->publicSuffix, ...$this->getIDNAOptions());
+        return new self($domain, $this->publicSuffix, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
     }
     
-    /**
-     * @return array
-     */
-    public function getIDNAOptions(): array
-    {
-        return [$this->asciiIDNAOption, $this->unicodeIDNAOption];
-    }
     
     public function getAsciiIDNAOption(): int
     {

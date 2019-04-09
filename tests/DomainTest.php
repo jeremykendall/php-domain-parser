@@ -991,7 +991,7 @@ class DomainTest extends TestCase
     public function testConstructWithCustomIDNAOptions()
     {
         $domain = new Domain('example.com', null, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-        self::assertSame([16, 32], $domain->getIDNAOptions());
+        self::assertSame([16, 32], [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()]);
     }
     
     /**
@@ -1086,23 +1086,50 @@ class DomainTest extends TestCase
     {
         $domain = new Domain('example.com', new PublicSuffix('com'), 16, 32);
         $instance = $domain->toAscii();
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         $instance = $domain->toUnicode();
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         $instance = $domain->withLabel(0, 'foo');
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         $instance = $domain->withoutLabel(0);
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         $instance = $domain->withPublicSuffix(new PublicSuffix('us'));
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         $instance = $domain->withSubDomain('foo');
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         $instance = $domain->append('bar');
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         $instance = $domain->prepend('bar');
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
         $instance = $domain->resolve('com');
-        self::assertSame($domain->getIDNAOptions(), $instance->getIDNAOptions());
+        self::assertSame(
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
+            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+        );
     }
     
     /**
