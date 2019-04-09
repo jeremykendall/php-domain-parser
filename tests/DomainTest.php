@@ -15,6 +15,9 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
+use function array_map;
+use function array_reduce;
+use function ord;
 use Pdp\Domain;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\CouldNotResolveSubDomain;
@@ -24,6 +27,8 @@ use Pdp\Exception\InvalidLabelKey;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
+use function print_r;
+use function str_split;
 use TypeError;
 
 /**

@@ -130,6 +130,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         int $unicodeIDNAOption = IDNA_DEFAULT
     ) {
         $this->labels = $this->setLabels($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
+        $this->isTransitionalDifferent = $this->hasTransitionalDifference($publicSuffix);
         $this->publicSuffix = $this->setPublicSuffix();
         $this->section = $this->setSection($section);
         $this->asciiIDNAOption = $asciiIDNAOption;
@@ -330,6 +331,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     {
         return $this->unicodeIDNAOption;
     }
+    
     /**
      * return true if domain contains deviation characters.
      * @see http://unicode.org/reports/tr46/#Transition_Considerations
@@ -337,13 +339,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      **/
     public function isTransitionalDifferent(): bool
     {
-        if ($this->isTransitionalDifferent === null) {
-            try {
-                $this->idnToAscii($this->getContent());
-            } catch (Throwable $e) {
-                $this->isTransitionalDifferent = false;
-            }
-        }
         return $this->isTransitionalDifferent;
     }
 }

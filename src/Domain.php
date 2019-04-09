@@ -98,6 +98,7 @@ final class Domain implements DomainInterface, JsonSerializable
      * @var bool
     */
     private $isTransitionalDifferent;
+    
     /**
      * {@inheritdoc}
      */
@@ -127,6 +128,7 @@ final class Domain implements DomainInterface, JsonSerializable
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
         $this->labels = $this->setLabels($domain, $asciiIDNAOption, $unicodeIDNAOption);
+        $this->isTransitionalDifferent = $this->hasTransitionalDifference($domain);
         if ([] !== $this->labels) {
             $this->domain = implode('.', array_reverse($this->labels));
         }
@@ -375,7 +377,7 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function isResolvable(): bool
     {
-        return 1 < count($this->labels ?? []) && '.' !== substr($this->domain, -1, 1);
+        return 1 < count($this->labels) && '.' !== substr($this->domain, -1, 1);
     }
 
     /**
@@ -761,13 +763,6 @@ final class Domain implements DomainInterface, JsonSerializable
      **/
     public function isTransitionalDifferent(): bool
     {
-        if ($this->isTransitionalDifferent === null) {
-            try {
-                $this->idnToAscii($this->getContent(), $this->asciiIDNAOption);
-            } catch (Throwable $e) {
-                $this->isTransitionalDifferent = false;
-            }
-        }
         return $this->isTransitionalDifferent;
     }
 }

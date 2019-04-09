@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use function is_string;
 use Pdp\Exception\InvalidDomain;
 use TypeError;
 use UnexpectedValueException;
@@ -115,7 +116,6 @@ trait IDNAConverterTrait
         $domain = rawurldecode($domain);
         static $pattern = '/[^\x20-\x7f]/';
         if (!preg_match($pattern, $domain)) {
-            $this->isTransitionalDifferent = false;
             return strtolower($domain);
         }
 
@@ -129,11 +129,7 @@ trait IDNAConverterTrait
             throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
         }
         // @codeCoverageIgnoreEnd
-    
-        if (property_exists($this, 'isTransitionalDifferent')) {
-            $this->isTransitionalDifferent = isset($arr['isTransitionalDifferent'])
-                                             && (bool)$arr['isTransitionalDifferent'] === true;
-        }
+        
         if (false === strpos($output, '%')) {
             return $output;
         }
@@ -233,5 +229,15 @@ trait IDNAConverterTrait
         $ascii_domain = $this->idnToAscii($domain, $asciiOption);
 
         return array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
+    }
+    
+    private function hasTransitionalDifference($domain):bool
+    {
+        if(!is_string($domain) || empty($domain)){
+            return false;
+        }
+        $info = [];
+        idn_to_ascii($domain, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46, $info);
+        return (bool)$info['isTransitionalDifferent'] === true;
     }
 }
