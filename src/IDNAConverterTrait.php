@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use function is_string;
 use Pdp\Exception\InvalidDomain;
 use TypeError;
 use UnexpectedValueException;
@@ -26,6 +25,7 @@ use function idn_to_ascii;
 use function idn_to_utf8;
 use function implode;
 use function is_scalar;
+use function is_string;
 use function iterator_to_array;
 use function method_exists;
 use function preg_match;
@@ -112,30 +112,35 @@ trait IDNAConverterTrait
      */
     private function idnToAscii(string $domain, int $IDNAOption = IDNA_DEFAULT): string
     {
+        list($domain,) = $this->transformToAscii($domain, $IDNAOption);
+        return $domain;
+    }
+
+    private function transformToAscii(string $domain, int $option):array
+    {
         $domain = rawurldecode($domain);
         static $pattern = '/[^\x20-\x7f]/';
         if (!preg_match($pattern, $domain)) {
-            return strtolower($domain);
+            return [strtolower($domain), false];
         }
-
-        $output = idn_to_ascii($domain, $IDNAOption, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (0 !== $arr['errors']) {
-            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+    
+        $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $info);
+        if (0 !== $info['errors']) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($info['errors'])));
         }
-
+    
         // @codeCoverageIgnoreStart
         if (false === $output) {
             throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
         }
         // @codeCoverageIgnoreEnd
-        
+    
         if (false === strpos($output, '%')) {
-            return $output;
+            return [$output, $info['isTransitionalDifferent']];
         }
-
+    
         throw new InvalidDomain(sprintf('The host `%s` is invalid: it contains invalid characters', $domain));
     }
-
     /**
      * Converts the input to its IDNA UNICODE form.
      *
@@ -232,11 +237,10 @@ trait IDNAConverterTrait
     
     private function hasTransitionalDifference($domain):bool
     {
-        if(!is_string($domain) || empty($domain)){
+        if(!is_string($domain) || '' === $domain){
             return false;
         }
-        $info = [];
-        idn_to_ascii($domain, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46, $info);
-        return (bool)$info['isTransitionalDifferent'] === true;
+        list(, $isTransitionalDifferent) = $this->transformToAscii($domain, IDNA_DEFAULT);
+        return $isTransitionalDifferent;
     }
 }
