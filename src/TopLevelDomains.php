@@ -177,6 +177,30 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
 
     /**
+     * Set IDNA_* options for functions idn_to_ascii.
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getAsciiIDNAOption(): int
+    {
+        return $this->asciiIDNAOption;
+    }
+    
+    /**
+     * Set IDNA_* options for functions idn_to_utf8.
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getUnicodeIDNAOption(): int
+    {
+        return $this->unicodeIDNAOption;
+    }
+    
+    /**
      * {@inheritdoc}
      */
     public function count()

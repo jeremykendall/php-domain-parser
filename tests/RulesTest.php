@@ -644,6 +644,10 @@ class RulesTest extends TestCase
         $this->checkPublicSuffix('xn--fiqs8s', null);
     }
     
+    /**
+     * @covers ::getAsciiIDNAOption
+     * @covers ::getUnicodeIDNAOption
+     */
     public function testResolveWithIDNAOptions()
     {
         $resolvedByDefault = $this->rules->resolve('foo.de', Rules::ICANN_DOMAINS);
@@ -655,7 +659,7 @@ class RulesTest extends TestCase
         $rules = $manager->getRules(Manager::PSL_URL, null, 16, 32);
         $resolved = $rules->resolve('foo.de', Rules::ICANN_DOMAINS);
         self::assertSame(
-            [16, 32],
+            [$rules->getAsciiIDNAOption(), $rules->getUnicodeIDNAOption()],
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
         );
     }

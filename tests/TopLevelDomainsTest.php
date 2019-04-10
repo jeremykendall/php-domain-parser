@@ -95,12 +95,21 @@ class TopLevelDomainsTest extends TestCase
     }
 
     /**
+     * @covers ::getAsciiIDNAOption
+     * @covers ::getUnicodeIDNAOption
      * @covers ::withIDNAOptions
      */
     public function testwithIDNAOptions()
     {
-        self::assertSame($this->collection, $this->collection->withIDNAOptions(IDNA_DEFAULT, IDNA_DEFAULT));
-        self::assertNotEquals($this->collection, $this->collection->withIDNAOptions(IDNA_DEFAULT, 128));
+        self::assertSame($this->collection, $this->collection->withIDNAOptions(
+            $this->collection->getAsciiIDNAOption(),
+            $this->collection->getUnicodeIDNAOption()
+        ));
+
+        self::assertNotEquals($this->collection, $this->collection->withIDNAOptions(
+            $this->collection->getAsciiIDNAOption(),
+            128
+        ));
     }
 
     /**
