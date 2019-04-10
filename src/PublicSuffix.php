@@ -26,6 +26,7 @@ use function implode;
 use function in_array;
 use function reset;
 use function sprintf;
+use const IDNA_DEFAULT;
 
 /**
  * Public Suffix Value Object.
@@ -255,6 +256,42 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     }
 
     /**
+     * Set IDNA_* options for functions idn_to_ascii.
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getAsciiIDNAOption(): int
+    {
+        return $this->asciiIDNAOption;
+    }
+    
+    /**
+     * Set IDNA_* options for functions idn_to_utf8.
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getUnicodeIDNAOption(): int
+    {
+        return $this->unicodeIDNAOption;
+    }
+    
+    /**
+     * return true if domain contains deviation characters.
+     *
+     * @see http://unicode.org/reports/tr46/#Transition_Considerations
+     *
+     * @return bool
+     */
+    public function isTransitionalDifferent(): bool
+    {
+        return $this->isTransitionalDifferent;
+    }
+
+    /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List.
      *
      * @return bool
@@ -320,24 +357,22 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
         return $clone;
     }
-    
-    public function getAsciiIDNAOption(): int
-    {
-        return $this->asciiIDNAOption;
-    }
-    
-    public function getUnicodeIDNAOption(): int
-    {
-        return $this->unicodeIDNAOption;
-    }
-    
+
     /**
-     * return true if domain contains deviation characters.
-     * @see http://unicode.org/reports/tr46/#Transition_Considerations
-     * @return bool
-     **/
-    public function isTransitionalDifferent(): bool
+     * Set IDNA_* options for functions idn_to_ascii, idn_to_utf8.
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $asciiIDNAOption
+     * @param int $unicodeIDNAOption
+     *
+     * @return self
+     */
+    public function withIDNAOptions(int $asciiIDNAOption, int $unicodeIDNAOption): self
     {
-        return $this->isTransitionalDifferent;
+        if ($asciiIDNAOption === $this->asciiIDNAOption && $unicodeIDNAOption === $this->unicodeIDNAOption) {
+            return $this;
+        }
+
+        return new self($this->publicSuffix, $this->section, $asciiIDNAOption, $unicodeIDNAOption);
     }
 }

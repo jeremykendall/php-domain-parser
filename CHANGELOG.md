@@ -6,7 +6,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
-- None
+- Support for IDNA_OPTIONS settings in all the classes see [#236](https://github.com/jeremykendall/php-domain-parser/pull/236) thanks to [Insolita](https://github.com/Insolita)
 
 ### Fixed
 

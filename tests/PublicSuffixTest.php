@@ -351,4 +351,17 @@ class PublicSuffixTest extends TestCase
             'in label' => [new PublicSuffix('faß.test.de'), true],
         ];
     }
+
+    /**
+     * @covers ::withIDNAOptions
+     * @covers ::getAsciiIDNAOption
+     * @covers ::getUnicodeIDNAOption
+     */
+    public function testwithIDNAOptions()
+    {
+        $publicSuffix = new PublicSuffix('com');
+        self::assertSame($publicSuffix, $publicSuffix->withIDNAOptions($publicSuffix->getAsciiIDNAOption(), $publicSuffix->getUnicodeIDNAOption()));
+
+        self::assertNotEquals($publicSuffix, $publicSuffix->withIDNAOptions($publicSuffix->getAsciiIDNAOption(), 128));
+    }
 }

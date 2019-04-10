@@ -21,6 +21,7 @@ use DateTimeInterface;
 use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotLoadTLDs;
 use Psr\SimpleCache\CacheInterface;
+use Psr\SimpleCache\InvalidArgumentException as SimpleCacheException;
 use TypeError;
 use function filter_var;
 use function gettype;
@@ -35,6 +36,7 @@ use function sprintf;
 use function strtolower;
 use const DATE_ATOM;
 use const FILTER_VALIDATE_INT;
+use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
 
 /**
@@ -82,19 +84,22 @@ final class Manager
 
     /**
      * Gets the Public Suffix List Rules.
-     * @param string     $url the Public Suffix List URL
-     * @param null|mixed $ttl the cache TTL
+     *
+     * @param string     $url               the Public Suffix List URL
+     * @param null|mixed $ttl               the cache TTL
      * @param int        $asciiIDNAOption
      * @param int        $unicodeIDNAOption
+     *
+     * @throws SimpleCacheException
+     *
      * @return Rules
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function getRules(
         string $url = self::PSL_URL,
         $ttl = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ):Rules {
+    ): Rules {
         $key = $this->getCacheKey('PSL', $url);
         $data = $this->cache->get($key);
 
@@ -134,19 +139,22 @@ final class Manager
 
     /**
      * Gets the Public Suffix List Rules.
-     * @param string     $url the IANA Root Zone Database URL
-     * @param null|mixed $ttl the cache TTL
+     *
+     * @param string     $url               the IANA Root Zone Database URL
+     * @param null|mixed $ttl               the cache TTL
      * @param int        $asciiIDNAOption
      * @param int        $unicodeIDNAOption
+     *
+     * @throws SimpleCacheException
+     *
      * @return TopLevelDomains
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function getTLDs(
         string $url = self::RZD_URL,
         $ttl = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ):TopLevelDomains {
+    ): TopLevelDomains {
         $key = $this->getCacheKey('RZD', $url);
         $data = $this->cache->get($key);
 
@@ -156,8 +164,10 @@ final class Manager
         
         $data = json_decode($data ?? $this->cache->get($key), true);
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new CouldNotLoadTLDs(sprintf('The root zone database cache is corrupted: %s', json_last_error_msg()),
-                                       json_last_error());
+            throw new CouldNotLoadTLDs(
+                sprintf('The root zone database cache is corrupted: %s', json_last_error_msg()),
+                json_last_error()
+            );
         }
         
         if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
@@ -176,13 +186,16 @@ final class Manager
     /**
      * Downloads, converts and cache the IANA Root Zone TLD.
      * If a local cache already exists, it will be overwritten.
-     * Returns true if the refresh was successful
-     * @param string     $url the IANA Root Zone Database URL
-     * @param null|mixed $ttl the cache TTL
+     * Returns true if the refresh was successful.
+     *
+     * @param string     $url               the IANA Root Zone Database URL
+     * @param null|mixed $ttl               the cache TTL
      * @param int        $asciiIDNAOption
      * @param int        $unicodeIDNAOption
+     *
+     * @throws SimpleCacheException
+     *
      * @return bool
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function refreshTLDs(
         string $url = self::RZD_URL,

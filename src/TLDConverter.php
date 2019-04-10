@@ -41,9 +41,11 @@ final class TLDConverter
     
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
+     *
      * @param string $content
      * @param int    $asciiIDNAOption
      * @param int    $unicodeIDNAOption
+     *
      * @return array
      */
     public function convert(

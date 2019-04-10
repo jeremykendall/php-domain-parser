@@ -26,6 +26,7 @@ use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use const IDNA_DEFAULT;
 
 /**
  * @coversDefaultClass Pdp\Rules
@@ -77,6 +78,15 @@ class RulesTest extends TestCase
     {
         $generateRules = eval('return '.var_export($this->rules, true).';');
         self::assertEquals($this->rules, $generateRules);
+    }
+
+    /**
+     * @covers ::withIDNAOptions
+     */
+    public function testwithIDNAOptions()
+    {
+        self::assertSame($this->rules, $this->rules->withIDNAOptions(IDNA_DEFAULT, IDNA_DEFAULT));
+        self::assertNotEquals($this->rules, $this->rules->withIDNAOptions(IDNA_DEFAULT, 128));
     }
 
     /**
@@ -642,7 +652,7 @@ class RulesTest extends TestCase
             [$resolvedByDefault->getAsciiIDNAOption(), $resolvedByDefault->getUnicodeIDNAOption()]
         );
         $manager = new Manager(new Cache(), new CurlHttpClient());
-        $rules = $manager->getRules(Manager::PSL_URL, null,  16, 32);
+        $rules = $manager->getRules(Manager::PSL_URL, null, 16, 32);
         $resolved = $rules->resolve('foo.de', Rules::ICANN_DOMAINS);
         self::assertSame(
             [16, 32],

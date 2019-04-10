@@ -25,6 +25,7 @@ use function implode;
 use function in_array;
 use function sprintf;
 use function stream_get_contents;
+use const IDNA_DEFAULT;
 
 /**
  * A class to resolve domain name against the Public Suffix list.
@@ -60,13 +61,32 @@ final class Rules implements PublicSuffixListSection
      * @var int
      */
     private $unicodeIDNAOption;
+
+    /**
+     * New instance.
+     *
+     * @param array $rules
+     * @param int   $asciiIDNAOption
+     * @param int   $unicodeIDNAOption
+     */
+    public function __construct(
+        array $rules,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ) {
+        $this->rules = $rules;
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
+    }
     
     /**
      * Returns a new instance from a file path.
+     *
      * @param string        $path
      * @param null|resource $context
      * @param int           $asciiIDNAOption
      * @param int           $unicodeIDNAOption
+     *
      * @return self
      */
     public static function createFromPath(
@@ -92,9 +112,11 @@ final class Rules implements PublicSuffixListSection
 
     /**
      * Returns a new instance from a string.
+     *
      * @param string $content
      * @param int    $asciiIDNAOption
      * @param int    $unicodeIDNAOption
+     *
      * @return self
      */
     public static function createFromString(
@@ -122,22 +144,6 @@ final class Rules implements PublicSuffixListSection
     }
 
     /**
-     * New instance.
-     * @param array $rules
-     * @param int   $asciiIDNAOption
-     * @param int   $unicodeIDNAOption
-     */
-    public function __construct(
-        array $rules,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ){
-        $this->rules = $rules;
-        $this->asciiIDNAOption = $asciiIDNAOption;
-        $this->unicodeIDNAOption = $unicodeIDNAOption;
-    }
-
-    /**
      * Determines the public suffix for a given domain.
      *
      * @param mixed  $domain
@@ -150,9 +156,10 @@ final class Rules implements PublicSuffixListSection
     public function getPublicSuffix($domain, string $section = self::ALL_DOMAINS): PublicSuffix
     {
         $section = $this->validateSection($section);
-        $domain = $domain instanceof Domain
-            ? $domain
-            : new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        if (!$domain instanceof Domain) {
+            $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        }
+        
         if (!$domain->isResolvable()) {
             throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
         }
@@ -166,7 +173,8 @@ final class Rules implements PublicSuffixListSection
      * @param  string $section
      * @return Domain
      */
-    public function resolve($domain, string $section = self::ALL_DOMAINS): Domain {
+    public function resolve($domain, string $section = self::ALL_DOMAINS): Domain
+    {
         $section = $this->validateSection($section);
         try {
             $domain = $domain instanceof Domain
@@ -275,5 +283,27 @@ final class Rules implements PublicSuffixListSection
             $this->asciiIDNAOption,
             $this->unicodeIDNAOption
         );
+    }
+
+    /**
+     * Set IDNA_* options for functions idn_to_ascii, idn_to_utf8.
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $asciiIDNAOption
+     * @param int $unicodeIDNAOption
+     */
+    public function withIDNAOptions(int $asciiIDNAOption, int $unicodeIDNAOption): self
+    {
+        if ($asciiIDNAOption === $this->asciiIDNAOption
+            && $unicodeIDNAOption === $this->unicodeIDNAOption
+        ) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->asciiIDNAOption = $asciiIDNAOption;
+        $clone->unicodeIDNAOption = $unicodeIDNAOption;
+
+        return $clone;
     }
 }

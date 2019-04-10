@@ -26,6 +26,7 @@ use function fclose;
 use function fopen;
 use function stream_get_contents;
 use const DATE_ATOM;
+use const IDNA_DEFAULT;
 
 /**
  * A class to resolve domain name against the IANA Root Database.
@@ -60,11 +61,35 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     private $unicodeIDNAOption;
     
     /**
+     * New instance.
+     * @param array             $records
+     * @param string            $version
+     * @param DateTimeInterface $modifiedDate
+     * @param int               $asciiIDNAOption
+     * @param int               $unicodeIDNAOption
+     */
+    public function __construct(
+        array $records,
+        string $version,
+        DateTimeInterface $modifiedDate,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ) {
+        $this->records = $records;
+        $this->version = $version;
+        $this->modifiedDate = $modifiedDate instanceof DateTime ? DateTimeImmutable::createFromMutable($modifiedDate) : $modifiedDate;
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
+    }
+
+    /**
      * Returns a new instance from a file path.
+     *
      * @param string        $path
      * @param null|resource $context
      * @param int           $asciiIDNAOption
      * @param int           $unicodeIDNAOption
+     *
      * @return self
      */
     public static function createFromPath(
@@ -72,7 +97,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         $context = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ):self {
+    ): self {
         $args = [$path, 'r', false];
         if (null !== $context) {
             $args[] = $context;
@@ -90,9 +115,11 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     
     /**
      * Returns a new instance from a string.
+     *
      * @param string $content
      * @param int    $asciiIDNAOption
      * @param int    $unicodeIDNAOption
+     *
      * @return self
      */
     public static function createFromString(
@@ -127,28 +154,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
             $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
             $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
         );
-    }
-
-    /**
-     * New instance.
-     * @param array             $records
-     * @param string            $version
-     * @param DateTimeInterface $modifiedDate
-     * @param int               $asciiIDNAOption
-     * @param int               $unicodeIDNAOption
-     */
-    public function __construct(
-        array $records,
-        string $version,
-        DateTimeInterface $modifiedDate,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ){
-        $this->records = $records;
-        $this->version = $version;
-        $this->modifiedDate = $modifiedDate instanceof DateTime ? DateTimeImmutable::createFromMutable($modifiedDate) : $modifiedDate;
-        $this->asciiIDNAOption = $asciiIDNAOption;
-        $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
 
     /**
@@ -195,9 +200,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     public function getIterator()
     {
         foreach ($this->records as $tld) {
-            yield (
-                new PublicSuffix($tld, PublicSuffix::ICANN_DOMAINS, $this->asciiIDNAOption, $this->unicodeIDNAOption)
-            )->toAscii();
+            $publicSuffix = new PublicSuffix($tld, PublicSuffix::ICANN_DOMAINS, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            
+            yield $publicSuffix->toAscii();
         }
     }
 
@@ -213,7 +218,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
             'records' => $this->records,
             'modifiedDate' => $this->modifiedDate->format(DATE_ATOM),
             'asciiIDNAOption'=>$this->asciiIDNAOption,
-            'unicodeIDNAOption'=>$this->unicodeIDNAOption
+            'unicodeIDNAOption'=>$this->unicodeIDNAOption,
         ];
     }
 
@@ -227,9 +232,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     public function contains($tld): bool
     {
         try {
-            $tld = $tld instanceof Domain
-                ? $tld
-                : new Domain($tld, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            if (!$tld instanceof Domain) {
+                $tld = new Domain($tld, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            }
         } catch (Exception $e) {
             return false;
         }
@@ -250,15 +255,17 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns a domain where its public suffix is the found TLD.
-     * @param  mixed  $domain
+     *
+     * @param mixed $domain
+     *
      * @return Domain
      */
     public function resolve($domain): Domain
     {
         try {
-            $domain = $domain instanceof Domain
-                      ? $domain
-                      : new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            if (!$domain instanceof Domain) {
+                $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            }
         } catch (Exception $e) {
             return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
@@ -277,5 +284,29 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         }
 
         return $domain->resolve($publicSuffix);
+    }
+
+    /**
+     * Set IDNA_* options for functions idn_to_ascii, idn_to_utf8.
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $asciiIDNAOption
+     * @param int $unicodeIDNAOption
+     *
+     * @return self
+     */
+    public function withIDNAOptions(int $asciiIDNAOption, int $unicodeIDNAOption): self
+    {
+        if ($asciiIDNAOption === $this->asciiIDNAOption
+            && $unicodeIDNAOption === $this->unicodeIDNAOption
+        ) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->asciiIDNAOption = $asciiIDNAOption;
+        $clone->unicodeIDNAOption = $unicodeIDNAOption;
+
+        return $clone;
     }
 }

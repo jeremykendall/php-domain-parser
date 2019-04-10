@@ -26,7 +26,6 @@ use function idn_to_utf8;
 use function implode;
 use function is_scalar;
 use function is_string;
-use function iterator_to_array;
 use function method_exists;
 use function preg_match;
 use function rawurldecode;
@@ -35,6 +34,7 @@ use function strpos;
 use function strtolower;
 use const FILTER_FLAG_IPV4;
 use const FILTER_VALIDATE_IP;
+use const IDNA_DEFAULT;
 use const IDNA_ERROR_BIDI;
 use const IDNA_ERROR_CONTEXTJ;
 use const IDNA_ERROR_DISALLOWED;
@@ -112,15 +112,30 @@ trait IDNAConverterTrait
      */
     private function idnToAscii(string $domain, int $IDNAOption = IDNA_DEFAULT): string
     {
-        list($domain,) = $this->transformToAscii($domain, $IDNAOption);
+        list($domain, ) = $this->transformToAscii($domain, $IDNAOption);
+
         return $domain;
     }
 
-    private function transformToAscii(string $domain, int $option):array
+    /**
+     * Returns the IDNA ASCII form and its isTransitionalDifferent state.
+     *
+     * @param string $domain
+     *
+     * @param int $IDNAOption
+     * @param int $option
+     *
+     * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
+     *
+     * @return array
+     */
+    private function transformToAscii(string $domain, int $option): array
     {
         $domain = rawurldecode($domain);
+
         static $pattern = '/[^\x20-\x7f]/';
-        if (!preg_match($pattern, $domain)) {
+
+        if (1 !== preg_match($pattern, $domain)) {
             return [strtolower($domain), false];
         }
     
@@ -184,7 +199,7 @@ trait IDNAConverterTrait
     private function setLabels($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
     {
         if ($domain instanceof DomainInterface) {
-            return iterator_to_array($domain, false);
+            $domain = $domain->getContent();
         }
 
         if (null === $domain) {
@@ -214,19 +229,19 @@ trait IDNAConverterTrait
                 (?<reg_name>(?:(?&unreserved)|(?&sub_delims)|(?&encoded)){1,63})
             )
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
-        if (preg_match($domain_name, $formatted_domain)) {
+        if (1 === preg_match($domain_name, $formatted_domain)) {
             return array_reverse(explode('.', strtolower($formatted_domain)));
         }
 
         // a domain name can not contains URI delimiters or space
         static $gen_delims = '/[:\/?#\[\]@ ]/';
-        if (preg_match($gen_delims, $formatted_domain)) {
+        if (1 === preg_match($gen_delims, $formatted_domain)) {
             throw new InvalidDomain(sprintf('The domain `%s` is invalid: it contains invalid characters', $domain));
         }
 
         // if the domain name does not contains UTF-8 chars then it is malformed
         static $pattern = '/[^\x20-\x7f]/';
-        if (!preg_match($pattern, $formatted_domain)) {
+        if (1 !== preg_match($pattern, $formatted_domain)) {
             throw new InvalidDomain(sprintf('The domain `%s` is invalid: the labels are malformed', $domain));
         }
         
@@ -235,12 +250,13 @@ trait IDNAConverterTrait
         return array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
     }
     
-    private function hasTransitionalDifference($domain):bool
+    private function hasTransitionalDifference($domain): bool
     {
-        if(!is_string($domain) || '' === $domain){
+        if (!is_string($domain) || '' === $domain) {
             return false;
         }
         list(, $isTransitionalDifferent) = $this->transformToAscii($domain, IDNA_DEFAULT);
+
         return $isTransitionalDifferent;
     }
 }

@@ -565,7 +565,8 @@ class DomainTest extends TestCase
     public function testWithEmptySubdomain()
     {
         self::expectException(InvalidDomain::class);
-        (new Domain('www.example.com',
+        (new Domain(
+            'www.example.com',
             new PublicSuffix('com', PublicSuffix::ICANN_DOMAINS)
         ))->withSubDomain('');
     }
@@ -1044,7 +1045,7 @@ class DomainTest extends TestCase
     public function resolveCustomIDNAOptionsProvider()
     {
         return [
-            'without deviation characters'=>[
+            'without deviation characters' => [
                 'example.com',
                 'com',
                 'größe',
@@ -1055,7 +1056,7 @@ class DomainTest extends TestCase
                  null,
                 'xn--gre-6ka8i.com',
             ],
-            'without deviation characters with label'=>[
+            'without deviation characters with label' => [
                 'www.example.com',
                 'com',
                 'größe',
@@ -1066,7 +1067,7 @@ class DomainTest extends TestCase
                 'www',
                 'xn--gre-6ka8i.example.com',
             ],
-            'with deviation in domain'=>[
+            'with deviation in domain' => [
                 'www.faß.de',
                 'de',
                 'größe',
@@ -1077,7 +1078,7 @@ class DomainTest extends TestCase
                 'www',
                 'größe.faß.de',
             ],
-            'with deviation in label'=>[
+            'with deviation in label' => [
                 'faß.test.de',
                 'de',
                 'größe',
@@ -1090,8 +1091,7 @@ class DomainTest extends TestCase
             ],
         ];
     }
-    
-   
+       
     public function testInstanceCreationWithCustomIDNAOptions()
     {
         $domain = new Domain('example.com', new PublicSuffix('com'), 16, 32);
@@ -1164,5 +1164,18 @@ class DomainTest extends TestCase
             'in domain 4' => [new Domain('نامه‌ای.com', new PublicSuffix('com')), true],
             'in label' => [new Domain('faß.test.de', new PublicSuffix('de')), true],
         ];
+    }
+
+    /**
+     * @covers ::withIDNAOptions
+     * @covers ::getAsciiIDNAOption
+     * @covers ::getUnicodeIDNAOption
+     */
+    public function testwithIDNAOptions()
+    {
+        $domain = new Domain('example.com', new PublicSuffix('com'));
+        self::assertSame($domain, $domain->withIDNAOptions($domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
+
+        self::assertNotEquals($domain, $domain->withIDNAOptions($domain->getAsciiIDNAOption(), 128));
     }
 }

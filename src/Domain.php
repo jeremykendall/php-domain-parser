@@ -37,6 +37,7 @@ use function sprintf;
 use function strlen;
 use function strpos;
 use function substr;
+use const IDNA_DEFAULT;
 
 /**
  * Domain Value Object.
@@ -327,6 +328,42 @@ final class Domain implements DomainInterface, JsonSerializable
     }
 
     /**
+     * Set IDNA_* options for functions idn_to_ascii.
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getAsciiIDNAOption(): int
+    {
+        return $this->asciiIDNAOption;
+    }
+    
+    /**
+     * Set IDNA_* options for functions idn_to_utf8.
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getUnicodeIDNAOption(): int
+    {
+        return $this->unicodeIDNAOption;
+    }
+    
+    /**
+     * return true if domain contains deviation characters.
+     *
+     * @see http://unicode.org/reports/tr46/#Transition_Considerations
+     *
+     * @return bool
+     */
+    public function isTransitionalDifferent(): bool
+    {
+        return $this->isTransitionalDifferent;
+    }
+
+    /**
      * Returns the registrable domain.
      *
      * The registered or registrable domain is the public suffix plus one additional label.
@@ -423,7 +460,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        return new self($domain, $this->publicSuffix, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
+        return new self($domain, $this->publicSuffix, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
     /**
@@ -438,8 +475,8 @@ final class Domain implements DomainInterface, JsonSerializable
         return new self(
             $this->idnToUnicode($this->domain, $this->unicodeIDNAOption),
             $this->publicSuffix,
-            $this->getAsciiIDNAOption(),
-            $this->getUnicodeIDNAOption()
+            $this->asciiIDNAOption,
+            $this->unicodeIDNAOption
         );
     }
 
@@ -464,8 +501,8 @@ final class Domain implements DomainInterface, JsonSerializable
             $publicSuffix = new PublicSuffix(
                 $publicSuffix,
                 '',
-                $this->getAsciiIDNAOption(),
-                $this->getUnicodeIDNAOption()
+                $this->asciiIDNAOption,
+                $this->unicodeIDNAOption
             );
         }
 
@@ -474,7 +511,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $this;
         }
 
-        return new self($this->domain, $publicSuffix, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
+        return new self($this->domain, $publicSuffix, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
     /**
@@ -496,8 +533,8 @@ final class Domain implements DomainInterface, JsonSerializable
             $publicSuffix = new PublicSuffix(
                 $publicSuffix,
                 '',
-                $this->getAsciiIDNAOption(),
-                $this->getUnicodeIDNAOption()
+                $this->asciiIDNAOption,
+                $this->unicodeIDNAOption
             );
         }
 
@@ -508,14 +545,14 @@ final class Domain implements DomainInterface, JsonSerializable
 
         $domain = implode('.', array_reverse(array_slice($this->labels, count($this->publicSuffix))));
         if (null === $publicSuffix->getContent()) {
-            return new self($domain, null, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
+            return new self($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
         return new self(
             $domain.'.'.$publicSuffix->getContent(),
             $publicSuffix,
-            $this->getAsciiIDNAOption(),
-            $this->getUnicodeIDNAOption()
+            $this->asciiIDNAOption,
+            $this->unicodeIDNAOption
         );
     }
 
@@ -547,16 +584,16 @@ final class Domain implements DomainInterface, JsonSerializable
             return new self(
                 $this->registrableDomain,
                 $this->publicSuffix,
-                $this->getAsciiIDNAOption(),
-                $this->getUnicodeIDNAOption()
+                $this->asciiIDNAOption,
+                $this->unicodeIDNAOption
             );
         }
 
         return new self(
             $subDomain.'.'.$this->registrableDomain,
             $this->publicSuffix,
-            $this->getAsciiIDNAOption(),
-            $this->getUnicodeIDNAOption()
+            $this->asciiIDNAOption,
+            $this->unicodeIDNAOption
         );
     }
 
@@ -668,16 +705,16 @@ final class Domain implements DomainInterface, JsonSerializable
             return new self(
                 implode('.', array_reverse($labels)),
                 null,
-                $this->getAsciiIDNAOption(),
-                $this->getUnicodeIDNAOption()
+                $this->asciiIDNAOption,
+                $this->unicodeIDNAOption
             );
         }
 
         return new self(
             implode('.', array_reverse($labels)),
             $this->publicSuffix,
-            $this->getAsciiIDNAOption(),
-            $this->getUnicodeIDNAOption()
+            $this->asciiIDNAOption,
+            $this->unicodeIDNAOption
         );
     }
 
@@ -721,47 +758,35 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if ([] === $labels) {
-            return new self(null, null, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
+            return new self(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
         $domain = implode('.', array_reverse($labels));
         $psContent = $this->publicSuffix->getContent();
         if (null === $psContent || '.'.$psContent !== substr($domain, - strlen($psContent) - 1)) {
-            return new self($domain, null, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
+            return new self($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
-        return new self($domain, $this->publicSuffix, $this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
+        return new self($domain, $this->publicSuffix, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
     
-    
-    public function getAsciiIDNAOption(): int
-    {
-        return $this->asciiIDNAOption;
-    }
-    
-    public function getUnicodeIDNAOption(): int
-    {
-        return $this->unicodeIDNAOption;
-    }
     /**
-     * Set IDNA_* options for functions idn_to_ascii, idn_to_utf.
+     * Set IDNA_* options for functions idn_to_ascii, idn_to_utf8.
      * @see https://www.php.net/manual/en/intl.constants.php
-     * @param  int   $forAscii
-     * @param  int   $forUnicode
-     * @return $this
+     *
+     * @param int $asciiIDNAOption
+     * @param int $unicodeIDNAOption
+     *
+     * @return self
      */
-    public function withIDNAOptions(int $forAscii, int $forUnicode)
+    public function withIDNAOptions(int $asciiIDNAOption, int $unicodeIDNAOption): self
     {
-        return new self($this->domain, $this->publicSuffix, $forAscii, $forUnicode);
-    }
-    
-    /**
-     * return true if domain contains deviation characters.
-     * @see http://unicode.org/reports/tr46/#Transition_Considerations
-     * @return bool
-     **/
-    public function isTransitionalDifferent(): bool
-    {
-        return $this->isTransitionalDifferent;
+        if ($asciiIDNAOption === $this->asciiIDNAOption
+            && $unicodeIDNAOption === $this->unicodeIDNAOption
+        ) {
+            return $this;
+        }
+
+        return new self($this->domain, $this->publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
     }
 }
