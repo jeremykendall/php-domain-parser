@@ -228,6 +228,22 @@ class PublicSuffixTest extends TestCase
     }
 
     /**
+     * @covers ::labels
+     */
+    public function testLabels()
+    {
+        $publicSuffix = new PublicSuffix('master.example.com');
+        self::assertSame([
+            'com',
+            'example',
+            'master',
+        ], $publicSuffix->labels());
+
+        $publicSuffix = new PublicSuffix();
+        self::assertSame([], $publicSuffix->labels());
+    }
+
+    /**
      * @covers ::createFromDomain
      * @dataProvider createFromDomainProvider
      *

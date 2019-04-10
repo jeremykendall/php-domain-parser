@@ -193,6 +193,23 @@ class DomainTest extends TestCase
     }
 
     /**
+     * @covers ::labels
+     */
+    public function testLabels()
+    {
+        $domain = new Domain('master.com.example.com');
+        self::assertSame([
+            'com',
+            'example',
+            'com',
+            'master',
+        ], $domain->labels());
+
+        $domain = new Domain();
+        self::assertSame([], $domain->labels());
+    }
+
+    /**
      * @covers ::setLabels
      * @covers ::setPublicSuffix
      * @covers ::normalize

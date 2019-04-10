@@ -328,6 +328,14 @@ final class Domain implements DomainInterface, JsonSerializable
     }
 
     /**
+     * Returns the object labels.
+     */
+    public function labels(): array
+    {
+        return $this->labels;
+    }
+
+    /**
      * Set IDNA_* options for functions idn_to_ascii.
      *
      * @see https://www.php.net/manual/en/intl.constants.php
