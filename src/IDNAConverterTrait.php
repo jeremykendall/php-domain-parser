@@ -29,7 +29,6 @@ use function is_scalar;
 use function iterator_to_array;
 use function method_exists;
 use function preg_match;
-use function property_exists;
 use function rawurldecode;
 use function sprintf;
 use function strpos;

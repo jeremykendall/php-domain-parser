@@ -20,7 +20,6 @@ use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\CouldNotResolveSubDomain;
 use Pdp\Exception\InvalidLabel;
 use Pdp\Exception\InvalidLabelKey;
-use Throwable;
 use TypeError;
 use function array_count_values;
 use function array_keys;
