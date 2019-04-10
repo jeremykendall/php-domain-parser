@@ -636,7 +636,14 @@ class RulesTest extends TestCase
     
     public function testResolveWithIDNAOptions()
     {
-        $resolved = $this->rules->resolve('foo.de', Rules::ICANN_DOMAINS, 16, 32);
+        $resolvedByDefault = $this->rules->resolve('foo.de', Rules::ICANN_DOMAINS);
+        self::assertSame(
+            [0, 0],
+            [$resolvedByDefault->getAsciiIDNAOption(), $resolvedByDefault->getUnicodeIDNAOption()]
+        );
+        $manager = new Manager(new Cache(), new CurlHttpClient());
+        $rules = $manager->getRules(Manager::PSL_URL, null,  16, 32);
+        $resolved = $rules->resolve('foo.de', Rules::ICANN_DOMAINS);
         self::assertSame(
             [16, 32],
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]

@@ -18,7 +18,6 @@ namespace Pdp;
 use JsonSerializable;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\InvalidDomain;
-use Throwable;
 use function array_keys;
 use function array_reverse;
 use function count;
@@ -87,8 +86,8 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         return new self(
             $properties['publicSuffix'],
             $properties['section'],
-            $properties['asciiIDNAOption'],
-            $properties['unicodeIDNAOption']
+            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
+            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
         );
     }
 

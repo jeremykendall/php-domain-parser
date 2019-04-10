@@ -15,9 +15,6 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
-use function array_map;
-use function array_reduce;
-use function ord;
 use Pdp\Domain;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
 use Pdp\Exception\CouldNotResolveSubDomain;
@@ -27,9 +24,8 @@ use Pdp\Exception\InvalidLabelKey;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
-use function print_r;
-use function str_split;
 use TypeError;
+use function date_create;
 
 /**
  * @coversDefaultClass Pdp\Domain
@@ -561,7 +557,18 @@ class DomainTest extends TestCase
         self::expectException(CouldNotResolveSubDomain::class);
         (new Domain('localhost'))->withSubDomain('www');
     }
-
+    
+    /**
+     * @covers ::withSubDomain
+     * @covers ::normalizeContent
+     */
+    public function testWithEmptySubdomain()
+    {
+        self::expectException(InvalidDomain::class);
+        (new Domain('www.example.com',
+            new PublicSuffix('com', PublicSuffix::ICANN_DOMAINS)
+        ))->withSubDomain('');
+    }
 
     /**
      * @covers ::withSubDomain
