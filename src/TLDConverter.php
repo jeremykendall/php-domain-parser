@@ -18,6 +18,7 @@ namespace Pdp;
 use DateTimeImmutable;
 use Pdp\Exception\CouldNotLoadTLDs;
 use SplTempFileObject;
+use function compact;
 use function preg_match;
 use function sprintf;
 use function strpos;
@@ -37,18 +38,19 @@ final class TLDConverter
      * @internal
      */
     const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
-
+    
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
-     *
      * @param string $content
-     *
-     * @throws CouldNotLoadTLDs if the content is invalid or can not be correctly parsed and converted
-     *
+     * @param int    $asciiIDNAOption
+     * @param int    $unicodeIDNAOption
      * @return array
      */
-    public function convert(string $content): array
-    {
+    public function convert(
+        string $content,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): array {
         $data = [];
         $file = new SplTempFileObject();
         $file->fwrite($content);
@@ -56,7 +58,7 @@ final class TLDConverter
         foreach ($file as $line) {
             $line = trim($line);
             if ([] === $data) {
-                $data = $this->extractHeader($line);
+                $data = array_merge($this->extractHeader($line), compact('asciiIDNAOption', 'unicodeIDNAOption'));
                 continue;
             }
 
@@ -70,7 +72,7 @@ final class TLDConverter
         }
 
         if (isset($data['version'], $data['modifiedDate'], $data['records'])) {
-            return $data;
+            return array_merge($data, compact('asciiIDNAOption', 'unicodeIDNAOption'));
         }
 
         throw new CouldNotLoadTLDs(sprintf('Invalid content: TLD conversion failed'));
