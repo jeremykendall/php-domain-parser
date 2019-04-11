@@ -26,6 +26,9 @@ use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use const IDNA_DEFAULT;
+use const IDNA_NONTRANSITIONAL_TO_ASCII;
+use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass Pdp\Rules
@@ -92,7 +95,7 @@ class RulesTest extends TestCase
         ));
 
         self::assertNotEquals($this->rules, $this->rules->withAsciiIDNAOption(
-            128
+            IDNA_NONTRANSITIONAL_TO_ASCII
         ));
 
         self::assertSame($this->rules, $this->rules->withUnicodeIDNAOption(
@@ -100,7 +103,7 @@ class RulesTest extends TestCase
         ));
 
         self::assertNotEquals($this->rules, $this->rules->withUnicodeIDNAOption(
-            128
+            IDNA_NONTRANSITIONAL_TO_UNICODE
         ));
     }
 
@@ -667,11 +670,16 @@ class RulesTest extends TestCase
     {
         $resolvedByDefault = $this->rules->resolve('foo.de', Rules::ICANN_DOMAINS);
         self::assertSame(
-            [0, 0],
+            [IDNA_DEFAULT, IDNA_DEFAULT],
             [$resolvedByDefault->getAsciiIDNAOption(), $resolvedByDefault->getUnicodeIDNAOption()]
         );
         $manager = new Manager(new Cache(), new CurlHttpClient());
-        $rules = $manager->getRules(Manager::PSL_URL, null, 16, 32);
+        $rules = $manager->getRules(
+            Manager::PSL_URL,
+            null,
+            IDNA_NONTRANSITIONAL_TO_ASCII,
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        );
         $resolved = $rules->resolve('foo.de', Rules::ICANN_DOMAINS);
         self::assertSame(
             [$rules->getAsciiIDNAOption(), $rules->getUnicodeIDNAOption()],

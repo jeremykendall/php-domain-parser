@@ -21,6 +21,8 @@ use Pdp\Exception\InvalidDomain;
 use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
+use const IDNA_NONTRANSITIONAL_TO_ASCII;
+use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass Pdp\PublicSuffix
@@ -263,7 +265,7 @@ class PublicSuffixTest extends TestCase
                 'expected' => null,
             ],
             [
-                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS), 16, 32),
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS), IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE),
                 'expected' => 'be',
             ],
         ];
@@ -285,7 +287,7 @@ class PublicSuffixTest extends TestCase
         string $expectedAscii,
         string $expectedUnicode
     ) {
-        $publicSuffix = new PublicSuffix($name, '', 16, 32);
+        $publicSuffix = new PublicSuffix($name, '', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         self::assertSame($expectedContent, $publicSuffix->getContent());
         self::assertSame($expectedAscii, $publicSuffix->toAscii()->getContent());
         self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->getContent());
@@ -367,7 +369,7 @@ class PublicSuffixTest extends TestCase
         ));
 
         self::assertNotEquals($publicSuffix, $publicSuffix->withAsciiIDNAOption(
-            128
+            IDNA_NONTRANSITIONAL_TO_ASCII
         ));
 
         self::assertSame($publicSuffix, $publicSuffix->withUnicodeIDNAOption(
@@ -375,7 +377,7 @@ class PublicSuffixTest extends TestCase
         ));
 
         self::assertNotEquals($publicSuffix, $publicSuffix->withUnicodeIDNAOption(
-            128
+            IDNA_NONTRANSITIONAL_TO_UNICODE
         ));
     }
 }

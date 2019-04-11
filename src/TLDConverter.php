@@ -24,6 +24,7 @@ use function sprintf;
 use function strpos;
 use function trim;
 use const DATE_ATOM;
+use const IDNA_DEFAULT;
 
 /**
  * IANA Root Zone Database Parser.
