@@ -771,22 +771,38 @@ final class Domain implements DomainInterface, JsonSerializable
     }
     
     /**
-     * Set IDNA_* options for functions idn_to_ascii, idn_to_utf8.
+     * Set IDNA_* options for idn_to_ascii.
+     *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
      * @param int $asciiIDNAOption
+     *
+     * @return self
+     */
+    public function withAsciiIDNAOption(int $asciiIDNAOption): self
+    {
+        if ($asciiIDNAOption === $this->asciiIDNAOption) {
+            return $this;
+        }
+
+        return new self($this->domain, $this->publicSuffix, $asciiIDNAOption, $this->unicodeIDNAOption);
+    }
+
+    /**
+     * Set IDNA_* options for idn_to_utf8.
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
      * @param int $unicodeIDNAOption
      *
      * @return self
      */
-    public function withIDNAOptions(int $asciiIDNAOption, int $unicodeIDNAOption): self
+    public function withUnicodeIDNAOption(int $unicodeIDNAOption): self
     {
-        if ($asciiIDNAOption === $this->asciiIDNAOption
-            && $unicodeIDNAOption === $this->unicodeIDNAOption
-        ) {
+        if ($unicodeIDNAOption === $this->unicodeIDNAOption) {
             return $this;
         }
 
-        return new self($this->domain, $this->publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
+        return new self($this->domain, $this->publicSuffix, $this->asciiIDNAOption, $unicodeIDNAOption);
     }
 }

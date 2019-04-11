@@ -26,7 +26,6 @@ use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use TypeError;
-use const IDNA_DEFAULT;
 
 /**
  * @coversDefaultClass Pdp\Rules
@@ -81,12 +80,28 @@ class RulesTest extends TestCase
     }
 
     /**
-     * @covers ::withIDNAOptions
+     * @covers ::getAsciiIDNAOption
+     * @covers ::getUnicodeIDNAOption
+     * @covers ::withAsciiIDNAOption
+     * @covers ::withUnicodeIDNAOption
      */
     public function testwithIDNAOptions()
     {
-        self::assertSame($this->rules, $this->rules->withIDNAOptions(IDNA_DEFAULT, IDNA_DEFAULT));
-        self::assertNotEquals($this->rules, $this->rules->withIDNAOptions(IDNA_DEFAULT, 128));
+        self::assertSame($this->rules, $this->rules->withAsciiIDNAOption(
+            $this->rules->getAsciiIDNAOption()
+        ));
+
+        self::assertNotEquals($this->rules, $this->rules->withAsciiIDNAOption(
+            128
+        ));
+
+        self::assertSame($this->rules, $this->rules->withUnicodeIDNAOption(
+            $this->rules->getUnicodeIDNAOption()
+        ));
+
+        self::assertNotEquals($this->rules, $this->rules->withUnicodeIDNAOption(
+            128
+        ));
     }
 
     /**

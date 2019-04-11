@@ -311,24 +311,42 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
 
     /**
-     * Set IDNA_* options for functions idn_to_ascii, idn_to_utf8.
+     * Set IDNA_* options for idn_to_ascii.
+     *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
      * @param int $asciiIDNAOption
-     * @param int $unicodeIDNAOption
      *
      * @return self
      */
-    public function withIDNAOptions(int $asciiIDNAOption, int $unicodeIDNAOption): self
+    public function withAsciiIDNAOption(int $asciiIDNAOption): self
     {
-        if ($asciiIDNAOption === $this->asciiIDNAOption
-            && $unicodeIDNAOption === $this->unicodeIDNAOption
-        ) {
+        if ($asciiIDNAOption === $this->asciiIDNAOption) {
             return $this;
         }
 
         $clone = clone $this;
         $clone->asciiIDNAOption = $asciiIDNAOption;
+
+        return $clone;
+    }
+
+    /**
+     * Set IDNA_* options for idn_to_utf8.
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $unicodeIDNAOption
+     *
+     * @return self
+     */
+    public function withUnicodeIDNAOption(int $unicodeIDNAOption): self
+    {
+        if ($unicodeIDNAOption === $this->unicodeIDNAOption) {
+            return $this;
+        }
+
+        $clone = clone $this;
         $clone->unicodeIDNAOption = $unicodeIDNAOption;
 
         return $clone;

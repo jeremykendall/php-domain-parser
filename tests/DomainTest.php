@@ -1167,15 +1167,29 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withIDNAOptions
      * @covers ::getAsciiIDNAOption
      * @covers ::getUnicodeIDNAOption
+     * @covers ::withAsciiIDNAOption
+     * @covers ::withUnicodeIDNAOption
      */
     public function testwithIDNAOptions()
     {
         $domain = new Domain('example.com', new PublicSuffix('com'));
-        self::assertSame($domain, $domain->withIDNAOptions($domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
 
-        self::assertNotEquals($domain, $domain->withIDNAOptions($domain->getAsciiIDNAOption(), 128));
+        self::assertSame($domain, $domain->withAsciiIDNAOption(
+            $domain->getAsciiIDNAOption()
+        ));
+
+        self::assertNotEquals($domain, $domain->withAsciiIDNAOption(
+            128
+        ));
+
+        self::assertSame($domain, $domain->withUnicodeIDNAOption(
+            $domain->getUnicodeIDNAOption()
+        ));
+
+        self::assertNotEquals($domain, $domain->withUnicodeIDNAOption(
+            128
+        ));
     }
 }
