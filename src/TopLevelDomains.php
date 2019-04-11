@@ -177,7 +177,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
 
     /**
-     * Set IDNA_* options for functions idn_to_ascii.
+     * Gets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -189,7 +191,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
     
     /**
-     * Set IDNA_* options for functions idn_to_utf8.
+     * Gets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -311,43 +315,47 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
 
     /**
-     * Set IDNA_* options for idn_to_ascii.
+     * Sets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
-     * @param int $asciiIDNAOption
+     * @param int $option
      *
      * @return self
      */
-    public function withAsciiIDNAOption(int $asciiIDNAOption): self
+    public function withAsciiIDNAOption(int $option): self
     {
-        if ($asciiIDNAOption === $this->asciiIDNAOption) {
+        if ($option === $this->asciiIDNAOption) {
             return $this;
         }
 
         $clone = clone $this;
-        $clone->asciiIDNAOption = $asciiIDNAOption;
+        $clone->asciiIDNAOption = $option;
 
         return $clone;
     }
 
     /**
-     * Set IDNA_* options for idn_to_utf8.
+     * Sets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
-     * @param int $unicodeIDNAOption
+     * @param int $option
      *
      * @return self
      */
-    public function withUnicodeIDNAOption(int $unicodeIDNAOption): self
+    public function withUnicodeIDNAOption(int $option): self
     {
-        if ($unicodeIDNAOption === $this->unicodeIDNAOption) {
+        if ($option === $this->unicodeIDNAOption) {
             return $this;
         }
 
         $clone = clone $this;
-        $clone->unicodeIDNAOption = $unicodeIDNAOption;
+        $clone->unicodeIDNAOption = $option;
 
         return $clone;
     }

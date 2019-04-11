@@ -256,7 +256,9 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     }
 
     /**
-     * Set IDNA_* options for functions idn_to_ascii.
+     * Gets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -268,7 +270,9 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     }
     
     /**
-     * Set IDNA_* options for functions idn_to_utf8.
+     * Gets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -280,7 +284,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     }
     
     /**
-     * return true if domain contains deviation characters.
+     * Returns true if domain contains deviation characters.
      *
      * @see http://unicode.org/reports/tr46/#Transition_Considerations
      *
@@ -359,38 +363,42 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     }
 
     /**
-     * Set IDNA_* options for idn_to_ascii.
+     * Sets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
-     * @param int $asciiIDNAOption
+     * @param int $option
      *
      * @return self
      */
-    public function withAsciiIDNAOption(int $asciiIDNAOption): self
+    public function withAsciiIDNAOption(int $option): self
     {
-        if ($asciiIDNAOption === $this->asciiIDNAOption) {
+        if ($option === $this->asciiIDNAOption) {
             return $this;
         }
 
-        return new self($this->publicSuffix, $this->section, $asciiIDNAOption, $this->unicodeIDNAOption);
+        return new self($this->publicSuffix, $this->section, $option, $this->unicodeIDNAOption);
     }
 
     /**
-     * Set IDNA_* options for idn_to_utf8.
+     * Sets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
-     * @param int $unicodeIDNAOption
+     * @param int $option
      *
      * @return self
      */
-    public function withUnicodeIDNAOption(int $unicodeIDNAOption): self
+    public function withUnicodeIDNAOption(int $option): self
     {
-        if ($unicodeIDNAOption === $this->unicodeIDNAOption) {
+        if ($option === $this->unicodeIDNAOption) {
             return $this;
         }
 
-        return new self($this->publicSuffix, $this->section, $this->asciiIDNAOption, $unicodeIDNAOption);
+        return new self($this->publicSuffix, $this->section, $this->asciiIDNAOption, $option);
     }
 }

@@ -144,7 +144,9 @@ final class Rules implements PublicSuffixListSection
     }
 
     /**
-     * Set IDNA_* options for functions idn_to_ascii.
+     * Gets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -156,7 +158,9 @@ final class Rules implements PublicSuffixListSection
     }
     
     /**
-     * Set IDNA_* options for functions idn_to_utf8.
+     * Gets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -193,8 +197,10 @@ final class Rules implements PublicSuffixListSection
 
     /**
      * Returns PSL info for a given domain.
-     * @param  mixed  $domain
-     * @param  string $section
+     *
+     * @param mixed  $domain
+     * @param string $section
+     *
      * @return Domain
      */
     public function resolve($domain, string $section = self::ALL_DOMAINS): Domain
@@ -310,7 +316,9 @@ final class Rules implements PublicSuffixListSection
     }
 
     /**
-     * Set IDNA_* options for idn_to_ascii.
+     * Sets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -331,7 +339,9 @@ final class Rules implements PublicSuffixListSection
     }
 
     /**
-     * Set IDNA_* options for idn_to_utf8.
+     * Sets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
