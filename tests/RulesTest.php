@@ -27,6 +27,8 @@ use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use const IDNA_DEFAULT;
+use const IDNA_NONTRANSITIONAL_TO_ASCII;
+use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass Pdp\Rules
@@ -81,12 +83,28 @@ class RulesTest extends TestCase
     }
 
     /**
-     * @covers ::withIDNAOptions
+     * @covers ::getAsciiIDNAOption
+     * @covers ::getUnicodeIDNAOption
+     * @covers ::withAsciiIDNAOption
+     * @covers ::withUnicodeIDNAOption
      */
     public function testwithIDNAOptions()
     {
-        self::assertSame($this->rules, $this->rules->withIDNAOptions(IDNA_DEFAULT, IDNA_DEFAULT));
-        self::assertNotEquals($this->rules, $this->rules->withIDNAOptions(IDNA_DEFAULT, 128));
+        self::assertSame($this->rules, $this->rules->withAsciiIDNAOption(
+            $this->rules->getAsciiIDNAOption()
+        ));
+
+        self::assertNotEquals($this->rules, $this->rules->withAsciiIDNAOption(
+            IDNA_NONTRANSITIONAL_TO_ASCII
+        ));
+
+        self::assertSame($this->rules, $this->rules->withUnicodeIDNAOption(
+            $this->rules->getUnicodeIDNAOption()
+        ));
+
+        self::assertNotEquals($this->rules, $this->rules->withUnicodeIDNAOption(
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        ));
     }
 
     /**
@@ -652,11 +670,16 @@ class RulesTest extends TestCase
     {
         $resolvedByDefault = $this->rules->resolve('foo.de', Rules::ICANN_DOMAINS);
         self::assertSame(
-            [0, 0],
+            [IDNA_DEFAULT, IDNA_DEFAULT],
             [$resolvedByDefault->getAsciiIDNAOption(), $resolvedByDefault->getUnicodeIDNAOption()]
         );
         $manager = new Manager(new Cache(), new CurlHttpClient());
-        $rules = $manager->getRules(Manager::PSL_URL, null, 16, 32);
+        $rules = $manager->getRules(
+            Manager::PSL_URL,
+            null,
+            IDNA_NONTRANSITIONAL_TO_ASCII,
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        );
         $resolved = $rules->resolve('foo.de', Rules::ICANN_DOMAINS);
         self::assertSame(
             [$rules->getAsciiIDNAOption(), $rules->getUnicodeIDNAOption()],

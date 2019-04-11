@@ -26,6 +26,8 @@ use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function date_create;
+use const IDNA_NONTRANSITIONAL_TO_ASCII;
+use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass Pdp\Domain
@@ -708,7 +710,7 @@ class DomainTest extends TestCase
                 'isPrivate' => false,
             ],
             'with custom IDNA domain options' =>[
-                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS), 16, 32),
+                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS), IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE),
                 'publicSuffix' => null,
                 'expected' => null,
                 'isKnown' => false,
@@ -1019,7 +1021,10 @@ class DomainTest extends TestCase
     public function testConstructWithCustomIDNAOptions()
     {
         $domain = new Domain('example.com', null, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-        self::assertSame([16, 32], [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()]);
+        self::assertSame(
+            [IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE],
+            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()]
+        );
     }
     
     /**
@@ -1111,7 +1116,13 @@ class DomainTest extends TestCase
        
     public function testInstanceCreationWithCustomIDNAOptions()
     {
-        $domain = new Domain('example.com', new PublicSuffix('com'), 16, 32);
+        $domain = new Domain(
+            'example.com',
+            new PublicSuffix('com'),
+            IDNA_NONTRANSITIONAL_TO_ASCII,
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        );
+        
         $instance = $domain->toAscii();
         self::assertSame(
             [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
@@ -1184,15 +1195,29 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withIDNAOptions
      * @covers ::getAsciiIDNAOption
      * @covers ::getUnicodeIDNAOption
+     * @covers ::withAsciiIDNAOption
+     * @covers ::withUnicodeIDNAOption
      */
     public function testwithIDNAOptions()
     {
         $domain = new Domain('example.com', new PublicSuffix('com'));
-        self::assertSame($domain, $domain->withIDNAOptions($domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
 
-        self::assertNotEquals($domain, $domain->withIDNAOptions($domain->getAsciiIDNAOption(), 128));
+        self::assertSame($domain, $domain->withAsciiIDNAOption(
+            $domain->getAsciiIDNAOption()
+        ));
+
+        self::assertNotEquals($domain, $domain->withAsciiIDNAOption(
+            IDNA_NONTRANSITIONAL_TO_ASCII
+        ));
+
+        self::assertSame($domain, $domain->withUnicodeIDNAOption(
+            $domain->getUnicodeIDNAOption()
+        ));
+
+        self::assertNotEquals($domain, $domain->withUnicodeIDNAOption(
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        ));
     }
 }

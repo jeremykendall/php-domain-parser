@@ -24,6 +24,9 @@ use Pdp\TLDConverter;
 use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use const IDNA_DEFAULT;
+use const IDNA_NONTRANSITIONAL_TO_ASCII;
+use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass Pdp\TopLevelDomains
@@ -97,17 +100,24 @@ class TopLevelDomainsTest extends TestCase
     /**
      * @covers ::getAsciiIDNAOption
      * @covers ::getUnicodeIDNAOption
-     * @covers ::withIDNAOptions
+     * @covers ::withAsciiIDNAOption
+     * @covers ::withUnicodeIDNAOption
      */
     public function testwithIDNAOptions()
     {
-        self::assertSame($this->collection, $this->collection->withIDNAOptions(
-            $this->collection->getAsciiIDNAOption(),
+        self::assertSame($this->collection, $this->collection->withAsciiIDNAOption(
+            $this->collection->getAsciiIDNAOption()
+        ));
+
+        self::assertNotEquals($this->collection, $this->collection->withAsciiIDNAOption(
+            128
+        ));
+
+        self::assertSame($this->collection, $this->collection->withUnicodeIDNAOption(
             $this->collection->getUnicodeIDNAOption()
         ));
 
-        self::assertNotEquals($this->collection, $this->collection->withIDNAOptions(
-            $this->collection->getAsciiIDNAOption(),
+        self::assertNotEquals($this->collection, $this->collection->withUnicodeIDNAOption(
             128
         ));
     }
@@ -170,10 +180,23 @@ class TopLevelDomainsTest extends TestCase
     public function testResolveWithIDNAOptions()
     {
         $resolved = $this->collection->resolve('foo.de');
-        self::assertSame([0, 0], [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]);
-        $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat', null, 16, 32);
+        self::assertSame(
+            [IDNA_DEFAULT, IDNA_DEFAULT],
+            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption(),
+        ]
+        );
+        
+        $collection = TopLevelDomains::createFromPath(
+            __DIR__.'/data/root_zones.dat',
+            null,
+            IDNA_NONTRANSITIONAL_TO_ASCII,
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        );
         $resolved = $collection->resolve('foo.de');
-        self::assertSame([16, 32], [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]);
+        self::assertSame(
+            [IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE],
+            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
+        );
     }
     /**
      * @dataProvider validTldProvider

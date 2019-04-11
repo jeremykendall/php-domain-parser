@@ -177,7 +177,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
 
     /**
-     * Set IDNA_* options for functions idn_to_ascii.
+     * Gets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -189,7 +191,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
     
     /**
-     * Set IDNA_* options for functions idn_to_utf8.
+     * Gets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
@@ -311,25 +315,47 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     }
 
     /**
-     * Set IDNA_* options for functions idn_to_ascii, idn_to_utf8.
+     * Sets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
      * @see https://www.php.net/manual/en/intl.constants.php
      *
-     * @param int $asciiIDNAOption
-     * @param int $unicodeIDNAOption
+     * @param int $option
      *
      * @return self
      */
-    public function withIDNAOptions(int $asciiIDNAOption, int $unicodeIDNAOption): self
+    public function withAsciiIDNAOption(int $option): self
     {
-        if ($asciiIDNAOption === $this->asciiIDNAOption
-            && $unicodeIDNAOption === $this->unicodeIDNAOption
-        ) {
+        if ($option === $this->asciiIDNAOption) {
             return $this;
         }
 
         $clone = clone $this;
-        $clone->asciiIDNAOption = $asciiIDNAOption;
-        $clone->unicodeIDNAOption = $unicodeIDNAOption;
+        $clone->asciiIDNAOption = $option;
+
+        return $clone;
+    }
+
+    /**
+     * Sets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $option
+     *
+     * @return self
+     */
+    public function withUnicodeIDNAOption(int $option): self
+    {
+        if ($option === $this->unicodeIDNAOption) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->unicodeIDNAOption = $option;
 
         return $clone;
     }
