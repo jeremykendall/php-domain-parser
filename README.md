@@ -129,8 +129,6 @@ Documentation
 ### Domain objects
 
 ~~~php
-<?php
-
 use Pdp\Domain;
 use Pdp\PublicSuffix;
 
@@ -152,6 +150,8 @@ iterator_to_array($domain, false); // ['com', 'example', 'bébé', 'www']
 $domain->labels();                 // ['com', 'example', 'bébé', 'www']  since v5.5
 $domain->toAscii()->getContent();  // www.xn--bb-bjab.example.com
 echo (new Domain('www.xn--bb-bjab.example.com'))->toAscii() // www.bébé.example.com
+$domain->getAsciiIDNAOption();     // IDNA_DEFAULT
+$domain->getUnicodeIDNAOption();   // IDNA_DEFAULT
 ~~~
 
 The `Pdp\Domain` and `Pdp\PublicSuffix` objects are an immutable value object representing a valid domain name. These objects let's you access the domain properties.
@@ -175,8 +175,6 @@ public function Domain::withUnicodeIDNAOption(int $option): Domain
 ~~~
 
 ~~~php
-<?php
-
 use Pdp\Domain;
 
 $domain = new Domain('www.bébé.be');
@@ -202,8 +200,6 @@ Because the `Pdp\Domain` object is immutable:
 The `Pdp\Domain` object can tell whether a public suffix can be attached to it using the `Pdp\Domain::isResolvable` method.
 
 ~~~php
-<?php
-
 use Pdp\Domain;
 
 $domain = new Domain('www.ExAmple.com');
@@ -258,21 +254,25 @@ namespace Pdp;
 
 final class Rules
 {
-    public static function createFromPath(
-        string $path, $context = null,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ): Rules
-    public static function createFromString(
-        string $content,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ): Rules
     public function __construct(
         array $rules,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ): void
+
+    public static function createFromPath(
+        string $path,
+        resource $context = null,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): Rules
+
+    public static function createFromString(
+        string $content,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): Rules
+
     public function resolve($domain, string $section = ''): Domain
     public function getPublicSuffix($domain, string $section = ''): PublicSuffix
     public function getAsciiIDNAOption(): int
@@ -356,9 +356,17 @@ namespace Pdp;
 
 final class TopLevelDomains implements Countable, IteratorAggregate
 {
+    public function __construct(
+        array $records,
+        string $version,
+        DateTimeInterface $modifiedDate,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): void
+
     public static function createFromPath(
         string $path,
-        $context = null,
+        resource $context = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ): TopLevelDomains
@@ -368,14 +376,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ): TopLevelDomains
-
-    public function __construct(
-        array $records,
-        string $version,
-        DateTimeInterface $modifiedDate,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    )
 
     public function resolve($domain): Domain
     public function contains($domain): bool
@@ -392,12 +392,12 @@ The `Pdp\TopLevelDomains` object is responsible for top level domain resolution 
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
 ~~~php
+use Pdp\TopLevelDomains;
+
 $pdp_url = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
-$tldCollection = Pdp\TopLevelDomains::createFromPath($pdp_url);
-
-$result = $tldCollection->contains('be'); // resolution is done against the retrieves list
-
-$domain = $tldCollection->resolve('www.Ulb.Ac.BE');
+$tlds    = TopLevelDomains::createFromPath($pdp_url);
+$result  = $tlds->contains('be'); // resolution is done against the retrieves list
+$domain  = json_encode($tlds->resolve('www.Ulb.Ac.BE'), JSON_PRETTY_PRINT);
 // returns
 //  {
 //      "domain": "www.ulb.ac.be",
@@ -477,8 +477,6 @@ The package comes bundle with:
 #### Refreshing the cached PSL and TLD data
 
 ~~~php
-<?php
-
 public Manager::refreshRules(string $source_url = self::PSL_URL, $ttl = null): bool
 public Manager::refreshTLD(string $source_url = self::RZD_URL, $ttl = null): bool
 ~~~
@@ -500,17 +498,15 @@ if ($retval) {
 #### Returning `Pdp\Rules` and `Pdp\TopLevelDomains` objects
 
 ~~~php
-<?php
-
 public Manager::getRules(
-    string $source_url = self::PSL_URL,
+    string $url = self::PSL_URL,
     $ttl = null,
     int $asciiIDNAOption = IDNA_DEFAULT,
     int $unicodeIDNAOption = IDNA_DEFAULT    
 ): Rules
 
 public Manager::getTLDs(
-    string $source_url = self::RZD_URL,
+    string $url = self::RZD_URL,
     $ttl = null,
     int $asciiIDNAOption = IDNA_DEFAULT,
     int $unicodeIDNAOption = IDNA_DEFAULT
@@ -519,14 +515,14 @@ public Manager::getTLDs(
 
 These methods returns a `Pdp\Rules` or `Pdp\TopLevelDomains` objects seeded with their corresponding data fetch from the cache or from the external resources depending on the submitted `$ttl` argument.
 
-These methods take an optional `$source_url` argument which specifies the PSL source URL. If no local cache exists for the submitted source URL, the method will:
+These methods take an optional `$url` argument which specifies the PSL source URL. If no local cache exists for the submitted source URL, the method will:
 
 1. call `Manager::refreshRules` with the given URL and `$ttl` argument to update its local cache
 2. instantiate the `Rules` or the `TopLevelDomains` objects with the newly cached data.
 
 On error, theses methods will throw an `Pdp\Exception`.
 
- **since 5.5***
+ **since version 5.5**
 
 the following optional arguments are added to the methods:
 
@@ -540,8 +536,6 @@ They are used when instantiated the returned object.
 **THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY**
 
 ~~~php
-<?php
-
 $manager = new Pdp\Manager(new Pdp\Cache(), new Pdp\CurlHttpClient());
 $tldCollection = $manager->getTLDs(self::RZD_URL);
 $domain = $tldCollection->resolve('www.ulb.ac.be');

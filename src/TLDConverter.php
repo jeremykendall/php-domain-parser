@@ -92,7 +92,7 @@ final class TLDConverter
      */
     private function extractHeader(string $content): array
     {
-        if (!preg_match('/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/', $content, $matches)) {
+        if (1 !== preg_match('/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/', $content, $matches)) {
             throw new CouldNotLoadTLDs(sprintf('Invalid Version line: %s', $content));
         }
 

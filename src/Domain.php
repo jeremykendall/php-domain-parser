@@ -184,7 +184,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $subject;
         }
 
-        if (!preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
+        if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
             return $subject->toAscii();
         }
 
@@ -637,7 +637,7 @@ final class Domain implements DomainInterface, JsonSerializable
             return $domain;
         }
 
-        if (preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
+        if (1 === preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
             return $this->idnToUnicode($domain, $this->unicodeIDNAOption);
         }
 

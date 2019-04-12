@@ -34,6 +34,7 @@ use function is_int;
 use function is_object;
 use function is_writable;
 use function mkdir;
+use function preg_match;
 use function realpath;
 use function rename;
 use function sprintf;
@@ -315,7 +316,7 @@ final class Cache implements CacheInterface
             throw new CacheException(sprintf('Expected key to be a string; received "%s"', is_object($key) ? get_class($key) : gettype($key)));
         }
 
-        if (preg_match(self::PSR16_RESERVED, $key, $match) === 1) {
+        if (1 === preg_match(self::PSR16_RESERVED, $key, $match)) {
             throw new CacheException(sprintf('invalid character in key: %s', $match[0]));
         }
     }
