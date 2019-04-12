@@ -6,7 +6,8 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
-- Support for `IDNA_OPTIONS` settings in all the classes see [#236](https://github.com/jeremykendall/php-domain-parser/pull/236) thanks to [Insolita](https://github.com/Insolita)
+- Support for IDNA options see [#236](https://github.com/jeremykendall/php-domain-parser/pull/236) thanks to [Insolita](https://github.com/Insolita). 
+
 - `PublicSuffix::labels` and `Domain::labels` to return the VO labels see [#241](https://github.com/jeremykendall/php-domain-parser/pull/241)
 
 ### Fixed
