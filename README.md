@@ -106,12 +106,18 @@ echo $domain->toAscii()->getContent(); // 'fass.test.de'
 
 ~~~php
 $manager = new Manager(new Cache(), new CurlHttpClient());
-$rules = $manager->getRules(Manager::PSL_URL, null, IDNA_NONTRANSITIONAL_TO_ASCII,
-            IDNA_NONTRANSITIONAL_TO_UNICODE);
+$rules = $manager->getRules()
+    ->withAsciiIDNAOption(IDNA_NONTRANSITIONAL_TO_ASCII)
+    ->withUnicodeIDNAOption(IDNA_NONTRANSITIONAL_TO_UNICODE);
+
 // or
-// $rules = $rules
-//     ->withAsciiIDNAOption(IDNA_NONTRANSITIONAL_TO_ASCII)
-//     ->withUnicodeIDNAOption(IDNA_NONTRANSITIONAL_TO_UNICODE);
+// 
+// $rules = $manager->getRules(
+//     Manager::PSL_URL,
+//     null,
+//     IDNA_NONTRANSITIONAL_TO_ASCII,
+//     IDNA_NONTRANSITIONAL_TO_UNICODE
+// );
 
 $domain = $rules->resolve('faß.test.de');
 echo $domain->toAscii()->getContent(); // 'xn--fa-hia.test.de'
