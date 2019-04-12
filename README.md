@@ -65,12 +65,13 @@ $domain->isResolvable();               // returns true
 $domain->isKnown();                    // returns true
 $domain->isICANN();                    // returns true
 $domain->isPrivate();                  // returns false
-
+$domain->labels();                     // returns ['be', 'ac', 'ulb', 'www']
 $publicSuffix = $rules->getPublicSuffix('mydomain.github.io', Rules::PRIVATE_DOMAINS); //$publicSuffix is a Pdp\PublicSuffix object
 echo $publicSuffix->getContent(); // 'github.io'
 $publicSuffix->isKnown();         // returns true
 $publicSuffix->isICANN();         // returns false
 $publicSuffix->isPrivate();       // returns true
+$publicSuffix->labels();          // returns ['io', 'github']
 
 $altSuffix = $rules->getPublicSuffix('mydomain.github.io', Rules::ICANN_DOMAINS);
 echo $altSuffix->getContent(); // 'io'
@@ -142,6 +143,7 @@ $domain->isKnown();                // returns false
 $domain->isICANN();                // returns false
 $domain->isPrivate();              // returns false
 iterator_to_array($domain, false); // ['com', 'example', 'bébé', 'www']
+$domain->labels();                 // ['com', 'example', 'bébé', 'www']  since v5.5
 $domain->toAscii()->getContent();  // www.xn--bb-bjab.example.com
 echo (new Domain('www.xn--bb-bjab.example.com'))->toAscii() // www.bébé.example.com
 ~~~
@@ -348,9 +350,27 @@ namespace Pdp;
 
 final class TopLevelDomains implements Countable, IteratorAggregate
 {
-    public static function createFromPath(string $path, $context = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): Rules
-    public static function createFromString(string $content, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): Rules
-    public function __construct(array $records, string $version, DateTimeInterface $modifiedDate, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT)
+    public static function createFromPath(
+        string $path,
+        $context = null,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): TopLevelDomains
+
+    public static function createFromString(
+        string $content,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): TopLevelDomains
+
+    public function __construct(
+        array $records,
+        string $version,
+        DateTimeInterface $modifiedDate,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    )
+
     public function resolve($domain): Domain
     public function contains($domain): bool
     public function isEmpty(): bool
