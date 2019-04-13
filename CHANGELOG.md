@@ -10,6 +10,8 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - `PublicSuffix::labels` and `Domain::labels` to return the VO labels see [#241](https://github.com/jeremykendall/php-domain-parser/pull/241)
 
+- `IDNAConverterTrait::parse` (internal)
+
 ### Fixed
 
 - Don't swallow cache errors [#232](https://github.com/jeremykendall/php-domain-parser/issues/232)
@@ -21,7 +23,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Removed
 
-- None
+- IDNAConverterTrait::setLabels (internal)
 
 # 5.4.0 - 2018-11-22
 

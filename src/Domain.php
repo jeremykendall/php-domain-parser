@@ -114,7 +114,9 @@ final class Domain implements DomainInterface, JsonSerializable
     ) {
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
-        [$this->labels, $infos] = $this->setLabels($domain, $asciiIDNAOption, $unicodeIDNAOption);
+        $infos = $this->parse($domain, $asciiIDNAOption, $unicodeIDNAOption);
+        $this->labels = $infos['labels'];
+        $this->isTransitionalDifferent = $infos['isTransitionalDifferent'];
         if ([] !== $this->labels) {
             $this->domain = implode('.', array_reverse($this->labels));
         }
@@ -123,7 +125,6 @@ final class Domain implements DomainInterface, JsonSerializable
         );
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
-        $this->isTransitionalDifferent = $infos['isTransitionalDifferent'];
     }
     
     /**

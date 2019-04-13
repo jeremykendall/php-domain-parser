@@ -52,7 +52,7 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::setLabels
+     * @covers ::parse
      * @covers ::setSection
      * @covers ::getContent
      * @covers ::toUnicode
@@ -64,7 +64,7 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::setLabels
+     * @covers ::parse
      * @covers ::setPublicSuffix
      * @covers ::setSection
      * @covers ::isKnown
@@ -97,7 +97,7 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::setLabels
+     * @covers ::parse
      * @covers ::setPublicSuffix
      * @dataProvider invalidPublicSuffixProvider
      *
@@ -119,7 +119,7 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::setLabels
+     * @covers ::parse
      * @covers ::idnToAscii
      */
     public function testPSToAsciiThrowsException()
@@ -312,31 +312,30 @@ class PublicSuffixTest extends TestCase
             [$publicSuffix->getAsciiIDNAOption(), $publicSuffix->getUnicodeIDNAOption()],
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
         );
-        self::assertSame($publicSuffix->isTransitionalDifferent(), $publicSuffix->toAscii()->isTransitionalDifferent());
     }
     
     public function customIDNAProvider()
     {
         return [
-            'without deviation characters'=>[
+            'without deviation characters' => [
                 'example.com',
                 'example.com',
                 'example.com',
                 'example.com',
             ],
-            'without deviation characters with label'=>[
+            'without deviation characters with label' => [
                 'www.example.com',
                 'www.example.com',
                 'www.example.com',
                 'www.example.com',
             ],
-            'with deviation in domain'=>[
+            'with deviation in domain' => [
                 'www.faß.de',
                 'www.faß.de',
                 'www.xn--fa-hia.de',
                 'www.faß.de',
             ],
-            'with deviation in label'=>[
+            'with deviation in label' => [
                 'faß.test.de',
                 'faß.test.de',
                 'xn--fa-hia.test.de',

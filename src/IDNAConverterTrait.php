@@ -137,9 +137,9 @@ trait IDNAConverterTrait
             return [strtolower($domain), ['isTransitionalDifferent' => false]];
         }
     
-        $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $info);
-        if (0 !== $info['errors']) {
-            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($info['errors'])));
+        $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $infos);
+        if (0 !== $infos['errors']) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($infos['errors'])));
         }
     
         // @codeCoverageIgnoreStart
@@ -149,7 +149,7 @@ trait IDNAConverterTrait
         // @codeCoverageIgnoreEnd
     
         if (false === strpos($output, '%')) {
-            return [$output, $info];
+            return [$output, $infos];
         }
     
         throw new InvalidDomain(sprintf('The host `%s` is invalid: it contains invalid characters', $domain));
@@ -188,7 +188,7 @@ trait IDNAConverterTrait
      * Filter and format the domain to ensure it is valid.
      * Returns an array containing the formatted domain name in lowercase
      * with its associated labels in reverse order
-     * For example: setLabels('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];.
+     * For example: parse('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];.
      *
      * @param mixed $domain
      * @param int   $asciiOption
@@ -198,18 +198,18 @@ trait IDNAConverterTrait
      *
      * @return array
      */
-    private function setLabels($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
+    private function parse($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
     {
         if ($domain instanceof DomainInterface) {
             $domain = $domain->getContent();
         }
 
         if (null === $domain) {
-            return [[], ['isTransitionalDifferent' => false]];
+            return ['labels' => [], 'isTransitionalDifferent' => false];
         }
 
         if ('' === $domain) {
-            return [[''], ['isTransitionalDifferent' => false]];
+            return ['labels' => [''], 'isTransitionalDifferent' => false];
         }
 
         if (!is_scalar($domain) && !method_exists($domain, '__toString')) {
@@ -233,8 +233,8 @@ trait IDNAConverterTrait
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
         if (1 === preg_match($domain_name, $formatted_domain)) {
             return [
-                array_reverse(explode('.', strtolower($formatted_domain))),
-                ['isTransitionalDifferent' => false],
+                'labels' => array_reverse(explode('.', strtolower($formatted_domain))),
+                'isTransitionalDifferent' => false,
             ];
         }
 
@@ -251,10 +251,8 @@ trait IDNAConverterTrait
         }
         
         list($ascii_domain, $infos) = $this->transformToAscii($domain, $asciiOption);
+        $infos['labels'] = array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
 
-        return [
-            array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption))),
-            $infos,
-        ];
+        return $infos;
     }
 }

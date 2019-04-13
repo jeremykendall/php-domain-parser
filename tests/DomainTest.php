@@ -91,7 +91,7 @@ class DomainTest extends TestCase
     /**
      * @dataProvider invalidDomainProvider
      * @covers ::__construct
-     * @covers ::setLabels
+     * @covers ::parse
      * @covers ::idnToAscii
      * @covers ::getIdnErrors
      * @param string $domain
@@ -212,7 +212,7 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::setLabels
+     * @covers ::parse
      * @covers ::setPublicSuffix
      * @covers ::normalize
      * @covers ::setRegistrableDomain
@@ -312,7 +312,7 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::setLabels
+     * @covers ::parse
      * @covers ::setPublicSuffix
      * @covers ::normalize
      * @covers ::setRegistrableDomain

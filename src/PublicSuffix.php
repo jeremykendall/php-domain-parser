@@ -21,7 +21,6 @@ use Pdp\Exception\InvalidDomain;
 use function array_keys;
 use function array_reverse;
 use function count;
-use function explode;
 use function implode;
 use function in_array;
 use function reset;
@@ -93,12 +92,13 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ) {
-        [$this->labels, $infos] = $this->setLabels($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
+        $infos = $this->parse($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
+        $this->labels = $infos['labels'];
+        $this->isTransitionalDifferent = $infos['isTransitionalDifferent'];
         $this->publicSuffix = $this->setPublicSuffix();
         $this->section = $this->setSection($section);
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
-        $this->isTransitionalDifferent = $infos['isTransitionalDifferent'];
     }
 
     /**
@@ -348,11 +348,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->publicSuffix = $publicSuffix;
-        $clone->labels = array_reverse(explode('.', $publicSuffix));
-
-        return $clone;
+        return new self($publicSuffix, $this->section, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
     /**
@@ -364,11 +360,12 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->publicSuffix = $this->idnToUnicode($this->publicSuffix, $this->unicodeIDNAOption);
-        $clone->labels = array_reverse(explode('.', $clone->publicSuffix));
-
-        return $clone;
+        return new self(
+            $this->idnToUnicode($this->publicSuffix, $this->unicodeIDNAOption),
+            $this->section,
+            $this->asciiIDNAOption,
+            $this->unicodeIDNAOption
+        );
     }
 
     /**
