@@ -90,6 +90,8 @@ final class TopLevelDomains implements Countable, IteratorAggregate
      * @param int           $asciiIDNAOption
      * @param int           $unicodeIDNAOption
      *
+     * @throws CouldNotLoadTLDs If the rules can not be loaded from the path
+     *
      * @return self
      */
     public static function createFromPath(
@@ -131,14 +133,14 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
         $converter = $converter ?? new TLDConverter();
 
-        $data = $converter->convert($content, $asciiIDNAOption, $unicodeIDNAOption);
+        $data = $converter->convert($content);
 
         return new self(
             $data['records'],
             $data['version'],
             DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']),
-            $data['asciiIDNAOption'],
-            $data['unicodeIDNAOption']
+            $asciiIDNAOption,
+            $unicodeIDNAOption
         );
     }
 
@@ -228,9 +230,12 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     public function getIterator()
     {
         foreach ($this->records as $tld) {
-            $publicSuffix = new PublicSuffix($tld, PublicSuffix::ICANN_DOMAINS, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-            
-            yield $publicSuffix->toAscii();
+            yield (new PublicSuffix(
+                $tld,
+                PublicSuffix::ICANN_DOMAINS,
+                $this->asciiIDNAOption,
+                $this->unicodeIDNAOption
+            ))->toAscii();
         }
     }
 
@@ -245,8 +250,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
             'version' => $this->version,
             'records' => $this->records,
             'modifiedDate' => $this->modifiedDate->format(DATE_ATOM),
-            'asciiIDNAOption'=>$this->asciiIDNAOption,
-            'unicodeIDNAOption'=>$this->unicodeIDNAOption,
         ];
     }
 

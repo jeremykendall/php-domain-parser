@@ -87,6 +87,8 @@ final class Rules implements PublicSuffixListSection
      * @param int           $asciiIDNAOption
      * @param int           $unicodeIDNAOption
      *
+     * @throws CouldNotLoadRules If the rules can not be loaded from the path
+     *
      * @return self
      */
     public static function createFromPath(

@@ -18,13 +18,11 @@ namespace Pdp;
 use DateTimeImmutable;
 use Pdp\Exception\CouldNotLoadTLDs;
 use SplTempFileObject;
-use function compact;
 use function preg_match;
 use function sprintf;
 use function strpos;
 use function trim;
 use const DATE_ATOM;
-use const IDNA_DEFAULT;
 
 /**
  * IANA Root Zone Database Parser.
@@ -44,16 +42,13 @@ final class TLDConverter
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
      *
      * @param string $content
-     * @param int    $asciiIDNAOption
-     * @param int    $unicodeIDNAOption
+     *
+     * @throws CouldNotLoadTLDs if the content is invalid or can not be correctly parsed and converted
      *
      * @return array
      */
-    public function convert(
-        string $content,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ): array {
+    public function convert(string $content): array
+    {
         $data = [];
         $file = new SplTempFileObject();
         $file->fwrite($content);
@@ -61,7 +56,7 @@ final class TLDConverter
         foreach ($file as $line) {
             $line = trim($line);
             if ([] === $data) {
-                $data = array_merge($this->extractHeader($line), compact('asciiIDNAOption', 'unicodeIDNAOption'));
+                $data = $this->extractHeader($line);
                 continue;
             }
 
@@ -75,7 +70,7 @@ final class TLDConverter
         }
 
         if (isset($data['version'], $data['modifiedDate'], $data['records'])) {
-            return array_merge($data, compact('asciiIDNAOption', 'unicodeIDNAOption'));
+            return $data;
         }
 
         throw new CouldNotLoadTLDs(sprintf('Invalid content: TLD conversion failed'));
@@ -116,8 +111,8 @@ final class TLDConverter
     {
         try {
             $tld = (new PublicSuffix($content))->toAscii();
-        } catch (Exception $e) {
-            throw new CouldNotLoadTLDs(sprintf('Invalid Root zone: %s', $content), 0, $e);
+        } catch (Exception $exception) {
+            throw new CouldNotLoadTLDs(sprintf('Invalid Root zone: %s', $content), 0, $exception);
         }
 
         if (1 !== $tld->count() || '' === $tld->getContent()) {

@@ -104,15 +104,15 @@ trait IDNAConverterTrait
      *
      * @param string $domain
      *
-     * @param int $IDNAOption
+     * @param int $option
      *
      * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
      *
      * @return string
      */
-    private function idnToAscii(string $domain, int $IDNAOption = IDNA_DEFAULT): string
+    private function idnToAscii(string $domain, int $option = IDNA_DEFAULT): string
     {
-        list($domain, ) = $this->transformToAscii($domain, $IDNAOption);
+        list($domain, ) = $this->transformToAscii($domain, $option);
 
         return $domain;
     }
@@ -122,7 +122,6 @@ trait IDNAConverterTrait
      *
      * @param string $domain
      *
-     * @param int $IDNAOption
      * @param int $option
      *
      * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
@@ -163,15 +162,16 @@ trait IDNAConverterTrait
      *
      * @param string $domain
      *
-     * @param int $IDNAOption
+     * @param int $option
      *
-     * @throws InvalidDomain if the string can not be converted to UNICODE using IDN UTS46 algorithm
+     * @throws InvalidDomain            if the string can not be converted to UNICODE using IDN UTS46 algorithm
+     * @throws UnexpectedValueException if the intl extension is misconfigured
      *
      * @return string
      */
-    private function idnToUnicode(string $domain, int $IDNAOption = IDNA_DEFAULT): string
+    private function idnToUnicode(string $domain, int $option = IDNA_DEFAULT): string
     {
-        $output = idn_to_utf8($domain, $IDNAOption, INTL_IDNA_VARIANT_UTS46, $arr);
+        $output = idn_to_utf8($domain, $option, INTL_IDNA_VARIANT_UTS46, $arr);
         if (0 !== $arr['errors']) {
             throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
         }

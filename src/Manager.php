@@ -206,7 +206,7 @@ final class Manager
         static $converter;
 
         $converter = $converter ?? new TLDConverter();
-        $data = json_encode($converter->convert($this->http->getContent($url), $asciiIDNAOption, $unicodeIDNAOption));
+        $data = json_encode($converter->convert($this->http->getContent($url)));
 
         return $this->cache->set($this->getCacheKey('RZD', $url), $data, $this->filterTtl($ttl) ?? $this->ttl);
     }
