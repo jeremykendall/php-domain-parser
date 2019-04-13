@@ -100,19 +100,6 @@ final class Domain implements DomainInterface, JsonSerializable
     private $isTransitionalDifferent;
     
     /**
-     * {@inheritdoc}
-     */
-    public static function __set_state(array $properties): self
-    {
-        return new self(
-            $properties['domain'],
-            $properties['publicSuffix'],
-            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
-            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
-        );
-    }
-    
-    /**
      * New instance.
      * @param null|mixed        $domain
      * @param null|PublicSuffix $publicSuffix
@@ -127,8 +114,7 @@ final class Domain implements DomainInterface, JsonSerializable
     ) {
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
-        $this->labels = $this->setLabels($domain, $asciiIDNAOption, $unicodeIDNAOption);
-        $this->isTransitionalDifferent = $this->hasTransitionalDifference($domain);
+        [$this->labels, $infos] = $this->setLabels($domain, $asciiIDNAOption, $unicodeIDNAOption);
         if ([] !== $this->labels) {
             $this->domain = implode('.', array_reverse($this->labels));
         }
@@ -137,6 +123,20 @@ final class Domain implements DomainInterface, JsonSerializable
         );
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
+        $this->isTransitionalDifferent = $infos['isTransitionalDifferent'];
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self(
+            $properties['domain'],
+            $properties['publicSuffix'],
+            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
+            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
+        );
     }
     
     /**

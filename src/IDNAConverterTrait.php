@@ -25,7 +25,6 @@ use function idn_to_ascii;
 use function idn_to_utf8;
 use function implode;
 use function is_scalar;
-use function is_string;
 use function method_exists;
 use function preg_match;
 use function rawurldecode;
@@ -135,7 +134,7 @@ trait IDNAConverterTrait
         static $pattern = '/[^\x20-\x7f]/';
 
         if (1 !== preg_match($pattern, $domain)) {
-            return [strtolower($domain), false];
+            return [strtolower($domain), ['isTransitionalDifferent' => false]];
         }
     
         $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $info);
@@ -150,7 +149,7 @@ trait IDNAConverterTrait
         // @codeCoverageIgnoreEnd
     
         if (false === strpos($output, '%')) {
-            return [$output, $info['isTransitionalDifferent']];
+            return [$output, $info];
         }
     
         throw new InvalidDomain(sprintf('The host `%s` is invalid: it contains invalid characters', $domain));
@@ -190,11 +189,14 @@ trait IDNAConverterTrait
      * Returns an array containing the formatted domain name in lowercase
      * with its associated labels in reverse order
      * For example: setLabels('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];.
-     * @param  mixed         $domain
-     * @param  int           $asciiOption
-     * @param  int           $unicodeOption
+     *
+     * @param mixed $domain
+     * @param int   $asciiOption
+     * @param int   $unicodeOption
+     *
      * @throws InvalidDomain If the domain is invalid
-     * @return string[]
+     *
+     * @return array
      */
     private function setLabels($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
     {
@@ -203,11 +205,11 @@ trait IDNAConverterTrait
         }
 
         if (null === $domain) {
-            return [];
+            return [[], ['isTransitionalDifferent' => false]];
         }
 
         if ('' === $domain) {
-            return [''];
+            return [[''], ['isTransitionalDifferent' => false]];
         }
 
         if (!is_scalar($domain) && !method_exists($domain, '__toString')) {
@@ -230,7 +232,10 @@ trait IDNAConverterTrait
             )
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
         if (1 === preg_match($domain_name, $formatted_domain)) {
-            return array_reverse(explode('.', strtolower($formatted_domain)));
+            return [
+                array_reverse(explode('.', strtolower($formatted_domain))),
+                ['isTransitionalDifferent' => false],
+            ];
         }
 
         // a domain name can not contains URI delimiters or space
@@ -245,18 +250,11 @@ trait IDNAConverterTrait
             throw new InvalidDomain(sprintf('The domain `%s` is invalid: the labels are malformed', $domain));
         }
         
-        $ascii_domain = $this->idnToAscii($domain, $asciiOption);
+        list($ascii_domain, $infos) = $this->transformToAscii($domain, $asciiOption);
 
-        return array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
-    }
-    
-    private function hasTransitionalDifference($domain): bool
-    {
-        if (!is_string($domain) || '' === $domain) {
-            return false;
-        }
-        list(, $isTransitionalDifferent) = $this->transformToAscii($domain, IDNA_DEFAULT);
-
-        return $isTransitionalDifferent;
+        return [
+            array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption))),
+            $infos,
+        ];
     }
 }

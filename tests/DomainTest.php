@@ -1184,13 +1184,13 @@ class DomainTest extends TestCase
     public function transitionalProvider()
     {
         return [
-            'simple' => [new Domain('example.com', new PublicSuffix('com')), false],
-            'idna' => [new Domain('français.fr', new PublicSuffix('fr')), false],
-            'in domain' => [new Domain('faß.de', new PublicSuffix('de')), true],
-            'in domain 2' => [new Domain('βόλος.com', new PublicSuffix('com')), true],
-            'in domain 3' => [new Domain('ශ්‍රී.com', new PublicSuffix('com')), true],
-            'in domain 4' => [new Domain('نامه‌ای.com', new PublicSuffix('com')), true],
-            'in label' => [new Domain('faß.test.de', new PublicSuffix('de')), true],
+            'simple' => [new Domain('example.com'), false],
+            'idna' => [new Domain('français.fr'), false],
+            'in domain 1' => [new Domain('faß.de'), true],
+            'in domain 2' => [new Domain('βόλος.com'), true],
+            'in domain 3' => [new Domain('ශ්‍රී.com'), true],
+            'in domain 4' => [new Domain('نامه‌ای.com'), true],
+            'in domain 5' => [new Domain('faß.test.de'), true],
         ];
     }
 

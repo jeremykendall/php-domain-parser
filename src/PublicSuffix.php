@@ -79,6 +79,28 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * @var bool
      */
     private $isTransitionalDifferent;
+
+    /**
+     * New instance.
+     * @param mixed  $publicSuffix
+     * @param string $section
+     * @param int    $asciiIDNAOption
+     * @param int    $unicodeIDNAOption
+     */
+    public function __construct(
+        $publicSuffix = null,
+        string $section = '',
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ) {
+        [$this->labels, $infos] = $this->setLabels($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
+        $this->publicSuffix = $this->setPublicSuffix();
+        $this->section = $this->setSection($section);
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
+        $this->isTransitionalDifferent = $infos['isTransitionalDifferent'];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -114,27 +136,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             $domain->getAsciiIDNAOption(),
             $domain->getUnicodeIDNAOption()
         );
-    }
-
-    /**
-     * New instance.
-     * @param mixed  $publicSuffix
-     * @param string $section
-     * @param int    $asciiIDNAOption
-     * @param int    $unicodeIDNAOption
-     */
-    public function __construct(
-        $publicSuffix = null,
-        string $section = '',
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ) {
-        $this->labels = $this->setLabels($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
-        $this->isTransitionalDifferent = $this->hasTransitionalDifference($publicSuffix);
-        $this->publicSuffix = $this->setPublicSuffix();
-        $this->section = $this->setSection($section);
-        $this->asciiIDNAOption = $asciiIDNAOption;
-        $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
 
     /**
