@@ -21,11 +21,11 @@ use Pdp\Exception\InvalidDomain;
 use function array_keys;
 use function array_reverse;
 use function count;
-use function explode;
 use function implode;
 use function in_array;
 use function reset;
 use function sprintf;
+use const IDNA_DEFAULT;
 
 /**
  * Public Suffix Value Object.
@@ -65,11 +65,53 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     private $labels;
 
     /**
+     * @var int
+     */
+    private $asciiIDNAOption = IDNA_DEFAULT;
+
+    /**
+     * @var int
+     */
+    private $unicodeIDNAOption = IDNA_DEFAULT;
+
+    /**
+     * @var bool
+     */
+    private $isTransitionalDifferent;
+
+    /**
+     * New instance.
+     * @param mixed  $publicSuffix
+     * @param string $section
+     * @param int    $asciiIDNAOption
+     * @param int    $unicodeIDNAOption
+     */
+    public function __construct(
+        $publicSuffix = null,
+        string $section = '',
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ) {
+        $infos = $this->parse($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
+        $this->labels = $infos['labels'];
+        $this->isTransitionalDifferent = $infos['isTransitionalDifferent'];
+        $this->publicSuffix = $this->setPublicSuffix();
+        $this->section = $this->setSection($section);
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public static function __set_state(array $properties): self
     {
-        return new self($properties['publicSuffix'], $properties['section']);
+        return new self(
+            $properties['publicSuffix'],
+            $properties['section'],
+            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
+            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
+        );
     }
 
     /**
@@ -88,20 +130,12 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             $section = self::PRIVATE_DOMAINS;
         }
 
-        return new self($domain->getPublicSuffix(), $section);
-    }
-
-    /**
-     * New instance.
-     *
-     * @param mixed  $publicSuffix
-     * @param string $section
-     */
-    public function __construct($publicSuffix = null, string $section = '')
-    {
-        $this->labels = $this->setLabels($publicSuffix);
-        $this->publicSuffix = $this->setPublicSuffix();
-        $this->section = $this->setSection($section);
+        return new self(
+            $domain->getPublicSuffix(),
+            $section,
+            $domain->getAsciiIDNAOption(),
+            $domain->getUnicodeIDNAOption()
+        );
     }
 
     /**
@@ -223,6 +257,54 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     }
 
     /**
+     * Returns the object labels.
+     */
+    public function labels(): array
+    {
+        return $this->labels;
+    }
+
+    /**
+     * Gets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getAsciiIDNAOption(): int
+    {
+        return $this->asciiIDNAOption;
+    }
+
+    /**
+     * Gets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getUnicodeIDNAOption(): int
+    {
+        return $this->unicodeIDNAOption;
+    }
+
+    /**
+     * Returns true if domain contains deviation characters.
+     *
+     * @see http://unicode.org/reports/tr46/#Transition_Considerations
+     *
+     * @return bool
+     */
+    public function isTransitionalDifferent(): bool
+    {
+        return $this->isTransitionalDifferent;
+    }
+
+    /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List.
      *
      * @return bool
@@ -261,16 +343,12 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             return $this;
         }
 
-        $publicSuffix = $this->idnToAscii($this->publicSuffix);
+        $publicSuffix = $this->idnToAscii($this->publicSuffix, $this->asciiIDNAOption);
         if ($publicSuffix === $this->publicSuffix) {
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->publicSuffix = $publicSuffix;
-        $clone->labels = array_reverse(explode('.', $publicSuffix));
-
-        return $clone;
+        return new self($publicSuffix, $this->section, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
     /**
@@ -282,10 +360,51 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->publicSuffix = $this->idnToUnicode($this->publicSuffix);
-        $clone->labels = array_reverse(explode('.', $clone->publicSuffix));
+        return new self(
+            $this->idnToUnicode($this->publicSuffix, $this->unicodeIDNAOption),
+            $this->section,
+            $this->asciiIDNAOption,
+            $this->unicodeIDNAOption
+        );
+    }
 
-        return $clone;
+    /**
+     * Sets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $option
+     *
+     * @return self
+     */
+    public function withAsciiIDNAOption(int $option): self
+    {
+        if ($option === $this->asciiIDNAOption) {
+            return $this;
+        }
+
+        return new self($this->publicSuffix, $this->section, $option, $this->unicodeIDNAOption);
+    }
+
+    /**
+     * Sets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $option
+     *
+     * @return self
+     */
+    public function withUnicodeIDNAOption(int $option): self
+    {
+        if ($option === $this->unicodeIDNAOption) {
+            return $this;
+        }
+
+        return new self($this->publicSuffix, $this->section, $this->asciiIDNAOption, $option);
     }
 }

@@ -25,6 +25,7 @@ use function implode;
 use function in_array;
 use function sprintf;
 use function stream_get_contents;
+use const IDNA_DEFAULT;
 
 /**
  * A class to resolve domain name against the Public Suffix list.
@@ -52,17 +53,50 @@ final class Rules implements PublicSuffixListSection
     private $rules;
 
     /**
+     * @var int
+     */
+    private $asciiIDNAOption;
+
+    /**
+     * @var int
+     */
+    private $unicodeIDNAOption;
+
+    /**
+     * New instance.
+     *
+     * @param array $rules
+     * @param int   $asciiIDNAOption
+     * @param int   $unicodeIDNAOption
+     */
+    public function __construct(
+        array $rules,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ) {
+        $this->rules = $rules;
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
+    }
+
+    /**
      * Returns a new instance from a file path.
      *
      * @param string        $path
      * @param null|resource $context
+     * @param int           $asciiIDNAOption
+     * @param int           $unicodeIDNAOption
      *
      * @throws CouldNotLoadRules If the rules can not be loaded from the path
      *
      * @return self
      */
-    public static function createFromPath(string $path, $context = null): self
-    {
+    public static function createFromPath(
+        string $path,
+        $context = null,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): self {
         $args = [$path, 'r', false];
         if (null !== $context) {
             $args[] = $context;
@@ -75,23 +109,28 @@ final class Rules implements PublicSuffixListSection
         $content = stream_get_contents($resource);
         fclose($resource);
 
-        return self::createFromString($content);
+        return self::createFromString($content, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
     /**
      * Returns a new instance from a string.
      *
      * @param string $content
+     * @param int    $asciiIDNAOption
+     * @param int    $unicodeIDNAOption
      *
      * @return self
      */
-    public static function createFromString(string $content): self
-    {
+    public static function createFromString(
+        string $content,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): self {
         static $converter;
 
         $converter = $converter ?? new Converter();
 
-        return new self($converter->convert($content));
+        return new self($converter->convert($content), $asciiIDNAOption, $unicodeIDNAOption);
     }
 
     /**
@@ -99,17 +138,39 @@ final class Rules implements PublicSuffixListSection
      */
     public static function __set_state(array $properties): self
     {
-        return new self($properties['rules']);
+        return new self(
+            $properties['rules'],
+            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
+            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
+        );
     }
 
     /**
-     * New instance.
+     * Gets conversion options for idn_to_ascii.
      *
-     * @param array $rules
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
      */
-    public function __construct(array $rules)
+    public function getAsciiIDNAOption(): int
     {
-        $this->rules = $rules;
+        return $this->asciiIDNAOption;
+    }
+
+    /**
+     * Gets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getUnicodeIDNAOption(): int
+    {
+        return $this->unicodeIDNAOption;
     }
 
     /**
@@ -125,7 +186,10 @@ final class Rules implements PublicSuffixListSection
     public function getPublicSuffix($domain, string $section = self::ALL_DOMAINS): PublicSuffix
     {
         $section = $this->validateSection($section);
-        $domain = $domain instanceof Domain ? $domain : new Domain($domain);
+        if (!$domain instanceof Domain) {
+            $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        }
+
         if (!$domain->isResolvable()) {
             throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
         }
@@ -145,14 +209,16 @@ final class Rules implements PublicSuffixListSection
     {
         $section = $this->validateSection($section);
         try {
-            $domain = $domain instanceof Domain ? $domain : new Domain($domain);
+            $domain = $domain instanceof Domain
+                ? $domain
+                : new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
             if (!$domain->isResolvable()) {
                 return $domain;
             }
 
             return $domain->resolve($this->findPublicSuffix($domain, $section));
         } catch (Exception $e) {
-            return new Domain();
+            return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
     }
 
@@ -200,7 +266,7 @@ final class Rules implements PublicSuffixListSection
         }
 
         if (self::PRIVATE_DOMAINS === $section) {
-            return new PublicSuffix($domain->getLabel(0));
+            return new PublicSuffix($domain->getLabel(0), '', $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
         return $icann;
@@ -240,9 +306,60 @@ final class Rules implements PublicSuffixListSection
         }
 
         if ([] === $matches) {
-            return new PublicSuffix($domain->getLabel(0));
+            return new PublicSuffix($domain->getLabel(0), '', $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
-        return new PublicSuffix(implode('.', array_reverse($matches)), $section);
+        return new PublicSuffix(
+            implode('.', array_reverse($matches)),
+            $section,
+            $this->asciiIDNAOption,
+            $this->unicodeIDNAOption
+        );
+    }
+
+    /**
+     * Sets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $asciiIDNAOption
+     *
+     * @return self
+     */
+    public function withAsciiIDNAOption(int $asciiIDNAOption): self
+    {
+        if ($asciiIDNAOption === $this->asciiIDNAOption) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->asciiIDNAOption = $asciiIDNAOption;
+
+        return $clone;
+    }
+
+    /**
+     * Sets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $unicodeIDNAOption
+     *
+     * @return self
+     */
+    public function withUnicodeIDNAOption(int $unicodeIDNAOption): self
+    {
+        if ($unicodeIDNAOption === $this->unicodeIDNAOption) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->unicodeIDNAOption = $unicodeIDNAOption;
+
+        return $clone;
     }
 }

@@ -89,7 +89,7 @@ final class Converter implements PublicSuffixListSection
      */
     private function getSection(string $section, string $line): string
     {
-        if (preg_match(self::REGEX_PSL_SECTION, $line, $matches)) {
+        if (1 === preg_match(self::REGEX_PSL_SECTION, $line, $matches)) {
             return self::PSL_SECTION[$matches['type']][$matches['point']];
         }
 

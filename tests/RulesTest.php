@@ -26,6 +26,9 @@ use Pdp\PublicSuffix;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use const IDNA_DEFAULT;
+use const IDNA_NONTRANSITIONAL_TO_ASCII;
+use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass Pdp\Rules
@@ -80,13 +83,38 @@ class RulesTest extends TestCase
     }
 
     /**
+     * @covers ::getAsciiIDNAOption
+     * @covers ::getUnicodeIDNAOption
+     * @covers ::withAsciiIDNAOption
+     * @covers ::withUnicodeIDNAOption
+     */
+    public function testwithIDNAOptions()
+    {
+        self::assertSame($this->rules, $this->rules->withAsciiIDNAOption(
+            $this->rules->getAsciiIDNAOption()
+        ));
+
+        self::assertNotEquals($this->rules, $this->rules->withAsciiIDNAOption(
+            IDNA_NONTRANSITIONAL_TO_ASCII
+        ));
+
+        self::assertSame($this->rules, $this->rules->withUnicodeIDNAOption(
+            $this->rules->getUnicodeIDNAOption()
+        ));
+
+        self::assertNotEquals($this->rules, $this->rules->withUnicodeIDNAOption(
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        ));
+    }
+
+    /**
      * @covers ::resolve
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\Domain::isKnown
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testNullWillReturnNullDomain()
     {
@@ -97,7 +125,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testThrowsTypeErrorOnWrongInput()
     {
@@ -124,7 +152,7 @@ class RulesTest extends TestCase
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\Domain::isKnown
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testIsSuffixValidFalse()
     {
@@ -146,7 +174,7 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testIsSuffixValidTrue()
     {
@@ -170,7 +198,7 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testIsSuffixValidFalseWithPunycoded()
     {
@@ -194,7 +222,7 @@ class RulesTest extends TestCase
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
      * @covers \Pdp\Domain::isPrivate
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testSubDomainIsNull()
     {
@@ -207,7 +235,7 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testWithExceptionName()
     {
@@ -221,7 +249,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testWithPrivateDomain()
     {
@@ -252,7 +280,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testWithPrivateDomainInvalid()
     {
@@ -270,7 +298,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testWithPrivateDomainValid()
     {
@@ -288,7 +316,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testWithICANNDomainInvalid()
     {
@@ -306,7 +334,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testWithDomainObject()
     {
@@ -322,7 +350,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::getPublicSuffix
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testWithDomainInterfaceObject()
     {
@@ -350,7 +378,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      * @covers \Pdp\Domain::setPublicSuffix
      * @covers \Pdp\Domain::getPublicSuffix
      * @dataProvider parseDataProvider
@@ -367,7 +395,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::getContent
      * @dataProvider parseDataProvider
@@ -412,7 +440,7 @@ class RulesTest extends TestCase
      * @covers ::getPublicSuffix
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      * @dataProvider invalidParseProvider
      *
      * @param mixed $domain
@@ -437,7 +465,7 @@ class RulesTest extends TestCase
      * @covers ::getPublicSuffix
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      * @dataProvider invalidDomainParseProvider
      *
      * @param mixed $domain
@@ -469,7 +497,7 @@ class RulesTest extends TestCase
      * @covers ::getPublicSuffix
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      * @dataProvider validPublicSectionProvider
      *
      * @param string|null $domain
@@ -528,7 +556,7 @@ class RulesTest extends TestCase
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::getRegistrableDomain
-     * @covers \Pdp\IDNAConverterTrait::setLabels
+     * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testPublicSuffixSpec()
     {
@@ -621,6 +649,7 @@ class RulesTest extends TestCase
         $this->checkPublicSuffix('www.食狮.中国', '食狮.中国');
         $this->checkPublicSuffix('shishi.中国', 'shishi.中国');
         $this->checkPublicSuffix('中国', null);
+        $this->checkPublicSuffix('www.faß.de', 'fass.de');
         // Same as above, but punycoded.
         $this->checkPublicSuffix('xn--85x722f.com.cn', 'xn--85x722f.com.cn');
         $this->checkPublicSuffix('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn');
@@ -631,5 +660,30 @@ class RulesTest extends TestCase
         $this->checkPublicSuffix('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s');
         $this->checkPublicSuffix('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s');
         $this->checkPublicSuffix('xn--fiqs8s', null);
+    }
+
+    /**
+     * @covers ::getAsciiIDNAOption
+     * @covers ::getUnicodeIDNAOption
+     */
+    public function testResolveWithIDNAOptions()
+    {
+        $resolvedByDefault = $this->rules->resolve('foo.de', Rules::ICANN_DOMAINS);
+        self::assertSame(
+            [IDNA_DEFAULT, IDNA_DEFAULT],
+            [$resolvedByDefault->getAsciiIDNAOption(), $resolvedByDefault->getUnicodeIDNAOption()]
+        );
+        $manager = new Manager(new Cache(), new CurlHttpClient());
+        $rules = $manager->getRules(
+            Manager::PSL_URL,
+            null,
+            IDNA_NONTRANSITIONAL_TO_ASCII,
+            IDNA_NONTRANSITIONAL_TO_UNICODE
+        );
+        $resolved = $rules->resolve('foo.de', Rules::ICANN_DOMAINS);
+        self::assertSame(
+            [$rules->getAsciiIDNAOption(), $rules->getUnicodeIDNAOption()],
+            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
+        );
     }
 }

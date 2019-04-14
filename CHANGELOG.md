@@ -2,6 +2,29 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
+# 5.5.0 - 2019-04-14
+
+### Added
+
+- Support for IDNA options see [#236](https://github.com/jeremykendall/php-domain-parser/pull/236) thanks to [Insolita](https://github.com/Insolita). 
+
+- `PublicSuffix::labels` and `Domain::labels` to return the VO labels see [#241](https://github.com/jeremykendall/php-domain-parser/pull/241)
+
+- `IDNAConverterTrait::parse` (internal)
+
+### Fixed
+
+- Don't swallow cache errors [#232](https://github.com/jeremykendall/php-domain-parser/issues/232)
+- Update travis settings to allow testing against future version of PHP.
+
+### Deprecated
+
+- `IDNAConverterTrait::setLabels` replaced by `IDNAConverterTrait::parse` (internal)
+
+### Removed
+
+- None
+
 # 5.4.0 - 2018-11-22
 
 ### Added

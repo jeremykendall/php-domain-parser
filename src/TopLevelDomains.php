@@ -26,6 +26,7 @@ use function fclose;
 use function fopen;
 use function stream_get_contents;
 use const DATE_ATOM;
+use const IDNA_DEFAULT;
 
 /**
  * A class to resolve domain name against the IANA Root Database.
@@ -50,17 +51,55 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     private $records;
 
     /**
+     * @var int
+     */
+    private $asciiIDNAOption;
+
+    /**
+     * @var int
+     */
+    private $unicodeIDNAOption;
+
+    /**
+     * New instance.
+     * @param array             $records
+     * @param string            $version
+     * @param DateTimeInterface $modifiedDate
+     * @param int               $asciiIDNAOption
+     * @param int               $unicodeIDNAOption
+     */
+    public function __construct(
+        array $records,
+        string $version,
+        DateTimeInterface $modifiedDate,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ) {
+        $this->records = $records;
+        $this->version = $version;
+        $this->modifiedDate = $modifiedDate instanceof DateTime ? DateTimeImmutable::createFromMutable($modifiedDate) : $modifiedDate;
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
+    }
+
+    /**
      * Returns a new instance from a file path.
      *
      * @param string        $path
      * @param null|resource $context
+     * @param int           $asciiIDNAOption
+     * @param int           $unicodeIDNAOption
      *
-     * @throws Exception If the list can not be loaded from the path
+     * @throws CouldNotLoadTLDs If the rules can not be loaded from the path
      *
      * @return self
      */
-    public static function createFromPath(string $path, $context = null): self
-    {
+    public static function createFromPath(
+        string $path,
+        $context = null,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): self {
         $args = [$path, 'r', false];
         if (null !== $context) {
             $args[] = $context;
@@ -73,18 +112,23 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         $content = stream_get_contents($resource);
         fclose($resource);
 
-        return self::createFromString($content);
+        return self::createFromString($content, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
     /**
      * Returns a new instance from a string.
      *
      * @param string $content
+     * @param int    $asciiIDNAOption
+     * @param int    $unicodeIDNAOption
      *
      * @return self
      */
-    public static function createFromString(string $content): self
-    {
+    public static function createFromString(
+        string $content,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): self {
         static $converter;
 
         $converter = $converter ?? new TLDConverter();
@@ -94,7 +138,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         return new self(
             $data['records'],
             $data['version'],
-            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate'])
+            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']),
+            $asciiIDNAOption,
+            $unicodeIDNAOption
         );
     }
 
@@ -103,21 +149,13 @@ final class TopLevelDomains implements Countable, IteratorAggregate
      */
     public static function __set_state(array $properties): self
     {
-        return new self($properties['records'], $properties['version'], $properties['modifiedDate']);
-    }
-
-    /**
-     * New instance.
-     *
-     * @param array             $records
-     * @param string            $version
-     * @param DateTimeInterface $modifiedDate
-     */
-    public function __construct(array $records, string $version, DateTimeInterface $modifiedDate)
-    {
-        $this->records = $records;
-        $this->version = $version;
-        $this->modifiedDate = $modifiedDate instanceof DateTime ? DateTimeImmutable::createFromMutable($modifiedDate) : $modifiedDate;
+        return new self(
+            $properties['records'],
+            $properties['version'],
+            $properties['modifiedDate'],
+            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
+            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
+        );
     }
 
     /**
@@ -138,6 +176,34 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     public function getModifiedDate(): DateTimeImmutable
     {
         return $this->modifiedDate;
+    }
+
+    /**
+     * Gets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getAsciiIDNAOption(): int
+    {
+        return $this->asciiIDNAOption;
+    }
+
+    /**
+     * Gets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @return int
+     */
+    public function getUnicodeIDNAOption(): int
+    {
+        return $this->unicodeIDNAOption;
     }
 
     /**
@@ -164,7 +230,12 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     public function getIterator()
     {
         foreach ($this->records as $tld) {
-            yield (new PublicSuffix($tld, PublicSuffix::ICANN_DOMAINS))->toAscii();
+            yield (new PublicSuffix(
+                $tld,
+                PublicSuffix::ICANN_DOMAINS,
+                $this->asciiIDNAOption,
+                $this->unicodeIDNAOption
+            ))->toAscii();
         }
     }
 
@@ -192,7 +263,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     public function contains($tld): bool
     {
         try {
-            $tld = $tld instanceof Domain ? $tld : new Domain($tld);
+            if (!$tld instanceof Domain) {
+                $tld = new Domain($tld, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            }
         } catch (Exception $e) {
             return false;
         }
@@ -221,9 +294,11 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     public function resolve($domain): Domain
     {
         try {
-            $domain = $domain instanceof Domain ? $domain : new Domain($domain);
+            if (!$domain instanceof Domain) {
+                $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            }
         } catch (Exception $e) {
-            return new Domain();
+            return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
         if (!$domain->isResolvable()) {
@@ -240,5 +315,51 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         }
 
         return $domain->resolve($publicSuffix);
+    }
+
+    /**
+     * Sets conversion options for idn_to_ascii.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $option
+     *
+     * @return self
+     */
+    public function withAsciiIDNAOption(int $option): self
+    {
+        if ($option === $this->asciiIDNAOption) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->asciiIDNAOption = $option;
+
+        return $clone;
+    }
+
+    /**
+     * Sets conversion options for idn_to_utf8.
+     *
+     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
+     *
+     * @see https://www.php.net/manual/en/intl.constants.php
+     *
+     * @param int $option
+     *
+     * @return self
+     */
+    public function withUnicodeIDNAOption(int $option): self
+    {
+        if ($option === $this->unicodeIDNAOption) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->unicodeIDNAOption = $option;
+
+        return $clone;
     }
 }

@@ -87,7 +87,7 @@ final class TLDConverter
      */
     private function extractHeader(string $content): array
     {
-        if (!preg_match('/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/', $content, $matches)) {
+        if (1 !== preg_match('/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/', $content, $matches)) {
             throw new CouldNotLoadTLDs(sprintf('Invalid Version line: %s', $content));
         }
 
@@ -111,8 +111,8 @@ final class TLDConverter
     {
         try {
             $tld = (new PublicSuffix($content))->toAscii();
-        } catch (Exception $e) {
-            throw new CouldNotLoadTLDs(sprintf('Invalid Root zone: %s', $content), 0, $e);
+        } catch (Exception $exception) {
+            throw new CouldNotLoadTLDs(sprintf('Invalid Root zone: %s', $content), 0, $exception);
         }
 
         if (1 !== $tld->count() || '' === $tld->getContent()) {

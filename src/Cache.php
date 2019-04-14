@@ -18,6 +18,7 @@ namespace Pdp;
 use DateInterval;
 use FilesystemIterator;
 use Generator;
+use InvalidArgumentException;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 use function chmod;
@@ -33,6 +34,7 @@ use function is_int;
 use function is_object;
 use function is_writable;
 use function mkdir;
+use function preg_match;
 use function realpath;
 use function rename;
 use function sprintf;
@@ -86,6 +88,10 @@ final class Cache implements CacheInterface
 
         if (!file_exists($cache_path) && file_exists(dirname($cache_path))) {
             $this->mkdir($cache_path); // ensure that the parent path exists
+        }
+
+        if (! is_writable($cache_path.DIRECTORY_SEPARATOR)) {
+            throw new InvalidArgumentException(sprintf('cache path does not exist or is not writable: %s', $cache_path));
         }
 
         $this->cache_path = $cache_path;
@@ -310,7 +316,7 @@ final class Cache implements CacheInterface
             throw new CacheException(sprintf('Expected key to be a string; received "%s"', is_object($key) ? get_class($key) : gettype($key)));
         }
 
-        if (preg_match(self::PSR16_RESERVED, $key, $match) === 1) {
+        if (1 === preg_match(self::PSR16_RESERVED, $key, $match)) {
             throw new CacheException(sprintf('invalid character in key: %s', $match[0]));
         }
     }
