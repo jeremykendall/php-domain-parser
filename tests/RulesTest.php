@@ -661,7 +661,7 @@ class RulesTest extends TestCase
         $this->checkPublicSuffix('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s');
         $this->checkPublicSuffix('xn--fiqs8s', null);
     }
-    
+
     /**
      * @covers ::getAsciiIDNAOption
      * @covers ::getUnicodeIDNAOption

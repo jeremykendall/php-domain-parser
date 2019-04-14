@@ -185,7 +185,7 @@ class TopLevelDomainsTest extends TestCase
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption(),
         ]
         );
-        
+
         $collection = TopLevelDomains::createFromPath(
             __DIR__.'/data/root_zones.dat',
             null,

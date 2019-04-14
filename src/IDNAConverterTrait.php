@@ -136,22 +136,22 @@ trait IDNAConverterTrait
         if (1 !== preg_match($pattern, $domain)) {
             return [strtolower($domain), ['isTransitionalDifferent' => false]];
         }
-    
+
         $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $infos);
         if (0 !== $infos['errors']) {
             throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($infos['errors'])));
         }
-    
+
         // @codeCoverageIgnoreStart
         if (false === $output) {
             throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
         }
         // @codeCoverageIgnoreEnd
-    
+
         if (false === strpos($output, '%')) {
             return [$output, $infos];
         }
-    
+
         throw new InvalidDomain(sprintf('The host `%s` is invalid: it contains invalid characters', $domain));
     }
     /**
@@ -272,7 +272,7 @@ trait IDNAConverterTrait
         if (1 !== preg_match($pattern, $formatted_domain)) {
             throw new InvalidDomain(sprintf('The domain `%s` is invalid: the labels are malformed', $domain));
         }
-        
+
         list($ascii_domain, $infos) = $this->transformToAscii($domain, $asciiOption);
         $infos['labels'] = array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
 

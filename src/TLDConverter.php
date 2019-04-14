@@ -37,7 +37,7 @@ final class TLDConverter
      * @internal
      */
     const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
-    
+
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
      *

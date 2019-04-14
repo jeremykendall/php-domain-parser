@@ -166,7 +166,7 @@ final class Manager
         if (null === $data && !$this->refreshTLDs($url, $ttl)) {
             throw new CouldNotLoadTLDs(sprintf('Unable to load the root zone database from %s', $url));
         }
-        
+
         $data = json_decode($data ?? $this->cache->get($key), true);
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new CouldNotLoadTLDs(
@@ -174,7 +174,7 @@ final class Manager
                 json_last_error()
             );
         }
-        
+
         if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
             throw new CouldNotLoadTLDs('The root zone database cache content is corrupted');
         }

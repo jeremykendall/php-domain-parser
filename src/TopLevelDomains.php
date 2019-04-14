@@ -49,17 +49,17 @@ final class TopLevelDomains implements Countable, IteratorAggregate
      * @var array
      */
     private $records;
-    
+
     /**
      * @var int
      */
     private $asciiIDNAOption;
-    
+
     /**
      * @var int
      */
     private $unicodeIDNAOption;
-    
+
     /**
      * New instance.
      * @param array             $records
@@ -104,17 +104,17 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         if (null !== $context) {
             $args[] = $context;
         }
-        
+
         if (!($resource = @fopen(...$args))) {
             throw new CouldNotLoadTLDs(sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
-        
+
         $content = stream_get_contents($resource);
         fclose($resource);
-        
+
         return self::createFromString($content, $asciiIDNAOption, $unicodeIDNAOption);
     }
-    
+
     /**
      * Returns a new instance from a string.
      *
@@ -191,7 +191,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     {
         return $this->asciiIDNAOption;
     }
-    
+
     /**
      * Gets conversion options for idn_to_utf8.
      *
@@ -205,7 +205,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     {
         return $this->unicodeIDNAOption;
     }
-    
+
     /**
      * {@inheritdoc}
      */

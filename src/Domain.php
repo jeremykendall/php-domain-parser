@@ -83,22 +83,22 @@ final class Domain implements DomainInterface, JsonSerializable
      * @var string|null
      */
     private $subDomain;
-    
+
     /**
      * @var int
      */
     private $asciiIDNAOption = IDNA_DEFAULT;
-    
+
     /**
      * @var int
      */
     private $unicodeIDNAOption = IDNA_DEFAULT;
-    
+
     /**
      * @var bool
     */
     private $isTransitionalDifferent;
-    
+
     /**
      * New instance.
      * @param null|mixed        $domain
@@ -126,7 +126,7 @@ final class Domain implements DomainInterface, JsonSerializable
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -139,7 +139,7 @@ final class Domain implements DomainInterface, JsonSerializable
             $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
         );
     }
-    
+
     /**
      * Sets the public suffix domain part.
      *
@@ -349,7 +349,7 @@ final class Domain implements DomainInterface, JsonSerializable
     {
         return $this->asciiIDNAOption;
     }
-    
+
     /**
      * Gets conversion options for idn_to_utf8.
      *
@@ -363,7 +363,7 @@ final class Domain implements DomainInterface, JsonSerializable
     {
         return $this->unicodeIDNAOption;
     }
-    
+
     /**
      * Returns true if domain contains deviation characters.
      *

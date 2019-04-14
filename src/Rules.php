@@ -51,12 +51,12 @@ final class Rules implements PublicSuffixListSection
      * @var array
      */
     private $rules;
-    
+
     /**
      * @var int
      */
     private $asciiIDNAOption;
-    
+
     /**
      * @var int
      */
@@ -78,7 +78,7 @@ final class Rules implements PublicSuffixListSection
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
-    
+
     /**
      * Returns a new instance from a file path.
      *
@@ -158,7 +158,7 @@ final class Rules implements PublicSuffixListSection
     {
         return $this->asciiIDNAOption;
     }
-    
+
     /**
      * Gets conversion options for idn_to_utf8.
      *
@@ -172,7 +172,7 @@ final class Rules implements PublicSuffixListSection
     {
         return $this->unicodeIDNAOption;
     }
-    
+
     /**
      * Determines the public suffix for a given domain.
      *
@@ -189,7 +189,7 @@ final class Rules implements PublicSuffixListSection
         if (!$domain instanceof Domain) {
             $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
-        
+
         if (!$domain->isResolvable()) {
             throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
         }
@@ -215,7 +215,7 @@ final class Rules implements PublicSuffixListSection
             if (!$domain->isResolvable()) {
                 return $domain;
             }
-            
+
             return $domain->resolve($this->findPublicSuffix($domain, $section));
         } catch (Exception $e) {
             return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);

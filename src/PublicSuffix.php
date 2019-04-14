@@ -63,17 +63,17 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * @var string[]
      */
     private $labels;
-    
+
     /**
      * @var int
      */
     private $asciiIDNAOption = IDNA_DEFAULT;
-    
+
     /**
      * @var int
      */
     private $unicodeIDNAOption = IDNA_DEFAULT;
-    
+
     /**
      * @var bool
      */
@@ -129,7 +129,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         } elseif ($domain->isPrivate()) {
             $section = self::PRIVATE_DOMAINS;
         }
-        
+
         return new self(
             $domain->getPublicSuffix(),
             $section,
@@ -277,7 +277,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     {
         return $this->asciiIDNAOption;
     }
-    
+
     /**
      * Gets conversion options for idn_to_utf8.
      *
@@ -291,7 +291,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     {
         return $this->unicodeIDNAOption;
     }
-    
+
     /**
      * Returns true if domain contains deviation characters.
      *

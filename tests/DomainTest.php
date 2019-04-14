@@ -576,7 +576,7 @@ class DomainTest extends TestCase
         self::expectException(CouldNotResolveSubDomain::class);
         (new Domain('localhost'))->withSubDomain('www');
     }
-    
+
     /**
      * @covers ::withSubDomain
      * @covers ::normalizeContent
@@ -1014,7 +1014,7 @@ class DomainTest extends TestCase
     {
         self::assertNull((new Domain('www.example.com'))->withoutLabel(0, 1, 2)->getContent());
     }
-    
+
     /**
      * @covers ::__construct
      */
@@ -1026,7 +1026,7 @@ class DomainTest extends TestCase
             [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()]
         );
     }
-    
+
     /**
      * @dataProvider resolveCustomIDNAOptionsProvider
      * @param string      $domainName
@@ -1063,7 +1063,7 @@ class DomainTest extends TestCase
         self::assertSame($expectedSubDomain, $domain->getSubDomain());
         self::assertSame($expectedWithLabel, $domain->withLabel(-1, $withLabel)->getContent());
     }
-    
+
     public function resolveCustomIDNAOptionsProvider()
     {
         return [
@@ -1113,7 +1113,7 @@ class DomainTest extends TestCase
             ],
         ];
     }
-       
+
     public function testInstanceCreationWithCustomIDNAOptions()
     {
         $domain = new Domain(
@@ -1122,7 +1122,7 @@ class DomainTest extends TestCase
             IDNA_NONTRANSITIONAL_TO_ASCII,
             IDNA_NONTRANSITIONAL_TO_UNICODE
         );
-        
+
         $instance = $domain->toAscii();
         self::assertSame(
             [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
@@ -1169,7 +1169,7 @@ class DomainTest extends TestCase
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
         );
     }
-    
+
     /**
      * @covers ::isTransitionalDifferent
      * @dataProvider transitionalProvider
@@ -1180,7 +1180,7 @@ class DomainTest extends TestCase
     {
         self::assertSame($expected, $domain->isTransitionalDifferent());
     }
-    
+
     public function transitionalProvider()
     {
         return [

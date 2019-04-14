@@ -286,7 +286,7 @@ class PublicSuffixTest extends TestCase
             ],
         ];
     }
-    
+
     /**
      * @covers ::isTransitionalDifferent
      *
@@ -313,7 +313,7 @@ class PublicSuffixTest extends TestCase
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
         );
     }
-    
+
     public function customIDNAProvider()
     {
         return [
@@ -343,7 +343,7 @@ class PublicSuffixTest extends TestCase
             ],
         ];
     }
-    
+
     /**
      * @covers ::isTransitionalDifferent
      *
@@ -355,7 +355,7 @@ class PublicSuffixTest extends TestCase
     {
         self::assertSame($expected, $publicSuffix->isTransitionalDifferent());
     }
-    
+
     public function transitionalProvider()
     {
         return [

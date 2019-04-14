@@ -33,6 +33,8 @@ return PhpCsFixer\Config::create()
         'no_empty_comment' => true,
         'no_leading_import_slash' => true,
         'no_trailing_comma_in_singleline_array' => true,
+        'no_trailing_whitespace' => true,
+        'no_whitespace_in_blank_line' => true,
         'no_unused_imports' => true,
         'ordered_imports' => ['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'alpha'],
         'phpdoc_add_missing_param_annotation' => ['only_untyped' => false],
