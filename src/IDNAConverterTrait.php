@@ -188,7 +188,30 @@ trait IDNAConverterTrait
      * Filter and format the domain to ensure it is valid.
      * Returns an array containing the formatted domain name in lowercase
      * with its associated labels in reverse order
-     * For example: parse('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];.
+     * For example: parse('wWw.uLb.Ac.be') should return ['be', 'ac', 'ulb', 'www'];.
+     *
+     * @deprecated
+     *
+     * @codeCoverageIgnore
+     *
+     * @param mixed $domain
+     *
+     * @throws InvalidDomain If the domain is invalid
+     *
+     * @return string[]
+     */
+    private function setLabels($domain = null): array
+    {
+        return $this->parse($domain, IDNA_DEFAULT, IDNA_DEFAULT)['labels'];
+    }
+
+    /**
+     * Parse and format the domain to ensure it is valid.
+     * Returns an array containing the formatted domain name labels
+     * and the domain transitional information.
+     *
+     * For example: parse('wWw.uLb.Ac.be') should return
+     *     ['labels' => ['be', 'ac', 'ulb', 'www'], 'isTransitionalDifferant' => false];.
      *
      * @param mixed $domain
      * @param int   $asciiOption

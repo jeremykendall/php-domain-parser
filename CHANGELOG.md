@@ -2,7 +2,7 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
-# 5.5.0 - 2019-04-13
+# 5.5.0 - 2019-04-14
 
 ### Added
 
@@ -19,11 +19,11 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Deprecated
 
-- None
+- `IDNAConverterTrait::setLabels` replaced by `IDNAConverterTrait::parse` (internal)
 
 ### Removed
 
-- IDNAConverterTrait::setLabels (internal)
+- None
 
 # 5.4.0 - 2018-11-22
 
