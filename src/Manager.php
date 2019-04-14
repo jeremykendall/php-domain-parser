@@ -91,6 +91,7 @@ final class Manager
      * @param int        $unicodeIDNAOption
      *
      * @throws SimpleCacheException
+     * @throws CouldNotLoadRules
      *
      * @return Rules
      */
@@ -125,6 +126,9 @@ final class Manager
      * @param string     $url the Public Suffix List URL
      * @param null|mixed $ttl the cache TTL
      *
+     * @throws SimpleCacheException
+     * @throws HttpClientException
+     *
      * @return bool
      */
     public function refreshRules(string $url = self::PSL_URL, $ttl = null): bool
@@ -146,6 +150,7 @@ final class Manager
      * @param int        $unicodeIDNAOption
      *
      * @throws SimpleCacheException
+     * @throws CouldNotLoadTLDs
      *
      * @return TopLevelDomains
      */
@@ -188,21 +193,16 @@ final class Manager
      * If a local cache already exists, it will be overwritten.
      * Returns true if the refresh was successful.
      *
-     * @param string     $url               the IANA Root Zone Database URL
-     * @param null|mixed $ttl               the cache TTL
-     * @param int        $asciiIDNAOption
-     * @param int        $unicodeIDNAOption
+     * @param string     $url the IANA Root Zone Database URL
+     * @param null|mixed $ttl the cache TTL
      *
      * @throws SimpleCacheException
+     * @throws HttpClientException
      *
      * @return bool
      */
-    public function refreshTLDs(
-        string $url = self::RZD_URL,
-        $ttl = null,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ): bool {
+    public function refreshTLDs(string $url = self::RZD_URL, $ttl = null): bool
+    {
         static $converter;
 
         $converter = $converter ?? new TLDConverter();
