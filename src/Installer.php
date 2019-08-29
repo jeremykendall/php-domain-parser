@@ -152,7 +152,7 @@ final class Installer
     }
 
     /**
-     * @param string[] $arguments
+     * @param array $arguments
      */
     public static function setArguments(array $arguments = [])
     {
