@@ -33,14 +33,16 @@ use const STDOUT;
  */
 final class Installer
 {
+    private static $arguments;
+
     /**
      * Script to update the local cache using composer hook.
      *
-     * @param Event  $event
-     * @param string $cachePath
+     * @param Event $event
      */
-    public static function updateLocalCache(Event $event = null, string $cachePath = null)
+    public static function updateLocalCache(Event $event = null)
     {
+        $arguments = static::getArguments($event);
         $io = static::getIO($event);
         $vendor = static::getVendorPath($event);
         if (null === $vendor) {
@@ -63,7 +65,7 @@ final class Installer
         }
 
         try {
-            $cache = $cachePath === null ? new Cache() : new Cache($cachePath);
+            $cache = !isset($arguments['cache-path']) ? new Cache() : new Cache($arguments['cache-path']);
             $manager = new Manager($cache, new CurlHttpClient());
             if ($manager->refreshRules() && $manager->refreshTLDs()) {
                 $io->write([
@@ -138,5 +140,22 @@ final class Installer
                 );
             }
         };
+    }
+
+    /**
+     * @param  Event|null $event
+     * @return array
+     */
+    private static function getArguments(Event $event = null)
+    {
+        return null !== $event ? $event->getArguments() : static::$arguments;
+    }
+
+    /**
+     * @param string[] $arguments
+     */
+    public static function setArguments(array $arguments = [])
+    {
+        static::$arguments = $arguments;
     }
 }

@@ -544,10 +544,10 @@ echo $domain->getPublicSuffix(); // print 'be'
 
 ### Automatic Updates
 
-It is important to always have an up to date PSL. In order to do so the library comes bundle with an auto-update script located in the `bin` directory. An optional path argument allows you to specify the location of the cache.
+It is important to always have an up to date PSL. In order to do so the library comes bundle with an auto-update script located in the `bin` directory. An optional `--cache-path` argument allows you to specify the location of the cache.
 
 ~~~bash
-$ php ./bin/update-psl --path cache/psl-list
+$ php ./bin/update-psl --cache-path cache/psl-list
 ~~~
 
 This script requires:
