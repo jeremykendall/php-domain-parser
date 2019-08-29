@@ -36,7 +36,7 @@ final class Installer
     /**
      * Script to update the local cache using composer hook.
      *
-     * @param Event $event
+     * @param Event  $event
      * @param string $cachePath
      */
     public static function updateLocalCache(Event $event = null, string $cachePath = null)
