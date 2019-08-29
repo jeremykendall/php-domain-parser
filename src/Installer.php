@@ -37,8 +37,9 @@ final class Installer
      * Script to update the local cache using composer hook.
      *
      * @param Event $event
+     * @param string $cachePath
      */
-    public static function updateLocalCache(Event $event = null)
+    public static function updateLocalCache(Event $event = null, string $cachePath = null)
     {
         $io = static::getIO($event);
         $vendor = static::getVendorPath($event);
@@ -62,7 +63,8 @@ final class Installer
         }
 
         try {
-            $manager = new Manager(new Cache(), new CurlHttpClient());
+            $cache = $cachePath === null ? new Cache() : new Cache($cachePath);
+            $manager = new Manager($cache, new CurlHttpClient());
             if ($manager->refreshRules() && $manager->refreshTLDs()) {
                 $io->write([
                     '💪 💪 💪 Your local cache has been successfully updated. 💪 💪 💪',

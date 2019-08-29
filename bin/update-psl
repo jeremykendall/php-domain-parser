@@ -3,4 +3,6 @@
 
 require dirname(__DIR__).'/src/Installer.php';
 
-Pdp\Installer::updateLocalCache();
+$path = getopt(null, ["path:"])["path"] ?? null;
+
+Pdp\Installer::updateLocalCache(null, $path);
