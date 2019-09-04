@@ -21,7 +21,6 @@
         <whitelist>
             <directory suffix=".php">src</directory>
             <exclude>
-                <directory suffix="Installer.php">src</directory>
                 <directory suffix="include.php">src</directory>
             </exclude>
             <exclude>src/Installer</exclude>
