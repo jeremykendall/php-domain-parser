@@ -90,10 +90,10 @@ class InstallerTest extends TestCase
     /**
      * @dataProvider contextDataProvider
      * @param array $context
-     * @param int   $retval
+     * @param bool  $retval
      * @param array $logs
      */
-    public function testRefreshDefault(array $context, int $retval, array $logs)
+    public function testRefreshDefault(array $context, bool $retval, array $logs)
     {
         $manager = new Manager($this->cachePool, $this->client);
         $installer = new Installer($manager, $this->logger);
@@ -109,7 +109,7 @@ class InstallerTest extends TestCase
         return [
             'default' => [
                 'context' =>[],
-                'retval' => 0,
+                'retval' => true,
                 'log' => [
                     'Public Suffix List Cache updated for 1 DAY using '.Manager::PSL_URL,
                     'IANA Root Zone Database Cache updated for 1 DAY using '.Manager::RZD_URL,
@@ -119,7 +119,7 @@ class InstallerTest extends TestCase
                 'context' => [
                     Installer::REFRESH_PSL_KEY => true,
                 ],
-                'retval' => 0,
+                'retval' => true,
                 'log' => [
                     'Public Suffix List Cache updated for 1 DAY using '.Manager::PSL_URL,
                 ],
@@ -128,7 +128,7 @@ class InstallerTest extends TestCase
                 'context' => [
                     Installer::REFRESH_RZD_KEY => true,
                 ],
-                'retval' => 0,
+                'retval' => true,
                 'log' => [
                     'IANA Root Zone Database Cache updated for 1 DAY using '.Manager::RZD_URL,
                 ],
@@ -138,7 +138,7 @@ class InstallerTest extends TestCase
                     Installer::REFRESH_PSL_KEY => true,
                     Installer::REFRESH_PSL_URL_KEY => 'http://localhost/',
                 ],
-                'retval' => 1,
+                'retval' => false,
                 'log' => [
                     'Local cache update failed with invalid url: http://localhost/',
                 ],

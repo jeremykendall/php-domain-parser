@@ -24,10 +24,13 @@ use function extension_loaded;
 use function file_exists;
 use function filter_var_array;
 use function fwrite;
+use function implode;
 use const FILTER_FLAG_STRIP_LOW;
 use const FILTER_SANITIZE_STRING;
 use const FILTER_VALIDATE_BOOLEAN;
+use const PHP_EOL;
 use const STDERR;
+use const STDOUT;
 
 /**
  * A class to install and update local cache.
@@ -78,7 +81,7 @@ final class Installer
         return new self(new Manager(new Cache($cacheDir), new CurlHttpClient()), $logger);
     }
 
-    public function refresh(array $context = []): int
+    public function refresh(array $context = []): bool
     {
         $context = filter_var_array(array_replace(self::DEFAULT_CONTEXT, $context), [
             self::REFRESH_PSL_KEY => FILTER_VALIDATE_BOOLEAN,
@@ -94,16 +97,14 @@ final class Installer
         }
 
         try {
-            $retVal = $this->execute($context);
+            return $this->execute($context);
         } catch (PsrCacheException $exception) {
             $this->logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
-            $retVal = 1;
+            return false;
         } catch (Throwable $exception) {
             $this->logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
-            $retVal = 1;
+            return false;
         }
-
-        return $retVal;
     }
 
     /**
@@ -113,7 +114,7 @@ final class Installer
      *
      * @throws PsrCacheException
      */
-    private function execute(array $arguments = []): int
+    private function execute(array $arguments = []): bool
     {
         if ($arguments[self::REFRESH_PSL_KEY]) {
             if (!$this->manager->refreshRules($arguments[self::REFRESH_PSL_URL_KEY], $arguments[self::TTL_KEY])) {
@@ -122,7 +123,7 @@ final class Installer
                     'ttl' => $arguments[self::TTL_KEY],
                 ]);
 
-                return 1;
+                return false;
             }
 
             $this->logger->info('Public Suffix List Cache updated for {ttl} using {psl_url}', [
@@ -132,7 +133,7 @@ final class Installer
         }
 
         if (!$arguments[self::REFRESH_RZD_KEY]) {
-            return 0;
+            return true;
         }
 
         $this->logger->info('Updating your IANA Root Zone Database copy.');
@@ -142,7 +143,7 @@ final class Installer
                 'ttl' => $arguments[self::TTL_KEY],
             ]);
 
-            return 0;
+            return true;
         }
 
         $this->logger->error('Unable to update the IANA Root Zone Database Cache using {rzd_url} with a TTL of {ttl}', [
@@ -150,7 +151,7 @@ final class Installer
             'ttl' => $arguments[self::TTL_KEY],
         ]);
 
-        return 1;
+        return false;
     }
 
     /**
@@ -160,18 +161,18 @@ final class Installer
      */
     public static function updateLocalCache(Event $event = null)
     {
+        $io = self::getIO($event);
         if (!extension_loaded('curl')) {
-            fwrite(STDERR, 'The PHP cURL extension is missing.');
-
+            $io->writeError('The PHP cURL extension is missing.');
             die(1);
         }
 
         $vendor = self::getVendorPath($event);
         if (null === $vendor) {
-            fwrite(STDERR, implode(PHP_EOL, [
+            $io->writeError([
                 'You must set up the project dependencies using composer',
                 'see https://getcomposer.org',
-            ]).PHP_EOL);
+            ]);
             die(1);
         }
 
@@ -191,13 +192,41 @@ final class Installer
         $logger = new Logger();
         $installer = self::createFromCacheDir($logger, $arguments[Installer::CACHE_DIR_KEY]);
         $logger->info('Updating your Pdp local cache.');
-        $retVal = $installer->refresh($arguments);
-        if (0 === $retVal) {
+        if ($installer->refresh($arguments)) {
             $logger->info('Pdp local cache successfully updated.');
-        } else {
-            $logger->error('The command failed to update Pdp local cache successfully.');
+            die(0);
         }
-        die($retVal);
+
+        $logger->error('The command failed to update Pdp local cache.');
+        die(1);
+    }
+
+    /**
+     * Detect the I/O interface to use.
+     *
+     * @param Event|null $event
+     *
+     * @return mixed
+     */
+    private static function getIO(Event $event = null)
+    {
+        return null !== $event ? $event->getIO() : new class() {
+            public function write($messages, bool $newline = true, int $verbosity = 2)
+            {
+                $this->doWrite($messages, $newline, false, $verbosity);
+            }
+            public function writeError($messages, bool $newline = true, int $verbosity = 2)
+            {
+                $this->doWrite($messages, $newline, true, $verbosity);
+            }
+            private function doWrite($messages, bool $newline, bool $stderr, int $verbosity)
+            {
+                fwrite(
+                    $stderr ? STDERR : STDOUT,
+                    implode($newline ? PHP_EOL : '', (array) $messages).PHP_EOL
+                );
+            }
+        };
     }
 
     /**
