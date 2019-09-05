@@ -50,47 +50,6 @@ $reset = chr(27)."[0m";
 $redbg = chr(27)."[41m";
 $yellow = chr(27)."[33m";
 
-$script = basename(__FILE__);
-$helpText = <<<HELP
-$yellow
-Pdp\Installer v1.0 $reset
-
-The following script updates your local cache to ease library usage.
-=====
-
-Usage: $yellow$script [OPTIONS]$reset
-
-$green--%s$reset       refreshes the Public Suffix List cache
-$green--%s$reset   set the URL to use to refresh the PSL cache ({$yellow}default:$reset %s)
-$green--%s$reset       refreshes the IANA Root Zone Database cache
-$green--%s$reset   set the URL to use to refresh the RZD cache ({$yellow}default:$reset %s)
-$green--%s$reset       set the TTL for the cache ({$yellow}default:$reset '1 DAY')
-$green--%s$reset set the cache root directory 
-$green-h, --help$reset  show the following help message
-
-Examples:
-
-     Refresh all caches using the default settings
-     $yellow$script$reset
-     
-     Refresh the PSL cache for a TTL of 3 DAY 
-     $yellow$script --psl --ttl="3 DAYS"$reset
-     
-     Refresh the cache located in another cache directory
-     $yellow$script --cache-dir=/temp$reset
-HELP;
-
-$helpText = sprintf($helpText,
-    Installer::REFRESH_PSL_KEY,
-    Installer::REFRESH_PSL_URL_KEY,
-    Manager::PSL_URL,
-    Installer::REFRESH_RZD_KEY,
-    Installer::REFRESH_RZD_URL_KEY,
-    Manager::RZD_URL,
-    Installer::TTL_KEY,
-    Installer::CACHE_DIR_KEY
-);
-
 $arguments = array_replace([
     Installer::CACHE_DIR_KEY => '',
     Installer::REFRESH_PSL_KEY => false,
@@ -108,6 +67,50 @@ $arguments = array_replace([
 ]));
 
 if (isset($arguments['help']) || isset($arguments['h'])) {
+    $default_cache_dir = dirname(__DIR__).'/data';
+    $script = basename(__FILE__);
+    $helpText = <<<HELP
+{$yellow}Usage:$reset
+    $script [options]
+    
+{$yellow}Options:$reset
+    $green    --%s$reset                 refreshes the Public Suffix List cache
+    $green    --%s=URL$reset         set the URL to use to refresh the PSL cache ({$yellow}default:$reset %s)
+    $green    --%s$reset                 refreshes the IANA Root Zone Database cache
+    $green    --%s=URL$reset         set the URL to use to refresh the RZD cache ({$yellow}default:$reset %s)
+    $green    --%s=TTL$reset             set the TTL for the cache ({$yellow}default:$reset '1 DAY')
+    $green    --%s=CACHE-DIR$reset set the cache root directory ({$yellow}default:$reset $default_cache_dir')
+    $green-h, --help$reset                show the following help message
+
+{$yellow}Help:$reset
+    The {$green}update-psl$reset command updates your PDP local cache.
+    
+{$yellow}Examples:$reset
+
+     Refresh all caches using the default settings
+     $green$script$reset
+     
+     Refresh only the PSL cache for a TTL of 3 DAY 
+     $green$script --psl --ttl="3 DAYS"$reset
+     
+     Refresh all caches using another cache directory
+     $green$script --cache-dir=/temp$reset
+
+     Read more at https://github.com/jeremykendall/php-domain-parser/
+
+HELP;
+
+    $helpText = sprintf($helpText,
+        Installer::REFRESH_PSL_KEY,
+        Installer::REFRESH_PSL_URL_KEY,
+        Manager::PSL_URL,
+        Installer::REFRESH_RZD_KEY,
+        Installer::REFRESH_RZD_URL_KEY,
+        Manager::RZD_URL,
+        Installer::TTL_KEY,
+        Installer::CACHE_DIR_KEY
+    );
+
     success($helpText);
 
     die(0);
@@ -120,6 +123,11 @@ if (!extension_loaded('curl')) {
 }
 
 $installer = Installer::createFromCacheDir(new Logger( STDOUT, STDERR), $arguments[Installer::CACHE_DIR_KEY]);
+success("$yellow Updating your Pdp local cache.$reset");
 $retVal = $installer->refresh($arguments);
-
+if (0 === $retVal) {
+    success("$green Pdp local cache successfully updated. $reset");
+} else {
+    fail("$redbg The command failed to update Pdp local cache successfully. $reset");
+}
 die($retVal);

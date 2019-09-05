@@ -19,7 +19,7 @@ use Composer\Script\Event;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheException as PsrCacheException;
 use Throwable;
-use function array_merge;
+use function array_replace;
 use function extension_loaded;
 use function file_exists;
 use function filter_var_array;
@@ -80,7 +80,7 @@ final class Installer
 
     public function refresh(array $context = []): int
     {
-        $context = filter_var_array(array_merge(self::DEFAULT_CONTEXT, $context), [
+        $context = filter_var_array(array_replace(self::DEFAULT_CONTEXT, $context), [
             self::REFRESH_PSL_KEY => FILTER_VALIDATE_BOOLEAN,
             self::REFRESH_PSL_URL_KEY => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW, 'default' => Manager::PSL_URL],
             self::REFRESH_RZD_KEY => FILTER_VALIDATE_BOOLEAN,
@@ -96,16 +96,10 @@ final class Installer
         try {
             $retVal = $this->execute($context);
         } catch (PsrCacheException $exception) {
-            $this->logger->error('😓 😓 😓 Your local cache could not be updated. 😓 😓 😓');
-            $this->logger->error('An error occurred during cache regeneration.');
-            $this->logger->error('----- Error Message ----');
-            $this->logger->error($exception->getMessage());
+            $this->logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
             $retVal = 1;
         } catch (Throwable $exception) {
-            $this->logger->error('😓 😓 😓 Your local cache could not be updated. 😓 😓 😓');
-            $this->logger->error('An error occurred during the update.');
-            $this->logger->error('----- Error Message ----');
-            $this->logger->error($exception->getMessage());
+            $this->logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
             $retVal = 1;
         }
 
@@ -121,18 +115,20 @@ final class Installer
      */
     private function execute(array $arguments = []): int
     {
-        $this->logger->info('Updating your Pdp local cache.');
-
         if ($arguments[self::REFRESH_PSL_KEY]) {
-            $this->logger->info('Updating your Public Suffix List copy.');
             if (!$this->manager->refreshRules($arguments[self::REFRESH_PSL_URL_KEY], $arguments[self::TTL_KEY])) {
-                $this->logger->error('😓 😓 😓 Your Public Suffix List copy could not be updated. 😓 😓 😓');
-                $this->logger->error('Please review your settings.');
+                $this->logger->error('Unable to update the Public Suffix List Cache using {psl_url} with a TTL of {ttl}', [
+                    'psl_url' => $arguments[self::REFRESH_PSL_URL_KEY],
+                    'ttl' => $arguments[self::TTL_KEY],
+                ]);
 
                 return 1;
             }
 
-            $this->logger->info('💪 💪 💪 Your Public Suffix List copy is updated. 💪 💪 💪');
+            $this->logger->info('Public Suffix List Cache updated for {ttl} using {psl_url}', [
+                'psl_url' => $arguments[self::REFRESH_PSL_URL_KEY],
+                'ttl' => $arguments[self::TTL_KEY],
+            ]);
         }
 
         if (!$arguments[self::REFRESH_RZD_KEY]) {
@@ -141,13 +137,18 @@ final class Installer
 
         $this->logger->info('Updating your IANA Root Zone Database copy.');
         if ($this->manager->refreshTLDs($arguments[self::REFRESH_RZD_URL_KEY], $arguments[self::TTL_KEY])) {
-            $this->logger->info('💪 💪 💪 Your IANA Root Zone Database copy is updated. 💪 💪 💪');
+            $this->logger->info('IANA Root Zone Database Cache updated for {ttl} using {rzd_url}', [
+                'rzd_url' => $arguments[self::REFRESH_RZD_URL_KEY],
+                'ttl' => $arguments[self::TTL_KEY],
+            ]);
 
             return 0;
         }
 
-        $this->logger->error('😓 😓 😓 Your IANA Root Zone Database copy could not be updated. 😓 😓 😓');
-        $this->logger->error('Please review your settings.');
+        $this->logger->error('Unable to update the IANA Root Zone Database Cache using {rzd_url} with a TTL of {ttl}', [
+            'rzd_url' => $arguments[self::REFRESH_RZD_URL_KEY],
+            'ttl' => $arguments[self::TTL_KEY],
+        ]);
 
         return 1;
     }
@@ -187,9 +188,15 @@ final class Installer
             $arguments = array_replace($arguments, $event->getArguments());
         }
 
-        $installer = self::createFromCacheDir(new Logger(), $arguments[Installer::CACHE_DIR_KEY]);
+        $logger = new Logger();
+        $installer = self::createFromCacheDir($logger, $arguments[Installer::CACHE_DIR_KEY]);
+        $logger->info('Updating your Pdp local cache.');
         $retVal = $installer->refresh($arguments);
-
+        if (0 === $retVal) {
+            $logger->info('Pdp local cache successfully updated.');
+        } else {
+            $logger->error("The command failed to update Pdp local cache successfully.");
+        }
         die($retVal);
     }
 
