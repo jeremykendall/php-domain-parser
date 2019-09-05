@@ -195,7 +195,7 @@ final class Installer
         if (0 === $retVal) {
             $logger->info('Pdp local cache successfully updated.');
         } else {
-            $logger->error("The command failed to update Pdp local cache successfully.");
+            $logger->error('The command failed to update Pdp local cache successfully.');
         }
         die($retVal);
     }

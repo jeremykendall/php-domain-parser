@@ -59,6 +59,9 @@ final class Logger extends AbstractLogger
             $replace['{'.$key.'}'] = $val;
         }
 
-        fwrite(isset(self::ERRORS_LEVELS[$level]) ? $this->error : $this->out, $message.PHP_EOL);
+        fwrite(
+            isset(self::ERRORS_LEVELS[$level]) ? $this->error : $this->out,
+            strtr($message, $replace).PHP_EOL
+        );
     }
 }

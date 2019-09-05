@@ -63,7 +63,12 @@ class InstallerTest extends TestCase
 
             public function log($level, $message, array $context = [])
             {
-                $this->data[] = $message;
+                $replace = [];
+                foreach ($context as $key => $val) {
+                    $replace['{'.$key.'}'] = $val;
+                }
+
+                $this->data[] = strtr($message, $replace);
             }
 
             public function getLogs(string $level = null): array
@@ -106,8 +111,8 @@ class InstallerTest extends TestCase
                 'context' =>[],
                 'retval' => 0,
                 'log' => [
-                    '💪 💪 💪 Your Public Suffix List copy is updated. 💪 💪 💪',
-                    '💪 💪 💪 Your IANA Root Zone Database copy is updated. 💪 💪 💪',
+                    'Public Suffix List Cache updated for 1 DAY using '.Manager::PSL_URL,
+                    'IANA Root Zone Database Cache updated for 1 DAY using '.Manager::RZD_URL,
                 ],
             ],
             'refresh psl only' => [
@@ -116,7 +121,7 @@ class InstallerTest extends TestCase
                 ],
                 'retval' => 0,
                 'log' => [
-                    '💪 💪 💪 Your Public Suffix List copy is updated. 💪 💪 💪',
+                    'Public Suffix List Cache updated for 1 DAY using '.Manager::PSL_URL,
                 ],
             ],
             'refresh tld only' => [
@@ -125,7 +130,7 @@ class InstallerTest extends TestCase
                 ],
                 'retval' => 0,
                 'log' => [
-                    '💪 💪 💪 Your IANA Root Zone Database copy is updated. 💪 💪 💪',
+                    'IANA Root Zone Database Cache updated for 1 DAY using '.Manager::RZD_URL,
                 ],
             ],
             'refresh psl fails' => [
@@ -135,7 +140,7 @@ class InstallerTest extends TestCase
                 ],
                 'retval' => 1,
                 'log' => [
-                    'invalid url: http://localhost/',
+                    'Local cache update failed with invalid url: http://localhost/',
                 ],
             ],
         ];
