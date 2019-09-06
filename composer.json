@@ -64,13 +64,11 @@
         }
     },
     "scripts": {
-        "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes --ansi",
+        "phpcs": "php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi",
         "phpstan-src": "phpstan analyse -l max -c phpstan.src.neon src --ansi",
         "phpstan-tests": "phpstan analyse -l max -c phpstan.tests.neon tests --ansi",
-        "phpstan-bin": "phpstan analyse -l max -c phpstan.src.neon bin --ansi",
         "phpstan": [
             "@phpstan-src",
-            "@phpstan-bin",
             "@phpstan-tests"
         ],
         "phpunit": "phpunit --coverage-text",
@@ -87,9 +85,8 @@
         "phpstan": "Runs complete codebase static analysis",
         "phpstan-src": "Runs PHP stan on the source code",
         "phpstan-test": "Runs PHP stan on the test suite",
-        "phpstan-bin": "Runs PHP stan on the command",
         "phpunit": "Runs unit and functional testing",
-        "test": "Runs full test suite"
+        "test": "Runs the complete test suite"
     },
     "extra": {
         "branch-alias": {

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Composer\IO\BaseIO;
 use Composer\Script\Event;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheException as PsrCacheException;
@@ -163,7 +164,8 @@ final class Installer
     {
         $io = self::getIO($event);
         if (!extension_loaded('curl')) {
-            $io->writeError('The PHP cURL extension is missing.');
+            $io->writeError('The required PHP cURL extension is missing.');
+
             die(1);
         }
 
@@ -173,6 +175,7 @@ final class Installer
                 'You must set up the project dependencies using composer',
                 'see https://getcomposer.org',
             ]);
+
             die(1);
         }
 
@@ -189,20 +192,19 @@ final class Installer
             $arguments = array_replace($arguments, $event->getArguments());
         }
 
-        $logger = new Logger();
-        $installer = self::createFromCacheDir($logger, $arguments[Installer::CACHE_DIR_KEY]);
-        $logger->info('Updating your Pdp local cache.');
+        $installer = self::createFromCacheDir(self::getLogger($event), $arguments[Installer::CACHE_DIR_KEY]);
+        $io->info('Updating your Pdp local cache.');
         if ($installer->refresh($arguments)) {
-            $logger->info('Pdp local cache successfully updated.');
+            $io->info('Pdp local cache successfully updated.');
             die(0);
         }
 
-        $logger->error('The command failed to update Pdp local cache.');
+        $io->error('The command failed to update Pdp local cache.');
         die(1);
     }
 
     /**
-     * Detect the I/O interface to use.
+     * Detect the I/O instance to use.
      *
      * @param Event|null $event
      *
@@ -227,6 +229,25 @@ final class Installer
                 );
             }
         };
+    }
+
+    /**
+     * Detect the Logger instance to use.
+     *
+     * @param Event|null $event
+     *
+     * @return LoggerInterface
+     */
+    private static function getLogger(Event $event = null): LoggerInterface
+    {
+        if (null !== $event) {
+            /** @var BaseIO $logger */
+            $logger = $event->getIO();
+
+            return $logger;
+        }
+
+        return new Logger();
     }
 
     /**

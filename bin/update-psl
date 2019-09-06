@@ -117,17 +117,19 @@ HELP;
 }
 
 if (!extension_loaded('curl')) {
-    fail("$redbg The PHP cURL extension is missing. $reset");
+    fail("$redbg The required PHP cURL extension is missing. $reset");
 
     die(1);
 }
 
 $installer = Installer::createFromCacheDir(new Logger( STDOUT, STDERR), $arguments[Installer::CACHE_DIR_KEY]);
 success("$yellow Updating your Pdp local cache.$reset");
-$retVal = $installer->refresh($arguments);
-if (0 === $retVal) {
+if ($installer->refresh($arguments)) {
     success("$green Pdp local cache successfully updated. $reset");
-} else {
-    fail("$redbg The command failed to update Pdp local cache successfully. $reset");
+
+    die(0);
 }
-die($retVal);
+
+fail("$redbg The command failed to update Pdp local cache successfully. $reset");
+
+die(1);
