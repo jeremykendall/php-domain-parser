@@ -20,11 +20,13 @@ use Pdp\Cache;
 use Pdp\HttpClient;
 use Pdp\HttpClientException;
 use Pdp\Installer;
+use Pdp\Logger;
 use Pdp\Manager;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\AbstractLogger;
 use function file_get_contents;
+use function rewind;
 use function sprintf;
+use function stream_get_contents;
 
 /**
  * @coversDefaultClass \Pdp\Installer
@@ -36,6 +38,16 @@ class InstallerTest extends TestCase
     protected $root;
     protected $client;
     protected $logger;
+
+    /**
+     * @return resource
+     */
+    private function setStream()
+    {
+        /** @var resource $stream */
+        $stream = fopen('php://memory', 'r+');
+        return $stream;
+    }
 
     public function setUp()
     {
@@ -57,25 +69,6 @@ class InstallerTest extends TestCase
                 throw new HttpClientException(sprintf('invalid url: %s', $url));
             }
         };
-
-        $this->logger = new class() extends AbstractLogger {
-            private $data = [];
-
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->data[] = strtr($message, $replace);
-            }
-
-            public function getLogs(string $level = null): array
-            {
-                return $this->data;
-            }
-        };
     }
 
     public function tearDown()
@@ -95,12 +88,16 @@ class InstallerTest extends TestCase
      */
     public function testRefreshDefault(array $context, bool $retval, array $logs)
     {
+        $stream = $this->setStream();
+        $logger = new Logger($stream, $stream);
         $manager = new Manager($this->cachePool, $this->client);
-        $installer = new Installer($manager, $this->logger);
-
+        $installer = new Installer($manager, $logger);
         self::assertSame($retval, $installer->refresh($context));
+        rewind($stream);
+        /** @var string $data */
+        $data = stream_get_contents($stream);
         foreach ($logs as $log) {
-            self::assertContains($log, $this->logger->getLogs());
+            self::assertContains($log, $data);
         }
     }
 

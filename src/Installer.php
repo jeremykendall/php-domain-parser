@@ -73,7 +73,7 @@ final class Installer
     }
 
     /**
-     * Creates a new installer instance with a Pdp\Cache.
+     * Creates a new instance with a Pdp\Cache object and the cURL HTTP client.
      * @param LoggerInterface $logger
      * @param string          $cacheDir
      */
@@ -82,6 +82,10 @@ final class Installer
         return new self(new Manager(new Cache($cacheDir), new CurlHttpClient()), $logger);
     }
 
+    /**
+     * Refresh the locale cache.
+     * @param array $context
+     */
     public function refresh(array $context = []): bool
     {
         $context = filter_var_array(array_replace(self::DEFAULT_CONTEXT, $context), [
@@ -110,10 +114,7 @@ final class Installer
 
     /**
      * Refreshes the cache.
-     *
      * @param array $arguments
-     *
-     * @throws PsrCacheException
      */
     private function execute(array $arguments = []): bool
     {
@@ -157,8 +158,7 @@ final class Installer
 
     /**
      * Script to update the local cache using composer hook.
-     *
-     * @param Event $event
+     * @param null|Event $event
      */
     public static function updateLocalCache(Event $event = null)
     {
@@ -181,6 +181,7 @@ final class Installer
 
         require $vendor.'/autoload.php';
 
+        $logger = new Logger();
         $arguments = [
             self::CACHE_DIR_KEY => '',
             self::REFRESH_PSL_KEY => false,
@@ -189,17 +190,19 @@ final class Installer
         ];
 
         if (null !== $event) {
+            /** @var BaseIO $logger */
+            $logger = $event->getIO();
             $arguments = array_replace($arguments, $event->getArguments());
         }
 
-        $installer = self::createFromCacheDir(self::getLogger($event), $arguments[Installer::CACHE_DIR_KEY]);
-        $io->info('Updating your Pdp local cache.');
+        $installer = self::createFromCacheDir($logger, $arguments[Installer::CACHE_DIR_KEY]);
+        $io->write('Updating your Pdp local cache.');
         if ($installer->refresh($arguments)) {
-            $io->info('Pdp local cache successfully updated.');
+            $io->write('Pdp local cache successfully updated.');
             die(0);
         }
 
-        $io->error('The command failed to update Pdp local cache.');
+        $io->writeError('The command failed to update Pdp local cache.');
         die(1);
     }
 
@@ -229,25 +232,6 @@ final class Installer
                 );
             }
         };
-    }
-
-    /**
-     * Detect the Logger instance to use.
-     *
-     * @param Event|null $event
-     *
-     * @return LoggerInterface
-     */
-    private static function getLogger(Event $event = null): LoggerInterface
-    {
-        if (null !== $event) {
-            /** @var BaseIO $logger */
-            $logger = $event->getIO();
-
-            return $logger;
-        }
-
-        return new Logger();
     }
 
     /**
