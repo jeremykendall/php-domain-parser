@@ -12,6 +12,7 @@ file that was distributed with this source code.
 EOF;
 
 $finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__.'/bin')
     ->in(__DIR__.'/src')
     ->in(__DIR__.'/tests')
 ;

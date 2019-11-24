@@ -42,7 +42,7 @@ matrix:
       env:
         - COLLECT_COVERAGE=false
         - IGNORE_PLATFORMS=true
-        - RUN_PHPSTAN=true
+        - RUN_PHPSTAN=false
         - VALIDATE_CODING_STYLE=false
   allow_failures:
     - php: 7.4snapshot
