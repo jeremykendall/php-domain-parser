@@ -32,7 +32,7 @@ matrix:
         - VALIDATE_CODING_STYLE=false
         - RUN_PHPSTAN=false
         - IGNORE_PLATFORMS=true
-    - php: 7.4snapshot
+    - php: 7.4
       env:
         - COLLECT_COVERAGE=false
         - VALIDATE_CODING_STYLE=false
@@ -42,16 +42,11 @@ matrix:
       env:
         - COLLECT_COVERAGE=false
         - IGNORE_PLATFORMS=true
-        - RUN_PHPSTAN=true
+        - RUN_PHPSTAN=false
         - VALIDATE_CODING_STYLE=false
   allow_failures:
-    - php: 7.4snapshot
     - php: nightly
   fast_finish: true
-
-cache:
-  directories:
-    - $HOME/.composer/cache
 
 before_install:
   - travis_retry composer self-update

@@ -34,6 +34,7 @@ Dependencies
 -------
 
 - [PSR-16](http://www.php-fig.org/psr/psr-16/)
+- [PSR-3](http://www.php-fig.org/psr/psr-3/) *since version 5.6*
 
 Installation
 --------
@@ -555,8 +556,9 @@ This script requires:
 - The PHP `curl` extension
 - The `Pdp\Installer` class which organizes how to update the cache.
 - The `Pdp\Cache` and `Pdp\CurlHttpClient` classes to retrieve and cache the PSL
+- A `Psr3` implementation.
 
-You can also add a composer script in your `composer.json` file to update the PSL cache everytime after the `install` or the `update` command are executed.
+You can add a composer script in your `composer.json` file to update the PSL cache every time after the `install` or the `update` command are executed.
 
 ~~~bash
 {
@@ -567,12 +569,36 @@ You can also add a composer script in your `composer.json` file to update the PS
 }
 ~~~
 
-If you prefer using your own implementations you should:
+#### Advanced usage of the update-psl script
 
-1. Copy the `Pdp\Installer` class
-2. Adapt its code to reflect your requirements.
+**since version 5.6.0**
 
-In any case, your are required to update regularly your PSL information with your chosen script to keep your data up to date.
+The following command is accessible to the end user:
+
+```bash
+$ php bin/update-psl --rzd --rzd-url=http://localhost/rzd-mirror/list.txt --ttl="8 HOURS" --cache-dir="/tmp"
+````
+
+This lines means:
+
+- the only cache that will be updated will be the one for the Root Zone Domains;
+- it will be updated using the submitted URL;
+- the data will be cached for 8 hours;
+- the cache directory will be the `/tmp` directory.;
+
+##### Options and arguments
+
+- `--cache-dir` : specify the root directory used to save the cached data;
+- `h`, `--h`, `--help` : display the helper message;
+- `--psl`: specify that the PSL cache must be updated;
+- `--psl-url`: specify that PSL source URL;
+- `--rzd`: specify that the RZD  cache must be updated;
+- `--rzd-url`: specify that RZD source URL;
+- `--ttl`: specify the cache TTL;
+
+#### Alternatives to the update-psl script
+
+**Using the `update-psl` script is not a requirement but your MUST update regularly your PSL information to keep your cache data up to date.**
 
 For example, below I'm using the `Manager` with
 
