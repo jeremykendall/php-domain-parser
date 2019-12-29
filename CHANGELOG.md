@@ -2,7 +2,26 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
-# 5.5.0 - 2019-04-14
+## 5.6.0 - 2019-12-29
+
+### Added
+
+- A simple `Psr3` compatible logger class which output the logs to you cli console.
+
+### Fixed
+
+- `composer.json` updated to be composer 2.0 ready
+- package bundle installer is rewritten to improve its usage see [#249](https://github.com/jeremykendall/php-domain-parser/issues/249) and [#250](https://github.com/jeremykendall/php-domain-parser/issues/250)
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
+## 5.5.0 - 2019-04-14
 
 ### Added
 
@@ -25,7 +44,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - None
 
-# 5.4.0 - 2018-11-22
+## 5.4.0 - 2018-11-22
 
 ### Added
 
