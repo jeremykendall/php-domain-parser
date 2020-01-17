@@ -138,6 +138,10 @@ trait IDNAConverterTrait
         }
 
         $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $infos);
+        if ([] === $infos) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid', $domain));
+        }
+
         if (0 !== $infos['errors']) {
             throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($infos['errors'])));
         }
@@ -170,9 +174,13 @@ trait IDNAConverterTrait
      */
     private function idnToUnicode(string $domain, int $option = IDNA_DEFAULT): string
     {
-        $output = idn_to_utf8($domain, $option, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (0 !== $arr['errors']) {
-            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        $output = idn_to_utf8($domain, $option, INTL_IDNA_VARIANT_UTS46, $info);
+        if ([] === $info) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid', $domain));
+        }
+
+        if (0 !== $info['errors']) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($info['errors'])));
         }
 
         // @codeCoverageIgnoreStart
