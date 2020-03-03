@@ -187,10 +187,16 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
-            return $subject->toAscii();
+            /** @var PublicSuffix $result */
+            $result = $subject->toAscii();
+
+            return $result;
         }
 
-        return $subject->toUnicode();
+        /** @var PublicSuffix $result */
+        $result = $subject->toUnicode();
+
+        return $result;
     }
 
     /**

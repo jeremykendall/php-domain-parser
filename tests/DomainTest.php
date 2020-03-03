@@ -30,7 +30,7 @@ use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
- * @coversDefaultClass Pdp\Domain
+ * @coversDefaultClass \Pdp\Domain
  */
 class DomainTest extends TestCase
 {
@@ -239,6 +239,7 @@ class DomainTest extends TestCase
         self::assertSame($expectedDomain, $domain->getDomain());
         self::assertSame($expectedSuffix, $domain->getPublicSuffix());
 
+        /** @var Domain $domainIDN */
         $domainIDN = $domain->toUnicode();
         self::assertSame($expectedIDNDomain, $domainIDN->getDomain());
         self::assertSame($expectedIDNSuffix, $domainIDN->getPublicSuffix());
@@ -339,6 +340,7 @@ class DomainTest extends TestCase
         self::assertSame($expectedDomain, $domain->getDomain());
         self::assertSame($expectedSuffix, $domain->getPublicSuffix());
 
+        /** @var Domain $domainIDN */
         $domainIDN = $domain->toAscii();
         self::assertSame($expectedAsciiDomain, $domainIDN->getDomain());
         self::assertSame($expectedAsciiSuffix, $domainIDN->getPublicSuffix());
@@ -1114,11 +1116,13 @@ class DomainTest extends TestCase
             IDNA_NONTRANSITIONAL_TO_UNICODE
         );
 
+        /** @var Domain $instance */
         $instance = $domain->toAscii();
         self::assertSame(
             [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
         );
+        /** @var Domain $instance */
         $instance = $domain->toUnicode();
         self::assertSame(
             [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],

@@ -299,6 +299,7 @@ class PublicSuffixTest extends TestCase
         self::assertSame($expectedContent, $publicSuffix->getContent());
         self::assertSame($expectedAscii, $publicSuffix->toAscii()->getContent());
         self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->getContent());
+        /** @var PublicSuffix $instance */
         $instance = $publicSuffix->toUnicode();
         self::assertSame(
             [$publicSuffix->getAsciiIDNAOption(), $publicSuffix->getUnicodeIDNAOption()],
