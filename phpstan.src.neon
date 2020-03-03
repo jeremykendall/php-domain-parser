@@ -1,2 +1,11 @@
 includes:
 - vendor/phpstan/phpstan-strict-rules/rules.neon
+parameters:
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        - message: '#Call to function is_iterable\(\) with iterable will always evaluate to true.#'
+          path: src/Cache.php
+        - message: '#Property Pdp\\TopLevelDomains::\$modifiedDate \(DateTimeImmutable\) does not accept DateTimeInterface.#'
+          path: src/TopLevelDomains.php
+    reportUnmatchedIgnoredErrors: true

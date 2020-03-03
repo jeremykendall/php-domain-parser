@@ -12,7 +12,7 @@
          stopOnFailure="false">
 
     <testsuites>
-        <testsuite name="Uri Hostname Parser Test Suite">
+        <testsuite name="PHP Domain Parser Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
@@ -20,16 +20,12 @@
     <filter>
         <whitelist>
             <directory suffix=".php">src</directory>
-            <exclude>
-                <directory suffix="include.php">src</directory>
-            </exclude>
-            <exclude>src/Installer</exclude>
         </whitelist>
     </filter>
 
     <logging>
         <log type="junit" target="build/report.junit.xml"/>
-        <log type="coverage-html" target="build/coverage" charset="UTF-8" yui="true" highlight="true"/>
+        <log type="coverage-html" target="build/coverage"/>
         <log type="coverage-text" target="build/coverage.txt"/>
         <log type="coverage-clover" target="build/clover.xml"/>
     </logging>
