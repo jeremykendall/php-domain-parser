@@ -69,6 +69,7 @@ final class Converter implements PublicSuffixListSection
         $file = new SplTempFileObject();
         $file->fwrite($content);
         $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        /** @var string $line */
         foreach ($file as $line) {
             $section = $this->getSection($section, $line);
             if ('' !== $section && false === strpos($line, '//')) {

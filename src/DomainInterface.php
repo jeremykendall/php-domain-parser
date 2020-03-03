@@ -29,17 +29,13 @@ interface DomainInterface extends Countable, IteratorAggregate
 {
     /**
      * Returns the domain content.
-     *
-     * @return string|null
      */
-    public function getContent();
+    public function getContent(): ?string;
 
     /**
      * Returns the domain content as a string.
-     *
-     * @return string
      */
-    public function __toString();
+    public function __toString(): string;
 
     /**
      * Retrieves a single domain label.
@@ -50,10 +46,8 @@ interface DomainInterface extends Countable, IteratorAggregate
      * If no label is found the submitted $key the returned value will be null.
      *
      * @param int $key the label offset
-     *
-     * @return string|null
      */
-    public function getLabel(int $key);
+    public function getLabel(int $key): ?string;
 
     /**
      * Returns the associated key for each label.
@@ -74,10 +68,8 @@ interface DomainInterface extends Countable, IteratorAggregate
      * an instance with its content converted to its IDNA ASCII form
      *
      * @throws Exception if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     *
-     * @return static
      */
-    public function toAscii();
+    public function toAscii(): self;
 
     /**
      * Converts the domain to its IDNA UTF8 form.
@@ -86,10 +78,8 @@ interface DomainInterface extends Countable, IteratorAggregate
      * an instance with its content converted to its IDNA UTF8 form
      *
      * @throws Exception if the domain can not be converted to Unicode using IDN UTS46 algorithm
-     *
-     * @return static
      */
-    public function toUnicode();
+    public function toUnicode(): self;
 
 
     /**

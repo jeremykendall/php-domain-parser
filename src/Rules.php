@@ -102,10 +102,12 @@ final class Rules implements PublicSuffixListSection
             $args[] = $context;
         }
 
-        if (!($resource = @fopen(...$args))) {
+        $resource = @fopen(...$args);
+        if (false === $resource) {
             throw new CouldNotLoadRules(sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
 
+        /** @var string $content */
         $content = stream_get_contents($resource);
         fclose($resource);
 
