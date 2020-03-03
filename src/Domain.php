@@ -474,7 +474,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function toAscii(): self
+    public function toAscii(): DomainInterface
     {
         if (null === $this->domain) {
             return $this;
@@ -491,7 +491,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function toUnicode(): self
+    public function toUnicode(): DomainInterface
     {
         if (null === $this->domain || false === strpos($this->domain, 'xn--')) {
             return $this;

@@ -316,7 +316,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function toAscii(): self
+    public function toAscii(): DomainInterface
     {
         if (null === $this->publicSuffix) {
             return $this;
@@ -333,7 +333,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function toUnicode(): self
+    public function toUnicode(): DomainInterface
     {
         if (null === $this->publicSuffix || false === strpos($this->publicSuffix, 'xn--')) {
             return $this;
