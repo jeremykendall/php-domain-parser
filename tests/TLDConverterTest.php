@@ -24,28 +24,28 @@ use PHPUnit\Framework\TestCase;
  */
 class TLDConverterTest extends TestCase
 {
-    public function testConverter()
+    public function testConverter(): void
     {
+        /** @var string $string */
         $string = file_get_contents(__DIR__.'/data/root_zones.dat');
         $res = (new TLDConverter())->convert($string);
-        self::assertInternalType('array', $res);
         self::assertArrayHasKey('version', $res);
         self::assertArrayHasKey('modifiedDate', $res);
         self::assertArrayHasKey('records', $res);
-        self::assertInternalType('array', $res['records']);
+        self::assertIsArray($res['records']);
     }
 
     /**
      * @dataProvider invalidContentProvider
      * @param string $content
      */
-    public function testConverterThrowsException(string $content)
+    public function testConverterThrowsException(string $content): void
     {
         self::expectException(CouldNotLoadTLDs::class);
         (new TLDConverter())->convert($content);
     }
 
-    public function invalidContentProvider()
+    public function invalidContentProvider(): iterable
     {
         $double_header = <<<EOF
 # Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
@@ -91,7 +91,7 @@ EOF;
         $invalid_tld_content_empty_tld = <<<EOF
 # Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
 FOO
-  
+
 GITHUB.COM
 EOF;
 

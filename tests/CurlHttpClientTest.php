@@ -29,18 +29,18 @@ class CurlHttpClientTest extends TestCase
      * @covers ::__construct
      * @covers ::getContent
      */
-    public function testGetContent()
+    public function testGetContent(): void
     {
         $content = (new CurlHttpClient())->getContent('https://www.google.com');
-        self::assertNotNull($content);
-        self::assertContains('google', $content);
+
+        self::assertStringContainsString('google', $content);
     }
 
     /**
      * @covers ::__construct
      * @covers ::getContent
      */
-    public function testThrowsException()
+    public function testThrowsException(): void
     {
         self::expectException(HttpClientException::class);
         (new CurlHttpClient())->getContent('https://qsfsdfqdf.dfsf');
@@ -49,7 +49,7 @@ class CurlHttpClientTest extends TestCase
     /**
      * @covers ::__construct
      */
-    public function testConstructorThrowsException()
+    public function testConstructorThrowsException(): void
     {
         self::expectException(Exception::class);
         new CurlHttpClient(['foo' => 'bar']);

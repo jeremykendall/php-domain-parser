@@ -24,6 +24,7 @@ use Pdp\TLDConverter;
 use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use function file_get_contents;
 use const IDNA_DEFAULT;
 use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
@@ -33,9 +34,12 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
  */
 class TopLevelDomainsTest extends TestCase
 {
+    /**
+     * @var TopLevelDomains
+     */
     protected $collection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->collection = TopLevelDomains::createFromPath(__DIR__.'/data/tlds-alpha-by-domain.txt');
     }
@@ -45,7 +49,7 @@ class TopLevelDomainsTest extends TestCase
      * @covers ::createFromString
      * @covers ::__construct
      */
-    public function testCreateFromPath()
+    public function testCreateFromPath(): void
     {
         $context = stream_context_create([
             'http'=> [
@@ -54,14 +58,14 @@ class TopLevelDomainsTest extends TestCase
             ],
         ]);
 
-        $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat', $context);
-        self::assertInstanceOf(TopLevelDomains::class, $collection);
+        $collection = TopLevelDomains::createFromPath(__DIR__.'/data/tlds-alpha-by-domain.txt', $context);
+        self::assertEquals($this->collection, $collection);
     }
 
     /**
      * @covers ::createFromPath
      */
-    public function testCreateFromPathThrowsException()
+    public function testCreateFromPathThrowsException(): void
     {
         self::expectException(CouldNotLoadTLDs::class);
         TopLevelDomains::createFromPath('/foo/bar.dat');
@@ -71,13 +75,13 @@ class TopLevelDomainsTest extends TestCase
      * @covers ::__set_state
      * @covers ::__construct
      */
-    public function testSetState()
+    public function testSetState(): void
     {
         $collection = eval('return '.var_export($this->collection, true).';');
         self::assertEquals($this->collection, $collection);
     }
 
-    public function testGetterProperties()
+    public function testGetterProperties(): void
     {
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
         self::assertCount(15, $collection);
@@ -89,7 +93,9 @@ class TopLevelDomainsTest extends TestCase
         self::assertFalse($collection->isEmpty());
 
         $converter = new TLDConverter();
-        $data = $converter->convert(file_get_contents(__DIR__.'/data/root_zones.dat'));
+        /** @var string $content */
+        $content = file_get_contents(__DIR__.'/data/root_zones.dat');
+        $data = $converter->convert($content);
         self::assertEquals($data, $collection->toArray());
 
         foreach ($collection as $tld) {
@@ -103,7 +109,7 @@ class TopLevelDomainsTest extends TestCase
      * @covers ::withAsciiIDNAOption
      * @covers ::withUnicodeIDNAOption
      */
-    public function testwithIDNAOptions()
+    public function testwithIDNAOptions(): void
     {
         self::assertSame($this->collection, $this->collection->withAsciiIDNAOption(
             $this->collection->getAsciiIDNAOption()
@@ -126,7 +132,7 @@ class TopLevelDomainsTest extends TestCase
      * @dataProvider validDomainProvider
      * @param mixed $tld
      */
-    public function testResolve($tld)
+    public function testResolve($tld): void
     {
         self::assertSame(
             (new Domain($tld))->getLabel(0),
@@ -134,7 +140,7 @@ class TopLevelDomainsTest extends TestCase
         );
     }
 
-    public function validDomainProvider()
+    public function validDomainProvider(): iterable
     {
         return [
             'simple domain' => ['GOOGLE.COM'],
@@ -154,30 +160,30 @@ class TopLevelDomainsTest extends TestCase
         ];
     }
 
-    public function testResolveThrowsTypeError()
+    public function testResolveThrowsTypeError(): void
     {
         self::expectException(TypeError::class);
         $this->collection->resolve(new DateTimeImmutable());
     }
 
-    public function testResolveWithInvalidDomain()
+    public function testResolveWithInvalidDomain(): void
     {
         self::assertEquals(new Domain(), $this->collection->resolve('###'));
     }
 
-    public function testResolveWithUnResolvableDomain()
+    public function testResolveWithUnResolvableDomain(): void
     {
         $domain = 'localhost';
         self::assertEquals(new Domain($domain), $this->collection->resolve($domain));
     }
 
-    public function testResolveWithUnregisteredTLD()
+    public function testResolveWithUnregisteredTLD(): void
     {
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
         self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix());
     }
 
-    public function testResolveWithIDNAOptions()
+    public function testResolveWithIDNAOptions(): void
     {
         $resolved = $this->collection->resolve('foo.de');
         self::assertSame(
@@ -202,12 +208,12 @@ class TopLevelDomainsTest extends TestCase
      * @dataProvider validTldProvider
      * @param mixed $tld
      */
-    public function testContainsReturnsTrue($tld)
+    public function testContainsReturnsTrue($tld): void
     {
         self::assertTrue($this->collection->contains($tld));
     }
 
-    public function validTldProvider()
+    public function validTldProvider(): iterable
     {
         return [
             'simple TLD' => ['COM'],
@@ -233,12 +239,12 @@ class TopLevelDomainsTest extends TestCase
      * @dataProvider invalidTldProvider
      * @param mixed $tld
      */
-    public function testContainsReturnsFalse($tld)
+    public function testContainsReturnsFalse($tld): void
     {
         self::assertFalse($this->collection->contains($tld));
     }
 
-    public function invalidTldProvider()
+    public function invalidTldProvider(): iterable
     {
         return [
             'invalid TLD (1)' => ['COMM'],

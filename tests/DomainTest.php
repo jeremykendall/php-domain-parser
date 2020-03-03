@@ -43,7 +43,7 @@ class DomainTest extends TestCase
      * @covers ::getRegistrableDomain
      * @covers ::getSubDomain
      */
-    public function testRegistrableDomainIsNullWithFoundDomain()
+    public function testRegistrableDomainIsNullWithFoundDomain(): void
     {
         $domain = new Domain('faketld', null);
         self::assertNull($domain->getPublicSuffix());
@@ -60,13 +60,13 @@ class DomainTest extends TestCase
      * @param mixed $domain
      * @param mixed $publicSuffix
      */
-    public function testConstructorThrowsExceptionOnMisMatchPublicSuffixDomain($domain, $publicSuffix)
+    public function testConstructorThrowsExceptionOnMisMatchPublicSuffixDomain($domain, $publicSuffix): void
     {
         self::expectException(CouldNotResolvePublicSuffix::class);
         new Domain($domain, new PublicSuffix($publicSuffix));
     }
 
-    public function provideWrongConstructor()
+    public function provideWrongConstructor(): iterable
     {
         return [
             'public suffix mismatch' => [
@@ -96,13 +96,13 @@ class DomainTest extends TestCase
      * @covers ::getIdnErrors
      * @param string $domain
      */
-    public function testToAsciiThrowsException(string $domain)
+    public function testToAsciiThrowsException(string $domain): void
     {
         self::expectException(InvalidDomain::class);
         new Domain($domain);
     }
 
-    public function invalidDomainProvider()
+    public function invalidDomainProvider(): iterable
     {
         return [
             'invalid IDN domain' => ['a⒈com'],
@@ -116,7 +116,7 @@ class DomainTest extends TestCase
      * @covers ::idnToUnicode
      * @covers ::getIdnErrors
      */
-    public function testToUnicodeThrowsException()
+    public function testToUnicodeThrowsException(): void
     {
         self::expectException(InvalidDomain::class);
         (new Domain('xn--a-ecp.ru'))->toUnicode();
@@ -130,17 +130,13 @@ class DomainTest extends TestCase
      * @covers ::jsonSerialize
      * @covers ::getIterator
      */
-    public function testDomainInternalPhpMethod()
+    public function testDomainInternalPhpMethod(): void
     {
         $domain = new Domain('www.ulb.ac.be', new PublicSuffix('ac.be'));
         $generateDomain = eval('return '.var_export($domain, true).';');
-        self::assertInternalType('array', $domain->__debugInfo());
         self::assertEquals($domain, $generateDomain);
         self::assertSame(['be', 'ac', 'ulb', 'www'], iterator_to_array($domain));
-        self::assertJsonStringEqualsJsonString(
-            json_encode($domain->__debugInfo()),
-            json_encode($domain)
-        );
+        self::assertEquals($domain->__debugInfo(), $domain->jsonSerialize());
         self::assertSame('www.ulb.ac.be', (string) $domain);
     }
 
@@ -150,18 +146,18 @@ class DomainTest extends TestCase
      * @covers ::count
      * @dataProvider countableProvider
      *
-     * @param string|null $domain
-     * @param int         $nbLabels
-     * @param string[]    $labels
+     * @param string[] $labels
+     * @param ?string  $domain
+     * @param int      $nbLabels
      */
-    public function testCountable($domain, $nbLabels, $labels)
+    public function testCountable(?string $domain, int $nbLabels, array $labels): void
     {
         $domain = new Domain($domain);
         self::assertCount($nbLabels, $domain);
         self::assertSame($labels, iterator_to_array($domain));
     }
 
-    public function countableProvider()
+    public function countableProvider(): iterable
     {
         return [
             'null' => [null, 0, []],
@@ -174,7 +170,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::getLabel
      */
-    public function testGetLabel()
+    public function testGetLabel(): void
     {
         $domain = new Domain('master.example.com');
         self::assertSame('com', $domain->getLabel(0));
@@ -187,7 +183,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::keys
      */
-    public function testOffsets()
+    public function testOffsets(): void
     {
         $domain = new Domain('master.com.example.com');
         self::assertSame([0, 2], $domain->keys('com'));
@@ -197,7 +193,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::labels
      */
-    public function testLabels()
+    public function testLabels(): void
     {
         $domain = new Domain('master.com.example.com');
         self::assertSame([
@@ -224,22 +220,21 @@ class DomainTest extends TestCase
      * @covers ::toUnicode
      * @covers \Pdp\PublicSuffix::toUnicode
      * @dataProvider toUnicodeProvider
-     *
-     * @param null|string $domain
-     * @param null|string $publicSuffix
-     * @param null|string $expectedDomain
-     * @param null|string $expectedSuffix
-     * @param null|string $expectedIDNDomain
-     * @param null|string $expectedIDNSuffix
+     * @param ?string $domain
+     * @param ?string $publicSuffix
+     * @param ?string $expectedDomain
+     * @param ?string $expectedSuffix
+     * @param ?string $expectedIDNDomain
+     * @param ?string $expectedIDNSuffix
      */
     public function testToIDN(
-        $domain,
-        $publicSuffix,
-        $expectedDomain,
-        $expectedSuffix,
-        $expectedIDNDomain,
-        $expectedIDNSuffix
-    ) {
+        ?string $domain,
+        ?string $publicSuffix,
+        ?string $expectedDomain,
+        ?string $expectedSuffix,
+        ?string $expectedIDNDomain,
+        ?string $expectedIDNSuffix
+    ): void {
         $domain = new Domain($domain, new PublicSuffix($publicSuffix));
         self::assertSame($expectedDomain, $domain->getDomain());
         self::assertSame($expectedSuffix, $domain->getPublicSuffix());
@@ -249,7 +244,7 @@ class DomainTest extends TestCase
         self::assertSame($expectedIDNSuffix, $domainIDN->getPublicSuffix());
     }
 
-    public function toUnicodeProvider()
+    public function toUnicodeProvider(): iterable
     {
         return [
             'simple domain' => [
@@ -325,21 +320,21 @@ class DomainTest extends TestCase
      * @covers \Pdp\PublicSuffix::toAscii
      *
      * @dataProvider toAsciiProvider
-     * @param null|string $domain
-     * @param null|string $publicSuffix
-     * @param null|string $expectedDomain
-     * @param null|string $expectedSuffix
-     * @param null|string $expectedAsciiDomain
-     * @param null|string $expectedAsciiSuffix
+     * @param ?string $domain
+     * @param ?string $publicSuffix
+     * @param ?string $expectedDomain
+     * @param ?string $expectedSuffix
+     * @param ?string $expectedAsciiDomain
+     * @param ?string $expectedAsciiSuffix
      */
     public function testToAscii(
-        $domain,
-        $publicSuffix,
-        $expectedDomain,
-        $expectedSuffix,
-        $expectedAsciiDomain,
-        $expectedAsciiSuffix
-    ) {
+        ?string $domain,
+        ?string $publicSuffix,
+        ?string $expectedDomain,
+        ?string $expectedSuffix,
+        ?string $expectedAsciiDomain,
+        ?string $expectedAsciiSuffix
+    ): void {
         $domain = new Domain($domain, new PublicSuffix($publicSuffix));
         self::assertSame($expectedDomain, $domain->getDomain());
         self::assertSame($expectedSuffix, $domain->getPublicSuffix());
@@ -349,7 +344,7 @@ class DomainTest extends TestCase
         self::assertSame($expectedAsciiSuffix, $domainIDN->getPublicSuffix());
     }
 
-    public function toAsciiProvider()
+    public function toAsciiProvider(): iterable
     {
         return [
             'simple domain' => [
@@ -400,16 +395,16 @@ class DomainTest extends TestCase
      * @covers ::normalize
      * @dataProvider resolvePassProvider
      *
-     * @param string|null $expected
-     * @param Domain      $domain
-     * @param mixed       $publicSuffix
+     * @param mixed   $publicSuffix
+     * @param Domain  $domain
+     * @param ?string $expected
      */
-    public function testResolveWorks(Domain $domain, $publicSuffix, $expected)
+    public function testResolveWorks(Domain $domain, $publicSuffix, ?string $expected): void
     {
         self::assertSame($expected, $domain->resolve($publicSuffix)->getPublicSuffix());
     }
 
-    public function resolvePassProvider()
+    public function resolvePassProvider(): iterable
     {
         $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
         $domain = new Domain('ulb.ac.be', $publicSuffix);
@@ -456,17 +451,16 @@ class DomainTest extends TestCase
     /**
      * @covers ::resolve
      * @dataProvider resolveFailsProvider
-     *
      * @param Domain       $domain
      * @param PublicSuffix $publicSuffix
      */
-    public function testResolveFails(Domain $domain, PublicSuffix $publicSuffix)
+    public function testResolveFails(Domain $domain, PublicSuffix $publicSuffix): void
     {
         self::expectException(CouldNotResolvePublicSuffix::class);
         $domain->resolve($publicSuffix);
     }
 
-    public function resolveFailsProvider()
+    public function resolveFailsProvider(): iterable
     {
         $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
         $domain = new Domain('ulb.ac.be', $publicSuffix);
@@ -498,7 +492,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::resolve
      */
-    public function testResolveReturnsInstance()
+    public function testResolveReturnsInstance(): void
     {
         $publicSuffix = new PublicSuffix('ac.be', Rules::ICANN_DOMAINS);
         $domain = new Domain('ulb.ac.be', $publicSuffix);
@@ -511,11 +505,11 @@ class DomainTest extends TestCase
      * @covers ::normalizeContent
      * @dataProvider withSubDomainWorksProvider
      *
-     * @param null|string $expected
-     * @param Domain      $domain
-     * @param mixed       $subdomain
+     * @param mixed   $subdomain
+     * @param Domain  $domain
+     * @param ?string $expected
      */
-    public function testWithSubDomainWorks(Domain $domain, $subdomain, $expected)
+    public function testWithSubDomainWorks(Domain $domain, $subdomain, ?string $expected): void
     {
         $result = $domain->withSubDomain($subdomain);
         self::assertSame($expected, $result->getSubDomain());
@@ -526,7 +520,7 @@ class DomainTest extends TestCase
         self::assertSame($domain->isPrivate(), $result->isPrivate());
     }
 
-    public function withSubDomainWorksProvider()
+    public function withSubDomainWorksProvider(): iterable
     {
         return [
             'simple addition' => [
@@ -561,7 +555,7 @@ class DomainTest extends TestCase
      * @covers ::withSubDomain
      * @covers ::normalizeContent
      */
-    public function testWithSubDomainFailsWithNullDomain()
+    public function testWithSubDomainFailsWithNullDomain(): void
     {
         self::expectException(CouldNotResolveSubDomain::class);
         (new Domain())->withSubDomain('www');
@@ -571,7 +565,7 @@ class DomainTest extends TestCase
      * @covers ::withSubDomain
      * @covers ::normalizeContent
      */
-    public function testWithSubDomainFailsWithOneLabelDomain()
+    public function testWithSubDomainFailsWithOneLabelDomain(): void
     {
         self::expectException(CouldNotResolveSubDomain::class);
         (new Domain('localhost'))->withSubDomain('www');
@@ -581,7 +575,7 @@ class DomainTest extends TestCase
      * @covers ::withSubDomain
      * @covers ::normalizeContent
      */
-    public function testWithEmptySubdomain()
+    public function testWithEmptySubdomain(): void
     {
         self::expectException(InvalidDomain::class);
         (new Domain(
@@ -594,7 +588,7 @@ class DomainTest extends TestCase
      * @covers ::withSubDomain
      * @covers ::normalizeContent
      */
-    public function testWithSubDomainFailsWithNonStringableObject()
+    public function testWithSubDomainFailsWithNonStringableObject(): void
     {
         self::expectException(TypeError::class);
         (new Domain(
@@ -608,7 +602,7 @@ class DomainTest extends TestCase
      * @covers ::withSubDomain
      * @covers ::normalizeContent
      */
-    public function testWithSubDomainWithoutPublicSuffixInfo()
+    public function testWithSubDomainWithoutPublicSuffixInfo(): void
     {
         self::expectException(CouldNotResolveSubDomain::class);
         (new Domain('www.example.com'))->withSubDomain('www');
@@ -618,21 +612,21 @@ class DomainTest extends TestCase
      * @covers ::withPublicSuffix
      * @dataProvider withPublicSuffixWorksProvider
      *
-     * @param null|string $expected
-     * @param Domain      $domain
-     * @param mixed       $publicSuffix
-     * @param bool        $isKnown
-     * @param bool        $isICANN
-     * @param bool        $isPrivate
+     * @param mixed   $publicSuffix
+     * @param Domain  $domain
+     * @param ?string $expected
+     * @param bool    $isKnown
+     * @param bool    $isICANN
+     * @param bool    $isPrivate
      */
     public function testWithPublicSuffixWorks(
         Domain $domain,
         $publicSuffix,
-        $expected,
+        ?string $expected,
         bool $isKnown,
         bool $isICANN,
         bool $isPrivate
-    ) {
+    ): void {
         $result = $domain->withPublicSuffix($publicSuffix);
         self::assertSame($expected, $result->getPublicSuffix());
         self::assertSame($isKnown, $result->isKnown());
@@ -640,7 +634,7 @@ class DomainTest extends TestCase
         self::assertSame($isPrivate, $result->isPrivate());
     }
 
-    public function withPublicSuffixWorksProvider()
+    public function withPublicSuffixWorksProvider(): iterable
     {
         $base_domain = new Domain('example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
 
@@ -723,7 +717,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::withPublicSuffix
      */
-    public function testWithPublicSuffixFailsWithNullDomain()
+    public function testWithPublicSuffixFailsWithNullDomain(): void
     {
         self::expectException(InvalidDomain::class);
         (new Domain())->withPublicSuffix('www');
@@ -734,23 +728,23 @@ class DomainTest extends TestCase
      * @covers ::normalizeContent
      * @dataProvider withLabelWorksProvider
      *
-     * @param null|string $expected
-     * @param Domain      $domain
-     * @param int         $key
-     * @param mixed       $label
-     * @param bool        $isKnown
-     * @param bool        $isICANN
-     * @param bool        $isPrivate
+     * @param mixed   $label
+     * @param Domain  $domain
+     * @param int     $key
+     * @param ?string $expected
+     * @param bool    $isKnown
+     * @param bool    $isICANN
+     * @param bool    $isPrivate
      */
     public function testWithLabelWorks(
         Domain $domain,
         int $key,
         $label,
-        $expected,
+        ?string $expected,
         bool $isKnown,
         bool $isICANN,
         bool $isPrivate
-    ) {
+    ): void {
         $result = $domain->withLabel($key, $label);
         self::assertSame($expected, $result->getContent());
         self::assertSame($isKnown, $result->isKnown());
@@ -758,7 +752,7 @@ class DomainTest extends TestCase
         self::assertSame($isPrivate, $result->isPrivate());
     }
 
-    public function withLabelWorksProvider()
+    public function withLabelWorksProvider(): iterable
     {
         $base_domain = new Domain('www.example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
 
@@ -859,7 +853,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::withLabel
      */
-    public function testWithLabelFailsWithTypeError()
+    public function testWithLabelFailsWithTypeError(): void
     {
         self::expectException(InvalidLabel::class);
         (new Domain('example.com'))->withLabel(1, null);
@@ -868,7 +862,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::withLabel
      */
-    public function testWithLabelFailsWithInvalidKey()
+    public function testWithLabelFailsWithInvalidKey(): void
     {
         self::expectException(InvalidLabelKey::class);
         (new Domain('example.com'))->withLabel(-4, 'www');
@@ -877,7 +871,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::withLabel
      */
-    public function testWithLabelFailsWithInvalidLabel2()
+    public function testWithLabelFailsWithInvalidLabel2(): void
     {
         self::expectException(InvalidDomain::class);
         (new Domain('example.com'))->withLabel(-1, '');
@@ -887,18 +881,17 @@ class DomainTest extends TestCase
      * @covers ::append
      * @covers ::withLabel
      *
+     * @dataProvider validAppend
      * @param string $raw
      * @param string $append
      * @param string $expected
-     *
-     * @dataProvider validAppend
      */
-    public function testAppend($raw, $append, $expected)
+    public function testAppend(string $raw, string $append, string $expected): void
     {
         self::assertSame($expected, (string) (new Domain($raw))->append($append));
     }
 
-    public function validAppend()
+    public function validAppend(): iterable
     {
         return [
             ['secure.example.com', '8.8.8.8', 'secure.example.com.8.8.8.8'],
@@ -912,18 +905,17 @@ class DomainTest extends TestCase
      * @covers ::prepend
      * @covers ::withLabel
      *
+     * @dataProvider validPrepend
      * @param string $raw
      * @param string $prepend
      * @param string $expected
-     *
-     * @dataProvider validPrepend
      */
-    public function testPrepend($raw, $prepend, $expected)
+    public function testPrepend(string $raw, string $prepend, string $expected): void
     {
         self::assertSame($expected, (string) (new Domain($raw))->prepend($prepend));
     }
 
-    public function validPrepend()
+    public function validPrepend(): iterable
     {
         return [
             ['secure.example.com', 'master', 'master.secure.example.com'],
@@ -935,22 +927,21 @@ class DomainTest extends TestCase
     /**
      * @covers ::withoutLabel
      * @dataProvider withoutLabelWorksProvider
-     *
-     * @param null|string $expected
-     * @param Domain      $domain
-     * @param int         $key
-     * @param bool        $isKnown
-     * @param bool        $isICANN
-     * @param bool        $isPrivate
+     * @param Domain  $domain
+     * @param int     $key
+     * @param ?string $expected
+     * @param bool    $isKnown
+     * @param bool    $isICANN
+     * @param bool    $isPrivate
      */
     public function testwithoutLabelWorks(
         Domain $domain,
         int $key,
-        $expected,
+        ?string $expected,
         bool $isKnown,
         bool $isICANN,
         bool $isPrivate
-    ) {
+    ): void {
         $result = $domain->withoutLabel($key);
         self::assertSame($expected, $result->getContent());
         self::assertSame($isKnown, $result->isKnown());
@@ -958,7 +949,7 @@ class DomainTest extends TestCase
         self::assertSame($isPrivate, $result->isPrivate());
     }
 
-    public function withoutLabelWorksProvider()
+    public function withoutLabelWorksProvider(): iterable
     {
         $base_domain = new Domain('www.example.com', new PublicSuffix('com', Rules::ICANN_DOMAINS));
 
@@ -1001,7 +992,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::withoutLabel
      */
-    public function testwithoutLabelFailsWithInvalidKey()
+    public function testwithoutLabelFailsWithInvalidKey(): void
     {
         self::expectException(InvalidLabelKey::class);
         (new Domain('example.com'))->withoutLabel(-3);
@@ -1010,7 +1001,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::withoutLabel
      */
-    public function testwithoutLabelWorksWithMultipleKeys()
+    public function testwithoutLabelWorksWithMultipleKeys(): void
     {
         self::assertNull((new Domain('www.example.com'))->withoutLabel(0, 1, 2)->getContent());
     }
@@ -1018,7 +1009,7 @@ class DomainTest extends TestCase
     /**
      * @covers ::__construct
      */
-    public function testConstructWithCustomIDNAOptions()
+    public function testConstructWithCustomIDNAOptions(): void
     {
         $domain = new Domain('example.com', null, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         self::assertSame(
@@ -1043,13 +1034,13 @@ class DomainTest extends TestCase
         string $domainName,
         string $publicSuffix,
         string $withLabel,
-        $expectedContent,
-        $expectedAscii,
-        $expectedUnicode,
-        $expectedRegistrable,
-        $expectedSubDomain,
-        $expectedWithLabel
-    ) {
+        ?string $expectedContent,
+        ?string $expectedAscii,
+        ?string $expectedUnicode,
+        ?string $expectedRegistrable,
+        ?string $expectedSubDomain,
+        ?string $expectedWithLabel
+    ): void {
         $domain = new Domain(
             $domainName,
             new PublicSuffix($publicSuffix),
@@ -1064,7 +1055,7 @@ class DomainTest extends TestCase
         self::assertSame($expectedWithLabel, $domain->withLabel(-1, $withLabel)->getContent());
     }
 
-    public function resolveCustomIDNAOptionsProvider()
+    public function resolveCustomIDNAOptionsProvider(): iterable
     {
         return [
             'without deviation characters' => [
@@ -1114,7 +1105,7 @@ class DomainTest extends TestCase
         ];
     }
 
-    public function testInstanceCreationWithCustomIDNAOptions()
+    public function testInstanceCreationWithCustomIDNAOptions(): void
     {
         $domain = new Domain(
             'example.com',
@@ -1173,15 +1164,15 @@ class DomainTest extends TestCase
     /**
      * @covers ::isTransitionalDifferent
      * @dataProvider transitionalProvider
-     * @param \Pdp\Domain $domain
-     * @param bool        $expected
+     * @param Domain $domain
+     * @param bool   $expected
      */
-    public function testIsTransitionalDifference(Domain $domain, bool $expected)
+    public function testIsTransitionalDifference(Domain $domain, bool $expected): void
     {
         self::assertSame($expected, $domain->isTransitionalDifferent());
     }
 
-    public function transitionalProvider()
+    public function transitionalProvider(): iterable
     {
         return [
             'simple' => [new Domain('example.com'), false],
@@ -1200,7 +1191,7 @@ class DomainTest extends TestCase
      * @covers ::withAsciiIDNAOption
      * @covers ::withUnicodeIDNAOption
      */
-    public function testwithIDNAOptions()
+    public function testwithIDNAOptions(): void
     {
         $domain = new Domain('example.com', new PublicSuffix('com'));
 
