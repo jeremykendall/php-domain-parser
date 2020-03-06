@@ -27,7 +27,7 @@ System Requirements
 
 You need:
 
-- **PHP >= 7.0** but the latest stable version of PHP is recommended
+- **PHP >= 7.2.5** but the latest stable version of PHP is recommended
 - the `intl` extension
 
 Dependencies
