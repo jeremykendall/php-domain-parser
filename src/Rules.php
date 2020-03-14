@@ -211,17 +211,72 @@ final class Rules implements PublicSuffixListSection
     {
         $section = $this->validateSection($section);
         try {
-            $domain = $domain instanceof Domain
-                ? $domain
-                : new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-            if (!$domain->isResolvable()) {
-                return $domain;
+            if ('' === $section) {
+                return $this->cookieResolve($domain);
+            } elseif (self::ICANN_DOMAINS === $section) {
+                return $this->icannResolve($domain);
             }
 
-            return $domain->resolve($this->findPublicSuffix($domain, $section));
-        } catch (Exception $e) {
+            return $this->privateResolve($domain);
+        } catch (CouldNotResolvePublicSuffix $exception) {
+            return new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        } catch (Exception $exception) {
             return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
+    }
+
+    /**
+     * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
+     *
+     * @param mixed $domain the domain value
+     */
+    public function cookieResolve($domain): Domain
+    {
+        $domain = $this->validateDomain($domain);
+
+        return $domain->resolve($this->findPublicSuffix($domain, ''));
+    }
+
+    /**
+     * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
+     *
+     * @param mixed $domain
+     */
+    public function icannResolve($domain): Domain
+    {
+        $domain = $this->validateDomain($domain);
+
+        return $domain->resolve($this->findPublicSuffix($domain, self::ICANN_DOMAINS));
+    }
+
+    /**
+     * Returns PSL info for a given domain against the PSL rules for private domain detection.
+     *
+     * @param mixed $domain
+     */
+    public function privateResolve($domain): Domain
+    {
+        $domain = $this->validateDomain($domain);
+
+        return $domain->resolve($this->findPublicSuffix($domain, self::PRIVATE_DOMAINS));
+    }
+
+    /**
+     * Returns PSL info for a given domain.
+     *
+     * @param mixed $domain
+     */
+    private function validateDomain($domain): Domain
+    {
+        if (!($domain instanceof Domain)) {
+            $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        }
+
+        if (!$domain->isResolvable()) {
+            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
+        }
+
+        return $domain;
     }
 
     /**

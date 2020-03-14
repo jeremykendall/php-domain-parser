@@ -114,6 +114,10 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::cookieResolve
+     * @covers ::icannResolve
+     * @covers ::privateResolve
+     * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\PublicSuffix::setSection
@@ -191,6 +195,8 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::cookieResolve
+     * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
@@ -215,6 +221,8 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::icannResolve
+     * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
@@ -239,6 +247,8 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::cookieResolve
+     * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\IDNAConverterTrait::parse
      */
@@ -281,6 +291,8 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::privateResolve
+     * @covers ::validateDomain
      * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
@@ -299,6 +311,8 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::privateResolve
+     * @covers ::validateDomain
      * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
@@ -367,6 +381,8 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::icannResolve
+     * @covers ::validateDomain
      * @covers \Pdp\Domain::setRegistrableDomain
      * @covers \Pdp\Domain::getRegistrableDomain
      * @dataProvider parseDataProvider
@@ -383,6 +399,8 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::icannResolve
+     * @covers ::validateDomain
      * @covers \Pdp\IDNAConverterTrait::parse
      * @covers \Pdp\Domain::setPublicSuffix
      * @covers \Pdp\Domain::getPublicSuffix
