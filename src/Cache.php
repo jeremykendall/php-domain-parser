@@ -16,21 +16,20 @@ declare(strict_types=1);
 namespace Pdp;
 
 use DateInterval;
+use DateTimeImmutable;
 use FilesystemIterator;
 use Generator;
 use InvalidArgumentException;
 use Psr\SimpleCache\CacheInterface;
-use Traversable;
 use function chmod;
-use function date_create_immutable;
 use function dirname;
 use function file_exists;
 use function file_get_contents;
 use function filemtime;
 use function get_class;
 use function gettype;
-use function is_array;
 use function is_int;
+use function is_iterable;
 use function is_object;
 use function is_writable;
 use function mkdir;
@@ -83,6 +82,7 @@ final class Cache implements CacheInterface
     public function __construct(string $cache_path = '')
     {
         if ('' === $cache_path) {
+            /** @var string $cache_path */
             $cache_path = realpath(dirname(__DIR__).DIRECTORY_SEPARATOR.'data');
         }
 
@@ -182,7 +182,9 @@ final class Cache implements CacheInterface
         }
 
         if ($ttl instanceof DateInterval) {
-            return date_create_immutable('@'.time())->add($ttl)->getTimestamp();
+            $now = new DateTimeImmutable('@'.time());
+
+            return $now->add($ttl)->getTimestamp();
         }
 
         throw new CacheException(sprintf('Expected TTL to be an int, a DateInterval or null; received "%s"', is_object($ttl) ? get_class($ttl) : gettype($ttl)));
@@ -218,13 +220,13 @@ final class Cache implements CacheInterface
      */
     public function getMultiple($keys, $default = null)
     {
-        if (!is_array($keys) && !$keys instanceof Traversable) {
+        if (!is_iterable($keys)) {
             throw new CacheException('keys must be either of type array or Traversable');
         }
 
         $values = [];
         foreach ($keys as $key) {
-            $values[$key] = $this->get($key) ?: $default;
+            $values[$key] = $this->get($key) ?? $default;
         }
 
         return $values;
@@ -235,7 +237,7 @@ final class Cache implements CacheInterface
      */
     public function setMultiple($values, $ttl = null)
     {
-        if (!is_array($values) && !$values instanceof Traversable) {
+        if (!is_iterable($values)) {
             throw new CacheException('keys must be either of type array or Traversable');
         }
 
@@ -252,22 +254,28 @@ final class Cache implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteMultiple($keys)
+    public function deleteMultiple($keys): bool
     {
-        if (!is_array($keys) && !$keys instanceof Traversable) {
+        if (!is_iterable($keys)) {
             throw new CacheException('keys must be either of type array or Traversable');
         }
 
+        $successful = false;
         foreach ($keys as $key) {
             $this->validateKey($key);
-            $this->delete($key);
+            $successful = $this->delete($key);
+            if (false === $successful) {
+                break;
+            }
         }
+
+        return $successful;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function has($key)
+    public function has($key): bool
     {
         return $this->get($key, $this) !== $this;
     }
@@ -288,9 +296,6 @@ final class Cache implements CacheInterface
         return $this->cache_path.DIRECTORY_SEPARATOR.self::FILE_PREFIX.$key.self::FILE_EXTENSION;
     }
 
-    /**
-     * @return Generator|string[]
-     */
     private function listPaths(): Generator
     {
         $iterator = new FilesystemIterator(
@@ -298,6 +303,7 @@ final class Cache implements CacheInterface
             FilesystemIterator::CURRENT_AS_PATHNAME | FilesystemIterator::SKIP_DOTS
         );
 
+        /** @var string $path */
         foreach ($iterator as $path) {
             if (!is_dir($path)) {
                 yield $path;
@@ -310,7 +316,7 @@ final class Cache implements CacheInterface
      *
      * @throws CacheException
      */
-    private function validateKey($key)
+    private function validateKey($key): void
     {
         if (!is_string($key)) {
             throw new CacheException(sprintf('Expected key to be a string; received "%s"', is_object($key) ? get_class($key) : gettype($key)));
@@ -326,7 +332,7 @@ final class Cache implements CacheInterface
      *
      * @param string $path absolute directory path
      */
-    private function mkdir($path)
+    private function mkdir($path): void
     {
         $parent_path = dirname($path);
 

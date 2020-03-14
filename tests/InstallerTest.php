@@ -23,6 +23,7 @@ use Pdp\Installer;
 use Pdp\Logger;
 use Pdp\Manager;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use function file_get_contents;
 use function rewind;
 use function sprintf;
@@ -33,10 +34,29 @@ use function stream_get_contents;
  */
 class InstallerTest extends TestCase
 {
+    /**
+     * @var Cache
+     */
     protected $cachePool;
+
+    /**
+     * @var string
+     */
     protected $cacheDir;
+
+    /**
+     * @var \org\bovigo\vfs\vfsStreamDirectory
+     */
     protected $root;
+
+    /**
+     * @var HttpClient
+     */
     protected $client;
+
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
 
     /**
@@ -49,7 +69,7 @@ class InstallerTest extends TestCase
         return $stream;
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->root = vfsStream::setup('pdp');
         vfsStream::create(['cache' => []], $this->root);
@@ -59,11 +79,17 @@ class InstallerTest extends TestCase
             public function getContent(string $url): string
             {
                 if ($url === Manager::PSL_URL) {
-                    return file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+                    /** @var string $res */
+                    $res = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+
+                    return $res;
                 }
 
                 if ($url === Manager::RZD_URL) {
-                    return file_get_contents(__DIR__.'/data/tlds-alpha-by-domain.txt');
+                    /** @var string $res */
+                    $res = file_get_contents(__DIR__.'/data/tlds-alpha-by-domain.txt');
+
+                    return $res;
                 }
 
                 throw new HttpClientException(sprintf('invalid url: %s', $url));
@@ -71,13 +97,9 @@ class InstallerTest extends TestCase
         };
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        $this->cachePool = null;
-        $this->cacheDir = null;
-        $this->root = null;
-        $this->client = null;
-        $this->logger = null;
+        unset($this->cachePool, $this->cacheDir, $this->root, $this->client, $this->logger);
     }
 
     /**
@@ -86,7 +108,7 @@ class InstallerTest extends TestCase
      * @param bool  $retval
      * @param array $logs
      */
-    public function testRefreshDefault(array $context, bool $retval, array $logs)
+    public function testRefreshDefault(array $context, bool $retval, array $logs): void
     {
         $stream = $this->setStream();
         $logger = new Logger($stream, $stream);
@@ -97,7 +119,7 @@ class InstallerTest extends TestCase
         /** @var string $data */
         $data = stream_get_contents($stream);
         foreach ($logs as $log) {
-            self::assertContains($log, $data);
+            self::assertStringContainsString($log, $data);
         }
     }
 

@@ -24,28 +24,30 @@ use PHPUnit\Framework\TestCase;
  */
 class ConverterTest extends TestCase
 {
-    public function testConverter()
+    public function testConverter(): void
     {
+        /** @var string $string */
         $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
         $retval = (new Converter())->convert($string);
         self::assertNotEmpty($retval[Converter::ICANN_DOMAINS]);
         self::assertNotEmpty($retval[Converter::PRIVATE_DOMAINS]);
     }
 
-    public function testConvertThrowsExceptionWithInvalidContent()
+    public function testConvertThrowsExceptionWithInvalidContent(): void
     {
         self::expectException(CouldNotLoadRules::class);
+        /** @var string $content */
         $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
         (new Converter())->convert($content);
     }
 
-    public function testConvertWithEmptyString()
+    public function testConvertWithEmptyString(): void
     {
         $retval = (new Converter())->convert('');
         self::assertEquals([Converter::ICANN_DOMAINS => [], Converter::PRIVATE_DOMAINS => []], $retval);
     }
 
-    public function testConvertWithInvalidString()
+    public function testConvertWithInvalidString(): void
     {
         $retval = (new Converter())->convert('foobar');
         self::assertEquals([Converter::ICANN_DOMAINS => [], Converter::PRIVATE_DOMAINS => []], $retval);

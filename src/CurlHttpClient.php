@@ -65,8 +65,10 @@ final class CurlHttpClient implements HttpClient
      */
     public function getContent(string $url): string
     {
+        /** @var resource $curl */
         $curl = curl_init($url);
         curl_setopt_array($curl, $this->options);
+        /** @var string $content */
         $content = curl_exec($curl);
         $error_code = curl_errno($curl);
         $error_message = curl_error($curl);
