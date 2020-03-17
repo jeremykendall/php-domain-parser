@@ -194,7 +194,7 @@ final class Rules implements PublicSuffixListSection
         }
 
         if (!$domain->isResolvable()) {
-            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix.', $domain->getContent()));
+            throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($domain);
         }
 
         return PublicSuffix::createFromDomain($domain->resolve($this->findPublicSuffix($domain, $section)));
@@ -309,7 +309,7 @@ final class Rules implements PublicSuffixListSection
             return $section;
         }
 
-        throw new CouldNotResolvePublicSuffix(sprintf('%s is an unknown Public Suffix List section.', $section));
+        throw CouldNotResolvePublicSuffix::dueToUnSupportedSection($section);
     }
 
     /**

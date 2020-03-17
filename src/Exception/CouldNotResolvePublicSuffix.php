@@ -39,6 +39,11 @@ class CouldNotResolvePublicSuffix extends BaseException
         return $exception;
     }
 
+    public static function dueToUnSupportedSection(string $section): self
+    {
+        return new self('`'.$section.'` is an unknown Public Suffix List section.');
+    }
+
     public function hasDomain(): bool
     {
         return null !== $this->domain;
