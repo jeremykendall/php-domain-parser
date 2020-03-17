@@ -6,10 +6,10 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
-- `Rules::icannResolve`
-- `Rules::cookieResolve`
-- `Rules::privateResolve`
-
+- `Rules::resolveCookieDomain`
+- `Rules::resolveICANNDomain`
+- `Rules::resolvePrivateDomain`
+- `CouldNotResolvePublicSuffix::dueToUnresolvableDomain`
 
 ### Fixed
 

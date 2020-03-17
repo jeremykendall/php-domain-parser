@@ -114,9 +114,9 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::cookieResolve
-     * @covers ::icannResolve
-     * @covers ::privateResolve
+     * @covers ::resolveCookieDomain
+     * @covers ::resolveICANNDomain
+     * @covers ::resolvePrivateDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
@@ -195,7 +195,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::cookieResolve
+     * @covers ::resolveCookieDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
@@ -221,7 +221,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::icannResolve
+     * @covers ::resolveICANNDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
@@ -247,7 +247,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::cookieResolve
+     * @covers ::resolveCookieDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\IDNAConverterTrait::parse
@@ -291,7 +291,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::privateResolve
+     * @covers ::resolvePrivateDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers ::findPublicSuffix
@@ -311,7 +311,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::privateResolve
+     * @covers ::resolvePrivateDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers ::findPublicSuffix
@@ -381,7 +381,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::icannResolve
+     * @covers ::resolveICANNDomain
      * @covers ::validateDomain
      * @covers \Pdp\Domain::setRegistrableDomain
      * @covers \Pdp\Domain::getRegistrableDomain
@@ -399,7 +399,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::icannResolve
+     * @covers ::resolveICANNDomain
      * @covers ::validateDomain
      * @covers \Pdp\IDNAConverterTrait::parse
      * @covers \Pdp\Domain::setPublicSuffix

@@ -156,7 +156,7 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if (null === $this->domain || !$this->isResolvable()) {
-            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
+            throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($this);
         }
 
         $publicSuffix = $this->normalize($publicSuffix);

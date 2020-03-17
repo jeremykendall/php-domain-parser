@@ -213,13 +213,20 @@ final class Rules implements PublicSuffixListSection
         $section = $this->validateSection($section);
         try {
             if ('' === $section) {
-                return $this->cookieResolve($domain);
+                return $this->resolveCookieDomain($domain);
             } elseif (self::ICANN_DOMAINS === $section) {
-                return $this->icannResolve($domain);
+                return $this->resolveICANNDomain($domain);
             }
 
-            return $this->privateResolve($domain);
+            return $this->resolvePrivateDomain($domain);
         } catch (CouldNotResolvePublicSuffix $exception) {
+            if ($exception->hasDomain()) {
+                /** @var Domain */
+                $domain = $exception->getDomain();
+
+                return $domain;
+            }
+
             return new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         } catch (Exception $exception) {
             return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
@@ -231,7 +238,7 @@ final class Rules implements PublicSuffixListSection
      *
      * @param mixed $domain the domain value
      */
-    public function cookieResolve($domain): Domain
+    public function resolveCookieDomain($domain): Domain
     {
         $domain = $this->validateDomain($domain);
 
@@ -243,7 +250,7 @@ final class Rules implements PublicSuffixListSection
      *
      * @param mixed $domain
      */
-    public function icannResolve($domain): Domain
+    public function resolveICANNDomain($domain): Domain
     {
         $domain = $this->validateDomain($domain);
 
@@ -255,7 +262,7 @@ final class Rules implements PublicSuffixListSection
      *
      * @param mixed $domain
      */
-    public function privateResolve($domain): Domain
+    public function resolvePrivateDomain($domain): Domain
     {
         $domain = $this->validateDomain($domain);
 
@@ -277,7 +284,7 @@ final class Rules implements PublicSuffixListSection
         }
 
         if (!$domain->isResolvable()) {
-            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix.', $domain->getContent()));
+            throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($domain);
         }
 
         return $domain;
