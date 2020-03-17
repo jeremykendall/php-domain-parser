@@ -2,6 +2,28 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- `Rules::resolveCookieDomain`
+- `Rules::resolveICANNDomain`
+- `Rules::resolvePrivateDomain`
+- `CouldNotResolvePublicSuffix::dueToUnresolvableDomain`
+
+### Fixed
+
+- Improve type hinting and return type by dropping EOL PHP versions support.
+- Improve development environment by dropping EOL PHP versions support.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- Support for PHP7.0 and PHP7.1
+
 ## 5.6.0 - 2019-12-29
 
 ### Added

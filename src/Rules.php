@@ -17,6 +17,7 @@ namespace Pdp;
 
 use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotResolvePublicSuffix;
+use Pdp\Exception\InvalidDomain;
 use function array_reverse;
 use function count;
 use function fclose;
@@ -104,7 +105,7 @@ final class Rules implements PublicSuffixListSection
 
         $resource = @fopen(...$args);
         if (false === $resource) {
-            throw new CouldNotLoadRules(sprintf('`%s`: failed to open stream: No such file or directory', $path));
+            throw new CouldNotLoadRules(sprintf('`%s`: failed to open stream: No such file or directory.', $path));
         }
 
         /** @var string $content */
@@ -193,7 +194,7 @@ final class Rules implements PublicSuffixListSection
         }
 
         if (!$domain->isResolvable()) {
-            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $domain->getContent()));
+            throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($domain);
         }
 
         return PublicSuffix::createFromDomain($domain->resolve($this->findPublicSuffix($domain, $section)));
@@ -211,17 +212,82 @@ final class Rules implements PublicSuffixListSection
     {
         $section = $this->validateSection($section);
         try {
-            $domain = $domain instanceof Domain
-                ? $domain
-                : new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-            if (!$domain->isResolvable()) {
+            if ('' === $section) {
+                return $this->resolveCookieDomain($domain);
+            } elseif (self::ICANN_DOMAINS === $section) {
+                return $this->resolveICANNDomain($domain);
+            }
+
+            return $this->resolvePrivateDomain($domain);
+        } catch (CouldNotResolvePublicSuffix $exception) {
+            if ($exception->hasDomain()) {
+                /** @var Domain */
+                $domain = $exception->getDomain();
+
                 return $domain;
             }
 
-            return $domain->resolve($this->findPublicSuffix($domain, $section));
-        } catch (Exception $e) {
+            return new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        } catch (Exception $exception) {
             return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
+    }
+
+    /**
+     * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
+     *
+     * @param mixed $domain the domain value
+     */
+    public function resolveCookieDomain($domain): Domain
+    {
+        $domain = $this->validateDomain($domain);
+
+        return $domain->resolve($this->findPublicSuffix($domain, ''));
+    }
+
+    /**
+     * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
+     *
+     * @param mixed $domain
+     */
+    public function resolveICANNDomain($domain): Domain
+    {
+        $domain = $this->validateDomain($domain);
+
+        return $domain->resolve($this->findPublicSuffix($domain, self::ICANN_DOMAINS));
+    }
+
+    /**
+     * Returns PSL info for a given domain against the PSL rules for private domain detection.
+     *
+     * @param mixed $domain
+     */
+    public function resolvePrivateDomain($domain): Domain
+    {
+        $domain = $this->validateDomain($domain);
+
+        return $domain->resolve($this->findPublicSuffix($domain, self::PRIVATE_DOMAINS));
+    }
+
+    /**
+     * Assert the domain is valid and is resolvable.
+     *
+     * @param mixed $domain
+     *
+     * @throws InvalidDomain               if the domain is invalid
+     * @throws CouldNotResolvePublicSuffix if the domain is not resolvable
+     */
+    private function validateDomain($domain): Domain
+    {
+        if (!($domain instanceof Domain)) {
+            $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        }
+
+        if (!$domain->isResolvable()) {
+            throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($domain);
+        }
+
+        return $domain;
     }
 
     /**
@@ -243,7 +309,7 @@ final class Rules implements PublicSuffixListSection
             return $section;
         }
 
-        throw new CouldNotResolvePublicSuffix(sprintf('%s is an unknown Public Suffix List section', $section));
+        throw CouldNotResolvePublicSuffix::dueToUnSupportedSection($section);
     }
 
     /**
