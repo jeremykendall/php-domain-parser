@@ -39,12 +39,9 @@ final class Rules implements PublicSuffixListSection
     /**
      * @deprecated 5.3
      */
-    const ALL_DOMAINS = 'ALL_DOMAINS';
+    public const ALL_DOMAINS = 'ALL_DOMAINS';
 
-    /**
-     * @internal
-     */
-    const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
+    private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
 
     /**
      * PSL rules as a multidimentional associative array.

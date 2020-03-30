@@ -26,7 +26,7 @@ use const STDOUT;
 
 final class Logger extends AbstractLogger
 {
-    const ERRORS_LEVELS = [
+    private const ERRORS_LEVELS = [
         LogLevel::EMERGENCY => 1,
         LogLevel::ALERT => 1,
         LogLevel::CRITICAL => 1,

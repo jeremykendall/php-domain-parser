@@ -22,7 +22,7 @@ namespace Pdp;
  */
 interface PublicSuffixListSection
 {
-    const ICANN_DOMAINS = 'ICANN_DOMAINS';
+    public const ICANN_DOMAINS = 'ICANN_DOMAINS';
 
-    const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
+    public const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 }

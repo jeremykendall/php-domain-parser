@@ -54,10 +54,7 @@ final class Domain implements DomainInterface, JsonSerializable
 {
     use IDNAConverterTrait;
 
-    /**
-     * @internal
-     */
-    const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
+    private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
     /**
      * @var string|null

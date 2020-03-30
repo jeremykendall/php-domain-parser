@@ -44,10 +44,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 {
     use IDNAConverterTrait;
 
-    /**
-     * @internal
-     */
-    const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
+    private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
 
     /**
      * @var string|null

@@ -49,8 +49,8 @@ use const JSON_ERROR_NONE;
  */
 final class Manager
 {
-    const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
-    const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
+    public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    public const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
     /**
      * @var CacheInterface
