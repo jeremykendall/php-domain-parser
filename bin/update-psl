@@ -18,7 +18,17 @@ use Pdp\Logger;
 use Pdp\Installer;
 use Pdp\Manager;
 
-require dirname(__DIR__).'/vendor/autoload.php';
+function get_vendor_path(): ?string
+{
+    for ($i = 1; $i <= 5; $i++) {
+        $vendor = dirname(__DIR__, $i).'/vendor';
+        if (is_dir($vendor) && file_exists($vendor.'/autoload.php')) {
+            return $vendor;
+        }
+    }
+
+    return null;
+}
 
 function writeln(array $messages, $output): int
 {
@@ -40,6 +50,20 @@ function fail(string $message, $output = STDERR): int
 
     return writeln($messages, $output);
 }
+
+$vendor = get_vendor_path();
+if (null === $vendor) {
+    $message = <<<TEXT
+        You must set up the project dependencies using composer
+        see https://getcomposer.org
+TEXT;
+
+    fail($message);
+
+    die(1);
+}
+
+require $vendor.'/autoload.php';
 
 /**
  * CLI colors
@@ -72,7 +96,7 @@ if (isset($arguments['help']) || isset($arguments['h'])) {
     $helpText = <<<HELP
 {$yellow}Usage:$reset
     $script [options]
-    
+
 {$yellow}Options:$reset
     $green    --%s$reset                 refreshes the Public Suffix List cache
     $green    --%s=URL$reset         set the URL to use to refresh the PSL cache ({$yellow}default:$reset %s)
@@ -84,15 +108,15 @@ if (isset($arguments['help']) || isset($arguments['h'])) {
 
 {$yellow}Help:$reset
     The {$green}update-psl$reset command updates your PDP local cache.
-    
+
 {$yellow}Examples:$reset
 
      Refresh all caches using the default settings
      $green$script$reset
-     
-     Refresh only the PSL cache for a TTL of 3 DAY 
+
+     Refresh only the PSL cache for a TTL of 3 DAY
      $green$script --psl --ttl="3 DAYS"$reset
-     
+
      Refresh all caches using another cache directory
      $green$script --cache-dir=/temp$reset
 
