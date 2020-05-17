@@ -39,6 +39,7 @@
     "require": {
         "php": "^7.2.5",
         "ext-intl": "*",
+        "ext-json": "*",
         "psr/log": "^1.1",
         "psr/simple-cache": "^1.0.1"
     },
