@@ -185,7 +185,6 @@ final class Rules implements PublicSuffixListSection
      */
     public function getPublicSuffix($domain, string $section = self::ALL_DOMAINS): PublicSuffix
     {
-        $section = $this->validateSection($section);
         if (!$domain instanceof Domain) {
             $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
@@ -194,7 +193,45 @@ final class Rules implements PublicSuffixListSection
             throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($domain);
         }
 
-        return PublicSuffix::createFromDomain($domain->resolve($this->findPublicSuffix($domain, $section)));
+        $publicSuffix = $this->findPublicSuffix($domain, $this->validateSection($section));
+
+        return PublicSuffix::createFromDomain($domain->resolve($publicSuffix));
+    }
+
+    /**
+     * Determines the public suffix for a given domain against the PSL rules for cookie domain detection..
+     *
+     * @param mixed $domain
+     *
+     * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
+     */
+    public function getCookieEffectiveTLD($domain): PublicSuffix
+    {
+        return $this->getPublicSuffix($domain, '');
+    }
+
+    /**
+     * Determines the public suffix for a given domain against the PSL rules for ICANN domain detection..
+     *
+     * @param mixed $domain
+     *
+     * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
+     */
+    public function getICANNEffectiveTLD($domain): PublicSuffix
+    {
+        return $this->getPublicSuffix($domain, self::ICANN_DOMAINS);
+    }
+
+    /**
+     * Determines the public suffix for a given domain against the PSL rules for private domain detection..
+     *
+     * @param mixed $domain
+     *
+     * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
+     */
+    public function getPrivateEffectiveTLD($domain): PublicSuffix
+    {
+        return $this->getPublicSuffix($domain, self::PRIVATE_DOMAINS);
     }
 
     /**
