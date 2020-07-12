@@ -714,6 +714,10 @@ class RulesTest extends TestCase
      * @covers ::getICANNEffectiveTLD
      * @covers ::getPrivateEffectiveTLD
      * @dataProvider effectiveTLDProvider
+     * @param string $host
+     * @param string $cookieETLD
+     * @param string $icannETLD
+     * @param string $privateETLD
      */
     public function testEffectiveTLDResolution(string $host, string $cookieETLD, string $icannETLD, string $privateETLD): void
     {

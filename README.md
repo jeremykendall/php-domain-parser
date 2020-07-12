@@ -46,18 +46,92 @@ $ composer require jeremykendall/php-domain-parser
 Usage
 --------
 
+### Public suffix resolution.
+
+The first objective of the library is using the [Public Suffix List](http://publicsuffix.org/) to easily return the ICANN, the Cookie or
+the Private Effective TLD as a `Pdp\PublicSuffix` object using the following methods:
+
+~~~php
+use Pdp\Rules;
+
+$rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat');
+
+echo $rules->getICANNEffectiveTLD('www.ulb.ac.be'); //display 'ac.be';
+echo $rules->getCookieEffectiveTLD('www.ulb.ac.be'); //display 'ac.be';
+echo $rules->getPrivateEffectiveTLD('www.ulb.ac.be'); //display 'be';
+~~~
+
+The methods are available since version `5.7.0` to ease the package usage. Prior to this version you could use the 
+`Rules::getPublicSuffix` method with an optional `$section` argument to get the same results:
+
+~~~php
+use Pdp\Rules;
+
+$rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat');
+
+echo $rules->getPublicSuffix('www.ulb.ac.be'); // get the cookie effective TLD, display 'ac.be';
+echo $rules->getPublicSuffix('www.ulb.ac.be', Rules::ICANN_DOMAINS); //get the ICANN effective TLD, display 'ac.be';
+echo $rules->getPublicSuffix('www.ulb.ac.be', Rules::PRIVATE_DOMAINS); //get the Private effective TLD, display 'be';
+~~~
+
+
+If the Public Suffix is not found or in case of error an exception which extends `Pdp\Exception` is thrown.
+
+### Domain resolution.
+
+Apart the Public Suffix the package can resolve domain and their information also using Mozilla's [Public Suffix List](http://publicsuffix.org/)
+
+~~~php
+use Pdp\Rules;
+
+$rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat');
+
+echo $rules->resolveCookieDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'ac.be';
+echo $rules->resolveICANNDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'ac.be';
+echo $rules->resolvePrivateDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'be';
+~~~
+
+The methods are available since version `5.7.0` to ease the package usage. Prior to this version you could use the 
+`Rules::resolve` method with an optional `$section` argument to get the same results:
+
+~~~php
+use Pdp\Rules;
+
+$rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat');
+
+echo $rules->resolve('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'ac.be';
+echo $rules->resolve('www.ulb.ac.be', Rules::ICANN_DOMAINS); // returns a Pdp\Domain object whose Public Suffix is 'ac.be';
+echo $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS); // returns a Pdp\Domain object whose Public Suffix is 'be';
+~~~
+
+If the Domain is not resolved or in case of error a null `Pdp\Domain` is returned.
+
+### Top Level Domains resolution
+
+While the [Public Suffix List](http://publicsuffix.org/) is a community based list. We can parse the Top Level domain
+information given by the [IANA website](https://data.iana.org/TLD/tlds-alpha-by-domain.txt) to always resolve
+top domain against the newly registered TLD.
+
+~~~php
+use Pdp\TopLevelDomains;
+
+$rules = TopLevelDomains::createFromPath('/path/to/iana/tlds-alpha-by-domain.txt');
+
+echo $rules->resolve('www.UlB.Ac.bE'); //display 'be';
+~~~
+
+If the Domain is not resolved or in case of error a null `Pdp\Domain` is returned.
+
+### The Domain and Public Suffix objects.
+
 ~~~php
 <?php
 
-use Pdp\Cache;
-use Pdp\CurlHttpClient;
-use Pdp\Manager;
 use Pdp\Rules;
 
-$manager = new Manager(new Cache(), new CurlHttpClient());
-$rules = $manager->getRules(); //$rules is a Pdp\Rules object
+$rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat'); //$rules is a Pdp\Rules object
 
-$domain = $rules->resolve('www.ulb.ac.be'); //$domain is a Pdp\Domain object
+$domain = $rules->resolveICANNDomain('www.ulb.ac.be'); //$domain is a Pdp\Domain object
 echo $domain->getContent();            // 'www.ulb.ac.be'
 echo $domain->getPublicSuffix();       // 'ac.be'
 echo $domain->getRegistrableDomain();  // 'ulb.ac.be'
@@ -67,14 +141,15 @@ $domain->isKnown();                    // returns true
 $domain->isICANN();                    // returns true
 $domain->isPrivate();                  // returns false
 $domain->labels();                     // returns ['be', 'ac', 'ulb', 'www']
-$publicSuffix = $rules->getPublicSuffix('mydomain.github.io', Rules::PRIVATE_DOMAINS); //$publicSuffix is a Pdp\PublicSuffix object
+
+$publicSuffix = $rules->getPrivateEffectiveTLD('mydomain.github.io'); //$publicSuffix is a Pdp\PublicSuffix object
 echo $publicSuffix->getContent(); // 'github.io'
 $publicSuffix->isKnown();         // returns true
 $publicSuffix->isICANN();         // returns false
 $publicSuffix->isPrivate();       // returns true
 $publicSuffix->labels();          // returns ['io', 'github']
 
-$altSuffix = $rules->getPublicSuffix('mydomain.github.io', Rules::ICANN_DOMAINS);
+$altSuffix = $rules->getICANNEffectiveTLD('mydomain.github.io');
 echo $altSuffix->getContent(); // 'io'
 $altSuffix->isKnown();         // returns true
 $altSuffix->isICANN();         // returns true
@@ -84,7 +159,7 @@ $tldList = $manager->getTLDs(); //$tldList is a Pdp\TopLevelDomains object
 $domain = $tldList->resolve('www.ulb.ac.be'); //$domain is a Pdp\Domain object
 $tldList->contains('be'); //returns true
 $tldList->contains('localhost'); //return false
-foreach($tldList as $tld) {
+foreach ($tldList as $tld) {
     //$tld is a Pdp\PublisSuffix object
 }
 ~~~
@@ -96,8 +171,7 @@ Using the above code you have parse, validate and resolve a domain name and its 
 **Before**
 
 ~~~php
-$manager = new Manager(new Cache(), new CurlHttpClient());
-$rules = $manager->getRules();
+$rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat'); //$rules is a Pdp\Rules object
 
 $domain = $rules->resolve('faß.test.de');
 echo $domain->toAscii()->getContent(); // 'fass.test.de'
@@ -106,19 +180,12 @@ echo $domain->toAscii()->getContent(); // 'fass.test.de'
 **After**
 
 ~~~php
-$manager = new Manager(new Cache(), new CurlHttpClient());
-$rules = $manager->getRules()
-    ->withAsciiIDNAOption(IDNA_NONTRANSITIONAL_TO_ASCII)
-    ->withUnicodeIDNAOption(IDNA_NONTRANSITIONAL_TO_UNICODE);
-
-// or
-// 
-// $rules = $manager->getRules(
-//     Manager::PSL_URL,
-//     null,
-//     IDNA_NONTRANSITIONAL_TO_ASCII,
-//     IDNA_NONTRANSITIONAL_TO_UNICODE
-// );
+$rules = Rules::createFromPath(
+    '/path/to/mozilla/public-suffix.dat',
+    null, // PHP resource context (see fopen context argument)
+    IDNA_NONTRANSITIONAL_TO_ASCII,
+    IDNA_NONTRANSITIONAL_TO_UNICODE
+); //$rules is a Pdp\Rules object
 
 $domain = $rules->resolve('faß.test.de');
 echo $domain->toAscii()->getContent(); // 'xn--fa-hia.test.de'
@@ -514,7 +581,7 @@ public Manager::getTLDs(
 ): TopLevelDomains
 ~~~
 
-These methods returns a `Pdp\Rules` or `Pdp\TopLevelDomains` objects seeded with their corresponding data fetch from the cache or from the external resources depending on the submitted `$ttl` argument.
+These methods return a `Pdp\Rules` or `Pdp\TopLevelDomains` objects seeded with their corresponding data fetch from the cache or from the external resources depending on the submitted `$ttl` argument.
 
 These methods take an optional `$url` argument which specifies the PSL source URL. If no local cache exists for the submitted source URL, the method will:
 

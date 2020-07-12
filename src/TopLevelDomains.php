@@ -62,6 +62,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * New instance.
+     *
+     * @internal
+     *
      * @param array             $records
      * @param string            $version
      * @param DateTimeInterface $modifiedDate

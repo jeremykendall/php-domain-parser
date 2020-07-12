@@ -9,6 +9,9 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 - `Rules::resolveCookieDomain`
 - `Rules::resolveICANNDomain`
 - `Rules::resolvePrivateDomain`
+- `Rules::getCookieEffectiveTLD`
+- `Rules::getICANNEffectiveTLD`
+- `Rules::getPrivateeEffectiveTLD`
 - `CouldNotResolvePublicSuffix::dueToUnresolvableDomain`
 
 ### Fixed
@@ -23,6 +26,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 ### Removed
 
 - Support for PHP7.0 and PHP7.1
+- The external data from IANA and mozilla is no longer part of the package and will be downloaded only on demand on composer update/install.
 
 ## 5.6.0 - 2019-12-29
 
