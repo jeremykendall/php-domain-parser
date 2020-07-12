@@ -117,7 +117,7 @@ use Pdp\TopLevelDomains;
 
 $rules = TopLevelDomains::createFromPath('/path/to/iana/tlds-alpha-by-domain.txt');
 
-echo $rules->resolve('www.UlB.Ac.bE'); //display 'be';
+echo $rules->resolve('www.UlB.Ac.bE')->getPublicSuffix(); //display 'be';
 ~~~
 
 If the Domain is not resolved or in case of error a null `Pdp\Domain` is returned.
