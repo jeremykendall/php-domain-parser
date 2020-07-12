@@ -708,4 +708,41 @@ class RulesTest extends TestCase
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
         );
     }
+
+    /**
+     * @covers ::getCookieEffectiveTLD
+     * @covers ::getICANNEffectiveTLD
+     * @covers ::getPrivateEffectiveTLD
+     * @dataProvider effectiveTLDProvider
+     */
+    public function testEffectiveTLDResolution(string $host, string $cookieETLD, string $icannETLD, string $privateETLD): void
+    {
+        self::assertSame($cookieETLD, (string) $this->rules->getCookieEffectiveTLD($host));
+        self::assertSame($icannETLD, (string) $this->rules->getICANNEffectiveTLD($host));
+        self::assertSame($privateETLD, (string) $this->rules->getPrivateEffectiveTLD($host));
+    }
+
+    public function effectiveTLDProvider(): iterable
+    {
+        return [
+            'simple TLD' => [
+                'host' => 'www.example.com',
+                'cookieETLD' => 'com',
+                'icannETLD' => 'com',
+                'privateETLD' => 'com',
+            ],
+            'complex ICANN TLD' => [
+                'host' => 'www.ulb.ac.be',
+                'cookieETLD' => 'ac.be',
+                'icannETLD' => 'ac.be',
+                'privateETLD' => 'be',
+            ],
+            'private domain effective TLD' => [
+                'host' => 'myblog.blogspot.com',
+                'cookieETLD' => 'blogspot.com',
+                'icannETLD' => 'com',
+                'privateETLD' => 'blogspot.com',
+            ],
+        ];
+    }
 }

@@ -63,6 +63,8 @@ final class Rules implements PublicSuffixListSection
     /**
      * New instance.
      *
+     * @internal
+     *
      * @param array $rules
      * @param int   $asciiIDNAOption
      * @param int   $unicodeIDNAOption
