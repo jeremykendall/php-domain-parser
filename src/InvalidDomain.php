@@ -15,10 +15,10 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Pdp\Contract\Exception;
+use InvalidArgumentException;
 use function sprintf;
 
-class InvalidDomain extends \InvalidArgumentException implements Exception
+class InvalidDomain extends InvalidArgumentException implements ExceptionInterface
 {
     public static function dueToInvalidLabelKey(int $key): self
     {

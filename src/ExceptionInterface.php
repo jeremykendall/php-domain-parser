@@ -13,16 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Contract;
+namespace Pdp;
 
-/**
- * Constants used to name Public Suffix list section.
- *
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
-interface PublicSuffixListSection
+use Throwable;
+
+interface ExceptionInterface extends Throwable
 {
-    public const ICANN_DOMAINS = 'ICANN_DOMAINS';
-
-    public const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 }

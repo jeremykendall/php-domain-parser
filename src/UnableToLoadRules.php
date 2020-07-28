@@ -16,10 +16,9 @@ declare(strict_types=1);
 namespace Pdp;
 
 use InvalidArgumentException;
-use Pdp\Contract\Exception;
 use Throwable;
 
-class UnableToLoadRules extends InvalidArgumentException implements Exception
+class UnableToLoadRules extends InvalidArgumentException implements ExceptionInterface
 {
     public static function dueToInvalidPath(string $path): self
     {

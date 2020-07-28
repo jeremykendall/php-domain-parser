@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Pdp\Contract\Exception;
 use SplTempFileObject;
 use function array_pop;
 use function explode;
@@ -105,7 +104,7 @@ final class RulesConverter extends HostParser
             /** @var string $line */
             $line = array_pop($ruleParts);
             $rule = $this->idnToAscii($line);
-        } catch (Exception $exception) {
+        } catch (ExceptionInterface $exception) {
             throw UnableToLoadRules::dueToInvalidRule($line ?? null, $exception);
         }
 

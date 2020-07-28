@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
+use Pdp\RootZoneDatabaseInterface;
 use Pdp\Rules;
 use Pdp\Storage\Cache\RulesCache;
 use Pdp\Storage\Cache\TopLevelDomainsCache;
@@ -80,7 +81,7 @@ final class Manager
      *
      * @throws UnableToLoadTopLevelDomains
      */
-    public function getTopLevelDomainsLocalCopy(string $uri = null): TopLevelDomains
+    public function getTopLevelDomainsLocalCopy(string $uri = null): RootZoneDatabaseInterface
     {
         $uri = $uri ?? self::RZD_URL;
 
@@ -92,7 +93,7 @@ final class Manager
      *
      * @throws UnableToLoadTopLevelDomains
      */
-    public function getTopLevelDomainsRemoteCopy(string $uri = null): TopLevelDomains
+    public function getTopLevelDomainsRemoteCopy(string $uri = null): RootZoneDatabaseInterface
     {
         $uri = $uri ?? self::RZD_URL;
         $topLevelDomains = TopLevelDomains::createFromString($this->http->getContent($uri));

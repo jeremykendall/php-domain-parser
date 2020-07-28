@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Contract;
+namespace Pdp;
 
 use IteratorAggregate;
 
@@ -103,8 +103,8 @@ interface DomainInterface extends HostInterface, IteratorAggregate
      *
      * @param mixed $label a domain label
      *
-     * @throws Exception If the key is out of bounds
-     * @throws Exception If the label is converted to the NULL value
+     * @throws ExceptionInterface If the key is out of bounds
+     * @throws ExceptionInterface If the label is converted to the NULL value
      */
     public function withLabel(int $key, $label): self;
 
@@ -119,7 +119,7 @@ interface DomainInterface extends HostInterface, IteratorAggregate
      *
      * @param int ...$keys
      *
-     * @throws Exception If the key is out of bounds
+     * @throws ExceptionInterface If the key is out of bounds
      */
     public function withoutLabel(int $key, int ...$keys): self;
 }

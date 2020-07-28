@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use DateTimeImmutable;
-use Pdp\Contract\Exception;
 use SplTempFileObject;
 use function preg_match;
 use function strpos;
@@ -98,7 +97,7 @@ final class TopLevelDomainsConverter
     {
         try {
             $tld = PublicSuffix::fromUnknownSection($content)->toAscii();
-        } catch (Exception $exception) {
+        } catch (ExceptionInterface $exception) {
             throw UnableToLoadTopLevelDomains::dueToInvalidRootZoneDomain($content, $exception);
         }
 

@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Contract;
+namespace Pdp;
 
 interface ResolvableHostInterface extends HostInterface
 {
@@ -31,7 +31,7 @@ interface ResolvableHostInterface extends HostInterface
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the new sub domain
      *
-     * @throws Exception If the Sub domain can not be added to the current Domain
+     * @throws ExceptionInterface If the Sub domain can not be added to the current Domain
      */
     public function withSubDomain(HostInterface $subDomain): self;
 

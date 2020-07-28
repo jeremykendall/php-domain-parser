@@ -16,8 +16,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
-use Pdp\Contract\DomainInterface;
-use Pdp\Contract\HostInterface;
 use TypeError;
 use function array_count_values;
 use function array_keys;

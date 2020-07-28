@@ -15,15 +15,9 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Countable;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use IteratorAggregate;
-use JsonSerializable;
-use Pdp\Contract\DomainInterface;
-use Pdp\Contract\Exception;
-use Pdp\Contract\ResolvableHostInterface;
 use function count;
 use function fclose;
 use function fopen;
@@ -40,7 +34,7 @@ use const JSON_ERROR_NONE;
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class TopLevelDomains implements Countable, IteratorAggregate, JsonSerializable
+final class TopLevelDomains implements RootZoneDatabaseInterface
 {
     private DateTimeImmutable $modifiedDate;
 
@@ -82,7 +76,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate, JsonSeriali
         $context = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): self {
+    ): RootZoneDatabaseInterface {
         $args = [$path, 'r', false];
         if (null !== $context) {
             $args[] = $context;
@@ -104,7 +98,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate, JsonSeriali
         string $content,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): self {
+    ): RootZoneDatabaseInterface {
         static $converter;
 
         $converter = $converter ?? new TopLevelDomainsConverter();
@@ -126,7 +120,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate, JsonSeriali
         string $jsonString,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): self {
+    ): RootZoneDatabaseInterface {
         $data = json_decode($jsonString, true);
         $errorCode = json_last_error();
         if (JSON_ERROR_NONE !== $errorCode) {
@@ -146,7 +140,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate, JsonSeriali
     /**
      * {@inheritdoc}
      */
-    public static function __set_state(array $properties): self
+    public static function __set_state(array $properties): RootZoneDatabaseInterface
     {
         return new self(
             $properties['records'],
@@ -246,7 +240,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate, JsonSeriali
             if (!$tld instanceof DomainInterface) {
                 $tld = new Domain($tld, $this->asciiIDNAOption, $this->unicodeIDNAOption);
             }
-        } catch (Exception $exception) {
+        } catch (ExceptionInterface $exception) {
             return false;
         }
 
@@ -309,7 +303,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate, JsonSeriali
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      */
-    public function withAsciiIDNAOption(int $option): self
+    public function withAsciiIDNAOption(int $option): RootZoneDatabaseInterface
     {
         if ($option === $this->asciiIDNAOption) {
             return $this;
@@ -328,7 +322,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate, JsonSeriali
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      */
-    public function withUnicodeIDNAOption(int $option): self
+    public function withUnicodeIDNAOption(int $option): RootZoneDatabaseInterface
     {
         if ($option === $this->unicodeIDNAOption) {
             return $this;

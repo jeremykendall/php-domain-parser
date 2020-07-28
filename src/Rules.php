@@ -15,13 +15,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use JsonSerializable;
-use Pdp\Contract\DomainInterface;
-use Pdp\Contract\Exception;
-use Pdp\Contract\HostInterface;
-use Pdp\Contract\PublicSuffixInterface;
-use Pdp\Contract\PublicSuffixListSection;
-use Pdp\Contract\ResolvableHostInterface;
 use function array_reverse;
 use function count;
 use function fclose;
@@ -41,7 +34,7 @@ use const JSON_ERROR_NONE;
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class Rules implements PublicSuffixListSection, JsonSerializable
+final class Rules implements PublicSuffixListInterface
 {
     private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
 
@@ -235,7 +228,7 @@ final class Rules implements PublicSuffixListSection, JsonSerializable
             }
 
             return new ResolvableDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption));
-        } catch (Exception $exception) {
+        } catch (ExceptionInterface $exception) {
             return new ResolvableDomain(Domain::fromNull($this->asciiIDNAOption, $this->unicodeIDNAOption));
         }
     }
@@ -300,7 +293,7 @@ final class Rules implements PublicSuffixListSection, JsonSerializable
     /**
      * Assert the section status.
      *
-     * @throws Exception if the submitted section is not supported
+     * @throws ExceptionInterface if the submitted section is not supported
      */
     private function validateSection(string $section): string
     {

@@ -16,10 +16,9 @@ declare(strict_types=1);
 namespace Pdp;
 
 use InvalidArgumentException;
-use Pdp\Contract\Exception;
 use Throwable;
 
-class UnableToLoadTopLevelDomains extends InvalidArgumentException implements Exception
+class UnableToLoadTopLevelDomains extends InvalidArgumentException implements ExceptionInterface
 {
     public static function dueToInvalidHashMap(): self
     {

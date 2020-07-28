@@ -18,6 +18,7 @@ namespace Pdp\Storage\Cache;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Pdp\RootZoneDatabaseInterface;
 use Pdp\TopLevelDomains;
 use Pdp\UnableToLoadTopLevelDomains;
 use Psr\Log\LoggerInterface;
@@ -101,7 +102,7 @@ final class TopLevelDomainsCachePsr16Adapter implements TopLevelDomainsCache
      *
      * @throws UnableToLoadTopLevelDomains
      */
-    public function fetchByUri(string $uri): ?TopLevelDomains
+    public function fetchByUri(string $uri): ?RootZoneDatabaseInterface
     {
         $cacheKey = $this->getCacheKey($uri);
         $cacheData = $this->cache->get($cacheKey);
@@ -129,7 +130,7 @@ final class TopLevelDomainsCachePsr16Adapter implements TopLevelDomainsCache
         return sprintf('%s_FULL_%s', self::CACHE_PREFIX, md5(strtolower($str)));
     }
 
-    public function storeByUri(string $uri, TopLevelDomains $topLevelDomains): bool
+    public function storeByUri(string $uri, RootZoneDatabaseInterface $topLevelDomains): bool
     {
         try {
             $result = $this->cache->set($this->getCacheKey($uri), json_encode($topLevelDomains), $this->ttl);

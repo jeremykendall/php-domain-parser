@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Contract;
+namespace Pdp;
 
-interface PublicSuffixInterface extends HostInterface, PublicSuffixListSection
+interface PublicSuffixInterface extends HostInterface
 {
     /**
      * Tells whether the effective TLD has a matching rule in a Public Suffix List.

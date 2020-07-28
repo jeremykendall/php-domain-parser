@@ -13,33 +13,29 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Contract;
+namespace Pdp;
+
+use Countable;
+use DateTimeImmutable;
+use IteratorAggregate;
+use JsonSerializable;
 
 /**
- * Domain Interface.
+ * A class to resolve domain name against the IANA Root Database.
  *
- * @see https://tools.ietf.org/html/rfc1034#section-3.5
- * @see https://tools.ietf.org/html/rfc1123#section-2.1
- * @see https://tools.ietf.org/html/rfc5890
+ * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-interface HostInterface extends \Countable
+interface RootZoneDatabaseInterface extends Countable, IteratorAggregate, JsonSerializable
 {
     /**
-     * Returns the domain content.
+     * Returns the Version ID.
      */
-    public function getContent(): ?string;
+    public function getVersion(): string;
 
     /**
-     * {@inheritdoc}
-     *
-     * Labels The total number.
+     * Returns the List Last Modified Date.
      */
-    public function count(): int;
-
-    /**
-     * Returns the domain content as a string.
-     */
-    public function __toString(): string;
+    public function getModifiedDate(): DateTimeImmutable;
 
     /**
      * Gets conversion options for idn_to_ascii.
@@ -60,28 +56,38 @@ interface HostInterface extends \Countable
     public function getUnicodeIDNAOption(): int;
 
     /**
-     * Converts the domain to its IDNA ASCII form.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with its content converted to its IDNA ASCII form
-     *
-     * @throws Exception if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     *
-     * @return static
+     * {@inheritdoc}
      */
-    public function toAscii(): self;
+    public function count(): int;
 
     /**
-     * Converts the domain to its IDNA UTF8 form.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with its content converted to its IDNA UTF8 form
-     *
-     * @throws Exception if the domain can not be converted to Unicode using IDN UTS46 algorithm
-     *
-     * @return static
+     * Tells whether the list is empty.
      */
-    public function toUnicode(): self;
+    public function isEmpty(): bool;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator();
+
+    /**
+     * Returns an array representation of the list.
+     */
+    public function jsonSerialize(): array;
+
+    /**
+     * Tells whether the submitted TLD is a valid Top Level Domain.
+     *
+     * @param mixed $tld a TLD in a type that can be converted into a DomainInterface instance
+     */
+    public function contains($tld): bool;
+
+    /**
+     * Returns a domain where its public suffix is the found TLD.
+     *
+     * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
+     */
+    public function resolve($domain): ResolvableHostInterface;
 
     /**
      * Sets conversion options for idn_to_ascii.
@@ -89,10 +95,8 @@ interface HostInterface extends \Countable
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return static
      */
-    public function withAsciiIDNAOption(int $option): self;
+    public function withAsciiIDNAOption(int $option): RootZoneDatabaseInterface;
 
     /**
      * Sets conversion options for idn_to_utf8.
@@ -100,8 +104,6 @@ interface HostInterface extends \Countable
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return static
      */
-    public function withUnicodeIDNAOption(int $option): self;
+    public function withUnicodeIDNAOption(int $option): RootZoneDatabaseInterface;
 }

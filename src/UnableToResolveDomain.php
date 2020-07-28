@@ -16,10 +16,8 @@ declare(strict_types=1);
 namespace Pdp;
 
 use InvalidArgumentException;
-use Pdp\Contract\Exception;
-use Pdp\Contract\HostInterface;
 
-class UnableToResolveDomain extends InvalidArgumentException implements Exception
+class UnableToResolveDomain extends InvalidArgumentException implements ExceptionInterface
 {
     private ?HostInterface $domain = null;
 

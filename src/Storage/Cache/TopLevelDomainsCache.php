@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage\Cache;
 
-use Pdp\TopLevelDomains;
+use Pdp\RootZoneDatabaseInterface;
 
 /**
  * Top Level Domains Cache Provider.
@@ -31,7 +31,7 @@ interface TopLevelDomainsCache
     /**
      * Gets the Top Level Domains from the Cache.
      */
-    public function fetchByUri(string $uri): ?TopLevelDomains;
+    public function fetchByUri(string $uri): ?RootZoneDatabaseInterface;
 
     /**
      * Cache the Top Level Domains List.
@@ -40,5 +40,5 @@ interface TopLevelDomainsCache
      *
      * Returns true if the refresh was successful, false otherwise
      */
-    public function storeByUri(string $uri, TopLevelDomains $topLevelDomains): bool;
+    public function storeByUri(string $uri, RootZoneDatabaseInterface $topLevelDomains): bool;
 }

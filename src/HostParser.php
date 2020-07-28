@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use Pdp\Contract\HostInterface;
 use TypeError;
 use UnexpectedValueException;
 use function array_reverse;

@@ -16,10 +16,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
-use Pdp\Contract\DomainInterface;
-use Pdp\Contract\HostInterface;
-use Pdp\Contract\PublicSuffixInterface;
-use Pdp\Contract\ResolvableHostInterface;
 use function array_reverse;
 use function array_slice;
 use function count;
