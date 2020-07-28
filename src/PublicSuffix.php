@@ -16,73 +16,36 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
-use Pdp\Exception\CouldNotResolvePublicSuffix;
-use Pdp\Exception\InvalidDomain;
-use function array_keys;
+use Pdp\Contract\HostInterface;
+use Pdp\Contract\PublicSuffixInterface;
 use function array_reverse;
 use function count;
 use function implode;
 use function in_array;
 use function reset;
-use function sprintf;
+use function substr;
 use const IDNA_DEFAULT;
 
-/**
- * Public Suffix Value Object.
- *
- * WARNING: "Some people use the PSL to determine what is a valid domain name
- * and what isn't. This is dangerous, particularly in these days where new
- * gTLDs are arriving at a rapid pace, if your software does not regularly
- * receive PSL updates, it will erroneously think new gTLDs are not
- * valid. The DNS is the proper source for this innormalizeion. If you must use
- * it for this purpose, please do not bake static copies of the PSL into your
- * software with no update mechanism."
- *
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
-final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuffixListSection
+final class PublicSuffix extends HostParser implements JsonSerializable, PublicSuffixInterface
 {
-    use IDNAConverterTrait;
-
     private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
 
-    /**
-     * @var string|null
-     */
-    private $publicSuffix;
+    private ?string $publicSuffix;
+
+    private string $section;
+
+    private array $labels;
+
+    private int $asciiIDNAOption;
+
+    private int $unicodeIDNAOption;
+
+    private bool $isTransitionalDifferent;
 
     /**
-     * @var string
+     * @param mixed|null $publicSuffix a public suffix in a type that is supported
      */
-    private $section;
-
-    /**
-     * @var string[]
-     */
-    private $labels;
-
-    /**
-     * @var int
-     */
-    private $asciiIDNAOption = IDNA_DEFAULT;
-
-    /**
-     * @var int
-     */
-    private $unicodeIDNAOption = IDNA_DEFAULT;
-
-    /**
-     * @var bool
-     */
-    private $isTransitionalDifferent;
-
-    /**
-     * @param mixed  $publicSuffix
-     * @param string $section
-     * @param int    $asciiIDNAOption
-     * @param int    $unicodeIDNAOption
-     */
-    public function __construct(
+    private function __construct(
         $publicSuffix = null,
         string $section = '',
         int $asciiIDNAOption = IDNA_DEFAULT,
@@ -97,38 +60,48 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function __set_state(array $properties): self
     {
         return new self(
             $properties['publicSuffix'],
             $properties['section'],
-            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
-            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
+            $properties['asciiIDNAOption'],
+            $properties['unicodeIDNAOption']
         );
     }
 
     /**
-     * Create an new instance from a Domain object.
-     * @param Domain $domain
+     * @param mixed $publicSuffix a public suffix
      */
-    public static function createFromDomain(Domain $domain): self
+    public static function fromICANNSection($publicSuffix = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
     {
-        $section = '';
-        if ($domain->isICANN()) {
-            $section = self::ICANN_DOMAINS;
-        } elseif ($domain->isPrivate()) {
-            $section = self::PRIVATE_DOMAINS;
-        }
+        return new self($publicSuffix, self::ICANN_DOMAINS, $asciiIDNAOption, $unicodeIDNAOption);
+    }
 
-        return new self(
-            $domain->getPublicSuffix(),
-            $section,
-            $domain->getAsciiIDNAOption(),
-            $domain->getUnicodeIDNAOption()
-        );
+    /**
+     * @param mixed $publicSuffix a public suffix
+     */
+    public static function fromPrivateSection($publicSuffix = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    {
+        return new self($publicSuffix, self::PRIVATE_DOMAINS, $asciiIDNAOption, $unicodeIDNAOption);
+    }
+
+    /**
+     * @param mixed $publicSuffix a public suffix
+     */
+    public static function fromUnknownSection($publicSuffix = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    {
+        return new self($publicSuffix, '', $asciiIDNAOption, $unicodeIDNAOption);
+    }
+
+    public static function fromNull(int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    {
+        return new self(null, '', $asciiIDNAOption, $unicodeIDNAOption);
+    }
+
+    public function count(): int
+    {
+        return count($this->labels);
     }
 
     /**
@@ -147,19 +120,18 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
             return $publicSuffix;
         }
 
-        throw new InvalidDomain(sprintf('The public suffix `%s` is invalid', $publicSuffix));
+        throw InvalidDomain::dueToInvalidPublicSuffix($publicSuffix);
     }
 
     /**
      * Set the public suffix section.
      *
-     * @param  string                      $section
-     * @throws CouldNotResolvePublicSuffix if the submitted section is not supported
+     * @throws UnableToResolveDomain if the submitted section is not supported
      */
     private function setSection(string $section): string
     {
         if (!in_array($section, self::PSL_SECTION, true)) {
-            throw new CouldNotResolvePublicSuffix(sprintf('`%s` is an unknown Public Suffix List section', $section));
+            throw new UnableToResolveDomain('"'.$section.'" is an unknown Public Suffix List section');
         }
 
         if (null === $this->publicSuffix) {
@@ -169,151 +141,60 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         return $section;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getIterator()
+    public function jsonSerialize(): ?string
     {
-        foreach ($this->labels as $offset => $label) {
-            yield $label;
-        }
+        return $this->getContent();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->__debugInfo();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __debugInfo(): array
-    {
-        return [
-            'publicSuffix' => $this->publicSuffix,
-            'isKnown' => $this->isKnown(),
-            'isICANN' => $this->isICANN(),
-            'isPrivate' => $this->isPrivate(),
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function count(): int
-    {
-        return count($this->labels);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getContent(): ?string
     {
         return $this->publicSuffix;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __toString(): string
     {
         return (string) $this->publicSuffix;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLabel(int $key): ?string
+    public function isResolvable(): bool
     {
-        if ($key < 0) {
-            $key += count($this->labels);
-        }
-
-        return $this->labels[$key] ?? null;
+        return null !== $this->publicSuffix
+            && '.' !== substr($this->publicSuffix, -1, 1)
+            && 1 < count($this->labels)
+            ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function keys(string $label): array
-    {
-        return array_keys($this->labels, $label, true);
-    }
-
-    /**
-     * Returns the object labels.
-     */
-    public function labels(): array
-    {
-        return $this->labels;
-    }
-
-    /**
-     * Gets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
     public function getAsciiIDNAOption(): int
     {
         return $this->asciiIDNAOption;
     }
 
-    /**
-     * Gets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
     public function getUnicodeIDNAOption(): int
     {
         return $this->unicodeIDNAOption;
     }
 
-    /**
-     * Returns true if domain contains deviation characters.
-     *
-     * @see http://unicode.org/reports/tr46/#Transition_Considerations
-     */
     public function isTransitionalDifferent(): bool
     {
         return $this->isTransitionalDifferent;
     }
 
-    /**
-     * Tells whether the public suffix has a matching rule in a Public Suffix List.
-     */
     public function isKnown(): bool
     {
         return '' !== $this->section;
     }
 
-    /**
-     * Tells whether the public suffix has a matching rule in a Public Suffix List ICANN Section.
-     */
     public function isICANN(): bool
     {
         return self::ICANN_DOMAINS === $this->section;
     }
 
-    /**
-     * Tells whether the public suffix has a matching rule in a Public Suffix List Private Section.
-     */
     public function isPrivate(): bool
     {
         return self::PRIVATE_DOMAINS === $this->section;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function toAscii(): DomainInterface
+    public function toAscii(): HostInterface
     {
         if (null === $this->publicSuffix) {
             return $this;
@@ -327,10 +208,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         return new self($publicSuffix, $this->section, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function toUnicode(): DomainInterface
+    public function toUnicode(): HostInterface
     {
         if (null === $this->publicSuffix || false === strpos($this->publicSuffix, 'xn--')) {
             return $this;
@@ -344,14 +222,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         );
     }
 
-    /**
-     * Sets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     * @param int $option
-     */
     public function withAsciiIDNAOption(int $option): self
     {
         if ($option === $this->asciiIDNAOption) {
@@ -361,14 +231,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
         return new self($this->publicSuffix, $this->section, $option, $this->unicodeIDNAOption);
     }
 
-    /**
-     * Sets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     * @param int $option
-     */
     public function withUnicodeIDNAOption(int $option): self
     {
         if ($option === $this->unicodeIDNAOption) {

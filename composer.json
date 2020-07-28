@@ -37,11 +37,9 @@
         "psl"
     ],
     "require": {
-        "php": "^7.2.5",
+        "php": "^7.4",
         "ext-intl": "*",
-        "ext-json": "*",
-        "psr/log": "^1.1",
-        "psr/simple-cache": "^1.0.1"
+        "ext-json": "*"
     },
     "require-dev": {
         "composer/composer": "^1.6",
@@ -50,12 +48,17 @@
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
         "phpstan/phpstan-strict-rules": "^0.12",
-        "phpunit/phpunit": "^8.0"
+        "phpunit/phpunit": "^9.0",
+        "psr/log": "^1.1",
+        "psr/simple-cache": "^1.0.1"
     },
     "suggest": {
         "psr/simple-cache-implementation": "To enable using other cache providers",
+        "psr/log-implementation": "To enable using other logger providers",
         "ext-curl": "To use the package http client",
-        "league/uri": "To parse URL and validate host"
+        "league/uri": "To parse URL and validate host",
+        "psr/log": "^1.1",
+        "psr/simple-cache": "^1.0.1"
     },
     "autoload": {
         "psr-4": {
@@ -76,8 +79,6 @@
             "@phpstan-tests"
         ],
         "phpunit": "phpunit --coverage-text",
-        "post-install-cmd": "\\Pdp\\Installer::updateLocalCache",
-        "post-update-cmd": "\\Pdp\\Installer::updateLocalCache",
         "test": [
             "@phpcs",
             "@phpstan",

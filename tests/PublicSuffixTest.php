@@ -15,35 +15,31 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
-use Pdp\Domain;
-use Pdp\Exception\CouldNotResolvePublicSuffix;
-use Pdp\Exception\InvalidDomain;
+use InvalidArgumentException;
+use Pdp\InvalidDomain;
 use Pdp\PublicSuffix;
-use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
+use function json_encode;
 use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
- * @coversDefaultClass Pdp\PublicSuffix
+ * @coversDefaultClass \Pdp\PublicSuffix
  */
 class PublicSuffixTest extends TestCase
 {
     /**
      * @covers ::__construct
      * @covers ::__set_state
-     * @covers ::__debugInfo
      * @covers ::__toString
      * @covers ::jsonSerialize
-     * @covers ::getIterator
      */
     public function testInternalPhpMethod(): void
     {
-        $publicSuffix = new PublicSuffix('ac.be');
+        $publicSuffix = PublicSuffix::fromICANNSection('ac.be');
         $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
         self::assertEquals($publicSuffix, $generatePublicSuffix);
-        self::assertSame(['be', 'ac'], iterator_to_array($publicSuffix));
-        self::assertEquals($publicSuffix->__debugInfo(), $publicSuffix->jsonSerialize());
+        self::assertEquals('"ac.be"', json_encode($publicSuffix));
         self::assertSame('ac.be', (string) $publicSuffix);
     }
 
@@ -56,7 +52,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testPSToUnicodeWithUrlEncode(): void
     {
-        self::assertSame('bébe', (new PublicSuffix('b%C3%A9be'))->toUnicode()->getContent());
+        self::assertSame('bébe', PublicSuffix::fromUnknownSection('b%C3%A9be')->toUnicode()->getContent());
     }
 
     /**
@@ -69,14 +65,21 @@ class PublicSuffixTest extends TestCase
      * @covers ::isPrivate
      * @dataProvider PSProvider
      * @param ?string $publicSuffix
-     * @param string  $section
-     * @param bool    $isKnown
-     * @param bool    $isIcann
-     * @param bool    $isPrivate
      */
     public function testSetSection(?string $publicSuffix, string $section, bool $isKnown, bool $isIcann, bool $isPrivate): void
     {
-        $ps = new PublicSuffix($publicSuffix, $section);
+        if ('' === $section) {
+            $ps = PublicSuffix::fromUnknownSection($publicSuffix);
+        } elseif ('ICANN_DOMAINS' === $section) {
+            $ps = PublicSuffix::fromICANNSection($publicSuffix);
+        } elseif ('PRIVATE_DOMAINS' === $section) {
+            $ps = PublicSuffix::fromPrivateSection($publicSuffix);
+        }
+
+        if (!isset($ps)) {
+            throw new InvalidArgumentException('Missing PublicSuffix instance.');
+        }
+
         self::assertSame($isKnown, $ps->isKnown());
         self::assertSame($isIcann, $ps->isICANN());
         self::assertSame($isPrivate, $ps->isPrivate());
@@ -85,9 +88,9 @@ class PublicSuffixTest extends TestCase
     public function PSProvider(): iterable
     {
         return [
-            [null, PublicSuffix::ICANN_DOMAINS, false, false, false],
-            ['foo', PublicSuffix::ICANN_DOMAINS, true, true, false],
-            ['foo', PublicSuffix::PRIVATE_DOMAINS, true, false, true],
+            [null, 'ICANN_DOMAINS', false, false, false],
+            ['foo', 'ICANN_DOMAINS', true, true, false],
+            ['foo', 'PRIVATE_DOMAINS', true, false, true],
         ];
     }
 
@@ -97,12 +100,12 @@ class PublicSuffixTest extends TestCase
      * @covers ::setPublicSuffix
      * @dataProvider invalidPublicSuffixProvider
      *
-     * @param mixed $publicSuffix
      */
-    public function testConstructorThrowsException($publicSuffix): void
+    public function testConstructorThrowsException(string $publicSuffix): void
     {
         self::expectException(InvalidDomain::class);
-        new PublicSuffix($publicSuffix);
+
+        PublicSuffix::fromUnknownSection($publicSuffix);
     }
 
     public function invalidPublicSuffixProvider(): iterable
@@ -121,17 +124,8 @@ class PublicSuffixTest extends TestCase
     public function testPSToAsciiThrowsException(): void
     {
         self::expectException(InvalidDomain::class);
-        new PublicSuffix('a⒈com');
-    }
 
-    /**
-     * @covers ::__construct
-     * @covers ::setSection
-     */
-    public function testSetSectionThrowsException(): void
-    {
-        self::expectException(CouldNotResolvePublicSuffix::class);
-        new PublicSuffix('ac.be', 'foobar');
+        PublicSuffix::fromUnknownSection('a⒈com');
     }
 
     /**
@@ -141,7 +135,8 @@ class PublicSuffixTest extends TestCase
     public function testToUnicodeThrowsException(): void
     {
         self::expectException(InvalidDomain::class);
-        (new PublicSuffix('xn--a-ecp.ru'))->toUnicode();
+
+        PublicSuffix::fromUnknownSection('xn--a-ecp.ru')->toUnicode();
     }
 
     /**
@@ -155,7 +150,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testConversionReturnsTheSameInstance(?string $publicSuffix): void
     {
-        $instance = new PublicSuffix($publicSuffix);
+        $instance = PublicSuffix::fromUnknownSection($publicSuffix);
         self::assertSame($instance->toUnicode(), $instance);
         self::assertSame($instance->toAscii(), $instance);
     }
@@ -174,7 +169,8 @@ class PublicSuffixTest extends TestCase
      */
     public function testToUnicodeReturnsSameInstance(): void
     {
-        $instance = new PublicSuffix('食狮.公司.cn');
+        $instance = PublicSuffix::fromUnknownSection('食狮.公司.cn');
+
         self::assertSame($instance->toUnicode(), $instance);
     }
 
@@ -182,14 +178,12 @@ class PublicSuffixTest extends TestCase
      * @covers ::count
      * @dataProvider countableProvider
      * @param ?string $domain
-     * @param int     $nbLabels
-     * @param array   $labels
      */
     public function testCountable(?string $domain, int $nbLabels, array $labels): void
     {
-        $domain = new PublicSuffix($domain);
+        $domain = PublicSuffix::fromUnknownSection($domain);
+
         self::assertCount($nbLabels, $domain);
-        self::assertSame($labels, iterator_to_array($domain));
     }
 
     public function countableProvider(): iterable
@@ -202,92 +196,9 @@ class PublicSuffixTest extends TestCase
     }
 
     /**
-     * @covers ::getLabel
-     */
-    public function testGetLabel(): void
-    {
-        $domain = new PublicSuffix('master.example.com');
-        self::assertSame('com', $domain->getLabel(0));
-        self::assertSame('example', $domain->getLabel(1));
-        self::assertSame('master', $domain->getLabel(-1));
-        self::assertNull($domain->getLabel(23));
-        self::assertNull($domain->getLabel(-23));
-    }
-
-    /**
-     * @covers ::keys
-     */
-    public function testOffsets(): void
-    {
-        $domain = new PublicSuffix('master.example.com');
-        self::assertSame([2], $domain->keys('master'));
-    }
-
-    /**
-     * @covers ::labels
-     */
-    public function testLabels(): void
-    {
-        $publicSuffix = new PublicSuffix('master.example.com');
-        self::assertSame([
-            'com',
-            'example',
-            'master',
-        ], $publicSuffix->labels());
-
-        $publicSuffix = new PublicSuffix();
-        self::assertSame([], $publicSuffix->labels());
-    }
-
-    /**
-     * @covers ::createFromDomain
-     * @dataProvider createFromDomainProvider
-     * @param Domain  $domain
-     * @param ?string $expected
-     */
-    public function testCreateFromDomainWorks(Domain $domain, ?string $expected): void
-    {
-        $result = PublicSuffix::createFromDomain($domain);
-        self::assertSame($expected, $result->getContent());
-        self::assertSame($result->isKnown(), $domain->isKnown());
-        self::assertSame($result->isICANN(), $domain->isICANN());
-        self::assertSame($result->isPrivate(), $domain->isPrivate());
-        self::assertSame(
-            [$result->getAsciiIDNAOption(), $result->getUnicodeIDNAOption()],
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()]
-        );
-    }
-
-    public function createFromDomainProvider(): iterable
-    {
-        return [
-            [
-                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS)),
-                'expected' => 'be',
-            ],
-            [
-                'domain' => new Domain('www.bébé.be', new PublicSuffix('bébé.be', Rules::PRIVATE_DOMAINS)),
-                'expected' => 'bébé.be',
-            ],
-            [
-                'domain' => new Domain('www.bébé.be'),
-                'expected' => null,
-            ],
-            [
-                'domain' => new Domain('www.bébé.be', new PublicSuffix('be', Rules::ICANN_DOMAINS), IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE),
-                'expected' => 'be',
-            ],
-        ];
-    }
-
-    /**
      * @covers ::isTransitionalDifferent
      *
      * @dataProvider customIDNAProvider
-     * @param string $name
-     * @param string $expectedContent
-     * @param string $expectedAscii
-     * @param string $expectedUnicode
      */
     public function testResolveWithCustomIDNAOptions(
         string $name,
@@ -295,7 +206,7 @@ class PublicSuffixTest extends TestCase
         string $expectedAscii,
         string $expectedUnicode
     ): void {
-        $publicSuffix = new PublicSuffix($name, '', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $publicSuffix = PublicSuffix::fromUnknownSection($name, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         self::assertSame($expectedContent, $publicSuffix->getContent());
         self::assertSame($expectedAscii, $publicSuffix->toAscii()->getContent());
         self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->getContent());
@@ -341,8 +252,6 @@ class PublicSuffixTest extends TestCase
      * @covers ::isTransitionalDifferent
      *
      * @dataProvider transitionalProvider
-     * @param PublicSuffix $publicSuffix
-     * @param bool         $expected
      */
     public function testIsTransitionalDifference(PublicSuffix $publicSuffix, bool $expected): void
     {
@@ -352,13 +261,13 @@ class PublicSuffixTest extends TestCase
     public function transitionalProvider(): iterable
     {
         return [
-            'simple' => [new PublicSuffix('example.com'), false],
-            'idna' => [new PublicSuffix('français.fr'), false],
-            'in domain' => [new PublicSuffix('faß.de'), true],
-            'in domain 2' => [new PublicSuffix('βόλος.com'), true],
-            'in domain 3' => [new PublicSuffix('ශ්‍රී.com'), true],
-            'in domain 4' => [new PublicSuffix('نامه‌ای.com'), true],
-            'in label' => [new PublicSuffix('faß.test.de'), true],
+            'simple' => [PublicSuffix::fromUnknownSection('example.com'), false],
+            'idna' => [PublicSuffix::fromUnknownSection('français.fr'), false],
+            'in domain' => [PublicSuffix::fromUnknownSection('faß.de'), true],
+            'in domain 2' => [PublicSuffix::fromUnknownSection('βόλος.com'), true],
+            'in domain 3' => [PublicSuffix::fromUnknownSection('ශ්‍රී.com'), true],
+            'in domain 4' => [PublicSuffix::fromUnknownSection('نامه‌ای.com'), true],
+            'in label' => [PublicSuffix::fromUnknownSection('faß.test.de'), true],
         ];
     }
 
@@ -370,7 +279,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testwithIDNAOptions(): void
     {
-        $publicSuffix = new PublicSuffix('com');
+        $publicSuffix = PublicSuffix::fromUnknownSection('com');
 
         self::assertSame($publicSuffix, $publicSuffix->withAsciiIDNAOption(
             $publicSuffix->getAsciiIDNAOption()

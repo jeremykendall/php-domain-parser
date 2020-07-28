@@ -15,12 +15,12 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
-use Pdp\Converter;
-use Pdp\Exception\CouldNotLoadRules;
+use Pdp\RulesConverter;
+use Pdp\UnableToLoadRules;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass Pdp\Converter
+ * @coversDefaultClass \Pdp\RulesConverter
  */
 class ConverterTest extends TestCase
 {
@@ -28,28 +28,33 @@ class ConverterTest extends TestCase
     {
         /** @var string $string */
         $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
-        $retval = (new Converter())->convert($string);
-        self::assertNotEmpty($retval[Converter::ICANN_DOMAINS]);
-        self::assertNotEmpty($retval[Converter::PRIVATE_DOMAINS]);
+        $retval = (new RulesConverter())->convert($string);
+
+        self::assertNotEmpty($retval['ICANN_DOMAINS']);
+        self::assertNotEmpty($retval['PRIVATE_DOMAINS']);
     }
 
     public function testConvertThrowsExceptionWithInvalidContent(): void
     {
-        self::expectException(CouldNotLoadRules::class);
         /** @var string $content */
         $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
-        (new Converter())->convert($content);
+
+        self::expectException(UnableToLoadRules::class);
+
+        (new RulesConverter())->convert($content);
     }
 
     public function testConvertWithEmptyString(): void
     {
-        $retval = (new Converter())->convert('');
-        self::assertEquals([Converter::ICANN_DOMAINS => [], Converter::PRIVATE_DOMAINS => []], $retval);
+        $retVal = (new RulesConverter())->convert('');
+
+        self::assertEquals(['ICANN_DOMAINS' => [], 'PRIVATE_DOMAINS' => []], $retVal);
     }
 
     public function testConvertWithInvalidString(): void
     {
-        $retval = (new Converter())->convert('foobar');
-        self::assertEquals([Converter::ICANN_DOMAINS => [], Converter::PRIVATE_DOMAINS => []], $retval);
+        $retVal = (new RulesConverter())->convert('foobar');
+
+        self::assertEquals(['ICANN_DOMAINS' => [], 'PRIVATE_DOMAINS' => []], $retVal);
     }
 }

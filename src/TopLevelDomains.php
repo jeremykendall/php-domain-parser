@@ -20,58 +20,39 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use IteratorAggregate;
-use Pdp\Exception\CouldNotLoadTLDs;
+use JsonSerializable;
+use Pdp\Contract\DomainInterface;
+use Pdp\Contract\Exception;
+use Pdp\Contract\ResolvableHostInterface;
 use function count;
 use function fclose;
 use function fopen;
+use function json_decode;
+use function json_last_error;
+use function json_last_error_msg;
 use function stream_get_contents;
 use const DATE_ATOM;
 use const IDNA_DEFAULT;
+use const JSON_ERROR_NONE;
 
 /**
  * A class to resolve domain name against the IANA Root Database.
  *
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class TopLevelDomains implements Countable, IteratorAggregate
+final class TopLevelDomains implements Countable, IteratorAggregate, JsonSerializable
 {
-    /**
-     * @var DateTimeImmutable
-     */
-    private $modifiedDate;
+    private DateTimeImmutable $modifiedDate;
 
-    /**
-     * @var string
-     */
-    private $version;
+    private string $version;
 
-    /**
-     * @var array
-     */
-    private $records;
+    private array $records;
 
-    /**
-     * @var int
-     */
-    private $asciiIDNAOption;
+    private int $asciiIDNAOption;
 
-    /**
-     * @var int
-     */
-    private $unicodeIDNAOption;
+    private int $unicodeIDNAOption;
 
-    /**
-     * New instance.
-     *
-     * @internal
-     *
-     * @param array             $records
-     * @param string            $version
-     * @param DateTimeInterface $modifiedDate
-     * @param int               $asciiIDNAOption
-     * @param int               $unicodeIDNAOption
-     */
-    public function __construct(
+    private function __construct(
         array $records,
         string $version,
         DateTimeInterface $modifiedDate,
@@ -92,14 +73,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     /**
      * Returns a new instance from a file path.
      *
-     * @param string        $path
      * @param null|resource $context
-     * @param int           $asciiIDNAOption
-     * @param int           $unicodeIDNAOption
      *
-     * @throws CouldNotLoadTLDs If the rules can not be loaded from the path
-     *
-     * @return self
+     * @throws UnableToLoadTopLevelDomains If the rules can not be loaded from the path
      */
     public static function createFromPath(
         string $path,
@@ -114,7 +90,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
         $resource = @fopen(...$args);
         if (false === $resource) {
-            throw new CouldNotLoadTLDs(sprintf('`%s`: failed to open stream: No such file or directory', $path));
+            throw UnableToLoadTopLevelDomains::dueToInvalidPath($path);
         }
 
         /** @var string $content */
@@ -124,15 +100,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         return self::createFromString($content, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
-    /**
-     * Returns a new instance from a string.
-     *
-     * @param string $content
-     * @param int    $asciiIDNAOption
-     * @param int    $unicodeIDNAOption
-     *
-     * @return self
-     */
     public static function createFromString(
         string $content,
         int $asciiIDNAOption = IDNA_DEFAULT,
@@ -140,7 +107,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     ): self {
         static $converter;
 
-        $converter = $converter ?? new TLDConverter();
+        $converter = $converter ?? new TopLevelDomainsConverter();
 
         $data = $converter->convert($content);
         /** @var DateTimeImmutable $modifiedDate */
@@ -153,6 +120,27 @@ final class TopLevelDomains implements Countable, IteratorAggregate
             $asciiIDNAOption,
             $unicodeIDNAOption
         );
+    }
+
+    public static function createFromJsonString(
+        string $jsonString,
+        int $asciiIDNAOption = IDNA_DEFAULT,
+        int $unicodeIDNAOption = IDNA_DEFAULT
+    ): self {
+        $data = json_decode($jsonString, true);
+        $errorCode = json_last_error();
+        if (JSON_ERROR_NONE !== $errorCode) {
+            throw UnableToLoadTopLevelDomains::dueToInvalidJson($errorCode, json_last_error_msg());
+        }
+
+        if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
+            throw  UnableToLoadTopLevelDomains::dueToInvalidHashMap();
+        }
+
+        /** @var DateTimeImmutable $modifiedDate */
+        $modifiedDate = DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']);
+
+        return new self($data['records'], $data['version'], $modifiedDate, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
     /**
@@ -171,8 +159,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns the Version ID.
-     *
-     * @return string
      */
     public function getVersion(): string
     {
@@ -181,8 +167,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Returns the List Last Modified Date.
-     *
-     * @return DateTimeImmutable
      */
     public function getModifiedDate(): DateTimeImmutable
     {
@@ -195,8 +179,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return int
      */
     public function getAsciiIDNAOption(): int
     {
@@ -209,8 +191,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return int
      */
     public function getUnicodeIDNAOption(): int
     {
@@ -227,8 +207,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * Tells whether the list is empty.
-     *
-     * @return bool
      */
     public function isEmpty(): bool
     {
@@ -241,21 +219,14 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     public function getIterator()
     {
         foreach ($this->records as $tld) {
-            yield (new PublicSuffix(
-                $tld,
-                PublicSuffix::ICANN_DOMAINS,
-                $this->asciiIDNAOption,
-                $this->unicodeIDNAOption
-            ))->toAscii();
+            yield PublicSuffix::fromICANNSection($tld, $this->asciiIDNAOption, $this->unicodeIDNAOption)->toAscii();
         }
     }
 
     /**
      * Returns an array representation of the list.
-     *
-     * @return array
      */
-    public function toArray(): array
+    public function jsonSerialize(): array
     {
         return [
             'version' => $this->version,
@@ -267,17 +238,15 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     /**
      * Tells whether the submitted TLD is a valid Top Level Domain.
      *
-     * @param mixed $tld
-     *
-     * @return bool
+     * @param mixed $tld a TLD in a type that can be converted into a DomainInterface instance
      */
     public function contains($tld): bool
     {
         try {
-            if (!$tld instanceof Domain) {
-                $tld = new Domain($tld, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            if (!$tld instanceof DomainInterface) {
+                $tld = new Domain($tld, $this->asciiIDNAOption, $this->unicodeIDNAOption);
             }
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return false;
         }
 
@@ -285,7 +254,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
             return false;
         }
 
-        $label = $tld->toAscii()->getLabel(0);
+        /** @var DomainInterface $asciiDomain */
+        $asciiDomain = $tld->toAscii();
+        $label = $asciiDomain->label(0);
         foreach ($this as $knownTld) {
             if ($knownTld->getContent() === $label) {
                 return true;
@@ -298,26 +269,29 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     /**
      * Returns a domain where its public suffix is the found TLD.
      *
-     * @param mixed $domain
-     *
-     * @return Domain
+     * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain): Domain
+    public function resolve($domain): ResolvableHostInterface
     {
-        try {
-            if (!$domain instanceof Domain) {
-                $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-            }
-        } catch (Exception $e) {
-            return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        if ($domain instanceof ResolvableHostInterface) {
+            $domain = $domain->getDomain();
+            $domain
+                ->withUnicodeIDNAOption($this->unicodeIDNAOption)
+                ->withAsciiIDNAOption($this->asciiIDNAOption);
         }
 
-        if (!$domain->isResolvable()) {
-            return $domain;
+        if (!$domain instanceof DomainInterface) {
+            $domain = new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        }
+
+        /** @var DomainInterface $asciiDomain */
+        $asciiDomain = $domain->toAscii();
+        if (!$asciiDomain->isResolvable()) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
         $publicSuffix = null;
-        $label = $domain->toAscii()->getLabel(0);
+        $label = $asciiDomain->label(0);
         foreach ($this as $tld) {
             if ($tld->getContent() === $label) {
                 $publicSuffix = $tld;
@@ -325,7 +299,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
             }
         }
 
-        return $domain->resolve($publicSuffix);
+        return new ResolvableDomain($domain, PublicSuffix::fromUnknownSection($publicSuffix));
     }
 
     /**
@@ -334,10 +308,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @param int $option
-     *
-     * @return self
      */
     public function withAsciiIDNAOption(int $option): self
     {
@@ -357,10 +327,6 @@ final class TopLevelDomains implements Countable, IteratorAggregate
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @param int $option
-     *
-     * @return self
      */
     public function withUnicodeIDNAOption(int $option): self
     {

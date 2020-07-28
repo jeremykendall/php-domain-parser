@@ -27,7 +27,7 @@ System Requirements
 
 You need:
 
-- **PHP >= 7.2.5** but the latest stable version of PHP is recommended
+- **PHP >= 7.4** but the latest stable version of PHP is recommended
 - the `intl` extension
 
 Dependencies
@@ -75,7 +75,7 @@ echo $rules->getPublicSuffix('www.ulb.ac.be', Rules::PRIVATE_DOMAINS); //get the
 ~~~
 
 
-If the Public Suffix is not found or in case of error an exception which extends `Pdp\Exception` is thrown.
+If the Public Suffix is not found or in case of error an exception which extends `Pdp\Contract\Exception` is thrown.
 
 ### Domain resolution.
 
@@ -204,8 +204,8 @@ $publicSuffix = new PublicSuffix('com');
 $domain = new Domain('www.bébé.ExAmple.com', $publicSuffix);
 $domain->getContent();             // www.bébé.example.com
 echo $domain;                      // www.bébé.example.com
-echo $domain->getLabel(0);         // 'com'
-echo $domain->getLabel(-1);        // 'www'
+echo $domain->label(0);         // 'com'
+echo $domain->label(-1);        // 'www'
 $domain->keys('example');          // array(1)
 count($domain);                    //returns 4
 $domain->getPublicSuffix();        // 'com'
@@ -261,7 +261,7 @@ echo $newDomain // 'shop.com'
 Because the `Pdp\Domain` object is immutable:
 
 - If the method change any of the current object property, a new object is returned.
-- If a modification is not possible a `Pdp\Exception` exception is thrown.
+- If a modification is not possible a `Pdp\Contract\Exception` exception is thrown.
 
 **WARNING: URI and URL accept registered name which encompass domain name. Therefore, some URI host are invalid domain name and will trigger an exception if you try to instantiate a `Pdp\Domain` with them.**
 
@@ -363,7 +363,7 @@ Both methods expect the same arguments:
     - `Rules::PRIVATE_DOMAINS`, to validate against the PSL PRIVATE DOMAINS section only.
     - the empty string to validate against all the PSL sections.
 
-By default, the `$section` argument is equal to the empty string. If an unsupported section is submitted a `Pdp\Exception` exception will be thrown.
+By default, the `$section` argument is equal to the empty string. If an unsupported section is submitted a `Pdp\Contract\Exception` exception will be thrown.
 
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
@@ -480,30 +480,30 @@ $domain  = json_encode($tlds->resolve('www.Ulb.Ac.BE'), JSON_PRETTY_PRINT);
 
 ### Managing the package lists
 
-The library comes bundle with a service which enables resolving domain name without the constant network overhead of continously downloading the PSL. The `Pdp\Manager` class retrieves, converts and caches the PSL as well as creates the corresponding `Pdp\Rules` object on demand. It internally uses a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
+The library comes bundle with a service which enables resolving domain name without the constant network overhead of continously downloading the PSL. The `Pdp\Service\Manager` class retrieves, converts and caches the PSL as well as creates the corresponding `Pdp\Rules` object on demand. It internally uses a `Pdp\Converter` object to convert the fetched PSL into its `array` representation when required.
 
 ~~~php
 <?php
 
 namespace Pdp;
 
-use Psr\SimpleCache\CacheInterface;
+use Pdp\Storage\Http\Client;use Psr\SimpleCache\CacheInterface;
 
 final class Manager
 {
     const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
     const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
-    public function __construct(CacheInterface $cache, HttpClient $http, $ttl = null)
+    public function __construct(CacheInterface $cache, Client $http, $ttl = null)
 }
 ~~~
 
-#### Instantiate `Pdp\Manager`
+#### Instantiate `Pdp\Service\Manager`
 
-To work as intended, the `Pdp\Manager` constructor requires:
+To work as intended, the `Pdp\Service\Manager` constructor requires:
 
 - a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object to store the rules locally.
-- a `Pdp\HttpClient` object to retrieve the PSL.
+- a `Pdp\Client\HttpClient` object to retrieve the PSL.
 - a `$ttl` argument if you need to set the default $ttl; **since 5.4**
 
 The `$ttl` argument can be:
@@ -514,7 +514,7 @@ The `$ttl` argument can be:
 
 **the `$ttl` argument is added to improve PSR-16 interoperability**
 
-The `Pdp\HttpClient` is a simple interface which exposes the `HttpClient::getContent` method. This method expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
+The `Pdp\Client\HttpClient` is a simple interface which exposes the `HttpClient::getContent` method. This method expects a string URL representation has its sole argument and returns the body from the given URL resource as a string.  
 If an error occurs while retrieving such body a `HttpClientException` exception is thrown.
 
 ~~~php
@@ -554,7 +554,7 @@ The both methods method enables refreshing your local copy of the stored resourc
 The method returns a boolean value which is `true` on success.
 
 ~~~php
-$manager = new Pdp\Manager(new Pdp\Cache(), new Pdp\CurlHttpClient());
+$manager = new Pdp\Storage\Manager(new Pdp\Storage\Cache\Psr16FileCache(), new Pdp\Storage\Http\CurlClient());
 $retval = $manager->refreshRules('https://publicsuffix.org/list/public_suffix_list.dat');
 if ($retval) {
     //the local cache has been updated
@@ -588,7 +588,7 @@ These methods take an optional `$url` argument which specifies the PSL source UR
 1. call `Manager::refreshRules` with the given URL and `$ttl` argument to update its local cache
 2. instantiate the `Rules` or the `TopLevelDomains` objects with the newly cached data.
 
-On error, theses methods will throw an `Pdp\Exception`.
+On error, theses methods will throw an `Pdp\Contract\Exception`.
 
  **since version 5.5**
 
@@ -604,7 +604,7 @@ They are used when instantiated the returned object.
 **THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY**
 
 ~~~php
-$manager = new Pdp\Manager(new Pdp\Cache(), new Pdp\CurlHttpClient());
+$manager = new Pdp\Storage\Manager(new Pdp\Storage\Cache\Psr16FileCache(), new Pdp\Storage\Http\CurlClient());
 $tldCollection = $manager->getTLDs(self::RZD_URL);
 $domain = $tldCollection->resolve('www.ulb.ac.be');
 echo $domain->getPublicSuffix(); // print 'be'
@@ -621,8 +621,8 @@ $ php ./bin/update-psl
 This script requires:
 
 - The PHP `curl` extension
-- The `Pdp\Installer` class which organizes how to update the cache.
-- The `Pdp\Cache` and `Pdp\CurlHttpClient` classes to retrieve and cache the PSL
+- The `Pdp\Service\Installer` class which organizes how to update the cache.
+- The `Pdp\Storage\Cache` and `Pdp\Client\CurlHttpClient` classes to retrieve and cache the PSL
 - A `Psr3` implementation.
 
 You can add a composer script in your `composer.json` file to update the PSL cache every time after the `install` or the `update` command are executed.
@@ -630,8 +630,8 @@ You can add a composer script in your `composer.json` file to update the PSL cac
 ~~~bash
 {
     "scripts": {
-        "post-install-cmd": "\\Pdp\\Installer::updateLocalCache",
-        "post-update-cmd": "\\Pdp\\Installer::updateLocalCache"
+        "post-install-cmd": "\\Pdp\\Service\\Installer::updateLocalCache",
+        "post-update-cmd": "\\Pdp\\Service\\Installer::updateLocalCache"
     }
 }
 ~~~
@@ -680,12 +680,12 @@ Of course you can add more setups depending on your usage.
 <?php
 
 use GuzzleHttp\Client as GuzzleClient;
-use Pdp\HttpClient;
-use Pdp\HttpClientException;
-use Pdp\Manager;
+use Pdp\Storage\Http\Client;
+use Pdp\Storage\Http\ClientException;
+use Pdp\Storage\Manager;
 use Symfony\Component\Cache\Simple\PDOCache;
 
-final class GuzzleHttpClientAdapter implements HttpClient
+final class GuzzleHttpClientAdapter implements Client
 {
     private $client;
 
@@ -699,7 +699,7 @@ final class GuzzleHttpClientAdapter implements HttpClient
         try {
             return $client->get($url)->getBody()->getContents();
         } catch (Throwable $e) {
-            throw new HttpClientException($e->getMessage(), $e->getCode(), $e);
+            throw new ClientException($e->getMessage(), $e->getCode(), $e);
         }
     }
 }

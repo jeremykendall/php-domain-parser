@@ -1,0 +1,120 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * PHP Domain Parser: Public Suffix List based URL parsing.
+ *
+ * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
+ *
+ * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+use Pdp\Storage\Cache\Logger;
+use Pdp\Storage\Installer;
+use Pdp\Storage\Output;
+
+function get_vendor_path(): ?string
+{
+    for ($i = 1; $i <= 5; $i++) {
+        $vendor = dirname(__DIR__, $i).'/vendor';
+        if (is_dir($vendor) && file_exists($vendor.'/autoload.php')) {
+            return $vendor;
+        }
+    }
+
+    return null;
+}
+
+$vendor = get_vendor_path();
+if (null === $vendor) {
+    $message = <<<TEXT
+        You must set up the project dependencies using composer
+        see https://getcomposer.org
+        TEXT;
+    fwrite(STDERR, $message);
+    die(1);
+}
+
+require $vendor.'/autoload.php';
+
+$output = new Output();
+$default_cache_dir = dirname(__DIR__).'/data';
+
+/**
+ * CLI colors
+ */
+$cyan = chr(27)."[36m";
+$green = chr(27)."[32m";
+$reset = chr(27)."[0m";
+$redbg = chr(27)."[41m";
+$yellow = chr(27)."[33m";
+
+$arguments = getopt('h::', [
+    'h',
+    'help',
+    Installer::CACHE_DIR_KEY.':',
+    Installer::URI_KEY_PSL.':',
+    Installer::URI_KEY_RZD.':',
+    Installer::TTL_KEY.':',
+]) + [
+    Installer::CACHE_DIR_KEY => $default_cache_dir,
+    Installer::TTL_KEY => '1 DAY',
+];
+
+if (isset($arguments['help']) || isset($arguments['h'])) {
+    $script = basename(__FILE__);
+    $helpText = <<<HELP
+{$yellow}Usage:$reset
+    $script [options]
+
+{$yellow}Options:$reset
+    $green    --%s$reset                set the local copy to cache ({$yellow}possible values:$reset psl or rzd)
+    $green    --%s=URL$reset             set the URL to use to refresh the Public Suffix List
+    $green    --%s=URL$reset             set the URL to use to refresh the Root Zone Domains
+    $green    --%s=TTL$reset             set the TTL for the cache ({$yellow}default:$reset '1 DAY')
+    $green    --%s=CACHE-DIR$reset set the cache root directory ({$yellow}default:$reset $default_cache_dir')
+    $green-h, --help$reset                show the following help message
+
+{$yellow}Help:$reset
+    The {$green}update-php$reset command updates your PDP local cache.
+
+{$yellow}Examples:$reset
+
+     Refresh the PSL cache for a TTL of 3 DAY
+     $green$script --type=psl --ttl="3 DAYS"$reset
+
+     Refresh the TLD caches using another cache directory
+     $green$script --type=rzd --cache-dir=/temp$reset
+
+     Read more at https://github.com/jeremykendall/php-domain-parser/
+
+HELP;
+
+    $helpText = sprintf($helpText, Installer::URI_KEY_PSL, Installer::TTL_KEY, Installer::CACHE_DIR_KEY);
+    $output->success($helpText);
+
+    die(0);
+}
+
+if (!extension_loaded('curl')) {
+    $output->fail("$redbg The required PHP cURL extension is missing. $reset");
+
+    die(1);
+}
+
+$installer = new Installer(new Logger( STDOUT, STDERR));
+$output->success("$yellow Updating your Pdp local cache.$reset");
+if ($installer->updateLocalCopies($arguments)) {
+    $output->success("$green Pdp local cache successfully updated. $reset");
+
+    die(0);
+}
+
+$output->fail("$redbg The command failed to update Pdp local cache successfully. $reset");
+
+die(1);

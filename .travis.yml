@@ -5,30 +5,6 @@ cache:
         - "$HOME/.composer/cache"
 matrix:
     include:
-        - php: 7.2
-          env:
-              - COLLECT_COVERAGE=false
-              - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --prefer-lowest --prefer-stable"
-              - RUN_PHPSTAN=false
-              - VALIDATE_CODING_STYLE=false
-        - php: 7.2
-          env:
-              - COLLECT_COVERAGE=true
-              - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=true
-        - php: 7.3
-          env:
-              - COLLECT_COVERAGE=false
-              - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --prefer-lowest --prefer-stable"
-              - RUN_PHPSTAN=false
-              - VALIDATE_CODING_STYLE=false
-        - php: 7.3
-          env:
-              - COLLECT_COVERAGE=true
-              - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=true
         - php: 7.4
           env:
               - COLLECT_COVERAGE=false

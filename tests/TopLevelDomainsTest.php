@@ -18,10 +18,12 @@ namespace Pdp\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use Pdp\Domain;
-use Pdp\Exception\CouldNotLoadTLDs;
+use Pdp\InvalidDomain;
 use Pdp\PublicSuffix;
-use Pdp\TLDConverter;
 use Pdp\TopLevelDomains;
+use Pdp\TopLevelDomainsConverter;
+use Pdp\UnableToLoadTopLevelDomains;
+use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function file_get_contents;
@@ -30,7 +32,7 @@ use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
- * @coversDefaultClass Pdp\TopLevelDomains
+ * @coversDefaultClass \Pdp\TopLevelDomains
  */
 class TopLevelDomainsTest extends TestCase
 {
@@ -67,7 +69,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testCreateFromPathThrowsException(): void
     {
-        self::expectException(CouldNotLoadTLDs::class);
+        self::expectException(UnableToLoadTopLevelDomains::class);
         TopLevelDomains::createFromPath('/foo/bar.dat');
     }
 
@@ -92,11 +94,11 @@ class TopLevelDomainsTest extends TestCase
         );
         self::assertFalse($collection->isEmpty());
 
-        $converter = new TLDConverter();
+        $converter = new TopLevelDomainsConverter();
         /** @var string $content */
         $content = file_get_contents(__DIR__.'/data/root_zones.dat');
         $data = $converter->convert($content);
-        self::assertEquals($data, $collection->toArray());
+        self::assertEquals($data, $collection->jsonSerialize());
 
         foreach ($collection as $tld) {
             self::assertInstanceOf(PublicSuffix::class, $tld);
@@ -130,13 +132,14 @@ class TopLevelDomainsTest extends TestCase
 
     /**
      * @dataProvider validDomainProvider
-     * @param mixed $tld
+     *
+     * @param mixed $tld the tld
      */
     public function testResolve($tld): void
     {
         self::assertSame(
-            (new Domain($tld))->getLabel(0),
-            $this->collection->resolve($tld)->getPublicSuffix()
+            (new Domain($tld))->label(0),
+            $this->collection->resolve($tld)->getPublicSuffix()->getContent()
         );
     }
 
@@ -168,19 +171,22 @@ class TopLevelDomainsTest extends TestCase
 
     public function testResolveWithInvalidDomain(): void
     {
-        self::assertEquals(new Domain(), $this->collection->resolve('###'));
+        self::expectException(InvalidDomain::class);
+
+        $this->collection->resolve('###');
     }
 
     public function testResolveWithUnResolvableDomain(): void
     {
-        $domain = 'localhost';
-        self::assertEquals(new Domain($domain), $this->collection->resolve($domain));
+        self::expectException(UnableToResolveDomain::class);
+
+        $this->collection->resolve('localhost');
     }
 
     public function testResolveWithUnregisteredTLD(): void
     {
         $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
-        self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix());
+        self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix()->getContent());
     }
 
     public function testResolveWithIDNAOptions(): void
@@ -204,9 +210,11 @@ class TopLevelDomainsTest extends TestCase
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
         );
     }
+
     /**
      * @dataProvider validTldProvider
-     * @param mixed $tld
+     *
+     * @param mixed $tld the tld
      */
     public function testContainsReturnsTrue($tld): void
     {
@@ -237,7 +245,8 @@ class TopLevelDomainsTest extends TestCase
 
     /**
      * @dataProvider invalidTldProvider
-     * @param mixed $tld
+     *
+     * @param mixed $tld the tld
      */
     public function testContainsReturnsFalse($tld): void
     {
@@ -258,7 +267,6 @@ class TopLevelDomainsTest extends TestCase
             'invalid IDN to ASCII' => ['XN--TTT'],
             'invalid IDN to ASCII with leading dot' => ['.XN--TTT'],
             'null' => [null],
-            'float' => [1.1],
             'object with __toString method' => [new class() {
                 public function __toString()
                 {

@@ -76,13 +76,13 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - `Pdp\TopLevelDomains` to allow resolving domain againts IANA Root zone database
 - `Pdp\TLDConverter` converts the IANA Root Zones database into an associative array
-- `Pdp\Manager::getTLDs` a service to return a cache version of the IANA Root zone database
-- `Pdp\Manager::refreshTLDs` a service to refresh the cache version of the IANA Root zone database
+- `Pdp\Service\Manager::getTLDs` a service to return a cache version of the IANA Root zone database
+- `Pdp\Service\Manager::refreshTLDs` a service to refresh the cache version of the IANA Root zone database
 -  added a new `$ttl` parameter to improve PSR-16 supports to
-	- `Pdp\Manager::__construct`
-	- `Pdp\Manager::getRules`
-	- `Pdp\Manager::refreshRules`
-- `Pdp\Exception\CouldNotLoadTLDs` exception
+	- `Pdp\Service\Manager::__construct`
+	- `Pdp\Service\Manager::getRules`
+	- `Pdp\Service\Manager::refreshRules`
+- `Pdp\Contract\Exception\CouldNotLoadTLDs` exception
 
 ### Fixed
 
@@ -101,8 +101,8 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
-- `Pdp\PublicSuffixListSection` interface implemented by `Pdp\Rules` and `Pdp\PublicSuffix`
-- `Pdp\DomainInterface` interface implemented by `Pdp\Domain` and `Pdp\PublicSuffix`
+- `Pdp\Contract\PublicSuffixListSection` interface implemented by `Pdp\Rules` and `Pdp\PublicSuffix`
+- `Pdp\Contract\DomainInterface` interface implemented by `Pdp\Domain` and `Pdp\PublicSuffix`
 - `Pdp\Domain::getContent` replaces `Pdp\Domain::getDomain`
 - `Pdp\Domain::withLabel` adds a new label to the `Pdp\Domain`.
 - `Pdp\Domain::withoutLabel` removes labels from the `Pdp\Domain`.
@@ -113,15 +113,15 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 - `Pdp\Domain::resolve` attach a public suffix to the `Pdp\Domain`.
 - `Pdp\Domain::isResolvable` tells whether the current `Pdp\Domain` can have a public suffix attached to it or not.
 - `Pdp\PublicSuffix::createFromDomain` returns a new `Pdp\PublicSuffix` object from a `Pdp\Domain`object
-- `Pdp\Exception` sub namespace to organize exception. All exception extends the `Pdp\Exception` class to prevent BC break.
+- `Pdp\Contract\Exception` sub namespace to organize exception. All exception extends the `Pdp\Contract\Exception` class to prevent BC break.
 
 ### Fixed
 
 - `Pdp\Domain` domain part computation (public suffix, registrable domain and sub domain)
 - `Pdp\Domain` and `Pdp\PublicSuffix` host validation compliance to RFC improved
-- Improve `Pdp\Converter` and `Pdp\Manager` class to better report error on IDN conversion.
-- Improve `Pdp\Installer` vendor directory resolution see [PR #222](https://github.com/jeremykendall/php-domain-parser/pull/222)
-- `Pdp\Exception` nows extends `InvalidArgumentException` instead of `RuntimeException`
+- Improve `Pdp\Converter` and `Pdp\Service\Manager` class to better report error on IDN conversion.
+- Improve `Pdp\Service\Installer` vendor directory resolution see [PR #222](https://github.com/jeremykendall/php-domain-parser/pull/222)
+- `Pdp\Contract\Exception` nows extends `InvalidArgumentException` instead of `RuntimeException`
 
 ### Deprecated
 
@@ -181,12 +181,12 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 ### Added
 
-- `Pdp\Exception` a base exception for the library
+- `Pdp\Contract\Exception` a base exception for the library
 - `Pdp\Rules` a class to resolve domain name against the public suffix list
 - `Pdp\Domain` an immutable value object to represents a parsed domain name
-- `Pdp\Installer` a class to enable improve PSL maintenance
-- `Pdp\Cache` a PSR-16 file cache implementation to cache a local copy of the PSL
-- `Pdp\Manager` a class to enable managing PSL sources and `Rules` objects creation
+- `Pdp\Service\Installer` a class to enable improve PSL maintenance
+- `Pdp\Storage\Cache` a PSR-16 file cache implementation to cache a local copy of the PSL
+- `Pdp\Service\Manager` a class to enable managing PSL sources and `Rules` objects creation
 - `Pdp\Converter` a class to convert the PSL into a PHP array
 
 ### Fixed
@@ -204,6 +204,6 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 - PHP5 support
 - URL Parsing capabilities and domain name validation
 - `Pdp\PublicSuffixList` class replaced by the `Pdp\Rules` class
-- `Pdp\PublicSuffixManager` class replaced by the `Pdp\Manager` class
-- `Pdp\HttpAdapter\HttpAdapterInterface` interface replaced by the `Pdp\HttpClient` interface
-- `Pdp\HttpAdapter\CurlHttpAdapter` class replaced by the `Pdp\CurlHttpClient` class
+- `Pdp\PublicSuffixManager` class replaced by the `Pdp\Service\Manager` class
+- `Pdp\HttpAdapter\HttpAdapterInterface` interface replaced by the `Pdp\Client\HttpClient` interface
+- `Pdp\HttpAdapter\CurlHttpAdapter` class replaced by the `Pdp\Client\CurlHttpClient` class
