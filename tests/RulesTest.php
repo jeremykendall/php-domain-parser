@@ -26,7 +26,7 @@ use Pdp\Storage\Cache\RulesCachePsr16Adapter;
 use Pdp\Storage\Cache\TopLevelDomainsCachePsr16Adapter;
 use Pdp\Storage\Http\CurlClient;
 use Pdp\Storage\Manager;
-use Pdp\UnableToLoadRules;
+use Pdp\UnableToLoadPublicSuffixList;
 use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
 use TypeError;
@@ -54,7 +54,7 @@ class RulesTest extends TestCase
             new TopLevelDomainsCachePsr16Adapter($psr16Cache)
         );
 
-        $this->rules = $manager->getRulesLocalCopy();
+        $this->rules = $manager->getPublicSuffixListLocalCopy();
     }
 
     /**
@@ -84,7 +84,7 @@ class RulesTest extends TestCase
      */
     public function testCreateFromPathThrowsException(): void
     {
-        self::expectException(UnableToLoadRules::class);
+        self::expectException(UnableToLoadPublicSuffixList::class);
         Rules::fromPath('/foo/bar.dat');
     }
 
@@ -679,7 +679,7 @@ class RulesTest extends TestCase
             new TopLevelDomainsCachePsr16Adapter($psr16Cache)
         );
 
-        $rules = $manager->getRulesLocalCopy()
+        $rules = $manager->getPublicSuffixListLocalCopy()
             ->withAsciiIDNAOption(IDNA_NONTRANSITIONAL_TO_ASCII)
             ->withUnicodeIDNAOption(IDNA_NONTRANSITIONAL_TO_UNICODE);
 

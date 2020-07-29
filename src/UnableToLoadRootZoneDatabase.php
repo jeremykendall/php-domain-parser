@@ -18,7 +18,7 @@ namespace Pdp;
 use InvalidArgumentException;
 use Throwable;
 
-class UnableToLoadTopLevelDomains extends InvalidArgumentException implements ExceptionInterface
+class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements ExceptionInterface
 {
     public static function dueToInvalidHashMap(): self
     {

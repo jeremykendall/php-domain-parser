@@ -63,7 +63,7 @@ final class Rules implements PublicSuffixListInterface
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadRules If the rules can not be loaded from the path
+     * @throws UnableToLoadPublicSuffixList If the rules can not be loaded from the path
      */
     public static function fromPath(
         string $path,
@@ -78,7 +78,7 @@ final class Rules implements PublicSuffixListInterface
 
         $resource = @fopen(...$args);
         if (false === $resource) {
-            throw UnableToLoadRules::dueToInvalidPath($path);
+            throw UnableToLoadPublicSuffixList::dueToInvalidPath($path);
         }
 
         /** @var string $content */
@@ -111,7 +111,7 @@ final class Rules implements PublicSuffixListInterface
         $data = json_decode($jsonString, true);
         $errorCode = json_last_error();
         if (JSON_ERROR_NONE !== $errorCode) {
-            throw UnableToLoadRules::dueToInvalidJson($errorCode, json_last_error_msg());
+            throw UnableToLoadPublicSuffixList::dueToInvalidJson($errorCode, json_last_error_msg());
         }
 
         return new self($data, $asciiIDNAOption, $unicodeIDNAOption);

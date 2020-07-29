@@ -23,7 +23,7 @@ use Pdp\PublicSuffix;
 use Pdp\RootZoneDatabaseConverter;
 use Pdp\RootZoneDatabaseInterface;
 use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadTopLevelDomains;
+use Pdp\UnableToLoadRootZoneDatabase;
 use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
 use TypeError;
@@ -70,7 +70,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testCreateFromPathThrowsException(): void
     {
-        self::expectException(UnableToLoadTopLevelDomains::class);
+        self::expectException(UnableToLoadRootZoneDatabase::class);
         TopLevelDomains::fromPath('/foo/bar.dat');
     }
 

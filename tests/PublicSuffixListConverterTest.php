@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use Pdp\PublicSuffixListConverter;
-use Pdp\UnableToLoadRules;
+use Pdp\UnableToLoadPublicSuffixList;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -39,7 +39,7 @@ class PublicSuffixListConverterTest extends TestCase
         /** @var string $content */
         $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
 
-        self::expectException(UnableToLoadRules::class);
+        self::expectException(UnableToLoadPublicSuffixList::class);
 
         (new PublicSuffixListConverter())->convert($content);
     }

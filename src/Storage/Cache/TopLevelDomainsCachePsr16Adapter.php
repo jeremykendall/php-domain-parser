@@ -20,7 +20,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Pdp\RootZoneDatabaseInterface;
 use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadTopLevelDomains;
+use Pdp\UnableToLoadRootZoneDatabase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
@@ -100,7 +100,7 @@ final class TopLevelDomainsCachePsr16Adapter implements TopLevelDomainsCache
     /**
      * Gets the Public Suffix List Rules.
      *
-     * @throws UnableToLoadTopLevelDomains
+     * @throws UnableToLoadRootZoneDatabase
      */
     public function fetchByUri(string $uri): ?RootZoneDatabaseInterface
     {

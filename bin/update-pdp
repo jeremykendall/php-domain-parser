@@ -109,7 +109,7 @@ if (!extension_loaded('curl')) {
 
 $installer = new Installer(new Logger( STDOUT, STDERR));
 $output->success("$yellow Updating your Pdp local cache.$reset");
-if ($installer->updateLocalCopies($arguments)) {
+if ($installer->updateLocalCache($arguments)) {
     $output->success("$green Pdp local cache successfully updated. $reset");
 
     die(0);

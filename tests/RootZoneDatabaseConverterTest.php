@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use Pdp\RootZoneDatabaseConverter;
-use Pdp\UnableToLoadTopLevelDomains;
+use Pdp\UnableToLoadRootZoneDatabase;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -40,7 +40,7 @@ class RootZoneDatabaseConverterTest extends TestCase
      */
     public function testConverterThrowsException(string $content): void
     {
-        self::expectException(UnableToLoadTopLevelDomains::class);
+        self::expectException(UnableToLoadRootZoneDatabase::class);
         (new RootZoneDatabaseConverter())->convert($content);
     }
 

@@ -36,7 +36,7 @@ final class RootZoneDatabaseConverter
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
      *
-     * @throws UnableToLoadTopLevelDomains if the content is invalid or can not be correctly parsed and converted
+     * @throws UnableToLoadRootZoneDatabase if the content is invalid or can not be correctly parsed and converted
      */
     public function convert(string $content): array
     {
@@ -58,25 +58,25 @@ final class RootZoneDatabaseConverter
                 continue;
             }
 
-            throw UnableToLoadTopLevelDomains::dueToInvalidLine($line);
+            throw UnableToLoadRootZoneDatabase::dueToInvalidLine($line);
         }
 
         if (isset($data['version'], $data['modifiedDate'], $data['records'])) {
             return $data;
         }
 
-        throw UnableToLoadTopLevelDomains::dueToFailedConversion();
+        throw UnableToLoadRootZoneDatabase::dueToFailedConversion();
     }
 
     /**
      * Extract IANA Root Zone Database header info.
      *
-     * @throws UnableToLoadTopLevelDomains if the Header line is invalid
+     * @throws UnableToLoadRootZoneDatabase if the Header line is invalid
      */
     private function extractHeader(string $content): array
     {
         if (1 !== preg_match('/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/', $content, $matches)) {
-            throw UnableToLoadTopLevelDomains::dueToInvalidVersionLine($content);
+            throw UnableToLoadRootZoneDatabase::dueToInvalidVersionLine($content);
         }
 
         /** @var DateTimeImmutable $date */
@@ -91,18 +91,18 @@ final class RootZoneDatabaseConverter
     /**
      * Extract IANA Root Zone.
      *
-     * @throws UnableToLoadTopLevelDomains If the Root Zone is invalid
+     * @throws UnableToLoadRootZoneDatabase If the Root Zone is invalid
      */
     private function extractRootZone(string $content): string
     {
         try {
             $tld = PublicSuffix::fromUnknownSection($content)->toAscii();
         } catch (ExceptionInterface $exception) {
-            throw UnableToLoadTopLevelDomains::dueToInvalidRootZoneDomain($content, $exception);
+            throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
         }
 
         if (1 !== $tld->count() || '' === $tld->getContent()) {
-            throw UnableToLoadTopLevelDomains::dueToInvalidRootZoneDomain($content);
+            throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content);
         }
 
         return (string) $tld;

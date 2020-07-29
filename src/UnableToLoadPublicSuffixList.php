@@ -18,7 +18,7 @@ namespace Pdp;
 use InvalidArgumentException;
 use Throwable;
 
-class UnableToLoadRules extends InvalidArgumentException implements ExceptionInterface
+class UnableToLoadPublicSuffixList extends InvalidArgumentException implements ExceptionInterface
 {
     public static function dueToInvalidPath(string $path): self
     {

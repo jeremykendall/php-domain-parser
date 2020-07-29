@@ -59,7 +59,7 @@ final class Installer
     /**
      * Refresh the locale cache.
      */
-    public function updateLocalCopies(array $arguments = []): bool
+    public function updateLocalCache(array $arguments = []): bool
     {
         $context = $arguments + self::DEFAULT_CONTEXT;
         $context = filter_var_array($context, [
@@ -76,8 +76,8 @@ final class Installer
                 new TopLevelDomainsCachePsr16Adapter($psr16Cache, $context[self::TTL_KEY], $this->logger),
             );
 
-            $storage->getRulesRemoteCopy($context[self::URI_KEY_PSL]);
-            $storage->getTopLevelDomainsRemoteCopy($context[self::URI_KEY_PSL]);
+            $storage->getPublicSuffixListRemoteCopy($context[self::URI_KEY_PSL]);
+            $storage->getRootZoneDatabaseRemoteCopy($context[self::URI_KEY_PSL]);
         } catch (Throwable $exception) {
             $this->logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
 

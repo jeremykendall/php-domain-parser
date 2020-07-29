@@ -70,7 +70,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadTopLevelDomains If the rules can not be loaded from the path
+     * @throws UnableToLoadRootZoneDatabase If the rules can not be loaded from the path
      */
     public static function fromPath(
         string $path,
@@ -85,7 +85,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
 
         $resource = @fopen(...$args);
         if (false === $resource) {
-            throw UnableToLoadTopLevelDomains::dueToInvalidPath($path);
+            throw UnableToLoadRootZoneDatabase::dueToInvalidPath($path);
         }
 
         /** @var string $content */
@@ -125,11 +125,11 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
         $data = json_decode($jsonString, true);
         $errorCode = json_last_error();
         if (JSON_ERROR_NONE !== $errorCode) {
-            throw UnableToLoadTopLevelDomains::dueToInvalidJson($errorCode, json_last_error_msg());
+            throw UnableToLoadRootZoneDatabase::dueToInvalidJson($errorCode, json_last_error_msg());
         }
 
         if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
-            throw  UnableToLoadTopLevelDomains::dueToInvalidHashMap();
+            throw  UnableToLoadRootZoneDatabase::dueToInvalidHashMap();
         }
 
         /** @var DateTimeImmutable $modifiedDate */

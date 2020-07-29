@@ -21,8 +21,8 @@ use Pdp\Storage\Cache\RulesCache;
 use Pdp\Storage\Cache\TopLevelDomainsCache;
 use Pdp\Storage\Http\Client;
 use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadRules;
-use Pdp\UnableToLoadTopLevelDomains;
+use Pdp\UnableToLoadPublicSuffixList;
+use Pdp\UnableToLoadRootZoneDatabase;
 
 /**
  * Public Suffix List Manager.
@@ -54,19 +54,19 @@ final class Manager
     /**
      * Gets the Public Suffix List from the Local Storage or the Remote Storage.
      *
-     * @throws UnableToLoadRules
+     * @throws UnableToLoadPublicSuffixList
      */
-    public function getRulesLocalCopy(string $url = self::PSL_URL): Rules
+    public function getPublicSuffixListLocalCopy(string $url = self::PSL_URL): Rules
     {
-        return $this->rulesCache->fetchByUri($url) ?? $this->getRulesRemoteCopy($url);
+        return $this->rulesCache->fetchByUri($url) ?? $this->getPublicSuffixListRemoteCopy($url);
     }
 
     /**
      * Gets the Public Suffix List from an the Remote Storage.
      *
-     * @throws UnableToLoadRules
+     * @throws UnableToLoadPublicSuffixList
      */
-    public function getRulesRemoteCopy(string $uri = null): Rules
+    public function getPublicSuffixListRemoteCopy(string $uri = null): Rules
     {
         $uri = $uri ?? self::PSL_URL;
         $rules = Rules::fromString($this->http->getContent($uri));
@@ -79,21 +79,21 @@ final class Manager
     /**
      * Gets the Top Level Domains from the Local Storage or the Remote Storage.
      *
-     * @throws UnableToLoadTopLevelDomains
+     * @throws UnableToLoadRootZoneDatabase
      */
-    public function getTopLevelDomainsLocalCopy(string $uri = null): RootZoneDatabaseInterface
+    public function getRootZoneDatabaseLocalCopy(string $uri = null): RootZoneDatabaseInterface
     {
         $uri = $uri ?? self::RZD_URL;
 
-        return $this->topLevelDomainsCache->fetchByUri($uri) ?? $this->getTopLevelDomainsRemoteCopy($uri);
+        return $this->topLevelDomainsCache->fetchByUri($uri) ?? $this->getRootZoneDatabaseRemoteCopy($uri);
     }
 
     /**
      * Gets the Top Level Domains from the Remote Storage.
      *
-     * @throws UnableToLoadTopLevelDomains
+     * @throws UnableToLoadRootZoneDatabase
      */
-    public function getTopLevelDomainsRemoteCopy(string $uri = null): RootZoneDatabaseInterface
+    public function getRootZoneDatabaseRemoteCopy(string $uri = null): RootZoneDatabaseInterface
     {
         $uri = $uri ?? self::RZD_URL;
         $topLevelDomains = TopLevelDomains::fromString($this->http->getContent($uri));

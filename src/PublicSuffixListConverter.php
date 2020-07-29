@@ -34,11 +34,11 @@ final class PublicSuffixListConverter extends HostParser
 {
     private const PSL_SECTION = [
         'ICANN' => [
-            'BEGIN' => 'ICANN_DOMAINS',
+            'BEGIN' => PublicSuffixInterface::ICANN_DOMAINS,
             'END' => '',
         ],
         'PRIVATE' => [
-            'BEGIN' => 'PRIVATE_DOMAINS',
+            'BEGIN' => PublicSuffixInterface::PRIVATE_DOMAINS,
             'END' => '',
         ],
     ];
@@ -92,7 +92,7 @@ final class PublicSuffixListConverter extends HostParser
      * @param array $ruleParts One line (rule) from the Public Suffix List
      *                         exploded on '.', or the remaining portion of that array during recursion
      *
-     * @throws UnableToLoadRules if the domain name can not be converted using IDN to ASCII algorithm
+     * @throws UnableToLoadPublicSuffixList if the domain name can not be converted using IDN to ASCII algorithm
      */
     private function addRule(array $list, array $ruleParts): array
     {
@@ -105,7 +105,7 @@ final class PublicSuffixListConverter extends HostParser
             $line = array_pop($ruleParts);
             $rule = $this->idnToAscii($line);
         } catch (ExceptionInterface $exception) {
-            throw UnableToLoadRules::dueToInvalidRule($line ?? null, $exception);
+            throw UnableToLoadPublicSuffixList::dueToInvalidRule($line ?? null, $exception);
         }
 
         $isDomain = true;
