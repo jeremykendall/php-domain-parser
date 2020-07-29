@@ -266,9 +266,9 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
      *
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain): ResolvableHostInterface
+    public function resolve($domain): ResolvedHostInterface
     {
-        if ($domain instanceof ResolvableHostInterface) {
+        if ($domain instanceof ResolvedHostInterface) {
             $domain = $domain->getHost();
             $domain
                 ->withUnicodeIDNAOption($this->unicodeIDNAOption)

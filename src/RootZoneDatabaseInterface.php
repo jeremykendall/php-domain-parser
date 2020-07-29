@@ -87,7 +87,7 @@ interface RootZoneDatabaseInterface extends Countable, IteratorAggregate, JsonSe
      *
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain): ResolvableHostInterface;
+    public function resolve($domain): ResolvedHostInterface;
 
     /**
      * Sets conversion options for idn_to_ascii.
