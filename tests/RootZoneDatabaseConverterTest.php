@@ -15,20 +15,20 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
-use Pdp\TopLevelDomainsConverter;
+use Pdp\RootZoneDatabaseConverter;
 use Pdp\UnableToLoadTopLevelDomains;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \Pdp\TopLevelDomainsConverter
+ * @coversDefaultClass \Pdp\RootZoneDatabaseConverter
  */
-class TopLevelDomainsConverterTest extends TestCase
+class RootZoneDatabaseConverterTest extends TestCase
 {
     public function testConverter(): void
     {
         /** @var string $string */
         $string = file_get_contents(__DIR__.'/data/root_zones.dat');
-        $res = (new TopLevelDomainsConverter())->convert($string);
+        $res = (new RootZoneDatabaseConverter())->convert($string);
         self::assertArrayHasKey('version', $res);
         self::assertArrayHasKey('modifiedDate', $res);
         self::assertArrayHasKey('records', $res);
@@ -41,7 +41,7 @@ class TopLevelDomainsConverterTest extends TestCase
     public function testConverterThrowsException(string $content): void
     {
         self::expectException(UnableToLoadTopLevelDomains::class);
-        (new TopLevelDomainsConverter())->convert($content);
+        (new RootZoneDatabaseConverter())->convert($content);
     }
 
     public function invalidContentProvider(): iterable

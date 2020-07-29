@@ -107,7 +107,7 @@ final class RulesCachePsr16Adapter implements RulesCache
         }
 
         try {
-            $rules = Rules::createFromJsonString($cacheData);
+            $rules = Rules::fromJsonString($cacheData);
         } catch (Throwable $exception) {
             $this->cache->delete($cacheKey);
             $this->logger->warning($exception->getMessage());

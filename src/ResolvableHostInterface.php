@@ -17,7 +17,7 @@ namespace Pdp;
 
 interface ResolvableHostInterface extends HostInterface
 {
-    public function getDomain(): DomainInterface;
+    public function getHost(): DomainInterface;
 
     public function getPublicSuffix(): PublicSuffixInterface;
 

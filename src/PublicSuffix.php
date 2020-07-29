@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use JsonSerializable;
 use function array_reverse;
 use function count;
 use function implode;
@@ -24,9 +23,9 @@ use function reset;
 use function substr;
 use const IDNA_DEFAULT;
 
-final class PublicSuffix extends HostParser implements JsonSerializable, PublicSuffixInterface
+final class PublicSuffix extends HostParser implements PublicSuffixInterface
 {
-    private const PSL_SECTION = [PublicSuffixListInterface::PRIVATE_DOMAINS, PublicSuffixListInterface::ICANN_DOMAINS, ''];
+    private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
 
     private ?string $publicSuffix;
 
@@ -73,7 +72,7 @@ final class PublicSuffix extends HostParser implements JsonSerializable, PublicS
      */
     public static function fromICANNSection($publicSuffix = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
     {
-        return new self($publicSuffix, PublicSuffixListInterface::ICANN_DOMAINS, $asciiIDNAOption, $unicodeIDNAOption);
+        return new self($publicSuffix, self::ICANN_DOMAINS, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
     /**
@@ -81,7 +80,7 @@ final class PublicSuffix extends HostParser implements JsonSerializable, PublicS
      */
     public static function fromPrivateSection($publicSuffix = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
     {
-        return new self($publicSuffix, PublicSuffixListInterface::PRIVATE_DOMAINS, $asciiIDNAOption, $unicodeIDNAOption);
+        return new self($publicSuffix, self::PRIVATE_DOMAINS, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
     /**
@@ -184,12 +183,12 @@ final class PublicSuffix extends HostParser implements JsonSerializable, PublicS
 
     public function isICANN(): bool
     {
-        return PublicSuffixListInterface::ICANN_DOMAINS === $this->section;
+        return self::ICANN_DOMAINS === $this->section;
     }
 
     public function isPrivate(): bool
     {
-        return PublicSuffixListInterface::PRIVATE_DOMAINS === $this->section;
+        return self::PRIVATE_DOMAINS === $this->section;
     }
 
     public function toAscii(): HostInterface

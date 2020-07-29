@@ -30,7 +30,7 @@ use function substr;
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-final class RulesConverter extends HostParser
+final class PublicSuffixListConverter extends HostParser
 {
     private const PSL_SECTION = [
         'ICANN' => [

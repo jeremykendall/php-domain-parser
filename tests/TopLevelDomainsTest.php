@@ -20,9 +20,9 @@ use DateTimeZone;
 use Pdp\Domain;
 use Pdp\InvalidDomain;
 use Pdp\PublicSuffix;
+use Pdp\RootZoneDatabaseConverter;
 use Pdp\RootZoneDatabaseInterface;
 use Pdp\TopLevelDomains;
-use Pdp\TopLevelDomainsConverter;
 use Pdp\UnableToLoadTopLevelDomains;
 use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
@@ -44,12 +44,12 @@ class TopLevelDomainsTest extends TestCase
 
     public function setUp(): void
     {
-        $this->collection = TopLevelDomains::createFromPath(__DIR__.'/data/tlds-alpha-by-domain.txt');
+        $this->collection = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt');
     }
 
     /**
-     * @covers ::createFromPath
-     * @covers ::createFromString
+     * @covers ::fromPath
+     * @covers ::fromString
      * @covers ::__construct
      */
     public function testCreateFromPath(): void
@@ -61,17 +61,17 @@ class TopLevelDomainsTest extends TestCase
             ],
         ]);
 
-        $collection = TopLevelDomains::createFromPath(__DIR__.'/data/tlds-alpha-by-domain.txt', $context);
+        $collection = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt', $context);
         self::assertEquals($this->collection, $collection);
     }
 
     /**
-     * @covers ::createFromPath
+     * @covers ::fromPath
      */
     public function testCreateFromPathThrowsException(): void
     {
         self::expectException(UnableToLoadTopLevelDomains::class);
-        TopLevelDomains::createFromPath('/foo/bar.dat');
+        TopLevelDomains::fromPath('/foo/bar.dat');
     }
 
     /**
@@ -86,7 +86,7 @@ class TopLevelDomainsTest extends TestCase
 
     public function testGetterProperties(): void
     {
-        $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
+        $collection = TopLevelDomains::fromPath(__DIR__.'/data/root_zones.dat');
         self::assertCount(15, $collection);
         self::assertSame('2018082200', $collection->getVersion());
         self::assertEquals(
@@ -95,7 +95,7 @@ class TopLevelDomainsTest extends TestCase
         );
         self::assertFalse($collection->isEmpty());
 
-        $converter = new TopLevelDomainsConverter();
+        $converter = new RootZoneDatabaseConverter();
         /** @var string $content */
         $content = file_get_contents(__DIR__.'/data/root_zones.dat');
         $data = $converter->convert($content);
@@ -186,7 +186,7 @@ class TopLevelDomainsTest extends TestCase
 
     public function testResolveWithUnregisteredTLD(): void
     {
-        $collection = TopLevelDomains::createFromPath(__DIR__.'/data/root_zones.dat');
+        $collection = TopLevelDomains::fromPath(__DIR__.'/data/root_zones.dat');
         self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix()->getContent());
     }
 
@@ -199,7 +199,7 @@ class TopLevelDomainsTest extends TestCase
         ]
         );
 
-        $collection = TopLevelDomains::createFromPath(
+        $collection = TopLevelDomains::fromPath(
             __DIR__.'/data/root_zones.dat',
             null,
             IDNA_NONTRANSITIONAL_TO_ASCII,

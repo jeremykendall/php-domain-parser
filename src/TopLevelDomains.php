@@ -25,6 +25,7 @@ use function json_decode;
 use function json_last_error;
 use function json_last_error_msg;
 use function stream_get_contents;
+use function substr;
 use const DATE_ATOM;
 use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
@@ -71,7 +72,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
      *
      * @throws UnableToLoadTopLevelDomains If the rules can not be loaded from the path
      */
-    public static function createFromPath(
+    public static function fromPath(
         string $path,
         $context = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
@@ -91,17 +92,17 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
         $content = stream_get_contents($resource);
         fclose($resource);
 
-        return self::createFromString($content, $asciiIDNAOption, $unicodeIDNAOption);
+        return self::fromString($content, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
-    public static function createFromString(
+    public static function fromString(
         string $content,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ): RootZoneDatabaseInterface {
         static $converter;
 
-        $converter = $converter ?? new TopLevelDomainsConverter();
+        $converter = $converter ?? new RootZoneDatabaseConverter();
 
         $data = $converter->convert($content);
         /** @var DateTimeImmutable $modifiedDate */
@@ -116,7 +117,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
         );
     }
 
-    public static function createFromJsonString(
+    public static function fromJsonString(
         string $jsonString,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
@@ -146,8 +147,8 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
             $properties['records'],
             $properties['version'],
             $properties['modifiedDate'],
-            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
-            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
+            $properties['asciiIDNAOption'],
+            $properties['unicodeIDNAOption']
         );
     }
 
@@ -268,7 +269,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
     public function resolve($domain): ResolvableHostInterface
     {
         if ($domain instanceof ResolvableHostInterface) {
-            $domain = $domain->getDomain();
+            $domain = $domain->getHost();
             $domain
                 ->withUnicodeIDNAOption($this->unicodeIDNAOption)
                 ->withAsciiIDNAOption($this->asciiIDNAOption);
@@ -278,11 +279,21 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
             $domain = new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
-        /** @var DomainInterface $asciiDomain */
-        $asciiDomain = $domain->toAscii();
-        if (!$asciiDomain->isResolvable()) {
+        $domainContent = $domain->getContent();
+        if (null === $domainContent) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
+
+        if (2 > count($domain)) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
+        }
+
+        if ('.' === substr($domainContent, -1, 1)) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
+        }
+
+        /** @var DomainInterface $asciiDomain */
+        $asciiDomain = $domain->toAscii();
 
         $publicSuffix = null;
         $label = $asciiDomain->label(0);
@@ -293,7 +304,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
             }
         }
 
-        return new ResolvableDomain($domain, PublicSuffix::fromUnknownSection($publicSuffix));
+        return new ResolvedDomain($domain, PublicSuffix::fromUnknownSection($publicSuffix));
     }
 
     /**

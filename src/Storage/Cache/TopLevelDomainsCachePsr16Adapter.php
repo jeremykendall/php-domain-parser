@@ -111,7 +111,7 @@ final class TopLevelDomainsCachePsr16Adapter implements TopLevelDomainsCache
         }
 
         try {
-            $topLevelDomains = TopLevelDomains::createFromJsonString($cacheData);
+            $topLevelDomains = TopLevelDomains::fromJsonString($cacheData);
         } catch (Throwable $exception) {
             $this->cache->delete($cacheKey);
             $this->logger->warning($exception->getMessage());

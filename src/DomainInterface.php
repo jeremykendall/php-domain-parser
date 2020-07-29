@@ -66,15 +66,6 @@ interface DomainInterface extends HostInterface, IteratorAggregate
     public function getIterator();
 
     /**
-     * Tells whether the given domain can be resolved.
-     *
-     * A domain is resolvable if:
-     *     - it contains at least 2 labels
-     *     - it is not a absolute domain (end with a '.' character)
-     */
-    public function isResolvable(): bool;
-
-    /**
      * Prepends a label to the domain.
      *
      * @see ::withLabel

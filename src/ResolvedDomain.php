@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use JsonSerializable;
 use function array_reverse;
 use function array_slice;
 use function count;
@@ -26,7 +25,7 @@ use function sprintf;
 use function strlen;
 use function substr;
 
-final class ResolvableDomain implements ResolvableHostInterface, JsonSerializable
+final class ResolvedDomain implements ResolvableHostInterface
 {
     private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
@@ -86,7 +85,17 @@ final class ResolvableDomain implements ResolvableHostInterface, JsonSerializabl
                 ->withUnicodeIDNAOption($unicodeIDNAOptions);
         }
 
-        if (!$this->domain->isResolvable()) {
+        $domainContent = $this->domain->getContent();
+
+        if (null === $domainContent) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
+        }
+
+        if (2 > count($this->domain)) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
+        }
+
+        if ('.' === substr($domainContent, -1, 1)) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
@@ -167,7 +176,7 @@ final class ResolvableDomain implements ResolvableHostInterface, JsonSerializabl
         return count($this->domain);
     }
 
-    public function getDomain(): DomainInterface
+    public function getHost(): DomainInterface
     {
         return $this->domain;
     }
@@ -210,11 +219,6 @@ final class ResolvableDomain implements ResolvableHostInterface, JsonSerializabl
     public function getPublicSuffix(): PublicSuffixInterface
     {
         return $this->publicSuffix;
-    }
-
-    public function isResolvable(): bool
-    {
-        return $this->domain->isResolvable();
     }
 
     public function toAscii(): self

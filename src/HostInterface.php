@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use Countable;
+use JsonSerializable;
 
 /**
  * Domain Interface.
@@ -24,7 +25,7 @@ use Countable;
  * @see https://tools.ietf.org/html/rfc1123#section-2.1
  * @see https://tools.ietf.org/html/rfc5890
  */
-interface HostInterface extends Countable
+interface HostInterface extends Countable, JsonSerializable
 {
     /**
      * Returns the domain content.
@@ -37,6 +38,12 @@ interface HostInterface extends Countable
      * Labels The total number.
      */
     public function count(): int;
+
+    /**
+     * Returns the domain content.
+     *
+     */
+    public function jsonSerialize(): ?string;
 
     /**
      * Returns the domain content as a string.

@@ -17,6 +17,10 @@ namespace Pdp;
 
 interface PublicSuffixInterface extends HostInterface
 {
+    public const ICANN_DOMAINS = 'ICANN_DOMAINS';
+
+    public const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
+
     /**
      * Tells whether the effective TLD has a matching rule in a Public Suffix List.
      */

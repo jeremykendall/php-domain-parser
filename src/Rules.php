@@ -25,6 +25,7 @@ use function json_decode;
 use function json_last_error;
 use function json_last_error_msg;
 use function stream_get_contents;
+use function substr;
 use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
 
@@ -36,7 +37,7 @@ use const JSON_ERROR_NONE;
  */
 final class Rules implements PublicSuffixListInterface
 {
-    private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
+    private const PSL_SECTION = [PublicSuffixInterface::PRIVATE_DOMAINS, PublicSuffixInterface::ICANN_DOMAINS, ''];
 
     /**
      * PSL rules as a multidimentional associative array.
@@ -64,7 +65,7 @@ final class Rules implements PublicSuffixListInterface
      *
      * @throws UnableToLoadRules If the rules can not be loaded from the path
      */
-    public static function createFromPath(
+    public static function fromPath(
         string $path,
         $context = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
@@ -84,25 +85,25 @@ final class Rules implements PublicSuffixListInterface
         $content = stream_get_contents($resource);
         fclose($resource);
 
-        return self::createFromString($content, $asciiIDNAOption, $unicodeIDNAOption);
+        return self::fromString($content, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
     /**
      * Returns a new instance from a string.
      */
-    public static function createFromString(
+    public static function fromString(
         string $content,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ): self {
         static $converter;
 
-        $converter = $converter ?? new RulesConverter();
+        $converter = $converter ?? new PublicSuffixListConverter();
 
         return new self($converter->convert($content), $asciiIDNAOption, $unicodeIDNAOption);
     }
 
-    public static function createFromJsonString(
+    public static function fromJsonString(
         string $jsonString,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
@@ -152,13 +153,7 @@ final class Rules implements PublicSuffixListInterface
      */
     public function getPublicSuffix($domain, string $section = ''): PublicSuffixInterface
     {
-        if (!$domain instanceof ResolvableHostInterface) {
-            $domain = new ResolvableDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption));
-        }
-
-        if (!$domain->getDomain()->isResolvable()) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
-        }
+        $domain = $this->validateDomain($domain);
 
         $publicSuffix = $this->findPublicSuffix($domain, $this->validateSection($section));
 
@@ -186,7 +181,7 @@ final class Rules implements PublicSuffixListInterface
      */
     public function getICANNEffectiveTLD($domain): PublicSuffixInterface
     {
-        return $this->getPublicSuffix($domain, self::ICANN_DOMAINS);
+        return $this->getPublicSuffix($domain, PublicSuffixInterface::ICANN_DOMAINS);
     }
 
     /**
@@ -198,7 +193,7 @@ final class Rules implements PublicSuffixListInterface
      */
     public function getPrivateEffectiveTLD($domain): PublicSuffixInterface
     {
-        return $this->getPublicSuffix($domain, self::PRIVATE_DOMAINS);
+        return $this->getPublicSuffix($domain, PublicSuffixInterface::PRIVATE_DOMAINS);
     }
 
     /**
@@ -214,7 +209,7 @@ final class Rules implements PublicSuffixListInterface
                 return $this->resolveCookieDomain($domain);
             }
 
-            if (self::ICANN_DOMAINS === $section) {
+            if (PublicSuffixInterface::ICANN_DOMAINS === $section) {
                 return $this->resolveICANNDomain($domain);
             }
 
@@ -224,12 +219,12 @@ final class Rules implements PublicSuffixListInterface
                 /** @var HostInterface */
                 $domain = $exception->getDomain();
 
-                return new ResolvableDomain($domain);
+                return new ResolvedDomain($domain);
             }
 
-            return new ResolvableDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption));
+            return new ResolvedDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption));
         } catch (ExceptionInterface $exception) {
-            return new ResolvableDomain(Domain::fromNull($this->asciiIDNAOption, $this->unicodeIDNAOption));
+            return new ResolvedDomain(Domain::fromNull($this->asciiIDNAOption, $this->unicodeIDNAOption));
         }
     }
 
@@ -254,7 +249,7 @@ final class Rules implements PublicSuffixListInterface
     {
         $domain = $this->validateDomain($domain);
 
-        return $domain->resolve($this->findPublicSuffix($domain, self::ICANN_DOMAINS));
+        return $domain->resolve($this->findPublicSuffix($domain, PublicSuffixInterface::ICANN_DOMAINS));
     }
 
     /**
@@ -266,7 +261,7 @@ final class Rules implements PublicSuffixListInterface
     {
         $domain = $this->validateDomain($domain);
 
-        return $domain->resolve($this->findPublicSuffix($domain, self::PRIVATE_DOMAINS));
+        return $domain->resolve($this->findPublicSuffix($domain, PublicSuffixInterface::PRIVATE_DOMAINS));
     }
 
     /**
@@ -280,10 +275,19 @@ final class Rules implements PublicSuffixListInterface
     private function validateDomain($domain): ResolvableHostInterface
     {
         if (!($domain instanceof ResolvableHostInterface)) {
-            $domain = new ResolvableDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption), null);
+            $domain = new ResolvedDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption), null);
         }
 
-        if (!$domain->getDomain()->isResolvable()) {
+        $domainContent = $domain->getContent();
+        if (2 > count($domain)) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
+        }
+
+        if (null === $domainContent) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
+        }
+
+        if ('.' === substr($domainContent, -1, 1)) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
@@ -309,20 +313,20 @@ final class Rules implements PublicSuffixListInterface
      */
     private function findPublicSuffix(ResolvableHostInterface $domain, string $section): PublicSuffixInterface
     {
-        $asciiDomain = $domain->getDomain();
+        $asciiDomain = $domain->getHost();
         /** @var DomainInterface $asciiDomain */
         $asciiDomain = $asciiDomain->toAscii();
-        $icann = $this->findPublicSuffixFromSection($asciiDomain, self::ICANN_DOMAINS);
-        if (self::ICANN_DOMAINS === $section) {
+        $icann = $this->findPublicSuffixFromSection($asciiDomain, PublicSuffixInterface::ICANN_DOMAINS);
+        if (PublicSuffixInterface::ICANN_DOMAINS === $section) {
             return $icann;
         }
 
-        $private = $this->findPublicSuffixFromSection($asciiDomain, self::PRIVATE_DOMAINS);
+        $private = $this->findPublicSuffixFromSection($asciiDomain, PublicSuffixInterface::PRIVATE_DOMAINS);
         if (count($private) > count($icann)) {
             return $private;
         }
 
-        if (self::PRIVATE_DOMAINS === $section) {
+        if (PublicSuffixInterface::PRIVATE_DOMAINS === $section) {
             return PublicSuffix::fromUnknownSection($asciiDomain->label(0), $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
@@ -363,7 +367,7 @@ final class Rules implements PublicSuffixListInterface
 
         $content = implode('.', array_reverse($matches));
 
-        if (self::PRIVATE_DOMAINS === $section) {
+        if (PublicSuffixInterface::PRIVATE_DOMAINS === $section) {
             return PublicSuffix::fromPrivateSection($content, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 

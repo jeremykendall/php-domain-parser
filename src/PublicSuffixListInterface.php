@@ -25,10 +25,6 @@ use JsonSerializable;
  */
 interface PublicSuffixListInterface extends JsonSerializable
 {
-    public const ICANN_DOMAINS = 'ICANN_DOMAINS';
-
-    public const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
-
     public function getAsciiIDNAOption(): int;
 
     public function getUnicodeIDNAOption(): int;

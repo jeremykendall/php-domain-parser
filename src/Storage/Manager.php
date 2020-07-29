@@ -69,7 +69,7 @@ final class Manager
     public function getRulesRemoteCopy(string $uri = null): Rules
     {
         $uri = $uri ?? self::PSL_URL;
-        $rules = Rules::createFromString($this->http->getContent($uri));
+        $rules = Rules::fromString($this->http->getContent($uri));
 
         $this->rulesCache->storeByUri($uri, $rules);
 
@@ -96,7 +96,7 @@ final class Manager
     public function getTopLevelDomainsRemoteCopy(string $uri = null): RootZoneDatabaseInterface
     {
         $uri = $uri ?? self::RZD_URL;
-        $topLevelDomains = TopLevelDomains::createFromString($this->http->getContent($uri));
+        $topLevelDomains = TopLevelDomains::fromString($this->http->getContent($uri));
 
         $this->topLevelDomainsCache->storeByUri($uri, $topLevelDomains);
 

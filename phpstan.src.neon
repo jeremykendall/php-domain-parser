@@ -12,8 +12,8 @@ parameters:
       path: src/PublicSuffix.php
     - message: '#Property Pdp\\TopLevelDomains::\$modifiedDate \(DateTimeImmutable\) does not accept DateTimeInterface.#'
       path: src/TopLevelDomains.php
-    - message: '#Method Pdp\\ResolvableDomain::resolve\(\) has parameter \$publicSuffix with no typehint specified.#'
-      path: src/ResolvableDomain.php
-    - message: '#Method Pdp\\ResolvableDomain::withSubDomain\(\) has parameter \$subDomain with no typehint specified.#'
-      path: src/ResolvableDomain.php
+    - message: '#Method Pdp\\ResolvedDomain::resolve\(\) has parameter \$publicSuffix with no typehint specified.#'
+      path: src/ResolvedDomain.php
+    - message: '#Method Pdp\\ResolvedDomain::withSubDomain\(\) has parameter \$subDomain with no typehint specified.#'
+      path: src/ResolvedDomain.php
   reportUnmatchedIgnoredErrors: true

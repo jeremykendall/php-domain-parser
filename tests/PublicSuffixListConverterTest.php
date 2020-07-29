@@ -15,20 +15,20 @@ declare(strict_types=1);
 
 namespace Pdp\Tests;
 
-use Pdp\RulesConverter;
+use Pdp\PublicSuffixListConverter;
 use Pdp\UnableToLoadRules;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \Pdp\RulesConverter
+ * @coversDefaultClass \Pdp\PublicSuffixListConverter
  */
-class ConverterTest extends TestCase
+class PublicSuffixListConverterTest extends TestCase
 {
     public function testConverter(): void
     {
         /** @var string $string */
         $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
-        $retval = (new RulesConverter())->convert($string);
+        $retval = (new PublicSuffixListConverter())->convert($string);
 
         self::assertNotEmpty($retval['ICANN_DOMAINS']);
         self::assertNotEmpty($retval['PRIVATE_DOMAINS']);
@@ -41,19 +41,19 @@ class ConverterTest extends TestCase
 
         self::expectException(UnableToLoadRules::class);
 
-        (new RulesConverter())->convert($content);
+        (new PublicSuffixListConverter())->convert($content);
     }
 
     public function testConvertWithEmptyString(): void
     {
-        $retVal = (new RulesConverter())->convert('');
+        $retVal = (new PublicSuffixListConverter())->convert('');
 
         self::assertEquals(['ICANN_DOMAINS' => [], 'PRIVATE_DOMAINS' => []], $retVal);
     }
 
     public function testConvertWithInvalidString(): void
     {
-        $retVal = (new RulesConverter())->convert('foobar');
+        $retVal = (new PublicSuffixListConverter())->convert('foobar');
 
         self::assertEquals(['ICANN_DOMAINS' => [], 'PRIVATE_DOMAINS' => []], $retVal);
     }

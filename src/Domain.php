@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use JsonSerializable;
 use TypeError;
 use function array_count_values;
 use function array_keys;
@@ -29,10 +28,9 @@ use function ksort;
 use function preg_match;
 use function sprintf;
 use function strpos;
-use function substr;
 use const IDNA_DEFAULT;
 
-final class Domain extends HostParser implements DomainInterface, JsonSerializable
+final class Domain extends HostParser implements DomainInterface
 {
     private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
@@ -133,14 +131,6 @@ final class Domain extends HostParser implements DomainInterface, JsonSerializab
     public function getUnicodeIDNAOption(): int
     {
         return $this->unicodeIDNAOption;
-    }
-
-    public function isResolvable(): bool
-    {
-        return null !== $this->domain
-            && '.' !== substr($this->domain, -1, 1)
-            && 1 < count($this->labels)
-        ;
     }
 
     public function toAscii(): self
