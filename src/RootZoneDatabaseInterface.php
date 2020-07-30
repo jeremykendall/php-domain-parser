@@ -20,11 +20,6 @@ use DateTimeImmutable;
 use IteratorAggregate;
 use JsonSerializable;
 
-/**
- * A class to resolve domain name against the IANA Root Database.
- *
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
 interface RootZoneDatabaseInterface extends Countable, IteratorAggregate, JsonSerializable
 {
     /**

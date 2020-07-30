@@ -17,12 +17,6 @@ namespace Pdp;
 
 use JsonSerializable;
 
-/**
- * A class to resolve domain name against the Public Suffix list.
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
 interface PublicSuffixListInterface extends JsonSerializable
 {
     public function getAsciiIDNAOption(): int;
@@ -57,7 +51,7 @@ interface PublicSuffixListInterface extends JsonSerializable
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolve($domain, string $section = ''): ResolvedHostInterface;
+    public function resolve(HostInterface $domain): ResolvedHostInterface;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for cookie domain detection.

@@ -30,11 +30,6 @@ use const DATE_ATOM;
 use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
 
-/**
- * A class to resolve domain name against the IANA Root Database.
- *
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
 final class TopLevelDomains implements RootZoneDatabaseInterface
 {
     private DateTimeImmutable $modifiedDate;

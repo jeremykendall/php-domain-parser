@@ -22,14 +22,6 @@ use function preg_match;
 use function strpos;
 use function substr;
 
-/**
- * Public Suffix List Parser.
- *
- * This class convert the Public Suffix List into an associative, multidimensional array
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
 final class PublicSuffixListConverter extends HostParser
 {
     private const PSL_SECTION = [

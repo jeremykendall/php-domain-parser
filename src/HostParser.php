@@ -49,9 +49,6 @@ use const IDNA_ERROR_PUNYCODE;
 use const IDNA_ERROR_TRAILING_HYPHEN;
 use const INTL_IDNA_VARIANT_UTS46;
 
-/**
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
 abstract class HostParser
 {
     /**
@@ -99,24 +96,12 @@ abstract class HostParser
      */
     final protected function idnToAscii(string $domain, int $option = IDNA_DEFAULT): string
     {
-        [$domain, ] = $this->transformToAscii($domain, $option);
-
-        return $domain;
-    }
-
-    /**
-     * Returns the IDNA ASCII form and its isTransitionalDifferent state.
-     *
-     * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
-     */
-    private function transformToAscii(string $domain, int $option): array
-    {
         $domain = rawurldecode($domain);
 
         static $pattern = '/[^\x20-\x7f]/';
 
         if (1 !== preg_match($pattern, $domain)) {
-            return [strtolower($domain), ['isTransitionalDifferent' => false]];
+            return strtolower($domain);
         }
 
         $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $infos);
@@ -135,7 +120,7 @@ abstract class HostParser
         // @codeCoverageIgnoreEnd
 
         if (false === strpos($output, '%')) {
-            return [$output, $infos];
+            return $output;
         }
 
         throw InvalidDomain::dueToInvalidCharacters($domain);
@@ -188,11 +173,11 @@ abstract class HostParser
         }
 
         if (null === $domain) {
-            return ['labels' => [], 'isTransitionalDifferent' => false];
+            return [];
         }
 
         if ('' === $domain) {
-            return ['labels' => [''], 'isTransitionalDifferent' => false];
+            return [''];
         }
 
         if (!is_string($domain) && !method_exists($domain, '__toString')) {
@@ -216,10 +201,7 @@ abstract class HostParser
             )
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
         if (1 === preg_match($domain_name, $formatted_domain)) {
-            return [
-                'labels' => array_reverse(explode('.', strtolower($formatted_domain))),
-                'isTransitionalDifferent' => false,
-            ];
+            return array_reverse(explode('.', strtolower($formatted_domain)));
         }
 
         // a domain name can not contains URI delimiters or space
@@ -234,9 +216,11 @@ abstract class HostParser
             throw InvalidDomain::dueToMalformedLabels($domain);
         }
 
-        [$ascii_domain, $infos] = $this->transformToAscii($domain, $asciiOption);
-        $infos['labels'] = array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
+        $ascii_domain = $this->idnToAscii($domain, $asciiOption);
 
-        return $infos;
+        /** @var array $labels */
+        $labels = array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
+
+        return $labels;
     }
 }

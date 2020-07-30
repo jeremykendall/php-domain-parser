@@ -22,13 +22,6 @@ use function strpos;
 use function trim;
 use const DATE_ATOM;
 
-/**
- * IANA Root Zone Database Converter.
- *
- * This class convert the IANA Root Zone Database into an associative, multidimensional array
- *
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
 final class RootZoneDatabaseConverter
 {
     private const IANA_DATE_FORMAT = 'D M d H:i:s Y e';

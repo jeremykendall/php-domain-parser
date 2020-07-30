@@ -29,12 +29,6 @@ use function substr;
 use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
 
-/**
- * A class to resolve domain name against the Public Suffix list.
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
 final class Rules implements PublicSuffixListInterface
 {
     private const PSL_SECTION = [PublicSuffixInterface::PRIVATE_DOMAINS, PublicSuffixInterface::ICANN_DOMAINS, ''];
@@ -201,19 +195,10 @@ final class Rules implements PublicSuffixListInterface
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolve($domain, string $section = ''): ResolvedHostInterface
+    public function resolve($domain): ResolvedHostInterface
     {
-        $section = $this->validateSection($section);
         try {
-            if ('' === $section) {
-                return $this->resolveCookieDomain($domain);
-            }
-
-            if (PublicSuffixInterface::ICANN_DOMAINS === $section) {
-                return $this->resolveICANNDomain($domain);
-            }
-
-            return $this->resolvePrivateDomain($domain);
+            return $this->resolveCookieDomain($domain);
         } catch (UnableToResolveDomain $exception) {
             if ($exception->hasDomain()) {
                 /** @var HostInterface */

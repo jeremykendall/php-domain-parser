@@ -14,9 +14,32 @@
 
 declare(strict_types=1);
 
-use Pdp\Storage\Cache\Logger;
-use Pdp\Storage\Installer;
-use Pdp\Storage\Output;
+use Pdp\Storage\Logger;
+use Pdp\Storage\Psr16FileCache;
+use Pdp\Storage\RulesCachePsr16Adapter;
+use Pdp\Storage\TopLevelDomainsCachePsr16Adapter;
+use Pdp\Storage\CurlHttpClient;
+use Pdp\Storage\Manager;
+
+const KEY_CACHE_DIR = 'cache-dir';
+const KEY_URI_PSL = 'psl';
+const KEY_URI_RZD = 'rzd';
+const KEY_TTL = 'ttl';
+const DEFAULT_VALUES = [
+    KEY_URI_PSL => 'https://publicsuffix.org/list/public_suffix_list.dat',
+    KEY_URI_RZD => 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt',
+    KEY_TTL => '1 DAY',
+];
+
+function success(string $message): void
+{
+    fwrite(STDOUT, $message.PHP_EOL);
+}
+
+function fail(string $message): void
+{
+    fwrite(STDERR, $message.PHP_EOL);
+}
 
 function get_vendor_path(): ?string
 {
@@ -36,13 +59,12 @@ if (null === $vendor) {
         You must set up the project dependencies using composer
         see https://getcomposer.org
         TEXT;
-    fwrite(STDERR, $message);
+    fail($message);
     die(1);
 }
 
 require $vendor.'/autoload.php';
 
-$output = new Output();
 $default_cache_dir = dirname(__DIR__).'/data';
 
 /**
@@ -57,64 +79,114 @@ $yellow = chr(27)."[33m";
 $arguments = getopt('h::', [
     'h',
     'help',
-    Installer::CACHE_DIR_KEY.':',
-    Installer::URI_KEY_PSL.':',
-    Installer::URI_KEY_RZD.':',
-    Installer::TTL_KEY.':',
-]) + [
-    Installer::CACHE_DIR_KEY => $default_cache_dir,
-    Installer::TTL_KEY => '1 DAY',
-];
+    KEY_CACHE_DIR.':',
+    KEY_URI_PSL.':',
+    KEY_URI_RZD.':',
+    KEY_TTL.':',
+]);
 
-if (isset($arguments['help']) || isset($arguments['h'])) {
+if (isset($arguments['help']) || isset($arguments['h']) || [] === $arguments) {
     $script = basename(__FILE__);
     $helpText = <<<HELP
 {$yellow}Usage:$reset
     $script [options]
 
 {$yellow}Options:$reset
-    $green    --%s$reset                set the local copy to cache ({$yellow}possible values:$reset psl or rzd)
-    $green    --%s=URL$reset             set the URL to use to refresh the Public Suffix List
-    $green    --%s=URL$reset             set the URL to use to refresh the Root Zone Domains
-    $green    --%s=TTL$reset             set the TTL for the cache ({$yellow}default:$reset '1 DAY')
-    $green    --%s=CACHE-DIR$reset set the cache root directory ({$yellow}default:$reset $default_cache_dir')
-    $green-h, --help$reset                show the following help message
+$green    --%s=URL$reset        set the URL to use to refresh the Public Suffix List ({$yellow}default:$reset '%s')
+$green    --%s=URL$reset        set the URL to use to refresh the Root Zone Database ({$yellow}default:$reset '%s')
+$green    --%s=TTL$reset        set the TTL for the cache ({$yellow}default:$reset '%s')
+$green    --%s=PATH$reset set the cache root directory ({$yellow}default:$reset '$default_cache_dir')
+$green    -h, --help$reset       show the following help message
 
 {$yellow}Help:$reset
-    The {$green}update-php$reset command updates your PDP local cache.
+   The {$green}update-php$reset command updates your PDP local cache.
 
 {$yellow}Examples:$reset
+   Refresh all the cache for a TTL of 3 DAY
+   $green$script --ttl="3 DAYS"$reset
 
-     Refresh the PSL cache for a TTL of 3 DAY
-     $green$script --type=psl --ttl="3 DAYS"$reset
+   Refresh all the cache using another cache directory
+   $green$script --cache-dir=/temp$reset
 
-     Refresh the TLD caches using another cache directory
-     $green$script --type=rzd --cache-dir=/temp$reset
+   Refresh all the cache using another Public Suffix List URI but with the default URI for the Root Zone Database
+   $green$script --psl="https://example.com/public-suffix-list"$reset
 
-     Read more at https://github.com/jeremykendall/php-domain-parser/
-
+   Read more at https://github.com/jeremykendall/php-domain-parser/
 HELP;
 
-    $helpText = sprintf($helpText, Installer::URI_KEY_PSL, Installer::TTL_KEY, Installer::CACHE_DIR_KEY);
-    $output->success($helpText);
+    success(sprintf(
+        $helpText,
+        KEY_URI_PSL,
+        DEFAULT_VALUES[KEY_URI_PSL],
+        KEY_URI_RZD,
+        DEFAULT_VALUES[KEY_URI_RZD],
+        KEY_TTL,
+        DEFAULT_VALUES[KEY_TTL],
+        KEY_CACHE_DIR
+    ));
 
     die(0);
 }
 
 if (!extension_loaded('curl')) {
-    $output->fail("$redbg The required PHP cURL extension is missing. $reset");
+    fail("$redbg The required PHP cURL extension is missing. $reset");
 
     die(1);
 }
 
-$installer = new Installer(new Logger( STDOUT, STDERR));
-$output->success("$yellow Updating your Pdp local cache.$reset");
-if ($installer->updateLocalCache($arguments)) {
-    $output->success("$green Pdp local cache successfully updated. $reset");
+$context = filter_var_array($arguments + [KEY_CACHE_DIR => $default_cache_dir] + DEFAULT_VALUES, [
+    KEY_URI_PSL => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW, 'default' => ''],
+    KEY_URI_RZD => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW, 'default' => ''],
+    KEY_TTL => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW],
+    KEY_CACHE_DIR => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW],
+]);
+
+try {
+    $logger = new Logger( STDOUT, STDERR);
+    $cache = new Psr16FileCache($context[KEY_CACHE_DIR]);
+    $manager = new Manager(
+        new CurlHttpClient(),
+        new RulesCachePsr16Adapter($cache, $context[KEY_TTL], $logger),
+        new TopLevelDomainsCachePsr16Adapter($cache, $context[KEY_TTL], $logger),
+    );
+
+} catch (Throwable $exception) {
+    if (null !== $logger) {
+        $logger->error('Local cache update initialisation failed with {exception}', ['exception' => $exception->getMessage()]);
+    }
+    fail("$redbg The script failed on initialisation.$reset");
+
+    die(1);
+}
+
+success("$yellow Starting updating your local cache.$reset");
+$error = 0;
+$pslUri = trim($context[KEY_URI_PSL]);
+if ('' !== $pslUri) {
+    try {
+        $manager->getPublicSuffixListRemoteCopy($pslUri);
+    } catch (Throwable $exception) {
+        $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
+        fail("$redbg The command failed to update the public suffix list local cache. $reset");
+        ++$error;
+    }
+}
+
+$rzdUri = trim($context[KEY_URI_RZD]);
+if ('' !== $rzdUri) {
+    try {
+        $manager->getRootZoneDatabaseRemoteCopy($context[KEY_URI_RZD]);
+    } catch (Throwable $exception) {
+        $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
+        fail("$redbg The command failed to update the root zone database local cache. $reset");
+        ++$error;
+    }
+}
+
+if (0 === $error) {
+    success("$green Pdp local cache successfully updated. $reset");
 
     die(0);
 }
-
-$output->fail("$redbg The command failed to update Pdp local cache successfully. $reset");
 
 die(1);

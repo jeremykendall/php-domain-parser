@@ -196,8 +196,6 @@ class PublicSuffixTest extends TestCase
     }
 
     /**
-     * @covers ::isTransitionalDifferent
-     *
      * @dataProvider customIDNAProvider
      */
     public function testResolveWithCustomIDNAOptions(
@@ -245,29 +243,6 @@ class PublicSuffixTest extends TestCase
                 'xn--fa-hia.test.de',
                 'faß.test.de',
             ],
-        ];
-    }
-
-    /**
-     * @covers ::isTransitionalDifferent
-     *
-     * @dataProvider transitionalProvider
-     */
-    public function testIsTransitionalDifference(PublicSuffix $publicSuffix, bool $expected): void
-    {
-        self::assertSame($expected, $publicSuffix->isTransitionalDifferent());
-    }
-
-    public function transitionalProvider(): iterable
-    {
-        return [
-            'simple' => [PublicSuffix::fromUnknownSection('example.com'), false],
-            'idna' => [PublicSuffix::fromUnknownSection('français.fr'), false],
-            'in domain' => [PublicSuffix::fromUnknownSection('faß.de'), true],
-            'in domain 2' => [PublicSuffix::fromUnknownSection('βόλος.com'), true],
-            'in domain 3' => [PublicSuffix::fromUnknownSection('ශ්‍රී.com'), true],
-            'in domain 4' => [PublicSuffix::fromUnknownSection('نامه‌ای.com'), true],
-            'in label' => [PublicSuffix::fromUnknownSection('faß.test.de'), true],
         ];
     }
 

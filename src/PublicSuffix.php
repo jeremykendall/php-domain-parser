@@ -20,7 +20,6 @@ use function count;
 use function implode;
 use function in_array;
 use function reset;
-use function substr;
 use const IDNA_DEFAULT;
 
 final class PublicSuffix extends HostParser implements PublicSuffixInterface
@@ -37,8 +36,6 @@ final class PublicSuffix extends HostParser implements PublicSuffixInterface
 
     private int $unicodeIDNAOption;
 
-    private bool $isTransitionalDifferent;
-
     /**
      * @param mixed|null $publicSuffix a public suffix in a type that is supported
      */
@@ -48,9 +45,7 @@ final class PublicSuffix extends HostParser implements PublicSuffixInterface
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ) {
-        $infos = $this->parse($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
-        $this->labels = $infos['labels'];
-        $this->isTransitionalDifferent = $infos['isTransitionalDifferent'];
+        $this->labels = $this->parse($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
         $this->publicSuffix = $this->setPublicSuffix();
         $this->section = $this->setSection($section);
         $this->asciiIDNAOption = $asciiIDNAOption;
@@ -153,14 +148,6 @@ final class PublicSuffix extends HostParser implements PublicSuffixInterface
         return (string) $this->publicSuffix;
     }
 
-    public function isResolvable(): bool
-    {
-        return null !== $this->publicSuffix
-            && '.' !== substr($this->publicSuffix, -1, 1)
-            && 1 < count($this->labels)
-            ;
-    }
-
     public function getAsciiIDNAOption(): int
     {
         return $this->asciiIDNAOption;
@@ -169,11 +156,6 @@ final class PublicSuffix extends HostParser implements PublicSuffixInterface
     public function getUnicodeIDNAOption(): int
     {
         return $this->unicodeIDNAOption;
-    }
-
-    public function isTransitionalDifferent(): bool
-    {
-        return $this->isTransitionalDifferent;
     }
 
     public function isKnown(): bool

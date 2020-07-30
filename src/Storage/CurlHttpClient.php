@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage\Http;
+namespace Pdp\Storage;
 
 use function curl_close;
 use function curl_errno;
@@ -29,7 +29,7 @@ use const CURLOPT_RETURNTRANSFER;
 use const CURLOPT_SSL_VERIFYHOST;
 use const CURLOPT_SSL_VERIFYPEER;
 
-final class CurlClient implements Client
+final class CurlHttpClient implements HttpClient
 {
     private array $options;
 
@@ -53,7 +53,7 @@ final class CurlClient implements Client
         $res = @curl_setopt_array($curl, $this->options);
         curl_close($curl);
         if (!$res) {
-            throw new CurlClientException('Please verify your curl additionnal options');
+            throw new CurlHttpHttpClientException('Please verify your curl additionnal options');
         }
     }
 
@@ -71,7 +71,7 @@ final class CurlClient implements Client
         $message = curl_error($curl);
         curl_close($curl);
         if (CURLE_OK !== $code) {
-            throw new CurlClientException($message, $code);
+            throw new CurlHttpHttpClientException($message, $code);
         }
 
         return $content;

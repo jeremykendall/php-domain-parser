@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage\Http;
+namespace Pdp\Storage;
 
 use Throwable;
 
-interface ClientException extends Throwable
+interface HttpClientException extends Throwable
 {
 }

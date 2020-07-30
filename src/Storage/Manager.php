@@ -17,9 +17,6 @@ namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabaseInterface;
 use Pdp\Rules;
-use Pdp\Storage\Cache\RulesCache;
-use Pdp\Storage\Cache\TopLevelDomainsCache;
-use Pdp\Storage\Http\Client;
 use Pdp\TopLevelDomains;
 use Pdp\UnableToLoadPublicSuffixList;
 use Pdp\UnableToLoadRootZoneDatabase;
@@ -38,13 +35,13 @@ final class Manager
     public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
     private const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
-    private Client $http;
+    private HttpClient $http;
 
     private RulesCache $rulesCache;
 
     private TopLevelDomainsCache $topLevelDomainsCache;
 
-    public function __construct(Client $http, RulesCache $rulesCache, TopLevelDomainsCache $topLevelDomainsCache)
+    public function __construct(HttpClient $http, RulesCache $rulesCache, TopLevelDomainsCache $topLevelDomainsCache)
     {
         $this->http = $http;
         $this->rulesCache = $rulesCache;

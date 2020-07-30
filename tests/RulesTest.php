@@ -21,11 +21,11 @@ use Pdp\PublicSuffix;
 use Pdp\PublicSuffixInterface;
 use Pdp\ResolvedDomain;
 use Pdp\Rules;
-use Pdp\Storage\Cache\Psr16FileCache;
-use Pdp\Storage\Cache\RulesCachePsr16Adapter;
-use Pdp\Storage\Cache\TopLevelDomainsCachePsr16Adapter;
-use Pdp\Storage\Http\CurlClient;
+use Pdp\Storage\CurlHttpClient;
 use Pdp\Storage\Manager;
+use Pdp\Storage\Psr16FileCache;
+use Pdp\Storage\RulesCachePsr16Adapter;
+use Pdp\Storage\TopLevelDomainsCachePsr16Adapter;
 use Pdp\UnableToLoadPublicSuffixList;
 use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
@@ -38,7 +38,7 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 /**
  * @coversDefaultClass \Pdp\Rules
  */
-class RulesTest extends TestCase
+final class RulesTest extends TestCase
 {
     /**
      * @var Rules
@@ -49,7 +49,7 @@ class RulesTest extends TestCase
     {
         $psr16Cache = new Psr16FileCache(__DIR__.'/data');
         $manager = new Manager(
-            new CurlClient(),
+            new CurlHttpClient(),
             new RulesCachePsr16Adapter($psr16Cache),
             new TopLevelDomainsCachePsr16Adapter($psr16Cache)
         );
@@ -153,16 +153,6 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     */
-    public function testResolveThrowsExceptionOnWrongDomainType(): void
-    {
-        self::expectException(UnableToResolveDomain::class);
-        $this->rules->resolve('www.example.com', 'foobar');
-    }
-
-    /**
-     * @covers ::resolve
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -188,7 +178,7 @@ class RulesTest extends TestCase
      */
     public function testIsSuffixValidTrue(): void
     {
-        $domain = $this->rules->resolve('www.example.com', PublicSuffixInterface::ICANN_DOMAINS);
+        $domain = $this->rules->resolve('www.example.com');
         self::assertTrue($domain->getPublicSuffix()->isKnown());
         self::assertTrue($domain->getPublicSuffix()->isICANN());
         self::assertFalse($domain->getPublicSuffix()->isPrivate());
@@ -230,7 +220,7 @@ class RulesTest extends TestCase
      */
     public function testSubDomainIsNull(): void
     {
-        $domain = $this->rules->resolve('ulb.ac.be', PublicSuffixInterface::ICANN_DOMAINS);
+        $domain = $this->rules->resolve('ulb.ac.be');
         self::assertTrue($domain->getPublicSuffix()->isKnown());
         self::assertTrue($domain->getPublicSuffix()->isICANN());
         self::assertFalse($domain->getPublicSuffix()->isPrivate());
@@ -291,7 +281,7 @@ class RulesTest extends TestCase
      */
     public function testWithPrivateDomainInvalid(): void
     {
-        $domain = $this->rules->resolve('private.ulb.ac.be', PublicSuffixInterface::PRIVATE_DOMAINS);
+        $domain = $this->rules->resolvePrivateDomain('private.ulb.ac.be');
         self::assertSame('private.ulb.ac.be', $domain->getContent());
         self::assertFalse($domain->getPublicSuffix()->isKnown());
         self::assertFalse($domain->getPublicSuffix()->isICANN());
@@ -311,7 +301,7 @@ class RulesTest extends TestCase
      */
     public function testWithPrivateDomainValid(): void
     {
-        $domain = $this->rules->resolve('thephpleague.github.io', PublicSuffixInterface::PRIVATE_DOMAINS);
+        $domain = $this->rules->resolvePrivateDomain('thephpleague.github.io');
         self::assertSame('thephpleague.github.io', $domain->getContent());
         self::assertTrue($domain->getPublicSuffix()->isKnown());
         self::assertFalse($domain->getPublicSuffix()->isICANN());
@@ -386,7 +376,7 @@ class RulesTest extends TestCase
      */
     public function testGetRegistrableDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
-        $foundRegistrableDomain = $this->rules->resolve($domain, PublicSuffixInterface::ICANN_DOMAINS)->getRegistrableDomain();
+        $foundRegistrableDomain = $this->rules->resolve($domain)->getRegistrableDomain();
 
         self::assertSame($registrableDomain, $foundRegistrableDomain->getContent());
     }
@@ -403,7 +393,7 @@ class RulesTest extends TestCase
      */
     public function testGetPublicSuffix(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
-        $effectiveTLD = $this->rules->resolve($domain, PublicSuffixInterface::ICANN_DOMAINS)->getPublicSuffix();
+        $effectiveTLD = $this->rules->resolve($domain)->getPublicSuffix();
 
         self::assertSame($publicSuffix, $effectiveTLD->getContent());
     }
@@ -420,7 +410,7 @@ class RulesTest extends TestCase
      */
     public function testGetDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
-        self::assertSame($expectedDomain, $this->rules->resolve($domain, PublicSuffixInterface::ICANN_DOMAINS)->getContent());
+        self::assertSame($expectedDomain, $this->rules->resolve($domain)->getContent());
     }
 
     public function parseDataProvider(): iterable
@@ -428,24 +418,92 @@ class RulesTest extends TestCase
         return [
             // public suffix, registrable domain, domain
             // BEGIN https://github.com/jeremykendall/php-domain-parser/issues/16
-            'com tld' => ['com', 'example.com', 'us.example.com', 'us.example.com'],
-            'na tld' => ['na', 'example.na', 'us.example.na', 'us.example.na'],
-            'us.na tld' => ['us.na', 'example.us.na', 'www.example.us.na', 'www.example.us.na'],
-            'org tld' => ['org', 'example.org', 'us.example.org', 'us.example.org'],
-            'biz tld (1)' => ['biz', 'broken.biz', 'webhop.broken.biz', 'webhop.broken.biz'],
-            'biz tld (2)' => ['biz', 'webhop.biz', 'www.broken.webhop.biz', 'www.broken.webhop.biz'],
+            'com tld' => [
+                'publicSuffix' => 'com',
+                'registrableDomain' => 'example.com',
+                'domain' => 'us.example.com',
+                'expectedDomain' => 'us.example.com',
+            ],
+            'na tld' => [
+                'publicSuffix' => 'na',
+                'registrableDomain' => 'example.na',
+                'domain' => 'us.example.na',
+                'expectedDomain' => 'us.example.na',
+            ],
+            'us.na tld' => [
+                'publicSuffix' => 'us.na',
+                'registrableDomain' => 'example.us.na',
+                'domain' => 'www.example.us.na',
+                'expectedDomain' => 'www.example.us.na',
+            ],
+            'org tld' => [
+                'publicSuffix' => 'org',
+                'registrableDomain' => 'example.org',
+                'domain' => 'us.example.org',
+                'expectedDomain' => 'us.example.org',
+            ],
+            'biz tld (1)' => [
+                'publicSuffix' => 'biz',
+                'registrableDomain' => 'broken.biz',
+                'domain' => 'webhop.broken.biz',
+                'expectedDomain' => 'webhop.broken.biz',
+            ],
+            'biz tld (2)' => [
+                'publicSuffix' => 'webhop.biz',
+                'registrableDomain' => 'broken.webhop.biz',
+                'domain' =>  'www.broken.webhop.biz',
+                'expectedDomain' => 'www.broken.webhop.biz',
+            ],
             // END https://github.com/jeremykendall/php-domain-parser/issues/16
             // Test ipv6 URL
-            'IP (1)' => [null, null, '[::1]', null],
-            'IP (2)' => [null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]', null],
-            'IP (3)' => [null, null, '[2001:db8:85a3:8d3:1319:8a2e:370:7348]', null],
+            'IP (1)' => [
+                'publicSuffix' => null,
+                'registrableDomain' => null,
+                'domain' => '[::1]',
+                'expectedDomain' => null, ],
+            'IP (2)' => [
+                'publicSuffix' => null,
+                'registrableDomain' => null,
+                'domain' => '[2001:db8:85a3:8d3:1319:8a2e:370:7348]',
+                'expectedDomain' => null,
+            ],
+            'IP (3)' => [
+                'publicSuffix' => null,
+                'registrableDomain' => null,
+                'domain' => '[2001:db8:85a3:8d3:1319:8a2e:370:7348]',
+                'expectedDomain' => null,
+            ],
             // Test IP address: Fixes #43
-            'IP (4)' => [null, null, '192.168.1.2', null],
+            'IP (4)' => [
+                'publicSuffix' =>  null,
+                'registrableDomain' =>  null,
+                'domain' => '192.168.1.2',
+                'expectedDomain' => null,
+            ],
             // Link-local addresses and zone indices
-            'IP (5)' => [null, null, '[fe80::3%25eth0]', null],
-            'IP (6)' => [null, null, '[fe80::1%2511]', null],
-            'fake tld' => ['faketld', 'example.faketld', 'example.faketld', 'example.faketld'],
-            'fake tld with space' => [null, null, 'fake.t ld', null],
+            'IP (5)' => [
+                'publicSuffix' =>  null,
+                'registrableDomain' => null,
+                'domain' => '[fe80::3%25eth0]',
+                'expectedDomain' =>  null, ],
+            'IP (6)' => [
+                'publicSuffix' => null,
+                'registrableDomain' => null,
+                'domain' => '[fe80::1%2511]',
+                'expectedDomain' => null,
+            ],
+            'fake tld' => [
+                'publicSuffix' => 'faketld',
+                'registrableDomain' => 'example.faketld',
+                'domain' => 'example.faketld',
+                'expectedDomain' => 'example.faketld',
+            ],
+            'fake tld with space' => [
+                'publicSuffix' => null,
+                'registrableDomain' =>  null,
+                'domain' => 'fake.t ld',
+                'expectedDomain' => null,
+            ],
         ];
     }
 
@@ -667,14 +725,14 @@ class RulesTest extends TestCase
      */
     public function testResolveWithIDNAOptions(): void
     {
-        $resolvedByDefault = $this->rules->resolve('foo.de', PublicSuffixInterface::ICANN_DOMAINS);
+        $resolvedByDefault = $this->rules->resolve('foo.de');
         self::assertSame(
             [IDNA_DEFAULT, IDNA_DEFAULT],
             [$resolvedByDefault->getAsciiIDNAOption(), $resolvedByDefault->getUnicodeIDNAOption()]
         );
         $psr16Cache = new Psr16FileCache(__DIR__.'/data');
         $manager = new Manager(
-            new CurlClient(),
+            new CurlHttpClient(),
             new RulesCachePsr16Adapter($psr16Cache),
             new TopLevelDomainsCachePsr16Adapter($psr16Cache)
         );
@@ -683,7 +741,7 @@ class RulesTest extends TestCase
             ->withAsciiIDNAOption(IDNA_NONTRANSITIONAL_TO_ASCII)
             ->withUnicodeIDNAOption(IDNA_NONTRANSITIONAL_TO_UNICODE);
 
-        $resolved = $rules->resolve('foo.de', PublicSuffixInterface::ICANN_DOMAINS);
+        $resolved = $rules->resolve('foo.de');
         self::assertSame(
             [$rules->getAsciiIDNAOption(), $rules->getUnicodeIDNAOption()],
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]

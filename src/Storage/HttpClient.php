@@ -11,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Pdp\Storage\Http;
+namespace Pdp\Storage;
 
 /**
  * Interface for http adapters.
@@ -24,12 +24,12 @@ namespace Pdp\Storage\Http;
  * @author William Durand <william.durand1@gmail.com>
  * @author Jeremy Kendall <jeremy@jeremykendall.net>
  */
-interface Client
+interface HttpClient
 {
     /**
      * Returns the content fetched from a given URL.
      *
-     * @throws ClientException If an errors occurs while fetching the content from a given URL
+     * @throws HttpClientException If an errors occurs while fetching the content from a given URL
      */
     public function getContent(string $url): string;
 }

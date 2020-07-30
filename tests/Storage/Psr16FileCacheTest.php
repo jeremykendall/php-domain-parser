@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests\Storage\Cache;
+namespace Pdp\Tests\Storage;
 
 use DateInterval;
 use Generator;
 use Iterator;
 use org\bovigo\vfs\vfsStream;
-use Pdp\Storage\Cache\Psr16CacheException;
-use Pdp\Storage\Cache\Psr16FileCache;
+use Pdp\Storage\Psr16CacheException;
+use Pdp\Storage\Psr16FileCache;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\InvalidArgumentException;
 use function dirname;
@@ -38,7 +38,7 @@ use function dirname;
 final class Psr16FileCacheTest extends TestCase
 {
     /**
-     * @var \Pdp\Storage\Cache\Psr16FileCache
+     * @var \Pdp\Storage\Psr16FileCache
      */
     protected $cache;
 

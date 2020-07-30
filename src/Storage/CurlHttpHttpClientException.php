@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage\Http;
+namespace Pdp\Storage;
 
 use RuntimeException;
 
-class CurlClientException extends RuntimeException implements ClientException
+class CurlHttpHttpClientException extends RuntimeException implements HttpClientException
 {
 }

@@ -34,12 +34,12 @@ final class Domain extends HostParser implements DomainInterface
 {
     private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
-    private ?string $domain;
-
     /**
      * @var array<string>
      */
     private array $labels;
+
+    private ?string $domain;
 
     private int $asciiIDNAOption;
 
@@ -53,14 +53,13 @@ final class Domain extends HostParser implements DomainInterface
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ) {
-        $this->asciiIDNAOption = $asciiIDNAOption;
-        $this->unicodeIDNAOption = $unicodeIDNAOption;
-        $infos = $this->parse($domain, $asciiIDNAOption, $unicodeIDNAOption);
-        $this->labels = $infos['labels'];
+        $this->labels = $this->parse($domain, $asciiIDNAOption, $unicodeIDNAOption);
         $this->domain = implode('.', array_reverse($this->labels));
         if ([] === $this->labels) {
             $this->domain = null;
         }
+        $this->asciiIDNAOption = $asciiIDNAOption;
+        $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
 
     public static function __set_state(array $properties): self
