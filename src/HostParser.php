@@ -92,7 +92,7 @@ abstract class HostParser
      *
      * This method returns the string converted to IDN ASCII form
      *
-     * @throws InvalidDomain if the string can not be converted to ASCII using IDN UTS46 algorithm
+     * @throws InvalidHost if the string can not be converted to ASCII using IDN UTS46 algorithm
      */
     final protected function idnToAscii(string $domain, int $option = IDNA_DEFAULT): string
     {
@@ -106,11 +106,11 @@ abstract class HostParser
 
         $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $infos);
         if ([] === $infos) {
-            throw InvalidDomain::dueToIDNAError($domain);
+            throw InvalidHost::dueToIDNAError($domain);
         }
 
         if (0 !== $infos['errors']) {
-            throw InvalidDomain::dueToIDNAError($domain, self::getIdnErrors($infos['errors']));
+            throw InvalidHost::dueToIDNAError($domain, self::getIdnErrors($infos['errors']));
         }
 
         // @codeCoverageIgnoreStart
@@ -123,7 +123,7 @@ abstract class HostParser
             return $output;
         }
 
-        throw InvalidDomain::dueToInvalidCharacters($domain);
+        throw InvalidHost::dueToInvalidCharacters($domain);
     }
 
     /**
@@ -131,18 +131,18 @@ abstract class HostParser
      *
      * This method returns the string converted to IDN UNICODE form
      *
-     * @throws InvalidDomain            if the string can not be converted to UNICODE using IDN UTS46 algorithm
+     * @throws InvalidHost              if the string can not be converted to UNICODE using IDN UTS46 algorithm
      * @throws UnexpectedValueException if the intl extension is misconfigured
      */
     final protected function idnToUnicode(string $domain, int $option = IDNA_DEFAULT): string
     {
         $output = idn_to_utf8($domain, $option, INTL_IDNA_VARIANT_UTS46, $info);
         if ([] === $info) {
-            throw InvalidDomain::dueToIDNAError($domain);
+            throw InvalidHost::dueToIDNAError($domain);
         }
 
         if (0 !== $info['errors']) {
-            throw InvalidDomain::dueToIDNAError($domain, self::getIdnErrors($info['errors']));
+            throw InvalidHost::dueToIDNAError($domain, self::getIdnErrors($info['errors']));
         }
 
         // @codeCoverageIgnoreStart
@@ -164,7 +164,8 @@ abstract class HostParser
      *
      * @param mixed $domain a domain
      *
-     * @throws InvalidDomain If the domain is invalid
+     * @throws InvalidHost   If the domain is not a host
+     * @throws InvalidDomain If the host is not a domain
      */
     final protected function parse($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
     {
@@ -212,15 +213,15 @@ abstract class HostParser
 
         // if the domain name does not contains UTF-8 chars then it is malformed
         static $pattern = '/[^\x20-\x7f]/';
-        if (1 !== preg_match($pattern, $formatted_domain)) {
-            throw InvalidDomain::dueToMalformedLabels($domain);
+        if (1 === preg_match($pattern, $formatted_domain)) {
+            $ascii_domain = $this->idnToAscii($domain, $asciiOption);
+
+            /** @var array $labels */
+            $labels = array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
+
+            return $labels;
         }
 
-        $ascii_domain = $this->idnToAscii($domain, $asciiOption);
-
-        /** @var array $labels */
-        $labels = array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
-
-        return $labels;
+        throw InvalidDomain::dueToInvalidCharacters($domain);
     }
 }

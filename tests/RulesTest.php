@@ -17,6 +17,7 @@ namespace Pdp\Tests;
 
 use Pdp\Domain;
 use Pdp\InvalidDomain;
+use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
 use Pdp\PublicSuffixInterface;
 use Pdp\ResolvedDomain;
@@ -30,7 +31,9 @@ use Pdp\UnableToLoadPublicSuffixList;
 use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use function array_fill;
 use function file_get_contents;
+use function implode;
 use const IDNA_DEFAULT;
 use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
@@ -530,26 +533,47 @@ final class RulesTest extends TestCase
      * @covers ::getPublicSuffix
      * @covers ::validateSection
      * @covers \Pdp\HostParser::parse
+     *
      * @dataProvider invalidDomainParseProvider
      */
     public function testGetPublicSuffixThrowsInvalidDomainException(string $domain, string $section): void
     {
         self::expectException(InvalidDomain::class);
+
         $this->rules->getPublicSuffix($domain, $section);
     }
 
     public function invalidDomainParseProvider(): iterable
     {
-        $long_label = implode('.', array_fill(0, 62, 'a'));
-
         return [
             'IPv6' => ['[::1]', PublicSuffixInterface::ICANN_DOMAINS],
             'IPv4' => ['192.168.1.2', PublicSuffixInterface::ICANN_DOMAINS],
-            'multiple label with URI delimiter' => ['local.ho/st', PublicSuffixInterface::ICANN_DOMAINS],
             'invalid host: label too long' => [implode('', array_fill(0, 64, 'a')).'.com', PublicSuffixInterface::ICANN_DOMAINS],
-            'invalid host: host too long' => ["$long_label.$long_label.$long_label. $long_label.$long_label", PublicSuffixInterface::ICANN_DOMAINS],
+        ];
+    }
+
+    /**
+     * @covers ::getPublicSuffix
+     * @covers ::validateSection
+     * @covers \Pdp\HostParser::parse
+     *
+     * @dataProvider invalidHostParseProvider
+     */
+    public function testGetPublicSuffixThrowsInvalidHostException(string $domain, string $section): void
+    {
+        self::expectException(InvalidHost::class);
+        $this->rules->getPublicSuffix($domain, $section);
+    }
+
+    public function invalidHostParseProvider(): iterable
+    {
+        $long_label = implode('.', array_fill(0, 62, 'a'));
+
+        return [
+            'multiple label with URI delimiter' => ['local.ho/st', PublicSuffixInterface::ICANN_DOMAINS],
             'invalid host: invalid label according to RFC3986' => ['www.fußball.com-', PublicSuffixInterface::ICANN_DOMAINS],
             'invalid host: host contains space' => ['re view.com', PublicSuffixInterface::ICANN_DOMAINS],
+            'invalid host: host too long' => ["$long_label.$long_label.$long_label. $long_label.$long_label", PublicSuffixInterface::ICANN_DOMAINS],
         ];
     }
 

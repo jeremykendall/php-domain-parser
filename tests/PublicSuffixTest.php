@@ -17,6 +17,7 @@ namespace Pdp\Tests;
 
 use InvalidArgumentException;
 use Pdp\InvalidDomain;
+use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
 use PHPUnit\Framework\TestCase;
 use function json_encode;
@@ -123,7 +124,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testPSToAsciiThrowsException(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidHost::class);
 
         PublicSuffix::fromUnknownSection('a⒈com');
     }
@@ -134,7 +135,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testToUnicodeThrowsException(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidHost::class);
 
         PublicSuffix::fromUnknownSection('xn--a-ecp.ru')->toUnicode();
     }

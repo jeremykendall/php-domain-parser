@@ -73,8 +73,8 @@ interface HostInterface extends Countable, JsonSerializable
      * an instance with its content converted to its IDNA ASCII form
      *
      * @throws ExceptionInterface if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     * @return static
      *
+     * @return static
      */
     public function toAscii(): self;
 
@@ -85,8 +85,8 @@ interface HostInterface extends Countable, JsonSerializable
      * an instance with its content converted to its IDNA UTF8 form
      *
      * @throws ExceptionInterface if the domain can not be converted to Unicode using IDN UTS46 algorithm
-     * @return static
      *
+     * @return static
      */
     public function toUnicode(): self;
 

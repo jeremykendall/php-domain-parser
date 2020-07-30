@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use Pdp\Domain;
-use Pdp\InvalidDomain;
+use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
 use Pdp\ResolvedDomain;
 use Pdp\UnableToResolveDomain;
@@ -484,9 +484,10 @@ class ResolvedDomainTest extends TestCase
      */
     public function testWithEmptySubdomain(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidHost::class);
 
         $domain = new ResolvedDomain(new Domain('www.example.com'), PublicSuffix::fromICANNSection('com'));
+
         $domain->withSubDomain('');
     }
 
@@ -616,7 +617,7 @@ class ResolvedDomainTest extends TestCase
      */
     public function testWithPublicSuffixFailsWithNullDomain(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidHost::class);
 
         (new ResolvedDomain(new Domain()))->withPublicSuffix('www');
     }

@@ -18,7 +18,7 @@ namespace Pdp\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use Pdp\Domain;
-use Pdp\InvalidDomain;
+use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
 use Pdp\RootZoneDatabaseConverter;
 use Pdp\RootZoneDatabaseInterface;
@@ -172,7 +172,7 @@ class TopLevelDomainsTest extends TestCase
 
     public function testResolveWithInvalidDomain(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidHost::class);
 
         $this->collection->resolve('###');
     }

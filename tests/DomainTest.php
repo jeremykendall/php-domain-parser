@@ -17,6 +17,7 @@ namespace Pdp\Tests;
 
 use Pdp\Domain;
 use Pdp\InvalidDomain;
+use Pdp\InvalidHost;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use const IDNA_DEFAULT;
@@ -36,7 +37,8 @@ class DomainTest extends TestCase
      */
     public function testToAsciiThrowsException(string $domain): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidHost::class);
+
         new Domain($domain);
     }
 
@@ -55,7 +57,8 @@ class DomainTest extends TestCase
      */
     public function testToUnicodeThrowsException(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidHost::class);
+
         (new Domain('xn--a-ecp.ru'))->toUnicode();
     }
 
@@ -367,7 +370,8 @@ class DomainTest extends TestCase
      */
     public function testWithLabelFailsWithInvalidLabel2(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidHost::class);
+
         (new Domain('example.com'))->withLabel(-1, '');
     }
 
