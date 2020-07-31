@@ -43,6 +43,7 @@ final class Manager
     /**
      * Gets the Public Suffix List from the Local Storage or the Remote Storage.
      *
+     * @throws HttpClientException
      * @throws UnableToLoadPublicSuffixList
      */
     public function getPublicSuffixListLocalCopy(string $uri = self::PSL_URL): PublicSuffixListInterface
@@ -53,6 +54,7 @@ final class Manager
     /**
      * Gets the Public Suffix List from an the Remote Storage.
      *
+     * @throws HttpClientException
      * @throws UnableToLoadPublicSuffixList
      */
     public function getPublicSuffixListRemoteCopy(string $uri = self::PSL_URL): PublicSuffixListInterface
@@ -67,6 +69,7 @@ final class Manager
     /**
      * Gets the Top Level Domains from the Local Storage or the Remote Storage.
      *
+     * @throws HttpClientException
      * @throws UnableToLoadRootZoneDatabase
      */
     public function getRootZoneDatabaseLocalCopy(string $uri = self::RZD_URL): RootZoneDatabaseInterface
@@ -77,6 +80,7 @@ final class Manager
     /**
      * Gets the Top Level Domains from the Remote Storage.
      *
+     * @throws HttpClientException
      * @throws UnableToLoadRootZoneDatabase
      */
     public function getRootZoneDatabaseRemoteCopy(string $uri = self::RZD_URL): RootZoneDatabaseInterface
