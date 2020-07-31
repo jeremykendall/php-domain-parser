@@ -17,6 +17,6 @@ namespace Pdp\Storage;
 
 use RuntimeException;
 
-class CurlHttpHttpClientException extends RuntimeException implements HttpClientException
+class CurlHttpClientException extends RuntimeException implements HttpClientException
 {
 }

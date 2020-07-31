@@ -25,8 +25,8 @@ use Pdp\Rules;
 use Pdp\Storage\CurlHttpClient;
 use Pdp\Storage\Manager;
 use Pdp\Storage\Psr16FileCache;
-use Pdp\Storage\RulesCachePsr16Adapter;
-use Pdp\Storage\TopLevelDomainsCachePsr16Adapter;
+use Pdp\Storage\PublicSuffixListCachePsr16Adapter;
+use Pdp\Storage\RootZoneDatabaseCachePsr16Adapter;
 use Pdp\UnableToLoadPublicSuffixList;
 use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
@@ -53,8 +53,8 @@ final class RulesTest extends TestCase
         $psr16Cache = new Psr16FileCache(__DIR__.'/data');
         $manager = new Manager(
             new CurlHttpClient(),
-            new RulesCachePsr16Adapter($psr16Cache),
-            new TopLevelDomainsCachePsr16Adapter($psr16Cache)
+            new PublicSuffixListCachePsr16Adapter($psr16Cache),
+            new RootZoneDatabaseCachePsr16Adapter($psr16Cache)
         );
 
         $this->rules = $manager->getPublicSuffixListLocalCopy();
@@ -757,8 +757,8 @@ final class RulesTest extends TestCase
         $psr16Cache = new Psr16FileCache(__DIR__.'/data');
         $manager = new Manager(
             new CurlHttpClient(),
-            new RulesCachePsr16Adapter($psr16Cache),
-            new TopLevelDomainsCachePsr16Adapter($psr16Cache)
+            new PublicSuffixListCachePsr16Adapter($psr16Cache),
+            new RootZoneDatabaseCachePsr16Adapter($psr16Cache)
         );
 
         $rules = $manager->getPublicSuffixListLocalCopy()

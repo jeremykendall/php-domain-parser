@@ -53,7 +53,7 @@ final class CurlHttpClient implements HttpClient
         $res = @curl_setopt_array($curl, $this->options);
         curl_close($curl);
         if (!$res) {
-            throw new CurlHttpHttpClientException('Please verify your curl additionnal options');
+            throw new CurlHttpClientException('Please verify your curl additionnal options');
         }
     }
 
@@ -71,7 +71,7 @@ final class CurlHttpClient implements HttpClient
         $message = curl_error($curl);
         curl_close($curl);
         if (CURLE_OK !== $code) {
-            throw new CurlHttpHttpClientException($message, $code);
+            throw new CurlHttpClientException($message, $code);
         }
 
         return $content;

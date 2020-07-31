@@ -21,15 +21,6 @@ use Pdp\TopLevelDomains;
 use Pdp\UnableToLoadPublicSuffixList;
 use Pdp\UnableToLoadRootZoneDatabase;
 
-/**
- * Public Suffix List Manager.
- *
- * This class obtains, writes, caches, and returns PHP representations
- * of the Public Suffix List ICANN section
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
 final class Manager
 {
     public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
@@ -37,11 +28,11 @@ final class Manager
 
     private HttpClient $http;
 
-    private RulesCache $rulesCache;
+    private PublicSuffixListCache $rulesCache;
 
-    private TopLevelDomainsCache $topLevelDomainsCache;
+    private RootZoneDatabaseCache $topLevelDomainsCache;
 
-    public function __construct(HttpClient $http, RulesCache $rulesCache, TopLevelDomainsCache $topLevelDomainsCache)
+    public function __construct(HttpClient $http, PublicSuffixListCache $rulesCache, RootZoneDatabaseCache $topLevelDomainsCache)
     {
         $this->http = $http;
         $this->rulesCache = $rulesCache;

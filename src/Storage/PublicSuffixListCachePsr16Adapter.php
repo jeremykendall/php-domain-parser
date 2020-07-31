@@ -18,9 +18,7 @@ namespace Pdp\Storage;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Pdp\RootZoneDatabaseInterface;
-use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadRootZoneDatabase;
+use Pdp\Rules;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
@@ -37,18 +35,9 @@ use function sprintf;
 use function strtolower;
 use const FILTER_VALIDATE_INT;
 
-/**
- * Public Suffix List Manager.
- *
- * This class obtains, writes, caches, and returns PHP representations
- * of the Public Suffix List ICANN section
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
-final class TopLevelDomainsCachePsr16Adapter implements TopLevelDomainsCache
+final class PublicSuffixListCachePsr16Adapter implements PublicSuffixListCache
 {
-    private const CACHE_PREFIX = 'RZD';
+    private const CACHE_PREFIX = 'PSL_FULL_';
 
     private CacheInterface $cache;
 
@@ -99,19 +88,17 @@ final class TopLevelDomainsCachePsr16Adapter implements TopLevelDomainsCache
 
     /**
      * Gets the Public Suffix List Rules.
-     *
-     * @throws UnableToLoadRootZoneDatabase
      */
-    public function fetchByUri(string $uri): ?RootZoneDatabaseInterface
+    public function fetchByUri(string $uri): ?Rules
     {
         $cacheKey = $this->getCacheKey($uri);
         $cacheData = $this->cache->get($cacheKey);
         if (null === $cacheData) {
-            return null;
+            return $cacheData;
         }
 
         try {
-            $topLevelDomains = TopLevelDomains::fromJsonString($cacheData);
+            $rules = Rules::fromJsonString($cacheData);
         } catch (Throwable $exception) {
             $this->cache->delete($cacheKey);
             $this->logger->warning($exception->getMessage());
@@ -119,7 +106,7 @@ final class TopLevelDomainsCachePsr16Adapter implements TopLevelDomainsCache
             return null;
         }
 
-        return $topLevelDomains;
+        return $rules;
     }
 
     /**
@@ -127,25 +114,28 @@ final class TopLevelDomainsCachePsr16Adapter implements TopLevelDomainsCache
      */
     private function getCacheKey(string $str): string
     {
-        return sprintf('%s_FULL_%s', self::CACHE_PREFIX, md5(strtolower($str)));
+        return self::CACHE_PREFIX.md5(strtolower($str));
     }
 
-    public function storeByUri(string $uri, RootZoneDatabaseInterface $topLevelDomains): bool
+    /**
+     * Cache the Top Level Domain List.
+     */
+    public function storeByUri(string $uri, Rules $rules): bool
     {
         try {
-            $result = $this->cache->set($this->getCacheKey($uri), json_encode($topLevelDomains), $this->ttl);
+            $result = $this->cache->set($this->getCacheKey($uri), json_encode($rules), $this->ttl);
         } catch (Throwable $exception) {
             $this->logger->info(
-                'The Top Level Domains could not be saved with the following `'.$uri.'`:'.$exception->getMessage(),
+                'The Public Suffix List could not be saved with the following `'.$uri.'`:'.$exception->getMessage(),
                 ['exception' => $exception]
             );
 
             return false;
         }
 
-        $message = 'The Root Zone Domains List is stored for the following `'.$uri.'`';
+        $message = 'The Public Suffix List is stored for the following `'.$uri.'`';
         if (!$result) {
-            $message = 'The  Root Zone Domains List could not be stored for the following '.$uri.'.';
+            $message = 'The Public Suffix List could not be stored for the following '.$uri.'.';
         }
 
         $this->logger->info($message);

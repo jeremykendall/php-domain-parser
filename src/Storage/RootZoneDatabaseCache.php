@@ -15,30 +15,21 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\Rules;
+use Pdp\RootZoneDatabaseInterface;
 
-/**
- * Public Suffix List Manager.
- *
- * This class obtains, writes, caches, and returns PHP representations
- * of the Public Suffix List ICANN section
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
-interface RulesCache
+interface RootZoneDatabaseCache
 {
     /**
-     * Gets the Public Suffix List Rules.
+     * Gets the Top Level Domains from the Cache.
      */
-    public function fetchByUri(string $uri): ?Rules;
+    public function fetchByUri(string $uri): ?RootZoneDatabaseInterface;
 
     /**
-     * Cache the Public Suffix List Rules.
+     * Cache the Top Level Domains List.
      *
      * If a local cache already exists, it will be overwritten.
      *
      * Returns true if the refresh was successful, false otherwise
      */
-    public function storeByUri(string $uri, Rules $rules): bool;
+    public function storeByUri(string $uri, RootZoneDatabaseInterface $topLevelDomains): bool;
 }
