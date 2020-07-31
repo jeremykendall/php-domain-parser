@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
+use Pdp\PublicSuffixListInterface;
 use Pdp\RootZoneDatabaseInterface;
 use Pdp\Rules;
 use Pdp\TopLevelDomains;
@@ -23,20 +24,20 @@ use Pdp\UnableToLoadRootZoneDatabase;
 
 final class Manager
 {
-    public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    private const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
     private const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
     private HttpClient $http;
 
-    private PublicSuffixListCache $rulesCache;
+    private PublicSuffixListCache $publicSuffixListCache;
 
-    private RootZoneDatabaseCache $topLevelDomainsCache;
+    private RootZoneDatabaseCache $rootZoneDatabaseCache;
 
     public function __construct(HttpClient $http, PublicSuffixListCache $rulesCache, RootZoneDatabaseCache $topLevelDomainsCache)
     {
         $this->http = $http;
-        $this->rulesCache = $rulesCache;
-        $this->topLevelDomainsCache = $topLevelDomainsCache;
+        $this->publicSuffixListCache = $rulesCache;
+        $this->rootZoneDatabaseCache = $topLevelDomainsCache;
     }
 
     /**
@@ -44,9 +45,9 @@ final class Manager
      *
      * @throws UnableToLoadPublicSuffixList
      */
-    public function getPublicSuffixListLocalCopy(string $url = self::PSL_URL): Rules
+    public function getPublicSuffixListLocalCopy(string $uri = self::PSL_URL): PublicSuffixListInterface
     {
-        return $this->rulesCache->fetchByUri($url) ?? $this->getPublicSuffixListRemoteCopy($url);
+        return $this->publicSuffixListCache->fetchByUri($uri) ?? $this->getPublicSuffixListRemoteCopy($uri);
     }
 
     /**
@@ -54,12 +55,11 @@ final class Manager
      *
      * @throws UnableToLoadPublicSuffixList
      */
-    public function getPublicSuffixListRemoteCopy(string $uri = null): Rules
+    public function getPublicSuffixListRemoteCopy(string $uri = self::PSL_URL): PublicSuffixListInterface
     {
-        $uri = $uri ?? self::PSL_URL;
         $rules = Rules::fromString($this->http->getContent($uri));
 
-        $this->rulesCache->storeByUri($uri, $rules);
+        $this->publicSuffixListCache->storeByUri($uri, $rules);
 
         return $rules;
     }
@@ -69,11 +69,9 @@ final class Manager
      *
      * @throws UnableToLoadRootZoneDatabase
      */
-    public function getRootZoneDatabaseLocalCopy(string $uri = null): RootZoneDatabaseInterface
+    public function getRootZoneDatabaseLocalCopy(string $uri = self::RZD_URL): RootZoneDatabaseInterface
     {
-        $uri = $uri ?? self::RZD_URL;
-
-        return $this->topLevelDomainsCache->fetchByUri($uri) ?? $this->getRootZoneDatabaseRemoteCopy($uri);
+        return $this->rootZoneDatabaseCache->fetchByUri($uri) ?? $this->getRootZoneDatabaseRemoteCopy($uri);
     }
 
     /**
@@ -81,13 +79,12 @@ final class Manager
      *
      * @throws UnableToLoadRootZoneDatabase
      */
-    public function getRootZoneDatabaseRemoteCopy(string $uri = null): RootZoneDatabaseInterface
+    public function getRootZoneDatabaseRemoteCopy(string $uri = self::RZD_URL): RootZoneDatabaseInterface
     {
-        $uri = $uri ?? self::RZD_URL;
-        $topLevelDomains = TopLevelDomains::fromString($this->http->getContent($uri));
+        $rootZoneDatabase = TopLevelDomains::fromString($this->http->getContent($uri));
 
-        $this->topLevelDomainsCache->storeByUri($uri, $topLevelDomains);
+        $this->rootZoneDatabaseCache->storeByUri($uri, $rootZoneDatabase);
 
-        return $topLevelDomains;
+        return $rootZoneDatabase;
     }
 }

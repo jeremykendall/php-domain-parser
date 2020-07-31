@@ -50,14 +50,10 @@ final class RulesTest extends TestCase
 
     public function setUp(): void
     {
-        $psr16Cache = new Psr16FileCache(__DIR__.'/data');
-        $manager = new Manager(
-            new CurlHttpClient(),
-            new PublicSuffixListCachePsr16Adapter($psr16Cache),
-            new RootZoneDatabaseCachePsr16Adapter($psr16Cache)
-        );
+        /** @var string $string */
+        $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
 
-        $this->rules = $manager->getPublicSuffixListLocalCopy();
+        $this->rules = Rules::fromString($string);
     }
 
     /**
@@ -761,6 +757,7 @@ final class RulesTest extends TestCase
             new RootZoneDatabaseCachePsr16Adapter($psr16Cache)
         );
 
+        /** @var Rules $rules */
         $rules = $manager->getPublicSuffixListLocalCopy()
             ->withAsciiIDNAOption(IDNA_NONTRANSITIONAL_TO_ASCII)
             ->withUnicodeIDNAOption(IDNA_NONTRANSITIONAL_TO_UNICODE);

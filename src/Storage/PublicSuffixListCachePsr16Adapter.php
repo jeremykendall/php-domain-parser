@@ -83,7 +83,16 @@ final class PublicSuffixListCachePsr16Adapter implements PublicSuffixListCache
             ));
         }
 
-        return DateInterval::createFromDateString($ttl);
+        /** @var DateInterval|false $date */
+        $date = @DateInterval::createFromDateString($ttl);
+        if (!$date instanceof DateInterval) {
+            throw new Psr16CacheException(sprintf(
+                'The ttl value "%s" can not be parsable by `DateInterval::createFromDateString`',
+                $ttl
+            ));
+        }
+
+        return $date;
     }
 
     /**
