@@ -72,6 +72,11 @@ final class PublicSuffix implements EffectiveTLD
         return new self(Domain::fromNull($asciiIDNAOption, $unicodeIDNAOption), '');
     }
 
+    public function getDomain(): DomainName
+    {
+        return $this->publicSuffix;
+    }
+
     public function count(): int
     {
         return count($this->publicSuffix);
@@ -79,7 +84,7 @@ final class PublicSuffix implements EffectiveTLD
 
     public function jsonSerialize(): ?string
     {
-        return $this->publicSuffix->jsonSerialize();
+        return $this->publicSuffix->getContent();
     }
 
     public function getContent(): ?string
@@ -89,7 +94,7 @@ final class PublicSuffix implements EffectiveTLD
 
     public function __toString(): string
     {
-        return (string) $this->publicSuffix;
+        return $this->publicSuffix->__toString();
     }
 
     public function getAsciiIDNAOption(): int
@@ -117,28 +122,18 @@ final class PublicSuffix implements EffectiveTLD
         return self::PRIVATE_DOMAINS === $this->section;
     }
 
-    public function toAscii(): Host
+    public function toAscii(): self
     {
-        $newPublicSuffix = $this->publicSuffix->toAscii();
-        if ($newPublicSuffix->getContent() === $this->publicSuffix->getContent()) {
-            return $this;
-        }
-
         $clone = clone $this;
-        $clone->publicSuffix = $newPublicSuffix;
+        $clone->publicSuffix = $this->publicSuffix->toAscii();
 
         return $clone;
     }
 
-    public function toUnicode(): Host
+    public function toUnicode(): self
     {
-        $newPublicSuffix = $this->publicSuffix->toUnicode();
-        if ($newPublicSuffix->getContent() === $this->publicSuffix->getContent()) {
-            return $this;
-        }
-
         $clone = clone $this;
-        $clone->publicSuffix = $newPublicSuffix;
+        $clone->publicSuffix = $this->publicSuffix->toUnicode();
 
         return $clone;
     }

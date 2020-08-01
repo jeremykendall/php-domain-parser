@@ -217,7 +217,7 @@ final class Rules implements PublicSuffixList
      */
     private function findPublicSuffix(ResolvedDomainName $domain, string $section): PublicSuffix
     {
-        $asciiDomain = $domain->getHost();
+        $asciiDomain = $domain->getDomain();
         /** @var DomainName $asciiDomain */
         $asciiDomain = $asciiDomain->toAscii();
         $icann = $this->findPublicSuffixFromSection($asciiDomain, EffectiveTLD::ICANN_DOMAINS);

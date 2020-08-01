@@ -139,8 +139,9 @@ class PublicSuffixTest extends TestCase
     public function testConversionReturnsTheSameInstance(?string $publicSuffix): void
     {
         $instance = PublicSuffix::fromUnknown($publicSuffix);
-        self::assertSame($instance->toUnicode(), $instance);
-        self::assertSame($instance->toAscii(), $instance);
+
+        self::assertEquals($instance->toUnicode(), $instance);
+        self::assertEquals($instance->toAscii(), $instance);
     }
 
     public function conversionReturnsTheSameInstanceProvider(): iterable
@@ -158,7 +159,7 @@ class PublicSuffixTest extends TestCase
     {
         $instance = PublicSuffix::fromUnknown('食狮.公司.cn');
 
-        self::assertSame($instance->toUnicode(), $instance);
+        self::assertEquals($instance->toUnicode(), $instance);
     }
 
     /**

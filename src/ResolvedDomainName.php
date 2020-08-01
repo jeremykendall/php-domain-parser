@@ -15,10 +15,8 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface ResolvedDomainName extends Host
+interface ResolvedDomainName extends Host, OuterDomainName
 {
-    public function getHost(): DomainName;
-
     public function getPublicSuffix(): PublicSuffix;
 
     public function getSubDomain(): DomainName;

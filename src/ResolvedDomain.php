@@ -69,18 +69,11 @@ final class ResolvedDomain implements ResolvedDomainName
         $asciiIDNAOptions = $this->domain->getAsciiIDNAOption();
         $unicodeIDNAOptions = $this->domain->getUnicodeIDNAOption();
 
-        if (null === $publicSuffix) {
+        if (null === $publicSuffix || null === $publicSuffix->getContent()) {
             return PublicSuffix::fromNull($asciiIDNAOptions, $unicodeIDNAOptions);
         }
 
-        if (null === $publicSuffix->getContent()) {
-            return $publicSuffix
-                ->withAsciiIDNAOption($asciiIDNAOptions)
-                ->withUnicodeIDNAOption($unicodeIDNAOptions);
-        }
-
         $domainContent = $this->domain->getContent();
-
         if (null === $domainContent) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
@@ -96,13 +89,11 @@ final class ResolvedDomain implements ResolvedDomainName
         $publicSuffix = $this->normalize($publicSuffix);
         /** @var string $psContent */
         $psContent = $publicSuffix->getContent();
-        if ($this->domain->getContent() === $psContent) {
+        if ($domainContent === $psContent) {
             throw new UnableToResolveDomain(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
         }
 
-        /** @var string $domainName */
-        $domainName = $this->domain->getContent();
-        if ('.'.$psContent !== substr($domainName, - strlen($psContent) - 1)) {
+        if ('.'.$psContent !== substr($domainContent, - strlen($psContent) - 1)) {
             throw new UnableToResolveDomain(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
         }
 
@@ -170,7 +161,7 @@ final class ResolvedDomain implements ResolvedDomainName
         return count($this->domain);
     }
 
-    public function getHost(): DomainName
+    public function getDomain(): DomainName
     {
         return $this->domain;
     }
