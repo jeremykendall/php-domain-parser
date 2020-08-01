@@ -20,7 +20,6 @@ use DateTimeZone;
 use Pdp\Domain;
 use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
-use Pdp\RootZoneDatabase;
 use Pdp\RootZoneDatabaseConverter;
 use Pdp\TopLevelDomains;
 use Pdp\UnableToLoadRootZoneDatabase;
@@ -38,13 +37,13 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 class TopLevelDomainsTest extends TestCase
 {
     /**
-     * @var RootZoneDatabase
+     * @var TopLevelDomains
      */
-    protected $collection;
+    protected $topLevelDomains;
 
     public function setUp(): void
     {
-        $this->collection = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt');
+        $this->topLevelDomains = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt');
     }
 
     /**
@@ -61,8 +60,8 @@ class TopLevelDomainsTest extends TestCase
             ],
         ]);
 
-        $collection = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt', $context);
-        self::assertEquals($this->collection, $collection);
+        $topLevelDomains = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt', $context);
+        self::assertEquals($this->topLevelDomains, $topLevelDomains);
     }
 
     /**
@@ -80,28 +79,28 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testSetState(): void
     {
-        $collection = eval('return '.var_export($this->collection, true).';');
-        self::assertEquals($this->collection, $collection);
+        $topLevelDomains = eval('return '.var_export($this->topLevelDomains, true).';');
+        self::assertEquals($this->topLevelDomains, $topLevelDomains);
     }
 
     public function testGetterProperties(): void
     {
-        $collection = TopLevelDomains::fromPath(__DIR__.'/data/root_zones.dat');
-        self::assertCount(15, $collection);
-        self::assertSame('2018082200', $collection->getVersion());
+        $topLevelDomains = TopLevelDomains::fromPath(__DIR__.'/data/root_zones.dat');
+        self::assertCount(15, $topLevelDomains);
+        self::assertSame('2018082200', $topLevelDomains->getVersion());
         self::assertEquals(
             new DateTimeImmutable('2018-08-22 07:07:01', new DateTimeZone('UTC')),
-            $collection->getModifiedDate()
+            $topLevelDomains->getModifiedDate()
         );
-        self::assertFalse($collection->isEmpty());
+        self::assertFalse($topLevelDomains->isEmpty());
 
         $converter = new RootZoneDatabaseConverter();
         /** @var string $content */
         $content = file_get_contents(__DIR__.'/data/root_zones.dat');
         $data = $converter->convert($content);
-        self::assertEquals($data, $collection->jsonSerialize());
+        self::assertEquals($data, $topLevelDomains->jsonSerialize());
 
-        foreach ($collection as $tld) {
+        foreach ($topLevelDomains as $tld) {
             self::assertInstanceOf(PublicSuffix::class, $tld);
         }
     }
@@ -114,19 +113,19 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testwithIDNAOptions(): void
     {
-        self::assertSame($this->collection, $this->collection->withAsciiIDNAOption(
-            $this->collection->getAsciiIDNAOption()
+        self::assertSame($this->topLevelDomains, $this->topLevelDomains->withAsciiIDNAOption(
+            $this->topLevelDomains->getAsciiIDNAOption()
         ));
 
-        self::assertNotEquals($this->collection, $this->collection->withAsciiIDNAOption(
+        self::assertNotEquals($this->topLevelDomains, $this->topLevelDomains->withAsciiIDNAOption(
             128
         ));
 
-        self::assertSame($this->collection, $this->collection->withUnicodeIDNAOption(
-            $this->collection->getUnicodeIDNAOption()
+        self::assertSame($this->topLevelDomains, $this->topLevelDomains->withUnicodeIDNAOption(
+            $this->topLevelDomains->getUnicodeIDNAOption()
         ));
 
-        self::assertNotEquals($this->collection, $this->collection->withUnicodeIDNAOption(
+        self::assertNotEquals($this->topLevelDomains, $this->topLevelDomains->withUnicodeIDNAOption(
             128
         ));
     }
@@ -140,7 +139,7 @@ class TopLevelDomainsTest extends TestCase
     {
         self::assertSame(
             (new Domain($tld))->label(0),
-            $this->collection->resolve($tld)->getPublicSuffix()->getContent()
+            $this->topLevelDomains->resolve($tld)->getPublicSuffix()->getContent()
         );
     }
 
@@ -167,21 +166,22 @@ class TopLevelDomainsTest extends TestCase
     public function testResolveThrowsTypeError(): void
     {
         self::expectException(TypeError::class);
-        $this->collection->resolve(new DateTimeImmutable());
+
+        $this->topLevelDomains->resolve(new DateTimeImmutable());
     }
 
     public function testResolveWithInvalidDomain(): void
     {
         self::expectException(InvalidHost::class);
 
-        $this->collection->resolve('###');
+        $this->topLevelDomains->resolve('###');
     }
 
     public function testResolveWithUnResolvableDomain(): void
     {
         self::expectException(UnableToResolveDomain::class);
 
-        $this->collection->resolve('localhost');
+        $this->topLevelDomains->resolve('localhost');
     }
 
     public function testResolveWithUnregisteredTLD(): void
@@ -192,11 +192,10 @@ class TopLevelDomainsTest extends TestCase
 
     public function testResolveWithIDNAOptions(): void
     {
-        $resolved = $this->collection->resolve('foo.de');
+        $resolved = $this->topLevelDomains->resolve('foo.de');
         self::assertSame(
             [IDNA_DEFAULT, IDNA_DEFAULT],
-            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption(),
-        ]
+            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
         );
 
         $collection = TopLevelDomains::fromPath(
@@ -219,7 +218,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testContainsReturnsTrue($tld): void
     {
-        self::assertTrue($this->collection->contains($tld));
+        self::assertTrue($this->topLevelDomains->contains($tld));
     }
 
     public function validTldProvider(): iterable
@@ -251,7 +250,7 @@ class TopLevelDomainsTest extends TestCase
      */
     public function testContainsReturnsFalse($tld): void
     {
-        self::assertFalse($this->collection->contains($tld));
+        self::assertFalse($this->topLevelDomains->contains($tld));
     }
 
     public function invalidTldProvider(): iterable

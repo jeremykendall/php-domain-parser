@@ -26,11 +26,11 @@ final class PublicSuffixListConverter extends DomainNameParser
 {
     private const PSL_SECTION = [
         'ICANN' => [
-            'BEGIN' => PublicSuffix::ICANN_DOMAINS,
+            'BEGIN' => EffectiveTLD::ICANN_DOMAINS,
             'END' => '',
         ],
         'PRIVATE' => [
-            'BEGIN' => PublicSuffix::PRIVATE_DOMAINS,
+            'BEGIN' => EffectiveTLD::PRIVATE_DOMAINS,
             'END' => '',
         ],
     ];

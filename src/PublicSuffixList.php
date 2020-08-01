@@ -20,7 +20,7 @@ use JsonSerializable;
 interface PublicSuffixList extends IDNConversion, JsonSerializable
 {
     /**
-     * Returns an array representation of the Public Suffix List Rules JSON serializable
+     * Returns an array representation of the Public Suffix List Rules JSON serializable.
      */
     public function jsonSerialize(): array;
 

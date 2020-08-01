@@ -46,8 +46,8 @@ final class TopLevelDomains implements RootZoneDatabase
         array $records,
         string $version,
         DateTimeInterface $modifiedDate,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
+        int $asciiIDNAOption,
+        int $unicodeIDNAOption
     ) {
         if ($modifiedDate instanceof DateTime) {
             $modifiedDate = DateTimeImmutable::createFromMutable($modifiedDate);
@@ -72,7 +72,7 @@ final class TopLevelDomains implements RootZoneDatabase
         $context = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): RootZoneDatabase {
+    ): self {
         $args = [$path, 'r', false];
         if (null !== $context) {
             $args[] = $context;
@@ -94,7 +94,7 @@ final class TopLevelDomains implements RootZoneDatabase
         string $content,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): RootZoneDatabase {
+    ): self {
         static $converter;
 
         $converter = $converter ?? new RootZoneDatabaseConverter();
@@ -116,7 +116,7 @@ final class TopLevelDomains implements RootZoneDatabase
         string $jsonString,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): RootZoneDatabase {
+    ): self {
         $data = json_decode($jsonString, true);
         $errorCode = json_last_error();
         if (JSON_ERROR_NONE !== $errorCode) {
@@ -133,9 +133,6 @@ final class TopLevelDomains implements RootZoneDatabase
         return new self($data['records'], $data['version'], $modifiedDate, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function __set_state(array $properties): RootZoneDatabase
     {
         return new self(
@@ -147,65 +144,36 @@ final class TopLevelDomains implements RootZoneDatabase
         );
     }
 
-    /**
-     * Returns the Version ID.
-     */
     public function getVersion(): string
     {
         return $this->version;
     }
 
-    /**
-     * Returns the List Last Modified Date.
-     */
     public function getModifiedDate(): DateTimeImmutable
     {
         return $this->modifiedDate;
     }
 
-    /**
-     * Gets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
     public function getAsciiIDNAOption(): int
     {
         return $this->asciiIDNAOption;
     }
 
-    /**
-     * Gets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
     public function getUnicodeIDNAOption(): int
     {
         return $this->unicodeIDNAOption;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function count(): int
     {
         return count($this->records);
     }
 
-    /**
-     * Tells whether the list is empty.
-     */
     public function isEmpty(): bool
     {
         return [] === $this->records;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getIterator()
     {
         foreach ($this->records as $tld) {
@@ -213,9 +181,6 @@ final class TopLevelDomains implements RootZoneDatabase
         }
     }
 
-    /**
-     * Returns an array representation of the list.
-     */
     public function jsonSerialize(): array
     {
         return [
@@ -226,8 +191,6 @@ final class TopLevelDomains implements RootZoneDatabase
     }
 
     /**
-     * Tells whether the submitted TLD is a valid Top Level Domain.
-     *
      * @param mixed $tld a TLD in a type that can be converted into a DomainInterface instance
      */
     public function contains($tld): bool
@@ -256,8 +219,6 @@ final class TopLevelDomains implements RootZoneDatabase
     }
 
     /**
-     * Returns a domain where its public suffix is the found TLD.
-     *
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
     public function resolve($domain): ResolvedDomainName
@@ -300,13 +261,6 @@ final class TopLevelDomains implements RootZoneDatabase
         return new ResolvedDomain($domain, PublicSuffix::fromUnknownSection($publicSuffix));
     }
 
-    /**
-     * Sets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
     public function withAsciiIDNAOption(int $option): RootZoneDatabase
     {
         if ($option === $this->asciiIDNAOption) {
@@ -319,13 +273,6 @@ final class TopLevelDomains implements RootZoneDatabase
         return $clone;
     }
 
-    /**
-     * Sets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
     public function withUnicodeIDNAOption(int $option): RootZoneDatabase
     {
         if ($option === $this->unicodeIDNAOption) {

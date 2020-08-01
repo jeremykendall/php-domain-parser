@@ -39,24 +39,18 @@ final class ResolvedDomain implements ResolvedDomainName
 
     public function __construct(Host $domain, ?PublicSuffix $publicSuffix = null)
     {
-        $this->domain = $this->setDomain($domain);
+        $this->domain = $this->setDomainName($domain);
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function __set_state(array $properties): self
     {
         return new self($properties['domain'], $properties['publicSuffix']);
     }
 
-    /**
-     * Sets the domain.
-     */
-    private function setDomain(Host $domain): DomainName
+    private function setDomainName(Host $domain): DomainName
     {
         if ($domain instanceof DomainName) {
             return $domain;

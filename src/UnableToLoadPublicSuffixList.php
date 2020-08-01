@@ -34,4 +34,14 @@ class UnableToLoadPublicSuffixList extends InvalidArgumentException implements E
     {
         return new self('The following rule "'.$line ?? 'NULL'.'" could not be processed because it is invalid', 0, $exception);
     }
+
+    public static function dueToInvalidHashMap(): self
+    {
+        return new self('The public suffix list data are missing one of the required ICANN or PRIVATE domain section.');
+    }
+
+    public static function dueToCorruptedSection(): self
+    {
+        return new self('The public suffix list section data are corrupted.');
+    }
 }

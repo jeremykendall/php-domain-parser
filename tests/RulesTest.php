@@ -21,11 +21,6 @@ use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
 use Pdp\ResolvedDomain;
 use Pdp\Rules;
-use Pdp\Storage\CurlHttpClient;
-use Pdp\Storage\Manager;
-use Pdp\Storage\Psr16FileCache;
-use Pdp\Storage\PublicSuffixListCachePsr16Adapter;
-use Pdp\Storage\RootZoneDatabaseCachePsr16Adapter;
 use Pdp\UnableToLoadPublicSuffixList;
 use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
@@ -127,7 +122,6 @@ final class RulesTest extends TestCase
      * @covers ::resolveICANNDomain
      * @covers ::resolvePrivateDomain
      * @covers ::validateDomain
-     * @covers ::validateSection
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
      */
@@ -150,7 +144,6 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -165,7 +158,6 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -186,7 +178,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::resolveCookieDomain
      * @covers ::validateDomain
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -207,7 +198,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::resolveICANNDomain
      * @covers ::validateDomain
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -228,7 +218,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::resolveCookieDomain
      * @covers ::validateDomain
-     * @covers ::validateSection
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithExceptionName(): void
@@ -239,7 +228,6 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -271,7 +259,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::resolvePrivateDomain
      * @covers ::validateDomain
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -291,7 +278,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::resolvePrivateDomain
      * @covers ::validateDomain
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -309,7 +295,6 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -327,7 +312,6 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::validateSection
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
@@ -350,7 +334,7 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @covers ::getPublicSuffix
+     * @covers ::getCookieEffectiveTLD
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithDomainInterfaceObject(): void
@@ -359,7 +343,7 @@ final class RulesTest extends TestCase
 
         self::assertSame(
             'ac.be',
-            $this->rules->getPublicSuffix($domain)->getContent()
+            $this->rules->getCookieEffectiveTLD($domain)->getContent()
         );
     }
 
@@ -506,58 +490,49 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @covers ::getPublicSuffix
-     * @covers ::validateSection
+     * @covers ::validateDomain
      * @covers \Pdp\DomainNameParser::parse
-     * @dataProvider invalidParseProvider
      */
-    public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix(string $domain, string $section): void
+    public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix(): void
     {
         self::expectException(UnableToResolveDomain::class);
-        $this->rules->getPublicSuffix($domain, $section);
-    }
 
-    public function invalidParseProvider(): iterable
-    {
-        return [
-            'single label host' => ['localhost', PublicSuffix::ICANN_DOMAINS],
-        ];
+        $this->rules->getICANNEffectiveTLD('localhost');
     }
 
     /**
-     * @covers ::getPublicSuffix
-     * @covers ::validateSection
+     * @covers ::getICANNEffectiveTLD
      * @covers \Pdp\DomainNameParser::parse
      *
      * @dataProvider invalidDomainParseProvider
      */
-    public function testGetPublicSuffixThrowsInvalidDomainException(string $domain, string $section): void
+    public function testGetPublicSuffixThrowsInvalidDomainException(string $domain): void
     {
         self::expectException(InvalidDomainName::class);
 
-        $this->rules->getPublicSuffix($domain, $section);
+        $this->rules->getICANNEffectiveTLD($domain);
     }
 
     public function invalidDomainParseProvider(): iterable
     {
         return [
-            'IPv6' => ['[::1]', PublicSuffix::ICANN_DOMAINS],
-            'IPv4' => ['192.168.1.2', PublicSuffix::ICANN_DOMAINS],
-            'invalid host: label too long' => [implode('', array_fill(0, 64, 'a')).'.com', PublicSuffix::ICANN_DOMAINS],
+            'IPv6' => ['[::1]'],
+            'IPv4' => ['192.168.1.2'],
+            'invalid host: label too long' => [implode('', array_fill(0, 64, 'a')).'.com'],
         ];
     }
 
     /**
-     * @covers ::getPublicSuffix
-     * @covers ::validateSection
+     * @covers ::getICANNEffectiveTLD
      * @covers \Pdp\DomainNameParser::parse
      *
      * @dataProvider invalidHostParseProvider
      */
-    public function testGetPublicSuffixThrowsInvalidHostException(string $domain, string $section): void
+    public function testGetPublicSuffixThrowsInvalidHostException(string $domain): void
     {
         self::expectException(InvalidHost::class);
-        $this->rules->getPublicSuffix($domain, $section);
+
+        $this->rules->getICANNEffectiveTLD($domain);
     }
 
     public function invalidHostParseProvider(): iterable
@@ -565,17 +540,16 @@ final class RulesTest extends TestCase
         $long_label = implode('.', array_fill(0, 62, 'a'));
 
         return [
-            'multiple label with URI delimiter' => ['local.ho/st', PublicSuffix::ICANN_DOMAINS],
-            'invalid host: invalid label according to RFC3986' => ['www.fußball.com-', PublicSuffix::ICANN_DOMAINS],
-            'invalid host: host contains space' => ['re view.com', PublicSuffix::ICANN_DOMAINS],
-            'invalid host: host too long' => ["$long_label.$long_label.$long_label. $long_label.$long_label", PublicSuffix::ICANN_DOMAINS],
+            'multiple label with URI delimiter' => ['local.ho/st'],
+            'invalid host: invalid label according to RFC3986' => ['www.fußball.com-'],
+            'invalid host: host contains space' => ['re view.com'],
+            'invalid host: host too long' => ["$long_label.$long_label.$long_label. $long_label.$long_label"],
         ];
     }
 
 
     /**
-     * @covers ::getPublicSuffix
-     * @covers ::validateSection
+     * @covers ::getCookieEffectiveTLD
      * @covers \Pdp\DomainNameParser::parse
      * @dataProvider validPublicSectionProvider
      * @param ?string $domain
@@ -583,7 +557,7 @@ final class RulesTest extends TestCase
      */
     public function testPublicSuffixSection(?string $domain, ?string $expected): void
     {
-        $publicSuffix =  $this->rules->getPublicSuffix($domain);
+        $publicSuffix =  $this->rules->getCookieEffectiveTLD($domain);
         self::assertSame($expected, $publicSuffix->getContent());
     }
 
@@ -749,19 +723,12 @@ final class RulesTest extends TestCase
             [IDNA_DEFAULT, IDNA_DEFAULT],
             [$resolvedByDefault->getAsciiIDNAOption(), $resolvedByDefault->getUnicodeIDNAOption()]
         );
-        $psr16Cache = new Psr16FileCache(__DIR__.'/data');
-        $manager = new Manager(
-            new CurlHttpClient(),
-            new PublicSuffixListCachePsr16Adapter($psr16Cache),
-            new RootZoneDatabaseCachePsr16Adapter($psr16Cache)
-        );
 
-        /** @var Rules $rules */
-        $rules = $manager->getPublicSuffixListLocalCopy()
-            ->withAsciiIDNAOption(IDNA_NONTRANSITIONAL_TO_ASCII)
-            ->withUnicodeIDNAOption(IDNA_NONTRANSITIONAL_TO_UNICODE);
-
+        /** @var string $string */
+        $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+        $rules = Rules::fromString($string, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         $resolved = $rules->resolve('foo.de');
+
         self::assertSame(
             [$rules->getAsciiIDNAOption(), $rules->getUnicodeIDNAOption()],
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
