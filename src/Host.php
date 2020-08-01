@@ -23,7 +23,7 @@ use JsonSerializable;
  * @see https://tools.ietf.org/html/rfc1123#section-2.1
  * @see https://tools.ietf.org/html/rfc5890
  */
-interface Host extends Countable, JsonSerializable
+interface Host extends Countable, JsonSerializable, IDNConversion
 {
     /**
      * Returns the domain content.
@@ -33,13 +33,12 @@ interface Host extends Countable, JsonSerializable
     /**
      * {@inheritdoc}
      *
-     * Labels The total number.
+     * The labels total number.
      */
     public function count(): int;
 
     /**
      * Returns the domain content.
-     *
      */
     public function jsonSerialize(): ?string;
 
@@ -47,24 +46,6 @@ interface Host extends Countable, JsonSerializable
      * Returns the domain content as a string.
      */
     public function __toString(): string;
-
-    /**
-     * Gets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
-    public function getAsciiIDNAOption(): int;
-
-    /**
-     * Gets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
-    public function getUnicodeIDNAOption(): int;
 
     /**
      * Converts the domain to its IDNA ASCII form.
@@ -89,26 +70,4 @@ interface Host extends Countable, JsonSerializable
      * @return static
      */
     public function toUnicode(): self;
-
-    /**
-     * Sets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return static
-     */
-    public function withAsciiIDNAOption(int $option): self;
-
-    /**
-     * Sets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return static
-     */
-    public function withUnicodeIDNAOption(int $option): self;
 }

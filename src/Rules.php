@@ -195,7 +195,7 @@ final class Rules implements PublicSuffixList
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolve($domain): ResolvedHost
+    public function resolve($domain): ResolvedDomainName
     {
         try {
             return $this->resolveCookieDomain($domain);
@@ -218,7 +218,7 @@ final class Rules implements PublicSuffixList
      *
      * @param mixed $domain the domain value
      */
-    public function resolveCookieDomain($domain): ResolvedHost
+    public function resolveCookieDomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
 
@@ -230,7 +230,7 @@ final class Rules implements PublicSuffixList
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolveICANNDomain($domain): ResolvedHost
+    public function resolveICANNDomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
 
@@ -242,7 +242,7 @@ final class Rules implements PublicSuffixList
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolvePrivateDomain($domain): ResolvedHost
+    public function resolvePrivateDomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
 
@@ -254,12 +254,12 @@ final class Rules implements PublicSuffixList
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      *
-     * @throws InvalidDomainName         if the domain is invalid
+     * @throws InvalidDomainName     if the domain is invalid
      * @throws UnableToResolveDomain if the domain is not resolvable
      */
-    private function validateDomain($domain): ResolvedHost
+    private function validateDomain($domain): ResolvedDomainName
     {
-        if (!($domain instanceof ResolvedHost)) {
+        if (!($domain instanceof ResolvedDomainName)) {
             $domain = new ResolvedDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption), null);
         }
 
@@ -296,7 +296,7 @@ final class Rules implements PublicSuffixList
     /**
      * Returns the matched public suffix.
      */
-    private function findPublicSuffix(ResolvedHost $domain, string $section): PublicSuffix
+    private function findPublicSuffix(ResolvedDomainName $domain, string $section): PublicSuffix
     {
         $asciiDomain = $domain->getHost();
         /** @var DomainName $asciiDomain */

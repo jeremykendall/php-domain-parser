@@ -20,7 +20,7 @@ use DateTimeImmutable;
 use IteratorAggregate;
 use JsonSerializable;
 
-interface RootZoneDatabase extends Countable, IteratorAggregate, JsonSerializable
+interface RootZoneDatabase extends Countable, IteratorAggregate, IDNConversion, JsonSerializable
 {
     /**
      * Returns the Version ID.
@@ -31,24 +31,6 @@ interface RootZoneDatabase extends Countable, IteratorAggregate, JsonSerializabl
      * Returns the List Last Modified Date.
      */
     public function getModifiedDate(): DateTimeImmutable;
-
-    /**
-     * Gets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
-    public function getAsciiIDNAOption(): int;
-
-    /**
-     * Gets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
-    public function getUnicodeIDNAOption(): int;
 
     /**
      * {@inheritdoc}
@@ -82,23 +64,5 @@ interface RootZoneDatabase extends Countable, IteratorAggregate, JsonSerializabl
      *
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain): ResolvedHost;
-
-    /**
-     * Sets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
-    public function withAsciiIDNAOption(int $option): RootZoneDatabase;
-
-    /**
-     * Sets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     */
-    public function withUnicodeIDNAOption(int $option): RootZoneDatabase;
+    public function resolve($domain): ResolvedDomainName;
 }

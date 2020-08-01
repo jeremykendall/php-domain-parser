@@ -25,7 +25,7 @@ use function sprintf;
 use function strlen;
 use function substr;
 
-final class ResolvedDomain implements ResolvedHost
+final class ResolvedDomain implements ResolvedDomainName
 {
     private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 

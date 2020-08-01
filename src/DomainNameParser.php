@@ -164,7 +164,7 @@ abstract class DomainNameParser
      *
      * @param mixed $domain a domain
      *
-     * @throws InvalidHost   If the domain is not a host
+     * @throws InvalidHost       If the domain is not a host
      * @throws InvalidDomainName If the host is not a domain
      */
     final protected function parse($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
