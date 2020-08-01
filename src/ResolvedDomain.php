@@ -228,7 +228,7 @@ final class ResolvedDomain implements ResolvedDomainName
     public function resolve($publicSuffix): self
     {
         if (!$publicSuffix instanceof PublicSuffix) {
-            $publicSuffix = PublicSuffix::fromUnknownSection($publicSuffix);
+            $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
         }
 
         return new self($this->domain, $publicSuffix);
@@ -240,7 +240,7 @@ final class ResolvedDomain implements ResolvedDomainName
     public function withPublicSuffix($publicSuffix): self
     {
         if (!$publicSuffix instanceof PublicSuffix) {
-            $publicSuffix = PublicSuffix::fromUnknownSection($publicSuffix);
+            $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
         }
 
         $publicSuffix = $this->normalize($publicSuffix);

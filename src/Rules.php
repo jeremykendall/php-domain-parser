@@ -231,7 +231,7 @@ final class Rules implements PublicSuffixList
         }
 
         if (EffectiveTLD::PRIVATE_DOMAINS === $section) {
-            return PublicSuffix::fromUnknownSection($asciiDomain->label(0), $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            return PublicSuffix::fromUnknown($asciiDomain->label(0), $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
         return $icann;
@@ -266,16 +266,16 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            return PublicSuffix::fromUnknownSection($domain->label(0), $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            return PublicSuffix::fromUnknown($domain->label(0), $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
         $content = implode('.', array_reverse($matches));
 
         if (PublicSuffix::PRIVATE_DOMAINS === $section) {
-            return PublicSuffix::fromPrivateSection($content, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            return PublicSuffix::fromPrivate($content, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
-        return PublicSuffix::fromICANNSection($content, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        return PublicSuffix::fromICANN($content, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
     public function withAsciiIDNAOption(int $asciiIDNAOption): self

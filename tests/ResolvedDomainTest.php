@@ -33,7 +33,6 @@ class ResolvedDomainTest extends TestCase
 {
     /**
      * @covers ::__construct
-     * @covers ::setPublicSuffix
      * @covers ::setRegistrableDomain
      * @covers ::setSubDomain
      * @covers ::getPublicSuffix
@@ -50,7 +49,6 @@ class ResolvedDomainTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::setPublicSuffix
      * @covers ::normalize
      * @dataProvider provideWrongConstructor
      *
@@ -60,7 +58,7 @@ class ResolvedDomainTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        new ResolvedDomain(new Domain($domain), PublicSuffix::fromICANNSection($publicSuffix));
+        new ResolvedDomain(new Domain($domain), PublicSuffix::fromICANN($publicSuffix));
     }
 
     public function provideWrongConstructor(): iterable
@@ -93,7 +91,7 @@ class ResolvedDomainTest extends TestCase
      */
     public function testDomainInternalPhpMethod(): void
     {
-        $domain = new ResolvedDomain(new Domain('www.ulb.ac.be'), PublicSuffix::fromICANNSection('ac.be'));
+        $domain = new ResolvedDomain(new Domain('www.ulb.ac.be'), PublicSuffix::fromICANN('ac.be'));
         $generateDomain = eval('return '.var_export($domain, true).';');
         self::assertEquals($domain, $generateDomain);
         self::assertEquals('"www.ulb.ac.be"', json_encode($domain->jsonSerialize()));
@@ -123,7 +121,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::setPublicSuffix
      * @covers ::normalize
      * @covers ::setRegistrableDomain
      * @covers ::setSubDomain
@@ -147,7 +144,7 @@ class ResolvedDomainTest extends TestCase
         ?string $expectedIDNDomain,
         ?string $expectedIDNSuffix
     ): void {
-        $objPublicSuffix = (null === $publicSuffix) ? PublicSuffix::fromNull() : PublicSuffix::fromICANNSection($publicSuffix);
+        $objPublicSuffix = (null === $publicSuffix) ? PublicSuffix::fromNull() : PublicSuffix::fromICANN($publicSuffix);
 
         $domain = new ResolvedDomain(new Domain($domain), $objPublicSuffix);
         self::assertSame($expectedDomain, $domain->getContent());
@@ -222,7 +219,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::setPublicSuffix
      * @covers ::normalize
      * @covers ::setRegistrableDomain
      * @covers ::setSubDomain
@@ -247,7 +243,7 @@ class ResolvedDomainTest extends TestCase
         ?string $expectedAsciiDomain,
         ?string $expectedAsciiSuffix
     ): void {
-        $objPublicSuffix = (null === $publicSuffix) ? PublicSuffix::fromNull() : PublicSuffix::fromICANNSection($publicSuffix);
+        $objPublicSuffix = (null === $publicSuffix) ? PublicSuffix::fromNull() : PublicSuffix::fromICANN($publicSuffix);
 
         $domain = new ResolvedDomain(new Domain($domain), $objPublicSuffix);
         self::assertSame($expectedDomain, $domain->getContent());
@@ -320,7 +316,7 @@ class ResolvedDomainTest extends TestCase
 
     public function resolvePassProvider(): iterable
     {
-        $publicSuffix = PublicSuffix::fromICANNSection('ac.be');
+        $publicSuffix = PublicSuffix::fromICANN('ac.be');
         $domain = new ResolvedDomain(new Domain('ulb.ac.be'), $publicSuffix);
 
         return [
@@ -346,17 +342,17 @@ class ResolvedDomainTest extends TestCase
             ],
             'update public suffix' => [
                 'domain' => $domain,
-                'public suffix' => PublicSuffix::fromICANNSection('be'),
+                'public suffix' => PublicSuffix::fromICANN('be'),
                 'expected' => 'be',
             ],
             'idn domain name' => [
-                'domain' => new ResolvedDomain(new Domain('Яндекс.РФ'), PublicSuffix::fromICANNSection('рф')),
-                'public suffix' => PublicSuffix::fromICANNSection('рф'),
+                'domain' => new ResolvedDomain(new Domain('Яндекс.РФ'), PublicSuffix::fromICANN('рф')),
+                'public suffix' => PublicSuffix::fromICANN('рф'),
                 'expected' => 'рф',
             ],
             'idn domain name with ascii public suffix' => [
-                'domain' => new ResolvedDomain(new Domain('Яндекс.РФ'), PublicSuffix::fromICANNSection('рф')),
-                'public suffix' => PublicSuffix::fromICANNSection('xn--p1ai'),
+                'domain' => new ResolvedDomain(new Domain('Яндекс.РФ'), PublicSuffix::fromICANN('рф')),
+                'public suffix' => PublicSuffix::fromICANN('xn--p1ai'),
                 'expected' => 'рф',
             ],
         ];
@@ -374,13 +370,13 @@ class ResolvedDomainTest extends TestCase
 
     public function resolveFailsProvider(): iterable
     {
-        $publicSuffix = PublicSuffix::fromICANNSection('ac.be');
+        $publicSuffix = PublicSuffix::fromICANN('ac.be');
         $domain = new ResolvedDomain(new Domain('ulb.ac.be'), $publicSuffix);
 
         return [
             'public suffix mismatch' => [
                 'domain' => $domain,
-                'public suffix' => PublicSuffix::fromICANNSection('ac.fr'),
+                'public suffix' => PublicSuffix::fromICANN('ac.fr'),
             ],
             'domain name can not contains public suffix' => [
                 'domain' => new ResolvedDomain(new Domain('localhost')),
@@ -392,11 +388,11 @@ class ResolvedDomainTest extends TestCase
             ],
             'partial public suffix' => [
                 'domain' => new ResolvedDomain($domain),
-                'public suffix' => PublicSuffix::fromICANNSection('c.be'),
+                'public suffix' => PublicSuffix::fromICANN('c.be'),
             ],
             'mismatch idn public suffix' => [
                 'domain' => new ResolvedDomain(new Domain('www.食狮.公司.cn')),
-                'public suffix' => PublicSuffix::fromICANNSection('cn.公司'),
+                'public suffix' => PublicSuffix::fromICANN('cn.公司'),
             ],
         ];
     }
@@ -406,10 +402,10 @@ class ResolvedDomainTest extends TestCase
      */
     public function testResolveReturnsInstance(): void
     {
-        $publicSuffix = PublicSuffix::fromICANNSection('ac.be');
+        $publicSuffix = PublicSuffix::fromICANN('ac.be');
         $domain = new ResolvedDomain(new Domain('ulb.ac.be'), $publicSuffix);
         self::assertEquals($domain, $domain->resolve($publicSuffix));
-        self::assertNotSame($domain, $domain->resolve(PublicSuffix::fromPrivateSection('ac.be')));
+        self::assertNotSame($domain, $domain->resolve(PublicSuffix::fromPrivate('ac.be')));
     }
 
     /**
@@ -432,27 +428,27 @@ class ResolvedDomainTest extends TestCase
     {
         return [
             'simple addition' => [
-                'domain' => new ResolvedDomain(new Domain('example.com'), PublicSuffix::fromICANNSection('com')),
+                'domain' => new ResolvedDomain(new Domain('example.com'), PublicSuffix::fromICANN('com')),
                 'subdomain' => 'www',
                 'expected' => 'www',
             ],
             'simple addition IDN (1)' => [
-                'domain' => new ResolvedDomain(new Domain('example.com'), PublicSuffix::fromICANNSection('com')),
+                'domain' => new ResolvedDomain(new Domain('example.com'), PublicSuffix::fromICANN('com')),
                 'subdomain' => new Domain('bébé'),
                 'expected' => 'xn--bb-bjab',
             ],
             'simple addition IDN (2)' => [
-                'domain' => new ResolvedDomain(new Domain('Яндекс.РФ'), PublicSuffix::fromICANNSection('рф')),
+                'domain' => new ResolvedDomain(new Domain('Яндекс.РФ'), PublicSuffix::fromICANN('рф')),
                 'subdomain' => 'bébé',
                 'expected' => 'bébé',
             ],
             'simple removal' => [
-                'domain' => new ResolvedDomain(new Domain('example.com'), PublicSuffix::fromICANNSection('com')),
+                'domain' => new ResolvedDomain(new Domain('example.com'), PublicSuffix::fromICANN('com')),
                 'subdomain' => null,
                 'expected' => null,
             ],
             'simple removal IDN' => [
-                'domain' =>  new ResolvedDomain(new Domain('bébé.Яндекс.РФ'), PublicSuffix::fromICANNSection('рф')),
+                'domain' =>  new ResolvedDomain(new Domain('bébé.Яндекс.РФ'), PublicSuffix::fromICANN('рф')),
                 'subdomain' => 'xn--bb-bjab',
                 'expected' => 'bébé',
             ],
@@ -486,7 +482,7 @@ class ResolvedDomainTest extends TestCase
     {
         self::expectException(InvalidHost::class);
 
-        $domain = new ResolvedDomain(new Domain('www.example.com'), PublicSuffix::fromICANNSection('com'));
+        $domain = new ResolvedDomain(new Domain('www.example.com'), PublicSuffix::fromICANN('com'));
 
         $domain->withSubDomain('');
     }
@@ -497,7 +493,7 @@ class ResolvedDomainTest extends TestCase
     public function testWithSubDomainFailsWithNonStringableObject(): void
     {
         self::expectException(TypeError::class);
-        $domain = new ResolvedDomain(new Domain('www.example.com'), PublicSuffix::fromICANNSection('com'));
+        $domain = new ResolvedDomain(new Domain('www.example.com'), PublicSuffix::fromICANN('com'));
 
         $domain->withSubDomain(date_create());
     }
@@ -534,7 +530,7 @@ class ResolvedDomainTest extends TestCase
 
     public function withPublicSuffixWorksProvider(): iterable
     {
-        $base_domain = new ResolvedDomain(new Domain('example.com'), PublicSuffix::fromICANNSection('com'));
+        $base_domain = new ResolvedDomain(new Domain('example.com'), PublicSuffix::fromICANN('com'));
 
         return [
             'simple update (1)' => [
@@ -547,7 +543,7 @@ class ResolvedDomainTest extends TestCase
             ],
             'simple update (2)' => [
                 'domain' => $base_domain,
-                'publicSuffix' => PublicSuffix::fromPrivateSection('github.io'),
+                'publicSuffix' => PublicSuffix::fromPrivate('github.io'),
                 'expected' => 'github.io',
                 'isKnown' => true,
                 'isICANN' => false,
@@ -555,7 +551,7 @@ class ResolvedDomainTest extends TestCase
             ],
             'same public suffix but PSL info is changed' => [
                 'domain' => $base_domain,
-                'publicSuffix' => PublicSuffix::fromPrivateSection('com'),
+                'publicSuffix' => PublicSuffix::fromPrivate('com'),
                 'expected' => 'com',
                 'isKnown' => true,
                 'isICANN' => false,
@@ -563,7 +559,7 @@ class ResolvedDomainTest extends TestCase
             ],
             'same public suffix but PSL info does not changed' => [
                 'domain' => $base_domain,
-                'publicSuffix' => PublicSuffix::fromICANNSection('com'),
+                'publicSuffix' => PublicSuffix::fromICANN('com'),
                 'expected' => 'com',
                 'isKnown' => true,
                 'isICANN' => true,
@@ -571,15 +567,15 @@ class ResolvedDomainTest extends TestCase
             ],
             'simple update IDN (1)' => [
                 'domain' => $base_domain,
-                'publicSuffix' => PublicSuffix::fromICANNSection('рф'),
+                'publicSuffix' => PublicSuffix::fromICANN('рф'),
                 'expected' => 'xn--p1ai',
                 'isKnown' => true,
                 'isICANN' => true,
                 'isPrivate' => false,
             ],
             'simple update IDN (2)' => [
-                'domain' => new ResolvedDomain(new Domain('www.bébé.be'), PublicSuffix::fromICANNSection('be')),
-                'publicSuffix' => PublicSuffix::fromICANNSection('xn--p1ai'),
+                'domain' => new ResolvedDomain(new Domain('www.bébé.be'), PublicSuffix::fromICANN('be')),
+                'publicSuffix' => PublicSuffix::fromICANN('xn--p1ai'),
                 'expected' => 'рф',
                 'isKnown' => true,
                 'isICANN' => true,
@@ -594,7 +590,7 @@ class ResolvedDomainTest extends TestCase
                 'isPrivate' => false,
             ],
             'removing the public suffix list' => [
-                'domain' => new ResolvedDomain(new Domain('www.bébé.be'), PublicSuffix::fromICANNSection('be')),
+                'domain' => new ResolvedDomain(new Domain('www.bébé.be'), PublicSuffix::fromICANN('be')),
                 'publicSuffix' => null,
                 'expected' => null,
                 'isKnown' => false,
@@ -602,7 +598,7 @@ class ResolvedDomainTest extends TestCase
                 'isPrivate' => false,
             ],
             'with custom IDNA domain options' =>[
-                'domain' => new ResolvedDomain(new Domain('www.bébé.be', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE), PublicSuffix::fromICANNSection('be')),
+                'domain' => new ResolvedDomain(new Domain('www.bébé.be', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE), PublicSuffix::fromICANN('be')),
                 'publicSuffix' => null,
                 'expected' => null,
                 'isKnown' => false,
@@ -643,7 +639,7 @@ class ResolvedDomainTest extends TestCase
         ?string $expectedWithLabel
     ): void {
         $domainHost = new Domain($domainName, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-        $domain = new ResolvedDomain($domainHost, PublicSuffix::fromICANNSection($publicSuffix));
+        $domain = new ResolvedDomain($domainHost, PublicSuffix::fromICANN($publicSuffix));
 
         self::assertSame($expectedContent, $domain->getContent());
         self::assertSame($expectedAscii, $domain->toAscii()->getContent());
@@ -706,7 +702,7 @@ class ResolvedDomainTest extends TestCase
     {
         $domain = new ResolvedDomain(
             new Domain('example.com', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE),
-            PublicSuffix::fromICANNSection('com')
+            PublicSuffix::fromICANN('com')
         );
 
         /** @var ResolvedDomain $instance */
@@ -723,7 +719,7 @@ class ResolvedDomainTest extends TestCase
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
         );
 
-        $instance = $domain->withPublicSuffix(PublicSuffix::fromICANNSection('us'));
+        $instance = $domain->withPublicSuffix(PublicSuffix::fromICANN('us'));
         self::assertSame(
             [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
@@ -734,7 +730,7 @@ class ResolvedDomainTest extends TestCase
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
         );
 
-        $instance = $domain->resolve(PublicSuffix::fromICANNSection('com'));
+        $instance = $domain->resolve(PublicSuffix::fromICANN('com'));
         self::assertSame(
             [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]

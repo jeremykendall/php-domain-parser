@@ -22,7 +22,7 @@ class UnableToLoadPublicSuffixList extends InvalidArgumentException implements E
 {
     public static function dueToInvalidPath(string $path): self
     {
-        return new self($path.': failed to open stream: No such file or directory');
+        return new self($path.': failed to open stream: No such file or directory.');
     }
 
     public static function dueToInvalidJson(int $code, string $message): self
@@ -32,7 +32,7 @@ class UnableToLoadPublicSuffixList extends InvalidArgumentException implements E
 
     public static function dueToInvalidRule(?string $line, Throwable $exception): self
     {
-        return new self('The following rule "'.$line ?? 'NULL'.'" could not be processed because it is invalid', 0, $exception);
+        return new self('The following rule "'.$line ?? 'NULL'.'" could not be processed because it is invalid.', 0, $exception);
     }
 
     public static function dueToInvalidHashMap(): self

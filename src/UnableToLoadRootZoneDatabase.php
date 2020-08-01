@@ -37,7 +37,7 @@ class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements E
 
     public static function dueToFailedConversion(): self
     {
-        return new self('Invalid content: TLD conversion failed');
+        return new self('Invalid content: TLD conversion failed.');
     }
 
     public static function dueToInvalidLine(string $line): self
@@ -47,7 +47,7 @@ class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements E
 
     public static function dueToInvalidPath(string $path): self
     {
-        return new self($path.': failed to open stream: No such file or directory');
+        return new self($path.': failed to open stream: No such file or directory.');
     }
 
     public static function dueToInvalidJson(int $code, string $message): self

@@ -37,7 +37,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testInternalPhpMethod(): void
     {
-        $publicSuffix = PublicSuffix::fromICANNSection('ac.be');
+        $publicSuffix = PublicSuffix::fromICANN('ac.be');
         $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
         self::assertEquals($publicSuffix, $generatePublicSuffix);
         self::assertEquals('"ac.be"', json_encode($publicSuffix));
@@ -46,19 +46,16 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::parse
      * @covers ::getContent
      * @covers ::toUnicode
      */
     public function testPSToUnicodeWithUrlEncode(): void
     {
-        self::assertSame('bébe', PublicSuffix::fromUnknownSection('b%C3%A9be')->toUnicode()->getContent());
+        self::assertSame('bébe', PublicSuffix::fromUnknown('b%C3%A9be')->toUnicode()->getContent());
     }
 
     /**
      * @covers ::__construct
-     * @covers ::parse
-     * @covers ::setPublicSuffix
      * @covers ::isKnown
      * @covers ::isICANN
      * @covers ::isPrivate
@@ -68,11 +65,11 @@ class PublicSuffixTest extends TestCase
     public function testSetSection(?string $publicSuffix, string $section, bool $isKnown, bool $isIcann, bool $isPrivate): void
     {
         if ('' === $section) {
-            $ps = PublicSuffix::fromUnknownSection($publicSuffix);
+            $ps = PublicSuffix::fromUnknown($publicSuffix);
         } elseif ('ICANN_DOMAINS' === $section) {
-            $ps = PublicSuffix::fromICANNSection($publicSuffix);
+            $ps = PublicSuffix::fromICANN($publicSuffix);
         } elseif ('PRIVATE_DOMAINS' === $section) {
-            $ps = PublicSuffix::fromPrivateSection($publicSuffix);
+            $ps = PublicSuffix::fromPrivate($publicSuffix);
         }
 
         if (!isset($ps)) {
@@ -95,16 +92,13 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::parse
-     * @covers ::setPublicSuffix
      * @dataProvider invalidPublicSuffixProvider
-     *
      */
     public function testConstructorThrowsException(string $publicSuffix): void
     {
         self::expectException(InvalidDomainName::class);
 
-        PublicSuffix::fromUnknownSection($publicSuffix);
+        PublicSuffix::fromUnknown($publicSuffix);
     }
 
     public function invalidPublicSuffixProvider(): iterable
@@ -117,39 +111,34 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::parse
-     * @covers ::idnToAscii
      */
     public function testPSToAsciiThrowsException(): void
     {
         self::expectException(InvalidHost::class);
 
-        PublicSuffix::fromUnknownSection('a⒈com');
+        PublicSuffix::fromUnknown('a⒈com');
     }
 
     /**
      * @covers ::toUnicode
-     * @covers ::idnToUnicode
      */
     public function testToUnicodeThrowsException(): void
     {
         self::expectException(InvalidHost::class);
 
-        PublicSuffix::fromUnknownSection('xn--a-ecp.ru')->toUnicode();
+        PublicSuffix::fromUnknown('xn--a-ecp.ru')->toUnicode();
     }
 
     /**
      * @covers ::toAscii
      * @covers ::toUnicode
-     * @covers ::idnToAscii
-     * @covers ::idnToUnicode
      *
      * @dataProvider conversionReturnsTheSameInstanceProvider
      * @param ?string $publicSuffix
      */
     public function testConversionReturnsTheSameInstance(?string $publicSuffix): void
     {
-        $instance = PublicSuffix::fromUnknownSection($publicSuffix);
+        $instance = PublicSuffix::fromUnknown($publicSuffix);
         self::assertSame($instance->toUnicode(), $instance);
         self::assertSame($instance->toAscii(), $instance);
     }
@@ -164,11 +153,10 @@ class PublicSuffixTest extends TestCase
 
     /**
      * @covers ::toUnicode
-     * @covers ::idnToUnicode
      */
     public function testToUnicodeReturnsSameInstance(): void
     {
-        $instance = PublicSuffix::fromUnknownSection('食狮.公司.cn');
+        $instance = PublicSuffix::fromUnknown('食狮.公司.cn');
 
         self::assertSame($instance->toUnicode(), $instance);
     }
@@ -180,7 +168,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testCountable(?string $domain, int $nbLabels, array $labels): void
     {
-        $domain = PublicSuffix::fromUnknownSection($domain);
+        $domain = PublicSuffix::fromUnknown($domain);
 
         self::assertCount($nbLabels, $domain);
     }
@@ -203,7 +191,7 @@ class PublicSuffixTest extends TestCase
         string $expectedAscii,
         string $expectedUnicode
     ): void {
-        $publicSuffix = PublicSuffix::fromUnknownSection($name, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $publicSuffix = PublicSuffix::fromUnknown($name, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         self::assertSame($expectedContent, $publicSuffix->getContent());
         self::assertSame($expectedAscii, $publicSuffix->toAscii()->getContent());
         self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->getContent());
@@ -253,7 +241,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testwithIDNAOptions(): void
     {
-        $publicSuffix = PublicSuffix::fromUnknownSection('com');
+        $publicSuffix = PublicSuffix::fromUnknown('com');
 
         self::assertSame($publicSuffix, $publicSuffix->withAsciiIDNAOption(
             $publicSuffix->getAsciiIDNAOption()

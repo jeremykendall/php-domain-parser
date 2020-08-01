@@ -6,10 +6,6 @@ parameters:
   treatPhpDocTypesAsCertain: false
   ignoreErrors:
     - '#should be covariant with return type#'
-    - message: '#Method Pdp\\PublicSuffix::toAscii\(\) should return static\(Pdp\\PublicSuffix\) but returns Pdp\\PublicSuffix.#'
-      path: src/PublicSuffix.php
-    - message: '#Method Pdp\\PublicSuffix::toUnicode\(\) should return static\(Pdp\\PublicSuffix\) but returns Pdp\\PublicSuffix.#'
-      path: src/PublicSuffix.php
     - message: '#Property Pdp\\TopLevelDomains::\$modifiedDate \(DateTimeImmutable\) does not accept DateTimeInterface.#'
       path: src/TopLevelDomains.php
     - message: '#Method Pdp\\ResolvedDomain::resolve\(\) has parameter \$publicSuffix with no typehint specified.#'

@@ -15,27 +15,25 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use function sprintf;
-
 class InvalidDomainName extends InvalidHost
 {
     public static function dueToInvalidLabelKey(int $key): self
     {
-        return new self(sprintf('the given key `%s` is invalid', $key));
+        return new self('the given key `'.$key.'` is invalid.');
     }
 
     public static function dueToInvalidCharacters(string $domain): self
     {
-        return new self(sprintf('The domain `%s` is invalid: it contains invalid characters', $domain));
+        return new self('The domain `'.$domain.'` is invalid: it contains invalid characters.');
     }
 
     public static function dueToUnsupportedType(string $domain): self
     {
-        return new self(sprintf('The domain `%s` is invalid: this is an IPv4 host', $domain));
+        return new self('The domain `'.$domain.'` is invalid: this is an IPv4 host.');
     }
 
-    public static function dueToInvalidPublicSuffix(string $publicSuffix): self
+    public static function dueToInvalidPublicSuffix(Host $publicSuffix): self
     {
-        return new self(sprintf('The public suffix `%s` is invalid', $publicSuffix));
+        return new self('The public suffix `"'.$publicSuffix->getContent() ?? 'NULL'.'"` is invalid.');
     }
 }

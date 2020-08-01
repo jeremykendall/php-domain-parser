@@ -89,7 +89,7 @@ final class RootZoneDatabaseConverter
     private function extractRootZone(string $content): string
     {
         try {
-            $tld = PublicSuffix::fromUnknownSection($content)->toAscii();
+            $tld = PublicSuffix::fromUnknown($content)->toAscii();
         } catch (ExceptionInterface $exception) {
             throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
         }

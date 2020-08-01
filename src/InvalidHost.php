@@ -16,21 +16,20 @@ declare(strict_types=1);
 namespace Pdp;
 
 use InvalidArgumentException;
-use function sprintf;
 
 class InvalidHost extends InvalidArgumentException implements ExceptionInterface
 {
     public static function dueToInvalidCharacters(string $domain): self
     {
-        return new self(sprintf('The host `%s` is invalid: it contains invalid characters', $domain));
+        return new self('The host `'.$domain.'` is invalid: it contains invalid characters.');
     }
 
     public static function dueToIDNAError(string $domain, string $message = ''): self
     {
         if ('' === $message) {
-            return new self(sprintf('The host `%s` is invalid', $domain));
+            return new self('The host `'.$domain.'` is invalid.');
         }
 
-        return new self(sprintf('The host `%s` is invalid : %s', $domain, $message));
+        return new self('The host `'.$domain.'` is invalid : '.$message);
     }
 }

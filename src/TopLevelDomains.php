@@ -177,7 +177,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function getIterator()
     {
         foreach ($this->records as $tld) {
-            yield PublicSuffix::fromICANNSection($tld, $this->asciiIDNAOption, $this->unicodeIDNAOption)->toAscii();
+            yield PublicSuffix::fromUnknown($tld, $this->asciiIDNAOption, $this->unicodeIDNAOption)->toAscii();
         }
     }
 
@@ -258,7 +258,7 @@ final class TopLevelDomains implements RootZoneDatabase
             }
         }
 
-        return new ResolvedDomain($domain, PublicSuffix::fromUnknownSection($publicSuffix));
+        return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
     }
 
     public function withAsciiIDNAOption(int $option): RootZoneDatabase
