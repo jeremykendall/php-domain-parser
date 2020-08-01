@@ -118,9 +118,9 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveCookieDomain
-     * @covers ::resolveICANNDomain
-     * @covers ::resolvePrivateDomain
+     * @covers ::getCookieDomain
+     * @covers ::getICANNDomain
+     * @covers ::getPrivateDomain
      * @covers ::validateDomain
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
@@ -176,7 +176,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveCookieDomain
+     * @covers ::getCookieDomain
      * @covers ::validateDomain
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
@@ -196,7 +196,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveICANNDomain
+     * @covers ::getICANNDomain
      * @covers ::validateDomain
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
@@ -216,7 +216,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveCookieDomain
+     * @covers ::getCookieDomain
      * @covers ::validateDomain
      * @covers \Pdp\DomainNameParser::parse
      */
@@ -244,6 +244,10 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
+     * @covers ::findPublicSuffix
+     * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\PublicSuffix::setSection
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithAbsoluteHostInvalid(): void
     {
@@ -257,7 +261,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolvePrivateDomain
+     * @covers ::getPrivateDomain
      * @covers ::validateDomain
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
@@ -266,7 +270,7 @@ final class RulesTest extends TestCase
      */
     public function testWithPrivateDomainInvalid(): void
     {
-        $domain = $this->rules->resolvePrivateDomain('private.ulb.ac.be');
+        $domain = $this->rules->getPrivateDomain('private.ulb.ac.be');
         self::assertSame('private.ulb.ac.be', $domain->getContent());
         self::assertFalse($domain->getPublicSuffix()->isKnown());
         self::assertFalse($domain->getPublicSuffix()->isICANN());
@@ -276,7 +280,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolvePrivateDomain
+     * @covers ::getPrivateDomain
      * @covers ::validateDomain
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
@@ -285,7 +289,7 @@ final class RulesTest extends TestCase
      */
     public function testWithPrivateDomainValid(): void
     {
-        $domain = $this->rules->resolvePrivateDomain('thephpleague.github.io');
+        $domain = $this->rules->getPrivateDomain('thephpleague.github.io');
         self::assertSame('thephpleague.github.io', $domain->getContent());
         self::assertTrue($domain->getPublicSuffix()->isKnown());
         self::assertFalse($domain->getPublicSuffix()->isICANN());
@@ -334,7 +338,7 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @covers ::getCookieEffectiveTLD
+     * @covers ::getCookieDomain
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithDomainInterfaceObject(): void
@@ -343,13 +347,13 @@ final class RulesTest extends TestCase
 
         self::assertSame(
             'ac.be',
-            $this->rules->getCookieEffectiveTLD($domain)->getContent()
+            $this->rules->getCookieDomain($domain)->getPublicSuffix()->getContent()
         );
     }
 
     /**
      * @covers ::resolve
-     * @covers ::resolveICANNDomain
+     * @covers ::getICANNDomain
      * @covers ::validateDomain
      * @dataProvider parseDataProvider
      * @param ?string $publicSuffix
@@ -365,7 +369,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveICANNDomain
+     * @covers ::getICANNDomain
      * @covers ::validateDomain
      * @covers \Pdp\DomainNameParser::parse
      * @dataProvider parseDataProvider
@@ -497,11 +501,11 @@ final class RulesTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        $this->rules->getICANNEffectiveTLD('localhost');
+        $this->rules->getICANNDomain('localhost');
     }
 
     /**
-     * @covers ::getICANNEffectiveTLD
+     * @covers ::getICANNDomain
      * @covers \Pdp\DomainNameParser::parse
      *
      * @dataProvider invalidDomainParseProvider
@@ -510,7 +514,7 @@ final class RulesTest extends TestCase
     {
         self::expectException(InvalidDomainName::class);
 
-        $this->rules->getICANNEffectiveTLD($domain);
+        $this->rules->getICANNDomain($domain);
     }
 
     public function invalidDomainParseProvider(): iterable
@@ -523,7 +527,7 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @covers ::getICANNEffectiveTLD
+     * @covers ::getICANNDomain
      * @covers \Pdp\DomainNameParser::parse
      *
      * @dataProvider invalidHostParseProvider
@@ -532,7 +536,7 @@ final class RulesTest extends TestCase
     {
         self::expectException(InvalidHost::class);
 
-        $this->rules->getICANNEffectiveTLD($domain);
+        $this->rules->getICANNDomain($domain);
     }
 
     public function invalidHostParseProvider(): iterable
@@ -547,9 +551,8 @@ final class RulesTest extends TestCase
         ];
     }
 
-
     /**
-     * @covers ::getCookieEffectiveTLD
+     * @covers ::getCookieDomain
      * @covers \Pdp\DomainNameParser::parse
      * @dataProvider validPublicSectionProvider
      * @param ?string $domain
@@ -557,7 +560,7 @@ final class RulesTest extends TestCase
      */
     public function testPublicSuffixSection(?string $domain, ?string $expected): void
     {
-        $publicSuffix =  $this->rules->getCookieEffectiveTLD($domain);
+        $publicSuffix = $this->rules->getCookieDomain($domain)->getPublicSuffix();
         self::assertSame($expected, $publicSuffix->getContent());
     }
 
@@ -736,16 +739,17 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @covers ::getCookieEffectiveTLD
-     * @covers ::getICANNEffectiveTLD
-     * @covers ::getPrivateEffectiveTLD
+     * @covers ::getCookieDomain
+     * @covers ::getICANNDomain
+     * @covers ::getPrivateDomain
+     *
      * @dataProvider effectiveTLDProvider
      */
     public function testEffectiveTLDResolution(string $host, string $cookieETLD, string $icannETLD, string $privateETLD): void
     {
-        self::assertSame($cookieETLD, (string) $this->rules->getCookieEffectiveTLD($host));
-        self::assertSame($icannETLD, (string) $this->rules->getICANNEffectiveTLD($host));
-        self::assertSame($privateETLD, (string) $this->rules->getPrivateEffectiveTLD($host));
+        self::assertSame($cookieETLD, (string) $this->rules->getCookieDomain($host)->getPublicSuffix());
+        self::assertSame($icannETLD, (string) $this->rules->getICANNDomain($host)->getPublicSuffix());
+        self::assertSame($privateETLD, (string) $this->rules->getPrivateDomain($host)->getPublicSuffix());
     }
 
     public function effectiveTLDProvider(): iterable

@@ -138,53 +138,11 @@ final class Rules implements PublicSuffixList
 
     /**
      * @param mixed $domain a type that supports instantiating a Domain from.
-     *
-     * @throws UnableToResolveDomain If the PublicSuffix can not be resolve.
-     */
-    public function getCookieEffectiveTLD($domain): PublicSuffix
-    {
-        $domain = $this->validateDomain($domain);
-
-        $publicSuffix = $this->findPublicSuffix($domain, '');
-
-        return $domain->resolve($publicSuffix)->getPublicSuffix();
-    }
-
-    /**
-     * @param mixed $domain a type that supports instantiating a Domain from.
-     *
-     * @throws UnableToResolveDomain If the PublicSuffix can not be resolve.
-     */
-    public function getICANNEffectiveTLD($domain): PublicSuffix
-    {
-        $domain = $this->validateDomain($domain);
-
-        $publicSuffix = $this->findPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS);
-
-        return $domain->resolve($publicSuffix)->getPublicSuffix();
-    }
-
-    /**
-     * @param mixed $domain a type that supports instantiating a Domain from.
-     *
-     * @throws UnableToResolveDomain If the PublicSuffix can not be resolve.
-     */
-    public function getPrivateEffectiveTLD($domain): PublicSuffix
-    {
-        $domain = $this->validateDomain($domain);
-
-        $publicSuffix = $this->findPublicSuffix($domain, EffectiveTLD::PRIVATE_DOMAINS);
-
-        return $domain->resolve($publicSuffix)->getPublicSuffix();
-    }
-
-    /**
-     * @param mixed $domain a type that supports instantiating a Domain from.
      */
     public function resolve($domain): ResolvedDomainName
     {
         try {
-            return $this->resolveCookieDomain($domain);
+            return $this->getCookieDomain($domain);
         } catch (UnableToResolveDomain $exception) {
             if ($exception->hasDomain()) {
                 /** @var Host */
@@ -202,7 +160,7 @@ final class Rules implements PublicSuffixList
     /**
      * @param mixed $domain the domain value
      */
-    public function resolveCookieDomain($domain): ResolvedDomainName
+    public function getCookieDomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
 
@@ -212,7 +170,7 @@ final class Rules implements PublicSuffixList
     /**
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolveICANNDomain($domain): ResolvedDomainName
+    public function getICANNDomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
 
@@ -222,7 +180,7 @@ final class Rules implements PublicSuffixList
     /**
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolvePrivateDomain($domain): ResolvedDomainName
+    public function getPrivateDomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
 

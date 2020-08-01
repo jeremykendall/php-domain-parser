@@ -25,30 +25,9 @@ interface PublicSuffixList extends IDNConversion, JsonSerializable
     public function jsonSerialize(): array;
 
     /**
-     * Determines the effective TLD against the PSL rules for cookie domain detection.
-     *
-     * @throws ExceptionInterface If the PublicSuffix can not be resolve.
-     */
-    public function getCookieEffectiveTLD(Host $domain): PublicSuffix;
-
-    /**
-     * Determines the effective TLD against the PSL rules for ICANN domain detection.
-     *
-     * @throws ExceptionInterface If the PublicSuffix can not be resolve.
-     */
-    public function getICANNEffectiveTLD(Host $domain): PublicSuffix;
-
-    /**
-     * Determines the effective TLD against the PSL rules for private domain detection.
-     *
-     * @throws ExceptionInterface If the effective TLD can not be resolve.
-     */
-    public function getPrivateEffectiveTLD(Host $domain): PublicSuffix;
-
-    /**
      * Returns PSL info for a given domain.
      *
-     * If the effective TLD can not be resolved it returns a null ResolvedDomainName
+     * If the effective TLD can not be resolved it returns a ResolvedDomainName with a null public suffix
      */
     public function resolve(Host $domain): ResolvedDomainName;
 
@@ -57,19 +36,19 @@ interface PublicSuffixList extends IDNConversion, JsonSerializable
      *
      * @throws ExceptionInterface If the effective TLD can not be resolve.
      */
-    public function resolveCookieDomain(Host $domain): ResolvedDomainName;
+    public function getCookieDomain(Host $domain): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
      *
      * @throws ExceptionInterface If the effective TLD can not be resolve.
      */
-    public function resolveICANNDomain(Host $domain): ResolvedDomainName;
+    public function getICANNDomain(Host $domain): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for private domain detection.
      *
      * @throws ExceptionInterface If the effective TLD can not be resolve.
      */
-    public function resolvePrivateDomain(Host $domain): ResolvedDomainName;
+    public function getPrivateDomain(Host $domain): ResolvedDomainName;
 }
