@@ -54,15 +54,11 @@ interface RootZoneDatabase extends Countable, IteratorAggregate, IDNConversion, 
 
     /**
      * Tells whether the submitted TLD is a valid Top Level Domain.
-     *
-     * @param mixed $tld a TLD in a type that can be converted into a DomainInterface instance
      */
-    public function contains($tld): bool;
+    public function contains(Host $tld): bool;
 
     /**
      * Returns a domain where its public suffix is the found TLD.
-     *
-     * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain): ResolvedDomainName;
+    public function resolve(Host $domain): ResolvedDomainName;
 }

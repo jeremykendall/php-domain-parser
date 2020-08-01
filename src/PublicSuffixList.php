@@ -19,54 +19,57 @@ use JsonSerializable;
 
 interface PublicSuffixList extends IDNConversion, JsonSerializable
 {
+    /**
+     * Returns an array representation of the Public Suffix List Rules JSON serializable
+     */
     public function jsonSerialize(): array;
 
     /**
-     * Determines the public suffix for a given domain against the PSL rules for cookie domain detection..
+     * Determines the effective TLD against the PSL rules for cookie domain detection.
      *
      * @throws ExceptionInterface If the PublicSuffix can not be resolve.
      */
-    public function getCookieEffectiveTLD(ResolvedDomainName $domain): PublicSuffix;
+    public function getCookieEffectiveTLD(Host $domain): PublicSuffix;
 
     /**
-     * Determines the public suffix for a given domain against the PSL rules for ICANN domain detection..
+     * Determines the effective TLD against the PSL rules for ICANN domain detection.
      *
      * @throws ExceptionInterface If the PublicSuffix can not be resolve.
      */
-    public function getICANNEffectiveTLD(ResolvedDomainName $domain): PublicSuffix;
+    public function getICANNEffectiveTLD(Host $domain): PublicSuffix;
 
     /**
-     * Determines the public suffix for a given domain against the PSL rules for private domain detection..
+     * Determines the effective TLD against the PSL rules for private domain detection.
      *
-     * @throws ExceptionInterface If the PublicSuffix can not be resolve.
+     * @throws ExceptionInterface If the effective TLD can not be resolve.
      */
-    public function getPrivateEffectiveTLD(ResolvedDomainName $domain): PublicSuffix;
+    public function getPrivateEffectiveTLD(Host $domain): PublicSuffix;
 
     /**
      * Returns PSL info for a given domain.
      *
-     * @param mixed $domain a type that supports instantiating a Domain from.
+     * If the effective TLD can not be resolved it returns a null ResolvedDomainName
      */
     public function resolve(Host $domain): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
      *
-     * @param mixed $domain the domain value
+     * @throws ExceptionInterface If the effective TLD can not be resolve.
      */
-    public function resolveCookieDomain($domain): ResolvedDomainName;
+    public function resolveCookieDomain(Host $domain): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
      *
-     * @param mixed $domain a type that supports instantiating a Domain from.
+     * @throws ExceptionInterface If the effective TLD can not be resolve.
      */
-    public function resolveICANNDomain($domain): ResolvedDomainName;
+    public function resolveICANNDomain(Host $domain): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for private domain detection.
      *
-     * @param mixed $domain a type that supports instantiating a Domain from.
+     * @throws ExceptionInterface If the effective TLD can not be resolve.
      */
-    public function resolvePrivateDomain($domain): ResolvedDomainName;
+    public function resolvePrivateDomain(Host $domain): ResolvedDomainName;
 }

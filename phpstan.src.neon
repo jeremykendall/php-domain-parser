@@ -16,6 +16,4 @@ parameters:
       path: src/ResolvedDomain.php
     - message: '#Method Pdp\\ResolvedDomain::withSubDomain\(\) has parameter \$subDomain with no typehint specified.#'
       path: src/ResolvedDomain.php
-    - message: '#PHPDoc tag @param for parameter \$domain with type mixed is not subtype of native type Pdp\\Host.#'
-      path: src/PublicSuffixList.php
   reportUnmatchedIgnoredErrors: true

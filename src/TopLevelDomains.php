@@ -244,7 +244,6 @@ final class TopLevelDomains implements RootZoneDatabase
             return false;
         }
 
-        /** @var DomainName $asciiDomain */
         $asciiDomain = $tld->toAscii();
         $label = $asciiDomain->label(0);
         foreach ($this as $knownTld) {
@@ -287,7 +286,6 @@ final class TopLevelDomains implements RootZoneDatabase
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
-        /** @var DomainName $asciiDomain */
         $asciiDomain = $domain->toAscii();
 
         $publicSuffix = null;
