@@ -49,7 +49,7 @@ use const IDNA_ERROR_PUNYCODE;
 use const IDNA_ERROR_TRAILING_HYPHEN;
 use const INTL_IDNA_VARIANT_UTS46;
 
-abstract class HostParser
+abstract class DomainNameParser
 {
     /**
      * Get and format IDN conversion error message.
@@ -165,11 +165,11 @@ abstract class HostParser
      * @param mixed $domain a domain
      *
      * @throws InvalidHost   If the domain is not a host
-     * @throws InvalidDomain If the host is not a domain
+     * @throws InvalidDomainName If the host is not a domain
      */
     final protected function parse($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
     {
-        if ($domain instanceof HostInterface) {
+        if ($domain instanceof Host) {
             $domain = $domain->getContent();
         }
 
@@ -188,7 +188,7 @@ abstract class HostParser
         $domain = (string) $domain;
         $res = filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
         if (false !== $res) {
-            throw InvalidDomain::dueToUnsupportedType($domain);
+            throw InvalidDomainName::dueToUnsupportedType($domain);
         }
 
         $formatted_domain = rawurldecode($domain);
@@ -208,7 +208,7 @@ abstract class HostParser
         // a domain name can not contains URI delimiters or space
         static $gen_delims = '/[:\/?#\[\]@ ]/';
         if (1 === preg_match($gen_delims, $formatted_domain)) {
-            throw InvalidDomain::dueToInvalidCharacters($domain);
+            throw InvalidDomainName::dueToInvalidCharacters($domain);
         }
 
         // if the domain name does not contains UTF-8 chars then it is malformed
@@ -222,6 +222,6 @@ abstract class HostParser
             return $labels;
         }
 
-        throw InvalidDomain::dueToInvalidCharacters($domain);
+        throw InvalidDomainName::dueToInvalidCharacters($domain);
     }
 }

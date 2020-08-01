@@ -30,7 +30,7 @@ use const DATE_ATOM;
 use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
 
-final class TopLevelDomains implements RootZoneDatabaseInterface
+final class TopLevelDomains implements RootZoneDatabase
 {
     private DateTimeImmutable $modifiedDate;
 
@@ -72,7 +72,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
         $context = null,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): RootZoneDatabaseInterface {
+    ): RootZoneDatabase {
         $args = [$path, 'r', false];
         if (null !== $context) {
             $args[] = $context;
@@ -94,7 +94,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
         string $content,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): RootZoneDatabaseInterface {
+    ): RootZoneDatabase {
         static $converter;
 
         $converter = $converter ?? new RootZoneDatabaseConverter();
@@ -116,7 +116,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
         string $jsonString,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
-    ): RootZoneDatabaseInterface {
+    ): RootZoneDatabase {
         $data = json_decode($jsonString, true);
         $errorCode = json_last_error();
         if (JSON_ERROR_NONE !== $errorCode) {
@@ -136,7 +136,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
     /**
      * {@inheritdoc}
      */
-    public static function __set_state(array $properties): RootZoneDatabaseInterface
+    public static function __set_state(array $properties): RootZoneDatabase
     {
         return new self(
             $properties['records'],
@@ -233,7 +233,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
     public function contains($tld): bool
     {
         try {
-            if (!$tld instanceof DomainInterface) {
+            if (!$tld instanceof DomainName) {
                 $tld = new Domain($tld, $this->asciiIDNAOption, $this->unicodeIDNAOption);
             }
         } catch (ExceptionInterface $exception) {
@@ -244,7 +244,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
             return false;
         }
 
-        /** @var DomainInterface $asciiDomain */
+        /** @var DomainName $asciiDomain */
         $asciiDomain = $tld->toAscii();
         $label = $asciiDomain->label(0);
         foreach ($this as $knownTld) {
@@ -261,16 +261,16 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
      *
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain): ResolvedHostInterface
+    public function resolve($domain): ResolvedHost
     {
-        if ($domain instanceof ResolvedHostInterface) {
+        if ($domain instanceof ResolvedHost) {
             $domain = $domain->getHost();
             $domain
                 ->withUnicodeIDNAOption($this->unicodeIDNAOption)
                 ->withAsciiIDNAOption($this->asciiIDNAOption);
         }
 
-        if (!$domain instanceof DomainInterface) {
+        if (!$domain instanceof DomainName) {
             $domain = new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
@@ -287,7 +287,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
-        /** @var DomainInterface $asciiDomain */
+        /** @var DomainName $asciiDomain */
         $asciiDomain = $domain->toAscii();
 
         $publicSuffix = null;
@@ -309,7 +309,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      */
-    public function withAsciiIDNAOption(int $option): RootZoneDatabaseInterface
+    public function withAsciiIDNAOption(int $option): RootZoneDatabase
     {
         if ($option === $this->asciiIDNAOption) {
             return $this;
@@ -328,7 +328,7 @@ final class TopLevelDomains implements RootZoneDatabaseInterface
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      */
-    public function withUnicodeIDNAOption(int $option): RootZoneDatabaseInterface
+    public function withUnicodeIDNAOption(int $option): RootZoneDatabase
     {
         if ($option === $this->unicodeIDNAOption) {
             return $this;

@@ -22,15 +22,15 @@ use function preg_match;
 use function strpos;
 use function substr;
 
-final class PublicSuffixListConverter extends HostParser
+final class PublicSuffixListConverter extends DomainNameParser
 {
     private const PSL_SECTION = [
         'ICANN' => [
-            'BEGIN' => PublicSuffixInterface::ICANN_DOMAINS,
+            'BEGIN' => PublicSuffix::ICANN_DOMAINS,
             'END' => '',
         ],
         'PRIVATE' => [
-            'BEGIN' => PublicSuffixInterface::PRIVATE_DOMAINS,
+            'BEGIN' => PublicSuffix::PRIVATE_DOMAINS,
             'END' => '',
         ],
     ];

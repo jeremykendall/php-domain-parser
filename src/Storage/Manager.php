@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\PublicSuffixListInterface;
-use Pdp\RootZoneDatabaseInterface;
+use Pdp\PublicSuffixList;
+use Pdp\RootZoneDatabase;
 use Pdp\Rules;
 use Pdp\TopLevelDomains;
 use Pdp\UnableToLoadPublicSuffixList;
@@ -46,7 +46,7 @@ final class Manager
      * @throws HttpClientException
      * @throws UnableToLoadPublicSuffixList
      */
-    public function getPublicSuffixListLocalCopy(string $uri = self::PSL_URL): PublicSuffixListInterface
+    public function getPublicSuffixListLocalCopy(string $uri = self::PSL_URL): PublicSuffixList
     {
         return $this->publicSuffixListCache->fetchByUri($uri) ?? $this->getPublicSuffixListRemoteCopy($uri);
     }
@@ -57,7 +57,7 @@ final class Manager
      * @throws HttpClientException
      * @throws UnableToLoadPublicSuffixList
      */
-    public function getPublicSuffixListRemoteCopy(string $uri = self::PSL_URL): PublicSuffixListInterface
+    public function getPublicSuffixListRemoteCopy(string $uri = self::PSL_URL): PublicSuffixList
     {
         $rules = Rules::fromString($this->http->getContent($uri));
 
@@ -72,7 +72,7 @@ final class Manager
      * @throws HttpClientException
      * @throws UnableToLoadRootZoneDatabase
      */
-    public function getRootZoneDatabaseLocalCopy(string $uri = self::RZD_URL): RootZoneDatabaseInterface
+    public function getRootZoneDatabaseLocalCopy(string $uri = self::RZD_URL): RootZoneDatabase
     {
         return $this->rootZoneDatabaseCache->fetchByUri($uri) ?? $this->getRootZoneDatabaseRemoteCopy($uri);
     }
@@ -83,7 +83,7 @@ final class Manager
      * @throws HttpClientException
      * @throws UnableToLoadRootZoneDatabase
      */
-    public function getRootZoneDatabaseRemoteCopy(string $uri = self::RZD_URL): RootZoneDatabaseInterface
+    public function getRootZoneDatabaseRemoteCopy(string $uri = self::RZD_URL): RootZoneDatabase
     {
         $rootZoneDatabase = TopLevelDomains::fromString($this->http->getContent($uri));
 

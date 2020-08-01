@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use Pdp\Domain;
-use Pdp\InvalidDomain;
+use Pdp\InvalidDomainName;
 use Pdp\InvalidHost;
 use PHPUnit\Framework\TestCase;
 use TypeError;
@@ -361,7 +361,7 @@ class DomainTest extends TestCase
      */
     public function testWithLabelFailsWithInvalidKey(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidDomainName::class);
         (new Domain('example.com'))->withLabel(-4, 'www');
     }
 
@@ -460,7 +460,7 @@ class DomainTest extends TestCase
      */
     public function testwithoutLabelFailsWithInvalidKey(): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidDomainName::class);
         (new Domain('example.com'))->withoutLabel(-3);
     }
 

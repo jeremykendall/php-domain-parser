@@ -30,7 +30,7 @@ use function sprintf;
 use function strpos;
 use const IDNA_DEFAULT;
 
-final class Domain extends HostParser implements DomainInterface
+final class Domain extends DomainNameParser implements DomainName
 {
     private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
@@ -168,12 +168,12 @@ final class Domain extends HostParser implements DomainInterface
      */
     private function normalizeContent($domain): string
     {
-        if ($domain instanceof HostInterface) {
+        if ($domain instanceof Host) {
             $domain = $domain->getContent();
         }
 
         if (null === $domain || (!is_string($domain) && !method_exists($domain, '__toString'))) {
-            throw new TypeError(sprintf('The label must be a '.HostInterface::class.', a stringable object or a string, `%s` given', gettype($domain)));
+            throw new TypeError(sprintf('The label must be a '.Host::class.', a stringable object or a string, `%s` given', gettype($domain)));
         }
 
         $domain = (string) $domain;
@@ -202,7 +202,7 @@ final class Domain extends HostParser implements DomainInterface
     {
         $nb_labels = count($this->labels);
         if ($key < - $nb_labels - 1 || $key > $nb_labels) {
-            throw InvalidDomain::dueToInvalidLabelKey($key);
+            throw InvalidDomainName::dueToInvalidLabelKey($key);
         }
 
         if (0 > $key) {
@@ -232,7 +232,7 @@ final class Domain extends HostParser implements DomainInterface
         $nb_labels = count($this->labels);
         foreach ($keys as &$offset) {
             if (- $nb_labels > $offset || $nb_labels - 1 < $offset) {
-                throw InvalidDomain::dueToInvalidLabelKey($key);
+                throw InvalidDomainName::dueToInvalidLabelKey($key);
             }
 
             if (0 > $offset) {

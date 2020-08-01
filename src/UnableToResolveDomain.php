@@ -19,9 +19,9 @@ use InvalidArgumentException;
 
 class UnableToResolveDomain extends InvalidArgumentException implements ExceptionInterface
 {
-    private ?HostInterface $domain = null;
+    private ?Host $domain = null;
 
-    public static function dueToUnresolvableDomain(?HostInterface $domain): self
+    public static function dueToUnresolvableDomain(?Host $domain): self
     {
         $content = $domain;
         if (null !== $content) {
@@ -34,7 +34,7 @@ class UnableToResolveDomain extends InvalidArgumentException implements Exceptio
         return $exception;
     }
 
-    public static function dueToMissingRegistrableDomain(HostInterface $domain = null): self
+    public static function dueToMissingRegistrableDomain(Host $domain = null): self
     {
         $content = $domain;
         if (null !== $content) {
@@ -57,7 +57,7 @@ class UnableToResolveDomain extends InvalidArgumentException implements Exceptio
         return null !== $this->domain;
     }
 
-    public function getDomain(): ?HostInterface
+    public function getDomain(): ?Host
     {
         return $this->domain;
     }

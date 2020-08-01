@@ -20,7 +20,7 @@ use DateTimeImmutable;
 use IteratorAggregate;
 use JsonSerializable;
 
-interface RootZoneDatabaseInterface extends Countable, IteratorAggregate, JsonSerializable
+interface RootZoneDatabase extends Countable, IteratorAggregate, JsonSerializable
 {
     /**
      * Returns the Version ID.
@@ -82,7 +82,7 @@ interface RootZoneDatabaseInterface extends Countable, IteratorAggregate, JsonSe
      *
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain): ResolvedHostInterface;
+    public function resolve($domain): ResolvedHost;
 
     /**
      * Sets conversion options for idn_to_ascii.
@@ -91,7 +91,7 @@ interface RootZoneDatabaseInterface extends Countable, IteratorAggregate, JsonSe
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      */
-    public function withAsciiIDNAOption(int $option): RootZoneDatabaseInterface;
+    public function withAsciiIDNAOption(int $option): RootZoneDatabase;
 
     /**
      * Sets conversion options for idn_to_utf8.
@@ -100,5 +100,5 @@ interface RootZoneDatabaseInterface extends Countable, IteratorAggregate, JsonSe
      *
      * @see https://www.php.net/manual/en/intl.constants.php
      */
-    public function withUnicodeIDNAOption(int $option): RootZoneDatabaseInterface;
+    public function withUnicodeIDNAOption(int $option): RootZoneDatabase;
 }

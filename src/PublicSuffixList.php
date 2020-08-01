@@ -17,7 +17,7 @@ namespace Pdp;
 
 use JsonSerializable;
 
-interface PublicSuffixListInterface extends JsonSerializable
+interface PublicSuffixList extends JsonSerializable
 {
     public function getAsciiIDNAOption(): int;
 
@@ -30,49 +30,49 @@ interface PublicSuffixListInterface extends JsonSerializable
      *
      * @throws ExceptionInterface If the PublicSuffix can not be resolve.
      */
-    public function getCookieEffectiveTLD(ResolvedHostInterface $domain): PublicSuffixInterface;
+    public function getCookieEffectiveTLD(ResolvedHost $domain): PublicSuffix;
 
     /**
      * Determines the public suffix for a given domain against the PSL rules for ICANN domain detection..
      *
      * @throws ExceptionInterface If the PublicSuffix can not be resolve.
      */
-    public function getICANNEffectiveTLD(ResolvedHostInterface $domain): PublicSuffixInterface;
+    public function getICANNEffectiveTLD(ResolvedHost $domain): PublicSuffix;
 
     /**
      * Determines the public suffix for a given domain against the PSL rules for private domain detection..
      *
      * @throws ExceptionInterface If the PublicSuffix can not be resolve.
      */
-    public function getPrivateEffectiveTLD(ResolvedHostInterface $domain): PublicSuffixInterface;
+    public function getPrivateEffectiveTLD(ResolvedHost $domain): PublicSuffix;
 
     /**
      * Returns PSL info for a given domain.
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolve(HostInterface $domain): ResolvedHostInterface;
+    public function resolve(Host $domain): ResolvedHost;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
      *
      * @param mixed $domain the domain value
      */
-    public function resolveCookieDomain($domain): ResolvedHostInterface;
+    public function resolveCookieDomain($domain): ResolvedHost;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolveICANNDomain($domain): ResolvedHostInterface;
+    public function resolveICANNDomain($domain): ResolvedHost;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for private domain detection.
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolvePrivateDomain($domain): ResolvedHostInterface;
+    public function resolvePrivateDomain($domain): ResolvedHost;
 
     /**
      * Sets conversion options for idn_to_ascii.

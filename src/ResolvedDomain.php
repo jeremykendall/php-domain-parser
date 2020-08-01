@@ -25,19 +25,19 @@ use function sprintf;
 use function strlen;
 use function substr;
 
-final class ResolvedDomain implements ResolvedHostInterface
+final class ResolvedDomain implements ResolvedHost
 {
     private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
-    private DomainInterface $domain;
+    private DomainName $domain;
 
-    private PublicSuffixInterface $publicSuffix;
+    private PublicSuffix $publicSuffix;
 
-    private DomainInterface $registrableDomain;
+    private DomainName $registrableDomain;
 
-    private DomainInterface $subDomain;
+    private DomainName $subDomain;
 
-    public function __construct(HostInterface $domain, ?PublicSuffixInterface $publicSuffix = null)
+    public function __construct(Host $domain, ?PublicSuffix $publicSuffix = null)
     {
         $this->domain = $this->setDomain($domain);
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
@@ -56,9 +56,9 @@ final class ResolvedDomain implements ResolvedHostInterface
     /**
      * Sets the domain.
      */
-    private function setDomain(HostInterface $domain): DomainInterface
+    private function setDomain(Host $domain): DomainName
     {
-        if ($domain instanceof DomainInterface) {
+        if ($domain instanceof DomainName) {
             return $domain;
         }
 
@@ -70,7 +70,7 @@ final class ResolvedDomain implements ResolvedHostInterface
      *
      * @throws UnableToResolveDomain If the public suffic can not be attached to the domain
      */
-    private function setPublicSuffix(PublicSuffixInterface $publicSuffix = null): PublicSuffixInterface
+    private function setPublicSuffix(PublicSuffix $publicSuffix = null): PublicSuffix
     {
         $asciiIDNAOptions = $this->domain->getAsciiIDNAOption();
         $unicodeIDNAOptions = $this->domain->getUnicodeIDNAOption();
@@ -118,7 +118,7 @@ final class ResolvedDomain implements ResolvedHostInterface
     /**
      * Normalize the domain name encoding content.
      */
-    private function normalize(PublicSuffixInterface $subject): PublicSuffixInterface
+    private function normalize(PublicSuffix $subject): PublicSuffix
     {
         if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain->__toString())) {
             return $subject->toAscii();
@@ -130,7 +130,7 @@ final class ResolvedDomain implements ResolvedHostInterface
     /**
      * Computes the registrable domain part.
      */
-    private function setRegistrableDomain(): DomainInterface
+    private function setRegistrableDomain(): DomainName
     {
         if (null === $this->publicSuffix->getContent()) {
             return Domain::fromNull($this->domain->getAsciiIDNAOption(), $this->domain->getUnicodeIDNAOption());
@@ -147,7 +147,7 @@ final class ResolvedDomain implements ResolvedHostInterface
     /**
      * Computes the sub domain part.
      */
-    private function setSubDomain(): DomainInterface
+    private function setSubDomain(): DomainName
     {
         $asciiIDNAOptions = $this->domain->getAsciiIDNAOption();
         $unicodeIDNAOptions = $this->domain->getUnicodeIDNAOption();
@@ -176,7 +176,7 @@ final class ResolvedDomain implements ResolvedHostInterface
         return count($this->domain);
     }
 
-    public function getHost(): DomainInterface
+    public function getHost(): DomainName
     {
         return $this->domain;
     }
@@ -206,17 +206,17 @@ final class ResolvedDomain implements ResolvedHostInterface
         return $this->domain->getUnicodeIDNAOption();
     }
 
-    public function getRegistrableDomain(): DomainInterface
+    public function getRegistrableDomain(): DomainName
     {
         return $this->registrableDomain;
     }
 
-    public function getSubDomain(): DomainInterface
+    public function getSubDomain(): DomainName
     {
         return $this->subDomain;
     }
 
-    public function getPublicSuffix(): PublicSuffixInterface
+    public function getPublicSuffix(): PublicSuffix
     {
         return $this->publicSuffix;
     }
@@ -233,7 +233,7 @@ final class ResolvedDomain implements ResolvedHostInterface
 
     public function resolve($publicSuffix): self
     {
-        if (!$publicSuffix instanceof PublicSuffixInterface) {
+        if (!$publicSuffix instanceof PublicSuffix) {
             $publicSuffix = PublicSuffix::fromUnknownSection($publicSuffix);
         }
 
@@ -245,7 +245,7 @@ final class ResolvedDomain implements ResolvedHostInterface
      */
     public function withPublicSuffix($publicSuffix): self
     {
-        if (!$publicSuffix instanceof PublicSuffixInterface) {
+        if (!$publicSuffix instanceof PublicSuffix) {
             $publicSuffix = PublicSuffix::fromUnknownSection($publicSuffix);
         }
 
@@ -262,14 +262,14 @@ final class ResolvedDomain implements ResolvedHostInterface
             );
         }
 
-        /** @var DomainInterface $domain */
+        /** @var DomainName $domain */
         $domain = new Domain(
             $domain.'.'.$publicSuffix->getContent(),
             $this->domain->getAsciiIDNAOption(),
             $this->domain->getUnicodeIDNAOption()
         );
 
-        /** @var PublicSuffixInterface $publicSuffix */
+        /** @var PublicSuffix $publicSuffix */
         $publicSuffix = $publicSuffix
             ->withAsciiIDNAOption($this->domain->getAsciiIDNAOption())
             ->withUnicodeIDNAOption($this->domain->getUnicodeIDNAOption());
@@ -290,7 +290,7 @@ final class ResolvedDomain implements ResolvedHostInterface
             $subDomain = Domain::fromNull($this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
         }
 
-        if (!$subDomain instanceof DomainInterface) {
+        if (!$subDomain instanceof DomainName) {
             $subDomain = new Domain($subDomain);
         }
 
@@ -299,10 +299,10 @@ final class ResolvedDomain implements ResolvedHostInterface
             return $this;
         }
 
-        /** @var DomainInterface $subDomain */
+        /** @var DomainName $subDomain */
         $subDomain = $subDomain->toAscii();
         if (1 === preg_match(self::REGEXP_IDN_PATTERN, (string) $this->domain->getContent())) {
-            /** @var DomainInterface $subDomain */
+            /** @var DomainName $subDomain */
             $subDomain = $subDomain->toUnicode();
         }
 
@@ -324,10 +324,10 @@ final class ResolvedDomain implements ResolvedHostInterface
             return $this;
         }
 
-        /** @var DomainInterface $asciiDomain */
+        /** @var DomainName $asciiDomain */
         $asciiDomain = $this->domain->withAsciiIDNAOption($option);
 
-        /** @var PublicSuffixInterface $asciiPublicSuffix */
+        /** @var PublicSuffix $asciiPublicSuffix */
         $asciiPublicSuffix = $this->publicSuffix->withAsciiIDNAOption($option);
 
         return new self($asciiDomain, $asciiPublicSuffix);
@@ -342,10 +342,10 @@ final class ResolvedDomain implements ResolvedHostInterface
             return $this;
         }
 
-        /** @var DomainInterface $unicodeDomain */
+        /** @var DomainName $unicodeDomain */
         $unicodeDomain = $this->domain->withUnicodeIDNAOption($option);
 
-        /** @var PublicSuffixInterface $unicodePublicSuffix */
+        /** @var PublicSuffix $unicodePublicSuffix */
         $unicodePublicSuffix = $this->publicSuffix->withUnicodeIDNAOption($option);
 
         return new self($unicodeDomain, $unicodePublicSuffix);

@@ -17,6 +17,9 @@ namespace Pdp;
 
 use Throwable;
 
+/**
+ * Marker interface for package-specific exceptions.
+ */
 interface ExceptionInterface extends Throwable
 {
 }

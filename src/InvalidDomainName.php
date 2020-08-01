@@ -17,7 +17,7 @@ namespace Pdp;
 
 use function sprintf;
 
-class InvalidDomain extends InvalidHost
+class InvalidDomainName extends InvalidHost
 {
     public static function dueToInvalidLabelKey(int $key): self
     {

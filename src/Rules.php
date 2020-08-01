@@ -29,9 +29,9 @@ use function substr;
 use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
 
-final class Rules implements PublicSuffixListInterface
+final class Rules implements PublicSuffixList
 {
-    private const PSL_SECTION = [PublicSuffixInterface::PRIVATE_DOMAINS, PublicSuffixInterface::ICANN_DOMAINS, ''];
+    private const PSL_SECTION = [PublicSuffix::PRIVATE_DOMAINS, PublicSuffix::ICANN_DOMAINS, ''];
 
     /**
      * PSL rules as a multidimentional associative array.
@@ -145,7 +145,7 @@ final class Rules implements PublicSuffixListInterface
      *
      * @throws UnableToResolveDomain If the PublicSuffix can not be resolve.
      */
-    public function getPublicSuffix($domain, string $section = ''): PublicSuffixInterface
+    public function getPublicSuffix($domain, string $section = ''): PublicSuffix
     {
         $domain = $this->validateDomain($domain);
 
@@ -161,7 +161,7 @@ final class Rules implements PublicSuffixListInterface
      *
      * @throws UnableToResolveDomain If the PublicSuffix can not be resolve.
      */
-    public function getCookieEffectiveTLD($domain): PublicSuffixInterface
+    public function getCookieEffectiveTLD($domain): PublicSuffix
     {
         return $this->getPublicSuffix($domain, '');
     }
@@ -173,9 +173,9 @@ final class Rules implements PublicSuffixListInterface
      *
      * @throws UnableToResolveDomain If the PublicSuffix can not be resolve.
      */
-    public function getICANNEffectiveTLD($domain): PublicSuffixInterface
+    public function getICANNEffectiveTLD($domain): PublicSuffix
     {
-        return $this->getPublicSuffix($domain, PublicSuffixInterface::ICANN_DOMAINS);
+        return $this->getPublicSuffix($domain, PublicSuffix::ICANN_DOMAINS);
     }
 
     /**
@@ -185,9 +185,9 @@ final class Rules implements PublicSuffixListInterface
      *
      * @throws UnableToResolveDomain If the PublicSuffix can not be resolve.
      */
-    public function getPrivateEffectiveTLD($domain): PublicSuffixInterface
+    public function getPrivateEffectiveTLD($domain): PublicSuffix
     {
-        return $this->getPublicSuffix($domain, PublicSuffixInterface::PRIVATE_DOMAINS);
+        return $this->getPublicSuffix($domain, PublicSuffix::PRIVATE_DOMAINS);
     }
 
     /**
@@ -195,13 +195,13 @@ final class Rules implements PublicSuffixListInterface
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolve($domain): ResolvedHostInterface
+    public function resolve($domain): ResolvedHost
     {
         try {
             return $this->resolveCookieDomain($domain);
         } catch (UnableToResolveDomain $exception) {
             if ($exception->hasDomain()) {
-                /** @var HostInterface */
+                /** @var Host */
                 $domain = $exception->getDomain();
 
                 return new ResolvedDomain($domain);
@@ -218,7 +218,7 @@ final class Rules implements PublicSuffixListInterface
      *
      * @param mixed $domain the domain value
      */
-    public function resolveCookieDomain($domain): ResolvedHostInterface
+    public function resolveCookieDomain($domain): ResolvedHost
     {
         $domain = $this->validateDomain($domain);
 
@@ -230,11 +230,11 @@ final class Rules implements PublicSuffixListInterface
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolveICANNDomain($domain): ResolvedHostInterface
+    public function resolveICANNDomain($domain): ResolvedHost
     {
         $domain = $this->validateDomain($domain);
 
-        return $domain->resolve($this->findPublicSuffix($domain, PublicSuffixInterface::ICANN_DOMAINS));
+        return $domain->resolve($this->findPublicSuffix($domain, PublicSuffix::ICANN_DOMAINS));
     }
 
     /**
@@ -242,11 +242,11 @@ final class Rules implements PublicSuffixListInterface
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    public function resolvePrivateDomain($domain): ResolvedHostInterface
+    public function resolvePrivateDomain($domain): ResolvedHost
     {
         $domain = $this->validateDomain($domain);
 
-        return $domain->resolve($this->findPublicSuffix($domain, PublicSuffixInterface::PRIVATE_DOMAINS));
+        return $domain->resolve($this->findPublicSuffix($domain, PublicSuffix::PRIVATE_DOMAINS));
     }
 
     /**
@@ -254,12 +254,12 @@ final class Rules implements PublicSuffixListInterface
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      *
-     * @throws InvalidDomain         if the domain is invalid
+     * @throws InvalidDomainName         if the domain is invalid
      * @throws UnableToResolveDomain if the domain is not resolvable
      */
-    private function validateDomain($domain): ResolvedHostInterface
+    private function validateDomain($domain): ResolvedHost
     {
-        if (!($domain instanceof ResolvedHostInterface)) {
+        if (!($domain instanceof ResolvedHost)) {
             $domain = new ResolvedDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption), null);
         }
 
@@ -296,22 +296,22 @@ final class Rules implements PublicSuffixListInterface
     /**
      * Returns the matched public suffix.
      */
-    private function findPublicSuffix(ResolvedHostInterface $domain, string $section): PublicSuffixInterface
+    private function findPublicSuffix(ResolvedHost $domain, string $section): PublicSuffix
     {
         $asciiDomain = $domain->getHost();
-        /** @var DomainInterface $asciiDomain */
+        /** @var DomainName $asciiDomain */
         $asciiDomain = $asciiDomain->toAscii();
-        $icann = $this->findPublicSuffixFromSection($asciiDomain, PublicSuffixInterface::ICANN_DOMAINS);
-        if (PublicSuffixInterface::ICANN_DOMAINS === $section) {
+        $icann = $this->findPublicSuffixFromSection($asciiDomain, PublicSuffix::ICANN_DOMAINS);
+        if (PublicSuffix::ICANN_DOMAINS === $section) {
             return $icann;
         }
 
-        $private = $this->findPublicSuffixFromSection($asciiDomain, PublicSuffixInterface::PRIVATE_DOMAINS);
+        $private = $this->findPublicSuffixFromSection($asciiDomain, PublicSuffix::PRIVATE_DOMAINS);
         if (count($private) > count($icann)) {
             return $private;
         }
 
-        if (PublicSuffixInterface::PRIVATE_DOMAINS === $section) {
+        if (PublicSuffix::PRIVATE_DOMAINS === $section) {
             return PublicSuffix::fromUnknownSection($asciiDomain->label(0), $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 
@@ -321,7 +321,7 @@ final class Rules implements PublicSuffixListInterface
     /**
      * Returns the public suffix matched against a given PSL section.
      */
-    private function findPublicSuffixFromSection(DomainInterface $domain, string $section): PublicSuffixInterface
+    private function findPublicSuffixFromSection(DomainName $domain, string $section): PublicSuffix
     {
         $rules = $this->rules[$section] ?? [];
         $matches = [];
@@ -352,7 +352,7 @@ final class Rules implements PublicSuffixListInterface
 
         $content = implode('.', array_reverse($matches));
 
-        if (PublicSuffixInterface::PRIVATE_DOMAINS === $section) {
+        if (PublicSuffix::PRIVATE_DOMAINS === $section) {
             return PublicSuffix::fromPrivateSection($content, $this->asciiIDNAOption, $this->unicodeIDNAOption);
         }
 

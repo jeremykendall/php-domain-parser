@@ -20,8 +20,8 @@ use DateTimeZone;
 use Pdp\Domain;
 use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
+use Pdp\RootZoneDatabase;
 use Pdp\RootZoneDatabaseConverter;
-use Pdp\RootZoneDatabaseInterface;
 use Pdp\TopLevelDomains;
 use Pdp\UnableToLoadRootZoneDatabase;
 use Pdp\UnableToResolveDomain;
@@ -38,7 +38,7 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 class TopLevelDomainsTest extends TestCase
 {
     /**
-     * @var RootZoneDatabaseInterface
+     * @var RootZoneDatabase
      */
     protected $collection;
 

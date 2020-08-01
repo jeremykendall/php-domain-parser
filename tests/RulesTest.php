@@ -16,10 +16,9 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use Pdp\Domain;
-use Pdp\InvalidDomain;
+use Pdp\InvalidDomainName;
 use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
-use Pdp\PublicSuffixInterface;
 use Pdp\ResolvedDomain;
 use Pdp\Rules;
 use Pdp\Storage\CurlHttpClient;
@@ -130,7 +129,7 @@ final class RulesTest extends TestCase
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testNullWillReturnNullDomain(): void
     {
@@ -141,7 +140,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testThrowsTypeErrorOnWrongInput(): void
     {
@@ -156,7 +155,7 @@ final class RulesTest extends TestCase
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testIsSuffixValidFalse(): void
     {
@@ -173,7 +172,7 @@ final class RulesTest extends TestCase
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testIsSuffixValidTrue(): void
     {
@@ -194,7 +193,7 @@ final class RulesTest extends TestCase
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testIsSuffixValidFalseWithPunycoded(): void
     {
@@ -215,7 +214,7 @@ final class RulesTest extends TestCase
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testSubDomainIsNull(): void
     {
@@ -230,7 +229,7 @@ final class RulesTest extends TestCase
      * @covers ::resolveCookieDomain
      * @covers ::validateDomain
      * @covers ::validateSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithExceptionName(): void
     {
@@ -244,7 +243,7 @@ final class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithPrivateDomain(): void
     {
@@ -276,7 +275,7 @@ final class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithPrivateDomainInvalid(): void
     {
@@ -296,7 +295,7 @@ final class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithPrivateDomainValid(): void
     {
@@ -314,7 +313,7 @@ final class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithICANNDomainInvalid(): void
     {
@@ -332,7 +331,7 @@ final class RulesTest extends TestCase
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithDomainObject(): void
     {
@@ -352,7 +351,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::getPublicSuffix
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithDomainInterfaceObject(): void
     {
@@ -384,7 +383,7 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::resolveICANNDomain
      * @covers ::validateDomain
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      * @dataProvider parseDataProvider
      * @param ?string $publicSuffix
      * @param ?string $registrableDomain
@@ -399,7 +398,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      * @covers \Pdp\Domain::getContent
      * @dataProvider parseDataProvider
      *
@@ -509,7 +508,7 @@ final class RulesTest extends TestCase
     /**
      * @covers ::getPublicSuffix
      * @covers ::validateSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      * @dataProvider invalidParseProvider
      */
     public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix(string $domain, string $section): void
@@ -521,20 +520,20 @@ final class RulesTest extends TestCase
     public function invalidParseProvider(): iterable
     {
         return [
-            'single label host' => ['localhost', PublicSuffixInterface::ICANN_DOMAINS],
+            'single label host' => ['localhost', PublicSuffix::ICANN_DOMAINS],
         ];
     }
 
     /**
      * @covers ::getPublicSuffix
      * @covers ::validateSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      *
      * @dataProvider invalidDomainParseProvider
      */
     public function testGetPublicSuffixThrowsInvalidDomainException(string $domain, string $section): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidDomainName::class);
 
         $this->rules->getPublicSuffix($domain, $section);
     }
@@ -542,16 +541,16 @@ final class RulesTest extends TestCase
     public function invalidDomainParseProvider(): iterable
     {
         return [
-            'IPv6' => ['[::1]', PublicSuffixInterface::ICANN_DOMAINS],
-            'IPv4' => ['192.168.1.2', PublicSuffixInterface::ICANN_DOMAINS],
-            'invalid host: label too long' => [implode('', array_fill(0, 64, 'a')).'.com', PublicSuffixInterface::ICANN_DOMAINS],
+            'IPv6' => ['[::1]', PublicSuffix::ICANN_DOMAINS],
+            'IPv4' => ['192.168.1.2', PublicSuffix::ICANN_DOMAINS],
+            'invalid host: label too long' => [implode('', array_fill(0, 64, 'a')).'.com', PublicSuffix::ICANN_DOMAINS],
         ];
     }
 
     /**
      * @covers ::getPublicSuffix
      * @covers ::validateSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      *
      * @dataProvider invalidHostParseProvider
      */
@@ -566,10 +565,10 @@ final class RulesTest extends TestCase
         $long_label = implode('.', array_fill(0, 62, 'a'));
 
         return [
-            'multiple label with URI delimiter' => ['local.ho/st', PublicSuffixInterface::ICANN_DOMAINS],
-            'invalid host: invalid label according to RFC3986' => ['www.fußball.com-', PublicSuffixInterface::ICANN_DOMAINS],
-            'invalid host: host contains space' => ['re view.com', PublicSuffixInterface::ICANN_DOMAINS],
-            'invalid host: host too long' => ["$long_label.$long_label.$long_label. $long_label.$long_label", PublicSuffixInterface::ICANN_DOMAINS],
+            'multiple label with URI delimiter' => ['local.ho/st', PublicSuffix::ICANN_DOMAINS],
+            'invalid host: invalid label according to RFC3986' => ['www.fußball.com-', PublicSuffix::ICANN_DOMAINS],
+            'invalid host: host contains space' => ['re view.com', PublicSuffix::ICANN_DOMAINS],
+            'invalid host: host too long' => ["$long_label.$long_label.$long_label. $long_label.$long_label", PublicSuffix::ICANN_DOMAINS],
         ];
     }
 
@@ -577,7 +576,7 @@ final class RulesTest extends TestCase
     /**
      * @covers ::getPublicSuffix
      * @covers ::validateSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      * @dataProvider validPublicSectionProvider
      * @param ?string $domain
      * @param ?string $expected
@@ -633,7 +632,7 @@ final class RulesTest extends TestCase
      *
      * @covers ::resolve
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\HostParser::parse
+     * @covers \Pdp\DomainNameParser::parse
      */
     public function testPublicSuffixSpec(): void
     {

@@ -18,7 +18,7 @@ namespace Pdp\Storage;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Pdp\RootZoneDatabaseInterface;
+use Pdp\RootZoneDatabase;
 use Pdp\TopLevelDomains;
 use Pdp\UnableToLoadRootZoneDatabase;
 use Psr\Log\LoggerInterface;
@@ -102,7 +102,7 @@ final class RootZoneDatabaseCachePsr16Adapter implements RootZoneDatabaseCache
      *
      * @throws UnableToLoadRootZoneDatabase
      */
-    public function fetchByUri(string $uri): ?RootZoneDatabaseInterface
+    public function fetchByUri(string $uri): ?RootZoneDatabase
     {
         $cacheKey = $this->getCacheKey($uri);
         $cacheData = $this->cache->get($cacheKey);
@@ -130,7 +130,7 @@ final class RootZoneDatabaseCachePsr16Adapter implements RootZoneDatabaseCache
         return sprintf('%s_FULL_%s', self::CACHE_PREFIX, md5(strtolower($str)));
     }
 
-    public function storeByUri(string $uri, RootZoneDatabaseInterface $topLevelDomains): bool
+    public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool
     {
         try {
             $result = $this->cache->set($this->getCacheKey($uri), json_encode($topLevelDomains), $this->ttl);

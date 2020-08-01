@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use InvalidArgumentException;
-use Pdp\InvalidDomain;
+use Pdp\InvalidDomainName;
 use Pdp\InvalidHost;
 use Pdp\PublicSuffix;
 use PHPUnit\Framework\TestCase;
@@ -104,7 +104,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testConstructorThrowsException(string $publicSuffix): void
     {
-        self::expectException(InvalidDomain::class);
+        self::expectException(InvalidDomainName::class);
 
         PublicSuffix::fromUnknownSection($publicSuffix);
     }

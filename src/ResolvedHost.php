@@ -15,15 +15,15 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface ResolvedHostInterface extends HostInterface
+interface ResolvedHost extends Host
 {
-    public function getHost(): DomainInterface;
+    public function getHost(): DomainName;
 
-    public function getPublicSuffix(): PublicSuffixInterface;
+    public function getPublicSuffix(): PublicSuffix;
 
-    public function getSubDomain(): DomainInterface;
+    public function getSubDomain(): DomainName;
 
-    public function getRegistrableDomain(): DomainInterface;
+    public function getRegistrableDomain(): DomainName;
 
     /**
      * Returns an instance with the specified sub domain added.
@@ -33,7 +33,7 @@ interface ResolvedHostInterface extends HostInterface
      *
      * @throws ExceptionInterface If the Sub domain can not be added to the current Domain
      */
-    public function withSubDomain(HostInterface $subDomain): self;
+    public function withSubDomain(Host $subDomain): self;
 
     /**
      * Returns an instance with the specified public suffix added.
@@ -44,7 +44,7 @@ interface ResolvedHostInterface extends HostInterface
      * If the domain already has a public suffix it will be replaced by the new value
      * otherwise the public suffix content is added to or remove from the current domain.
      */
-    public function withPublicSuffix(PublicSuffixInterface $publicSuffix): self;
+    public function withPublicSuffix(PublicSuffix $publicSuffix): self;
 
     /**
      * Returns a Domain object with a new resolve public suffix.
@@ -57,5 +57,5 @@ interface ResolvedHostInterface extends HostInterface
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the modified Public Suffix Information.
      */
-    public function resolve(PublicSuffixInterface $publicSuffix): self;
+    public function resolve(PublicSuffix $publicSuffix): self;
 }

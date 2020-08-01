@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface PublicSuffixInterface extends HostInterface
+interface EffectiveTLD extends Host
 {
     public const ICANN_DOMAINS = 'ICANN_DOMAINS';
 

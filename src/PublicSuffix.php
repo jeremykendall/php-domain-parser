@@ -22,7 +22,7 @@ use function in_array;
 use function reset;
 use const IDNA_DEFAULT;
 
-final class PublicSuffix extends HostParser implements PublicSuffixInterface
+final class PublicSuffix extends DomainNameParser implements EffectiveTLD
 {
     private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
 
@@ -99,7 +99,7 @@ final class PublicSuffix extends HostParser implements PublicSuffixInterface
     /**
      * Set the public suffix content.
      *
-     * @throws InvalidDomain if the public suffix is invalid
+     * @throws InvalidDomainName if the public suffix is invalid
      */
     private function setPublicSuffix(): ?string
     {
@@ -112,7 +112,7 @@ final class PublicSuffix extends HostParser implements PublicSuffixInterface
             return $publicSuffix;
         }
 
-        throw InvalidDomain::dueToInvalidPublicSuffix($publicSuffix);
+        throw InvalidDomainName::dueToInvalidPublicSuffix($publicSuffix);
     }
 
     /**
@@ -173,7 +173,7 @@ final class PublicSuffix extends HostParser implements PublicSuffixInterface
         return self::PRIVATE_DOMAINS === $this->section;
     }
 
-    public function toAscii(): HostInterface
+    public function toAscii(): Host
     {
         if (null === $this->publicSuffix) {
             return $this;
@@ -187,7 +187,7 @@ final class PublicSuffix extends HostParser implements PublicSuffixInterface
         return new self($publicSuffix, $this->section, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
-    public function toUnicode(): HostInterface
+    public function toUnicode(): Host
     {
         if (null === $this->publicSuffix || false === strpos($this->publicSuffix, 'xn--')) {
             return $this;
