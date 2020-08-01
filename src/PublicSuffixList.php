@@ -28,27 +28,31 @@ interface PublicSuffixList extends IDNConversion, JsonSerializable
      * Returns PSL info for a given domain.
      *
      * If the effective TLD can not be resolved it returns a ResolvedDomainName with a null public suffix
+     * If the host is not a valid domaine it returns a ResolvedDomainName with a null Domain name
      */
-    public function resolve(Host $domain): ResolvedDomainName;
+    public function resolve(Host $host): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
      *
-     * @throws ExceptionInterface If the effective TLD can not be resolve.
+     * @throws InvalidDomainName     if the domain is invalid
+     * @throws UnableToResolveDomain if the domain or the TLD are not resolvable of not resolved
      */
-    public function getCookieDomain(Host $domain): ResolvedDomainName;
+    public function getCookieDomain(Host $host): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
      *
-     * @throws ExceptionInterface If the effective TLD can not be resolve.
+     * @throws InvalidDomainName     if the domain is invalid
+     * @throws UnableToResolveDomain if the domain or the TLD are not resolvable of not resolved
      */
-    public function getICANNDomain(Host $domain): ResolvedDomainName;
+    public function getICANNDomain(Host $host): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for private domain detection.
      *
-     * @throws ExceptionInterface If the effective TLD can not be resolve.
+     * @throws InvalidDomainName     if the domain is invalid
+     * @throws UnableToResolveDomain if the domain or the TLD are not resolvable of not resolved
      */
-    public function getPrivateDomain(Host $domain): ResolvedDomainName;
+    public function getPrivateDomain(Host $host): ResolvedDomainName;
 }

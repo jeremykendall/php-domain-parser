@@ -47,7 +47,6 @@ class PublicSuffixTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::parse
-     * @covers ::setSection
      * @covers ::getContent
      * @covers ::toUnicode
      */
@@ -60,7 +59,6 @@ class PublicSuffixTest extends TestCase
      * @covers ::__construct
      * @covers ::parse
      * @covers ::setPublicSuffix
-     * @covers ::setSection
      * @covers ::isKnown
      * @covers ::isICANN
      * @covers ::isPrivate

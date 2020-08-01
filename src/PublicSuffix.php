@@ -18,36 +18,36 @@ namespace Pdp;
 use function array_reverse;
 use function count;
 use function implode;
-use function in_array;
 use function reset;
 use const IDNA_DEFAULT;
 
 final class PublicSuffix extends DomainNameParser implements EffectiveTLD
 {
-    private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
-
     private ?string $publicSuffix;
 
     private string $section;
 
-    private array $labels;
+    private int $labelsCount;
 
     private int $asciiIDNAOption;
 
     private int $unicodeIDNAOption;
 
     /**
-     * @param mixed|null $publicSuffix a public suffix in a type that is supported
+     * @param mixed $publicSuffix a public suffix in a type that is supported
      */
     private function __construct(
-        $publicSuffix = null,
-        string $section = '',
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
+        $publicSuffix,
+        string $section,
+        int $asciiIDNAOption,
+        int $unicodeIDNAOption
     ) {
-        $this->labels = $this->parse($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption);
-        $this->publicSuffix = $this->setPublicSuffix();
-        $this->section = $this->setSection($section);
+        $this->setPublicSuffix($this->parse($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption));
+        $this->section = '';
+        if (null !== $this->publicSuffix) {
+            $this->section = $section;
+        }
+
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
@@ -65,7 +65,7 @@ final class PublicSuffix extends DomainNameParser implements EffectiveTLD
     /**
      * @param mixed $publicSuffix a public suffix
      */
-    public static function fromICANNSection($publicSuffix = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    public static function fromICANNSection($publicSuffix, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
     {
         return new self($publicSuffix, self::ICANN_DOMAINS, $asciiIDNAOption, $unicodeIDNAOption);
     }
@@ -73,7 +73,7 @@ final class PublicSuffix extends DomainNameParser implements EffectiveTLD
     /**
      * @param mixed $publicSuffix a public suffix
      */
-    public static function fromPrivateSection($publicSuffix = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    public static function fromPrivateSection($publicSuffix, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
     {
         return new self($publicSuffix, self::PRIVATE_DOMAINS, $asciiIDNAOption, $unicodeIDNAOption);
     }
@@ -81,7 +81,7 @@ final class PublicSuffix extends DomainNameParser implements EffectiveTLD
     /**
      * @param mixed $publicSuffix a public suffix
      */
-    public static function fromUnknownSection($publicSuffix = null, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    public static function fromUnknownSection($publicSuffix, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
     {
         return new self($publicSuffix, '', $asciiIDNAOption, $unicodeIDNAOption);
     }
@@ -91,46 +91,34 @@ final class PublicSuffix extends DomainNameParser implements EffectiveTLD
         return new self(null, '', $asciiIDNAOption, $unicodeIDNAOption);
     }
 
-    public function count(): int
-    {
-        return count($this->labels);
-    }
-
     /**
      * Set the public suffix content.
      *
      * @throws InvalidDomainName if the public suffix is invalid
      */
-    private function setPublicSuffix(): ?string
+    private function setPublicSuffix(array $labels): void
     {
-        if ([] === $this->labels) {
-            return null;
+        if ([] === $labels) {
+            $this->publicSuffix = null;
+            $this->labelsCount = 0;
+
+            return;
         }
 
-        $publicSuffix = implode('.', array_reverse($this->labels));
-        if ('' !== reset($this->labels)) {
-            return $publicSuffix;
+        $publicSuffix = implode('.', array_reverse($labels));
+        if ('' !== reset($labels)) {
+            $this->publicSuffix = $publicSuffix;
+            $this->labelsCount = count($labels);
+
+            return;
         }
 
         throw InvalidDomainName::dueToInvalidPublicSuffix($publicSuffix);
     }
 
-    /**
-     * Set the public suffix section.
-     *
-     * @throws UnableToResolveDomain if the submitted section is not supported
-     */
-    private function setSection(string $section): string
+    public function count(): int
     {
-        if (!in_array($section, self::PSL_SECTION, true)) {
-            throw new UnableToResolveDomain('"'.$section.'" is an unknown Public Suffix List section');
-        }
-
-        if (null === $this->publicSuffix) {
-            return '';
-        }
-
-        return $section;
+        return $this->labelsCount;
     }
 
     public function jsonSerialize(): ?string

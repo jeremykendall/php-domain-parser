@@ -122,7 +122,6 @@ final class RulesTest extends TestCase
      * @covers ::getICANNDomain
      * @covers ::getPrivateDomain
      * @covers ::validateDomain
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testNullWillReturnNullDomain(): void
@@ -146,7 +145,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\DomainNameParser::parse
      */
@@ -160,7 +158,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
@@ -180,7 +177,6 @@ final class RulesTest extends TestCase
      * @covers ::validateDomain
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
@@ -200,7 +196,6 @@ final class RulesTest extends TestCase
      * @covers ::validateDomain
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
@@ -230,7 +225,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithPrivateDomain(): void
@@ -246,7 +240,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithAbsoluteHostInvalid(): void
@@ -265,7 +258,6 @@ final class RulesTest extends TestCase
      * @covers ::validateDomain
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithPrivateDomainInvalid(): void
@@ -284,7 +276,6 @@ final class RulesTest extends TestCase
      * @covers ::validateDomain
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithPrivateDomainValid(): void
@@ -301,7 +292,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithICANNDomainInvalid(): void
@@ -318,7 +308,6 @@ final class RulesTest extends TestCase
      * @covers ::resolve
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
-     * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\DomainNameParser::parse
      */
     public function testWithDomainObject(): void

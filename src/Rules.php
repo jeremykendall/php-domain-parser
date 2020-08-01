@@ -31,8 +31,6 @@ use const JSON_ERROR_NONE;
 
 final class Rules implements PublicSuffixList
 {
-    private const PSL_SECTION = [EffectiveTLD::PRIVATE_DOMAINS, EffectiveTLD::ICANN_DOMAINS, ''];
-
     /**
      * PSL rules as a multidimentional associative array.
      */
@@ -137,63 +135,60 @@ final class Rules implements PublicSuffixList
     }
 
     /**
-     * @param mixed $domain a type that supports instantiating a Domain from.
+     * @param mixed $host a type that supports instantiating a Domain from.
      */
-    public function resolve($domain): ResolvedDomainName
+    public function resolve($host): ResolvedDomainName
     {
         try {
-            return $this->getCookieDomain($domain);
+            return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
             if ($exception->hasDomain()) {
                 /** @var Host */
-                $domain = $exception->getDomain();
+                $host = $exception->getDomain();
 
-                return new ResolvedDomain($domain);
+                return new ResolvedDomain($host);
             }
 
-            return new ResolvedDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption));
+            return new ResolvedDomain(new Domain($host, $this->asciiIDNAOption, $this->unicodeIDNAOption));
         } catch (ExceptionInterface $exception) {
             return new ResolvedDomain(Domain::fromNull($this->asciiIDNAOption, $this->unicodeIDNAOption));
         }
     }
 
     /**
-     * @param mixed $domain the domain value
+     * @param mixed $host the domain value
      */
-    public function getCookieDomain($domain): ResolvedDomainName
+    public function getCookieDomain($host): ResolvedDomainName
     {
-        $domain = $this->validateDomain($domain);
+        $host = $this->validateDomain($host);
 
-        return $domain->resolve($this->findPublicSuffix($domain, ''));
+        return $host->resolve($this->findPublicSuffix($host, ''));
     }
 
     /**
-     * @param mixed $domain a type that supports instantiating a Domain from.
+     * @param mixed $host a type that supports instantiating a Domain from.
      */
-    public function getICANNDomain($domain): ResolvedDomainName
+    public function getICANNDomain($host): ResolvedDomainName
     {
-        $domain = $this->validateDomain($domain);
+        $host = $this->validateDomain($host);
 
-        return $domain->resolve($this->findPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS));
+        return $host->resolve($this->findPublicSuffix($host, EffectiveTLD::ICANN_DOMAINS));
     }
 
     /**
-     * @param mixed $domain a type that supports instantiating a Domain from.
+     * @param mixed $host a type that supports instantiating a Domain from.
      */
-    public function getPrivateDomain($domain): ResolvedDomainName
+    public function getPrivateDomain($host): ResolvedDomainName
     {
-        $domain = $this->validateDomain($domain);
+        $host = $this->validateDomain($host);
 
-        return $domain->resolve($this->findPublicSuffix($domain, PublicSuffix::PRIVATE_DOMAINS));
+        return $host->resolve($this->findPublicSuffix($host, PublicSuffix::PRIVATE_DOMAINS));
     }
 
     /**
      * Assert the domain is valid and is resolvable.
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
-     *
-     * @throws InvalidDomainName     if the domain is invalid
-     * @throws UnableToResolveDomain if the domain is not resolvable
      */
     private function validateDomain($domain): ResolvedDomainName
     {
