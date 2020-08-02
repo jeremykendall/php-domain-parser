@@ -605,7 +605,7 @@ They are used when instantiated the returned object.
 
 ~~~php
 $manager = new Pdp\Manager(new Pdp\Cache(), new Pdp\CurlHttpClient());
-$tldCollection = $manager->getTLDs(self::RZD_URL);
+$tldCollection = $manager->getTLDs(Pdp\Manager::RZD_URL);
 $domain = $tldCollection->resolve('www.ulb.ac.be');
 echo $domain->getPublicSuffix(); // print 'be'
 ~~~
