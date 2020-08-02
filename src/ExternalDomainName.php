@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface OuterDomainName
+interface ExternalDomainName
 {
     public function getDomain(): DomainName;
 }
