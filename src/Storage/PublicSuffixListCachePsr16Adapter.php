@@ -45,14 +45,17 @@ final class PublicSuffixListCachePsr16Adapter implements PublicSuffixListCache
 
     private ?DateInterval $ttl;
 
+    private string $prefix;
+
     /**
      * @param mixed|null $ttl the time to live for the given cache
      */
-    public function __construct(CacheInterface $cache, $ttl = null, LoggerInterface $logger = null)
+    public function __construct(CacheInterface $cache, $ttl = null, LoggerInterface $logger = null, string $prefix = self::CACHE_PREFIX)
     {
         $this->cache = $cache;
-        $this->logger = $logger ?? new NullLogger();
         $this->ttl = $this->setTtl($ttl);
+        $this->logger = $logger ?? new NullLogger();
+        $this->prefix = $prefix;
     }
 
     /**
@@ -123,7 +126,7 @@ final class PublicSuffixListCachePsr16Adapter implements PublicSuffixListCache
      */
     private function getCacheKey(string $str): string
     {
-        return self::CACHE_PREFIX.md5(strtolower($str));
+        return $this->prefix.md5(strtolower($str));
     }
 
     /**
