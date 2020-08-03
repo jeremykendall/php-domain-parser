@@ -32,7 +32,7 @@ use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
- * @coversDefaultClass Pdp\Rules
+ * @coversDefaultClass \Pdp\Rules
  */
 class RulesTest extends TestCase
 {
@@ -114,9 +114,9 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveCookieDomain
-     * @covers ::resolveICANNDomain
-     * @covers ::resolvePrivateDomain
+     * @covers ::getCookieDomain
+     * @covers ::getICANNDomain
+     * @covers ::getPrivateDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\Domain::isResolvable
@@ -155,12 +155,12 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
+     * @covers \Pdp\Domain::isKnown
+     * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
-     * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\IDNAConverterTrait::parse
      */
     public function testIsSuffixValidFalse(): void
@@ -172,13 +172,13 @@ class RulesTest extends TestCase
     /**
      * @covers ::resolve
      * @covers ::validateSection
-     * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
@@ -195,16 +195,16 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveCookieDomain
+     * @covers ::getCookieDomain
      * @covers ::validateDomain
      * @covers ::validateSection
-     * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
@@ -221,16 +221,16 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveICANNDomain
+     * @covers ::getICANNDomain
      * @covers ::validateDomain
      * @covers ::validateSection
-     * @covers \Pdp\Domain::isResolvable
      * @covers ::findPublicSuffix
      * @covers ::findPublicSuffixFromSection
      * @covers \Pdp\PublicSuffix::setSection
      * @covers \Pdp\PublicSuffix::isKnown
      * @covers \Pdp\PublicSuffix::isICANN
      * @covers \Pdp\PublicSuffix::isPrivate
+     * @covers \Pdp\Domain::isResolvable
      * @covers \Pdp\Domain::withPublicSuffix
      * @covers \Pdp\Domain::isKnown
      * @covers \Pdp\Domain::isICANN
@@ -247,7 +247,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveCookieDomain
+     * @covers ::getCookieDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers \Pdp\IDNAConverterTrait::parse
@@ -291,7 +291,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolvePrivateDomain
+     * @covers ::getPrivateDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers ::findPublicSuffix
@@ -311,7 +311,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolvePrivateDomain
+     * @covers ::getPrivateDomain
      * @covers ::validateDomain
      * @covers ::validateSection
      * @covers ::findPublicSuffix
@@ -381,7 +381,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveICANNDomain
+     * @covers ::getICANNDomain
      * @covers ::validateDomain
      * @covers \Pdp\Domain::setRegistrableDomain
      * @covers \Pdp\Domain::getRegistrableDomain
@@ -399,7 +399,7 @@ class RulesTest extends TestCase
 
     /**
      * @covers ::resolve
-     * @covers ::resolveICANNDomain
+     * @covers ::getICANNDomain
      * @covers ::validateDomain
      * @covers \Pdp\IDNAConverterTrait::parse
      * @covers \Pdp\Domain::setPublicSuffix
@@ -477,8 +477,6 @@ class RulesTest extends TestCase
 
     public function invalidParseProvider(): iterable
     {
-        $long_label = implode('.', array_fill(0, 62, 'a'));
-
         return [
             'single label host' => ['localhost', Rules::ICANN_DOMAINS],
         ];
@@ -710,20 +708,20 @@ class RulesTest extends TestCase
     }
 
     /**
-     * @covers ::getCookieEffectiveTLD
-     * @covers ::getICANNEffectiveTLD
-     * @covers ::getPrivateEffectiveTLD
+     * @covers ::getCookieDomain
+     * @covers ::getICANNDomain
+     * @covers ::getPrivateDomain
      * @dataProvider effectiveTLDProvider
      * @param string $host
      * @param string $cookieETLD
      * @param string $icannETLD
      * @param string $privateETLD
      */
-    public function testEffectiveTLDResolution(string $host, string $cookieETLD, string $icannETLD, string $privateETLD): void
+    public function testGetCookieDomain(string $host, string $cookieETLD, string $icannETLD, string $privateETLD): void
     {
-        self::assertSame($cookieETLD, (string) $this->rules->getCookieEffectiveTLD($host));
-        self::assertSame($icannETLD, (string) $this->rules->getICANNEffectiveTLD($host));
-        self::assertSame($privateETLD, (string) $this->rules->getPrivateEffectiveTLD($host));
+        self::assertSame($cookieETLD, (string) $this->rules->getCookieDomain($host)->getPublicSuffix());
+        self::assertSame($icannETLD, (string) $this->rules->getICANNDomain($host)->getPublicSuffix());
+        self::assertSame($privateETLD, (string) $this->rules->getPrivateDomain($host)->getPublicSuffix());
     }
 
     public function effectiveTLDProvider(): iterable

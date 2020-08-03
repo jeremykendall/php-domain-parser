@@ -201,42 +201,6 @@ final class Rules implements PublicSuffixListSection
     }
 
     /**
-     * Determines the public suffix for a given domain against the PSL rules for cookie domain detection..
-     *
-     * @param mixed $domain
-     *
-     * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
-     */
-    public function getCookieEffectiveTLD($domain): PublicSuffix
-    {
-        return $this->getPublicSuffix($domain, '');
-    }
-
-    /**
-     * Determines the public suffix for a given domain against the PSL rules for ICANN domain detection..
-     *
-     * @param mixed $domain
-     *
-     * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
-     */
-    public function getICANNEffectiveTLD($domain): PublicSuffix
-    {
-        return $this->getPublicSuffix($domain, self::ICANN_DOMAINS);
-    }
-
-    /**
-     * Determines the public suffix for a given domain against the PSL rules for private domain detection..
-     *
-     * @param mixed $domain
-     *
-     * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
-     */
-    public function getPrivateEffectiveTLD($domain): PublicSuffix
-    {
-        return $this->getPublicSuffix($domain, self::PRIVATE_DOMAINS);
-    }
-
-    /**
      * Returns PSL info for a given domain.
      *
      * @param mixed  $domain
@@ -249,12 +213,12 @@ final class Rules implements PublicSuffixListSection
         $section = $this->validateSection($section);
         try {
             if ('' === $section) {
-                return $this->resolveCookieDomain($domain);
+                return $this->getCookieDomain($domain);
             } elseif (self::ICANN_DOMAINS === $section) {
-                return $this->resolveICANNDomain($domain);
+                return $this->getICANNDomain($domain);
             }
 
-            return $this->resolvePrivateDomain($domain);
+            return $this->getPrivateDomain($domain);
         } catch (CouldNotResolvePublicSuffix $exception) {
             if ($exception->hasDomain()) {
                 /** @var Domain */
@@ -274,7 +238,7 @@ final class Rules implements PublicSuffixListSection
      *
      * @param mixed $domain the domain value
      */
-    public function resolveCookieDomain($domain): Domain
+    public function getCookieDomain($domain): Domain
     {
         $domain = $this->validateDomain($domain);
 
@@ -286,7 +250,7 @@ final class Rules implements PublicSuffixListSection
      *
      * @param mixed $domain
      */
-    public function resolveICANNDomain($domain): Domain
+    public function getICANNDomain($domain): Domain
     {
         $domain = $this->validateDomain($domain);
 
@@ -298,7 +262,7 @@ final class Rules implements PublicSuffixListSection
      *
      * @param mixed $domain
      */
-    public function resolvePrivateDomain($domain): Domain
+    public function getPrivateDomain($domain): Domain
     {
         $domain = $this->validateDomain($domain);
 
