@@ -46,52 +46,23 @@ $ composer require jeremykendall/php-domain-parser
 Usage
 --------
 
-### Public suffix resolution.
+### Domain part resolutions
 
-The first objective of the library is using the [Public Suffix List](http://publicsuffix.org/) to easily return the ICANN, the Cookie or
-the Private Effective TLD as a `Pdp\PublicSuffix` object using the following methods:
-
-~~~php
-use Pdp\Rules;
-
-$rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat');
-
-echo $rules->getICANNEffectiveTLD('www.ulb.ac.be'); //display 'ac.be';
-echo $rules->getCookieEffectiveTLD('www.ulb.ac.be'); //display 'ac.be';
-echo $rules->getPrivateEffectiveTLD('www.ulb.ac.be'); //display 'be';
-~~~
-
-The methods are available since version `5.7.0` to ease the package usage. Prior to this version you could use the 
-`Rules::getPublicSuffix` method with an optional `$section` argument to get the same results:
+The first objective of the library is using the [Public Suffix List](http://publicsuffix.org/) to easily resolve domain information.
 
 ~~~php
 use Pdp\Rules;
 
 $rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat');
 
-echo $rules->getPublicSuffix('www.ulb.ac.be'); // get the cookie effective TLD, display 'ac.be';
-echo $rules->getPublicSuffix('www.ulb.ac.be', Rules::ICANN_DOMAINS); //get the ICANN effective TLD, display 'ac.be';
-echo $rules->getPublicSuffix('www.ulb.ac.be', Rules::PRIVATE_DOMAINS); //get the Private effective TLD, display 'be';
+echo $rules->getCookieDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'ac.be';
+echo $rules->getICANNDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'ac.be';
+echo $rules->getPrivateDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'be';
 ~~~
 
+* Warning: If the Domain is not found an exception is thrown. *
 
-If the Public Suffix is not found or in case of error an exception which extends `Pdp\Exception` is thrown.
-
-### Domain resolution.
-
-Apart the Public Suffix the package can resolve domain and their information also using Mozilla's [Public Suffix List](http://publicsuffix.org/)
-
-~~~php
-use Pdp\Rules;
-
-$rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat');
-
-echo $rules->resolveCookieDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'ac.be';
-echo $rules->resolveICANNDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'ac.be';
-echo $rules->resolvePrivateDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'be';
-~~~
-
-The methods are available since version `5.7.0` to ease the package usage. Prior to this version you could use the 
+These methods are available since version `5.7.0` to ease the package usage. Prior to this version you could use the 
 `Rules::resolve` method with an optional `$section` argument to get the same results:
 
 ~~~php
@@ -104,7 +75,7 @@ echo $rules->resolve('www.ulb.ac.be', Rules::ICANN_DOMAINS); // returns a Pdp\Do
 echo $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS); // returns a Pdp\Domain object whose Public Suffix is 'be';
 ~~~
 
-If the Domain is not resolved or in case of error a null `Pdp\Domain` is returned.
+* Warning: If the Domain can not be resolved or in case of error a null `Pdp\Domain` is returned. *
 
 ### Top Level Domains resolution
 
@@ -127,11 +98,11 @@ If the Domain is not resolved or in case of error a null `Pdp\Domain` is returne
 ~~~php
 <?php
 
-use Pdp\Rules;
+use Pdp\Rules;use Pdp\TopLevelDomains;
 
 $rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat'); //$rules is a Pdp\Rules object
 
-$domain = $rules->resolveICANNDomain('www.ulb.ac.be'); //$domain is a Pdp\Domain object
+$domain = $rules->getICANNDomain('www.ulb.ac.be'); //$domain is a Pdp\Domain object
 echo $domain->getContent();            // 'www.ulb.ac.be'
 echo $domain->getPublicSuffix();       // 'ac.be'
 echo $domain->getRegistrableDomain();  // 'ulb.ac.be'
@@ -142,20 +113,7 @@ $domain->isICANN();                    // returns true
 $domain->isPrivate();                  // returns false
 $domain->labels();                     // returns ['be', 'ac', 'ulb', 'www']
 
-$publicSuffix = $rules->getPrivateEffectiveTLD('mydomain.github.io'); //$publicSuffix is a Pdp\PublicSuffix object
-echo $publicSuffix->getContent(); // 'github.io'
-$publicSuffix->isKnown();         // returns true
-$publicSuffix->isICANN();         // returns false
-$publicSuffix->isPrivate();       // returns true
-$publicSuffix->labels();          // returns ['io', 'github']
-
-$altSuffix = $rules->getICANNEffectiveTLD('mydomain.github.io');
-echo $altSuffix->getContent(); // 'io'
-$altSuffix->isKnown();         // returns true
-$altSuffix->isICANN();         // returns true
-$altSuffix->isPrivate();       // returns false
-
-$tldList = $manager->getTLDs(); //$tldList is a Pdp\TopLevelDomains object
+$tldList = TopLevelDomains::createFromPath('/path/to/IANA/RootZoneDatabase.txt'); //$tldList is a Pdp\TopLevelDomains object
 $domain = $tldList->resolve('www.ulb.ac.be'); //$domain is a Pdp\Domain object
 $tldList->contains('be'); //returns true
 $tldList->contains('localhost'); //return false
