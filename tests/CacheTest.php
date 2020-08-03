@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Pdp\Tests;
 
 use DateInterval;
+use Generator;
 use Iterator;
 use org\bovigo\vfs\vfsStream;
 use Pdp\Cache;
@@ -34,13 +35,22 @@ use Psr\SimpleCache\InvalidArgumentException;
  */
 class CacheTest extends TestCase
 {
+    /**
+     * @var Cache
+     */
     protected $cache;
 
+    /**
+     * @var \org\bovigo\vfs\vfsStreamDirectory
+     */
     protected $root;
 
+    /**
+     * @var string
+     */
     protected $cacheDir;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->root = vfsStream::setup('pdp');
         vfsStream::create(['cache' => []], $this->root);
@@ -48,32 +58,30 @@ class CacheTest extends TestCase
         $this->cache = new Cache($this->cacheDir);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        $this->cache = null;
-        $this->cacheDir = null;
-        $this->root = null;
+        unset($this->cache, $this->cacheDir, $this->root);
     }
 
-    public function testConstructorOnEmptyCachePath()
+    public function testConstructorOnEmptyCachePath(): void
     {
         $cache = new Cache('');
         self::assertNull($cache->get('invalid_key'));
     }
 
-    public function testConstructorOnParentCachePathIsNotExisted()
+    public function testConstructorOnParentCachePathIsNotExisted(): void
     {
         $cache = new Cache(vfsStream::url('pdp/cache_not_exist'));
         self::assertNull($cache->get('invalid_key'));
     }
 
-    public function testSetOnNotWritableCachePath()
+    public function testSetOnNotWritableCachePath(): void
     {
         self::expectException(\InvalidArgumentException::class);
         $cache = new Cache('/bin');
     }
 
-    public function testSetOnNotExistingCachePath()
+    public function testSetOnNotExistingCachePath(): void
     {
         self::expectException(\InvalidArgumentException::class);
         $cache = new Cache('/foo/bar');
@@ -84,13 +92,13 @@ class CacheTest extends TestCase
      *
      * @param mixed $expected
      */
-    public function testSetGet($expected)
+    public function testSetGet($expected): void
     {
         $this->cache->set('foo', $expected);
         self::assertEquals($expected, $this->cache->get('foo'));
     }
 
-    public function storableValuesProvider()
+    public function storableValuesProvider(): iterable
     {
         return [
             'string' => ['bar'],
@@ -105,7 +113,7 @@ class CacheTest extends TestCase
     /**
      * @depends testSetGet
      */
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->cache->set('foo', 'bar');
         self::assertEquals('bar', $this->cache->get('foo'));
@@ -113,19 +121,19 @@ class CacheTest extends TestCase
         self::assertNull($this->cache->get('foo'));
     }
 
-    public function testGetInvalidArg()
+    public function testGetInvalidArg(): void
     {
         self::expectException(InvalidArgumentException::class);
         $this->cache->get(null);
     }
 
-    public function testInvalidKey()
+    public function testInvalidKey(): void
     {
         self::expectException(InvalidArgumentException::class);
         $this->cache->get('foo:bar', 'bar');
     }
 
-    public function testSetInvalidTTL()
+    public function testSetInvalidTTL(): void
     {
         self::expectException(InvalidArgumentException::class);
         $this->cache->set('foo', 'bar', date_create());
@@ -134,7 +142,7 @@ class CacheTest extends TestCase
     /**
      * @depends testDelete
      */
-    public function testGetNotFound()
+    public function testGetNotFound(): void
     {
         self::assertNull($this->cache->get('notfound'));
     }
@@ -142,7 +150,7 @@ class CacheTest extends TestCase
     /**
      * @depends testDelete
      */
-    public function testGetNotFoundDefault()
+    public function testGetNotFoundDefault(): void
     {
         $expected = 'chickpeas';
         self::assertEquals($expected, $this->cache->get('notfound', $expected));
@@ -152,7 +160,7 @@ class CacheTest extends TestCase
      * @depends testSetGet
      * @slow
      */
-    public function testSetExpire()
+    public function testSetExpire(): void
     {
         $this->cache->set('foo', 'bar', 1);
         self::assertEquals('bar', $this->cache->get('foo'));
@@ -166,7 +174,7 @@ class CacheTest extends TestCase
      * @depends testSetGet
      * @slow
      */
-    public function testSetExpireDateInterval()
+    public function testSetExpireDateInterval(): void
     {
         $this->cache->set('foo', 'bar', new DateInterval('PT1S'));
         self::assertEquals('bar', $this->cache->get('foo'));
@@ -176,13 +184,13 @@ class CacheTest extends TestCase
         self::assertNull($this->cache->get('foo'));
     }
 
-    public function testSetInvalidArg()
+    public function testSetInvalidArg(): void
     {
         self::expectException(InvalidArgumentException::class);
         $this->cache->set(null, 'bar');
     }
 
-    public function testDeleteInvalidArg()
+    public function testDeleteInvalidArg(): void
     {
         self::expectException(InvalidArgumentException::class);
         $this->cache->delete(null);
@@ -191,7 +199,7 @@ class CacheTest extends TestCase
     /**
      * @depends testSetGet
      */
-    public function testClearCache()
+    public function testClearCache(): void
     {
         $this->cache->set('foo', 'bar');
         $this->cache->clear();
@@ -201,7 +209,7 @@ class CacheTest extends TestCase
     /**
      * @depends testSetGet
      */
-    public function testHas()
+    public function testHas(): void
     {
         $this->cache->set('foo', 'bar');
         self::assertTrue($this->cache->has('foo'));
@@ -210,12 +218,12 @@ class CacheTest extends TestCase
     /**
      * @depends testHas
      */
-    public function testHasNot()
+    public function testHasNot(): void
     {
         self::assertFalse($this->cache->has('not-found'));
     }
 
-    public function testHasInvalidArg()
+    public function testHasInvalidArg(): void
     {
         self::expectException(InvalidArgumentException::class);
         $this->cache->has(null);
@@ -224,7 +232,7 @@ class CacheTest extends TestCase
     /**
      * @depends testSetGet
      */
-    public function testSetGetMultiple()
+    public function testSetGetMultiple(): void
     {
         $values = [
             'key1' => 'value1',
@@ -247,7 +255,7 @@ class CacheTest extends TestCase
     /**
      * @depends testSetGet
      */
-    public function testSetGetMultipleGenerator()
+    public function testSetGetMultipleGenerator(): void
     {
         $values = [
             'key1' => 'value1',
@@ -255,7 +263,7 @@ class CacheTest extends TestCase
             'key3' => 'value3',
         ];
 
-        $gen = function () use ($values) {
+        $gen = function () use ($values): Generator {
             foreach ($values as $key => $value) {
                 yield $key => $value;
             }
@@ -277,7 +285,7 @@ class CacheTest extends TestCase
     /**
      * @depends testSetGet
      */
-    public function testSetGetMultipleGenerator2()
+    public function testSetGetMultipleGenerator2(): void
     {
         $values = [
             'key1' => 'value1',
@@ -285,7 +293,7 @@ class CacheTest extends TestCase
             'key3' => 'value3',
         ];
 
-        $gen = function () use ($values) {
+        $gen = function () use ($values): Generator {
             foreach ($values as $key => $value) {
                 yield $key;
             }
@@ -308,7 +316,7 @@ class CacheTest extends TestCase
      * @depends testSetExpire
      * @slow
      */
-    public function testSetMultipleExpireDateIntervalNotExpired()
+    public function testSetMultipleExpireDateIntervalNotExpired(): void
     {
         $values = [
             'key1' => 'value1',
@@ -333,7 +341,7 @@ class CacheTest extends TestCase
     /**
      * @slow
      */
-    public function testSetMultipleExpireDateIntervalExpired()
+    public function testSetMultipleExpireDateIntervalExpired(): void
     {
         $values = [
             'key1' => 'value1',
@@ -370,7 +378,7 @@ class CacheTest extends TestCase
     /**
      * @slow
      */
-    public function testSetMultipleExpireDateIntervalInt()
+    public function testSetMultipleExpireDateIntervalInt(): void
     {
         $values = [
             'key1' => 'value1',
@@ -404,13 +412,13 @@ class CacheTest extends TestCase
         self::assertEquals([], $expected);
     }
 
-    public function testSetMultipleInvalidArg()
+    public function testSetMultipleInvalidArg(): void
     {
         self::expectException(InvalidArgumentException::class);
         $this->cache->setMultiple(null);
     }
 
-    public function testGetMultipleInvalidArg()
+    public function testGetMultipleInvalidArg(): void
     {
         self::expectException(InvalidArgumentException::class);
         $result = $this->cache->getMultiple(null);
@@ -426,7 +434,7 @@ class CacheTest extends TestCase
     /**
      * @depends testSetGetMultiple
      */
-    public function testDeleteMultipleDefaultGet()
+    public function testDeleteMultipleDefaultGet(): void
     {
         $values = [
             'key1' => 'value1',
@@ -459,7 +467,7 @@ class CacheTest extends TestCase
     /**
      * @depends testSetGetMultiple
      */
-    public function testDeleteMultipleGenerator()
+    public function testDeleteMultipleGenerator(): void
     {
         $values = [
             'key1' => 'value1',
@@ -469,7 +477,7 @@ class CacheTest extends TestCase
 
         $this->cache->setMultiple($values);
 
-        $gen = function () {
+        $gen = function (): Generator {
             yield 'key1';
             yield 'key3';
         };
@@ -494,7 +502,7 @@ class CacheTest extends TestCase
         self::assertEquals([], $expected);
     }
 
-    public function testDeleteMultipleInvalidArg()
+    public function testDeleteMultipleInvalidArg(): void
     {
         self::expectException(InvalidArgumentException::class);
         $this->cache->deleteMultiple(null);

@@ -17,14 +17,16 @@ namespace Pdp;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;
+use TypeError;
 use function fwrite;
+use function is_resource;
 use const PHP_EOL;
 use const STDERR;
 use const STDOUT;
 
 final class Logger extends AbstractLogger
 {
-    const ERRORS_LEVELS = [
+    private const ERRORS_LEVELS = [
         LogLevel::EMERGENCY => 1,
         LogLevel::ALERT => 1,
         LogLevel::CRITICAL => 1,
@@ -43,8 +45,20 @@ final class Logger extends AbstractLogger
      */
     private $error;
 
+    /**
+     * @param mixed $out   a resource default to PHP STDOUT
+     * @param mixed $error a resource default to PHP STDERR
+     */
     public function __construct($out = STDOUT, $error = STDERR)
     {
+        if (!is_resource($out)) {
+            throw new TypeError('The output logger should be a resource.');
+        }
+
+        if (!is_resource($error)) {
+            throw new TypeError('The error output logger channel should be a resource.');
+        }
+
         $this->out = $out;
         $this->error = $error;
     }

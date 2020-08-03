@@ -62,6 +62,9 @@ final class TopLevelDomains implements Countable, IteratorAggregate
 
     /**
      * New instance.
+     *
+     * @internal
+     *
      * @param array             $records
      * @param string            $version
      * @param DateTimeInterface $modifiedDate
@@ -75,9 +78,13 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ) {
+        if ($modifiedDate instanceof DateTime) {
+            $modifiedDate = DateTimeImmutable::createFromMutable($modifiedDate);
+        }
+
         $this->records = $records;
         $this->version = $version;
-        $this->modifiedDate = $modifiedDate instanceof DateTime ? DateTimeImmutable::createFromMutable($modifiedDate) : $modifiedDate;
+        $this->modifiedDate = $modifiedDate;
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
@@ -105,10 +112,12 @@ final class TopLevelDomains implements Countable, IteratorAggregate
             $args[] = $context;
         }
 
-        if (!($resource = @fopen(...$args))) {
+        $resource = @fopen(...$args);
+        if (false === $resource) {
             throw new CouldNotLoadTLDs(sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
 
+        /** @var string $content */
         $content = stream_get_contents($resource);
         fclose($resource);
 
@@ -134,11 +143,13 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         $converter = $converter ?? new TLDConverter();
 
         $data = $converter->convert($content);
+        /** @var DateTimeImmutable $modifiedDate */
+        $modifiedDate = DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']);
 
         return new self(
             $data['records'],
             $data['version'],
-            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']),
+            $modifiedDate,
             $asciiIDNAOption,
             $unicodeIDNAOption
         );
@@ -209,7 +220,7 @@ final class TopLevelDomains implements Countable, IteratorAggregate
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         return count($this->records);
     }
@@ -275,8 +286,8 @@ final class TopLevelDomains implements Countable, IteratorAggregate
         }
 
         $label = $tld->toAscii()->getLabel(0);
-        foreach ($this as $tld) {
-            if ($tld->getContent() === $label) {
+        foreach ($this as $knownTld) {
+            if ($knownTld->getContent() === $label) {
                 return true;
             }
         }

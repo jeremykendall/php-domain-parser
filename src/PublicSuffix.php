@@ -44,10 +44,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 {
     use IDNAConverterTrait;
 
-    /**
-     * @internal
-     */
-    const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
+    private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
 
     /**
      * @var string|null
@@ -80,7 +77,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     private $isTransitionalDifferent;
 
     /**
-     * New instance.
      * @param mixed  $publicSuffix
      * @param string $section
      * @param int    $asciiIDNAOption
@@ -116,10 +112,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
     /**
      * Create an new instance from a Domain object.
-     *
      * @param Domain $domain
-     *
-     * @return self
      */
     public static function createFromDomain(Domain $domain): self
     {
@@ -142,10 +135,8 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * Set the public suffix content.
      *
      * @throws InvalidDomain if the public suffix is invalid
-     *
-     * @return string|null
      */
-    private function setPublicSuffix()
+    private function setPublicSuffix(): ?string
     {
         if ([] === $this->labels) {
             return null;
@@ -162,11 +153,8 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * Set the public suffix section.
      *
-     * @param string $section
-     *
+     * @param  string                      $section
      * @throws CouldNotResolvePublicSuffix if the submitted section is not supported
-     *
-     * @return string
      */
     private function setSection(string $section): string
     {
@@ -194,7 +182,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->__debugInfo();
     }
@@ -202,7 +190,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return [
             'publicSuffix' => $this->publicSuffix,
@@ -215,7 +203,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         return count($this->labels);
     }
@@ -223,7 +211,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->publicSuffix;
     }
@@ -231,7 +219,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->publicSuffix;
     }
@@ -239,7 +227,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function getLabel(int $key)
+    public function getLabel(int $key): ?string
     {
         if ($key < 0) {
             $key += count($this->labels);
@@ -270,8 +258,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return int
      */
     public function getAsciiIDNAOption(): int
     {
@@ -284,8 +270,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return int
      */
     public function getUnicodeIDNAOption(): int
     {
@@ -296,8 +280,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * Returns true if domain contains deviation characters.
      *
      * @see http://unicode.org/reports/tr46/#Transition_Considerations
-     *
-     * @return bool
      */
     public function isTransitionalDifferent(): bool
     {
@@ -306,8 +288,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List.
-     *
-     * @return bool
      */
     public function isKnown(): bool
     {
@@ -316,8 +296,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List ICANN Section.
-     *
-     * @return bool
      */
     public function isICANN(): bool
     {
@@ -326,8 +304,6 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
 
     /**
      * Tells whether the public suffix has a matching rule in a Public Suffix List Private Section.
-     *
-     * @return bool
      */
     public function isPrivate(): bool
     {
@@ -337,7 +313,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function toAscii()
+    public function toAscii(): DomainInterface
     {
         if (null === $this->publicSuffix) {
             return $this;
@@ -354,7 +330,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
     /**
      * {@inheritdoc}
      */
-    public function toUnicode()
+    public function toUnicode(): DomainInterface
     {
         if (null === $this->publicSuffix || false === strpos($this->publicSuffix, 'xn--')) {
             return $this;
@@ -374,10 +350,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
      * @param int $option
-     *
-     * @return self
      */
     public function withAsciiIDNAOption(int $option): self
     {
@@ -394,10 +367,7 @@ final class PublicSuffix implements DomainInterface, JsonSerializable, PublicSuf
      * combination of IDNA_* constants (except IDNA_ERROR_* constants).
      *
      * @see https://www.php.net/manual/en/intl.constants.php
-     *
      * @param int $option
-     *
-     * @return self
      */
     public function withUnicodeIDNAOption(int $option): self
     {

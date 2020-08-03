@@ -15,8 +15,42 @@ declare(strict_types=1);
 
 namespace Pdp\Exception;
 
+use Pdp\Domain;
 use Pdp\Exception as BaseException;
+use function sprintf;
 
 class CouldNotResolvePublicSuffix extends BaseException
 {
+    /**
+     * @var Domain|null
+     */
+    private $domain;
+
+    public static function dueToUnresolvableDomain(?Domain $domain): self
+    {
+        $content = $domain;
+        if (null !== $domain) {
+            $content = $domain->getContent();
+        }
+
+        $exception = new self(sprintf('The domain `%s` can not contain a public suffix.', $content));
+        $exception->domain = $domain;
+
+        return $exception;
+    }
+
+    public static function dueToUnSupportedSection(string $section): self
+    {
+        return new self('`'.$section.'` is an unknown Public Suffix List section.');
+    }
+
+    public function hasDomain(): bool
+    {
+        return null !== $this->domain;
+    }
+
+    public function getDomain(): ?Domain
+    {
+        return $this->domain;
+    }
 }

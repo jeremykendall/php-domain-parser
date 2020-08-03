@@ -32,12 +32,26 @@ use TypeError;
  */
 class ManagerTest extends TestCase
 {
+    /**
+     * @var Cache
+     */
     protected $cachePool;
+
+    /**
+     * @var string
+     */
     protected $cacheDir;
+    /**
+     * @var \org\bovigo\vfs\vfsStreamDirectory
+     */
     protected $root;
+
+    /**
+     * @var HttpClient
+     */
     protected $client;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->root = vfsStream::setup('pdp');
         vfsStream::create(['cache' => []], $this->root);
@@ -47,11 +61,17 @@ class ManagerTest extends TestCase
             public function getContent(string $url): string
             {
                 if ($url === Manager::PSL_URL) {
-                    return file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+                    /** @var string $res */
+                    $res = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+
+                    return $res;
                 }
 
                 if ($url === Manager::RZD_URL) {
-                    return file_get_contents(__DIR__.'/data/tlds-alpha-by-domain.txt');
+                    /** @var string $res */
+                    $res = file_get_contents(__DIR__.'/data/tlds-alpha-by-domain.txt');
+
+                    return $res;
                 }
 
                 return '';
@@ -59,12 +79,9 @@ class ManagerTest extends TestCase
         };
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        $this->cachePool = null;
-        $this->cacheDir = null;
-        $this->root = null;
-        $this->client = null;
+        unset($this->cachePool, $this->cacheDir, $this->root, $this->client);
     }
 
     /**
@@ -73,12 +90,12 @@ class ManagerTest extends TestCase
      * @covers ::filterTtl
      * @param mixed $ttl
      */
-    public function testConstructor($ttl)
+    public function testConstructor($ttl): void
     {
         self::assertInstanceOf(Manager::class, new Manager($this->cachePool, $this->client, $ttl));
     }
 
-    public function validTtlProvider()
+    public function validTtlProvider(): iterable
     {
         return [
             'DateInterval' => [new DateInterval('PT1H')],
@@ -93,7 +110,7 @@ class ManagerTest extends TestCase
      * @covers ::__construct
      * @covers ::filterTtl
      */
-    public function testConstructorThrowsException()
+    public function testConstructorThrowsException(): void
     {
         self::expectException(TypeError::class);
         new Manager($this->cachePool, $this->client, tmpfile());
@@ -104,7 +121,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshRules
      */
-    public function testRefreshRules()
+    public function testRefreshRules(): void
     {
         $manager = new Manager($this->cachePool, $this->client);
         $previous = $manager->getRules();
@@ -117,7 +134,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshRules
      */
-    public function testRebuildRulesFromRemoveSource()
+    public function testRebuildRulesFromRemoveSource(): void
     {
         $manager = new Manager($this->cachePool, $this->client);
         $previous = $manager->getRules(Manager::PSL_URL);
@@ -131,7 +148,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshRules
      */
-    public function testGetRulesThrowsExceptionIfNotCacheCanBeRetrieveOrRefresh()
+    public function testGetRulesThrowsExceptionIfNotCacheCanBeRetrieveOrRefresh(): void
     {
         $cachePool = new class() implements CacheInterface {
             public function get($key, $default = null)
@@ -184,7 +201,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshRules
      */
-    public function testGetRulesThrowsExceptionIfTheCacheIsCorrupted()
+    public function testGetRulesThrowsExceptionIfTheCacheIsCorrupted(): void
     {
         $cachePool = new class() implements CacheInterface {
             public function get($key, $default = null)
@@ -237,7 +254,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshTLDs
      */
-    public function testRefreshTLDs()
+    public function testRefreshTLDs(): void
     {
         $manager = new Manager($this->cachePool, $this->client);
         $previous = $manager->getTLDs();
@@ -250,7 +267,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshTLDs
      */
-    public function testRebuildTLDsFromRemoveSource()
+    public function testRebuildTLDsFromRemoveSource(): void
     {
         $manager = new Manager($this->cachePool, $this->client);
         $previous = $manager->getTLDs();
@@ -263,7 +280,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshTLDs
      */
-    public function testGetTLDsThrowsExceptionIfNotCacheCanBeRetrieveOrRefresh()
+    public function testGetTLDsThrowsExceptionIfNotCacheCanBeRetrieveOrRefresh(): void
     {
         $cachePool = new class() implements CacheInterface {
             public function get($key, $default = null)
@@ -316,7 +333,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshTLDs
      */
-    public function testGetTLDsThrowsExceptionIfTheCacheIsCorrupted()
+    public function testGetTLDsThrowsExceptionIfTheCacheIsCorrupted(): void
     {
         $cachePool = new class() implements CacheInterface {
             public function get($key, $default = null)
@@ -369,7 +386,7 @@ class ManagerTest extends TestCase
      * @covers ::getCacheKey
      * @covers ::refreshTLDs
      */
-    public function testGetTLDsThrowsExceptionIfTheCacheContentIsCorrupted()
+    public function testGetTLDsThrowsExceptionIfTheCacheContentIsCorrupted(): void
     {
         $cachePool = new class() implements CacheInterface {
             public function get($key, $default = null)

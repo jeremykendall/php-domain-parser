@@ -20,6 +20,7 @@ use TypeError;
 use UnexpectedValueException;
 use function array_reverse;
 use function explode;
+use function filter_var;
 use function gettype;
 use function idn_to_ascii;
 use function idn_to_utf8;
@@ -59,11 +60,11 @@ trait IDNAConverterTrait
     /**
      * Get and format IDN conversion error message.
      *
-     * @param int $error_bit
+     * @param int $error_byte
      *
      * @return string
      */
-    private static function getIdnErrors(int $error_bit): string
+    private static function getIdnErrors(int $error_byte): string
     {
         /**
          * IDNA errors.
@@ -88,7 +89,7 @@ trait IDNAConverterTrait
 
         $res = [];
         foreach ($idn_errors as $error => $reason) {
-            if ($error_bit & $error) {
+            if ($error === ($error_byte & $error)) {
                 $res[] = $reason;
             }
         }
@@ -138,6 +139,10 @@ trait IDNAConverterTrait
         }
 
         $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $infos);
+        if ([] === $infos) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid', $domain));
+        }
+
         if (0 !== $infos['errors']) {
             throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($infos['errors'])));
         }
@@ -170,9 +175,13 @@ trait IDNAConverterTrait
      */
     private function idnToUnicode(string $domain, int $option = IDNA_DEFAULT): string
     {
-        $output = idn_to_utf8($domain, $option, INTL_IDNA_VARIANT_UTS46, $arr);
-        if (0 !== $arr['errors']) {
-            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($arr['errors'])));
+        $output = idn_to_utf8($domain, $option, INTL_IDNA_VARIANT_UTS46, $info);
+        if ([] === $info) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid', $domain));
+        }
+
+        if (0 !== $info['errors']) {
+            throw new InvalidDomain(sprintf('The host `%s` is invalid : %s', $domain, self::getIdnErrors($info['errors'])));
         }
 
         // @codeCoverageIgnoreStart
@@ -240,7 +249,8 @@ trait IDNAConverterTrait
         }
 
         $domain = (string) $domain;
-        if (filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        $res = filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+        if (false !== $res) {
             throw new InvalidDomain(sprintf('The domain `%s` is invalid: this is an IPv4 host', $domain));
         }
 

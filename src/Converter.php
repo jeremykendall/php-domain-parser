@@ -35,10 +35,7 @@ final class Converter implements PublicSuffixListSection
 {
     use IDNAConverterTrait;
 
-    /**
-     * @internal
-     */
-    const PSL_SECTION = [
+    private const PSL_SECTION = [
         'ICANN' => [
             'BEGIN' => self::ICANN_DOMAINS,
             'END' => '',
@@ -49,10 +46,7 @@ final class Converter implements PublicSuffixListSection
         ],
     ];
 
-    /**
-     * @internal
-     */
-    const REGEX_PSL_SECTION = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
+    private const REGEX_PSL_SECTION = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
 
     /**
      * Convert the Public Suffix List into
@@ -69,6 +63,7 @@ final class Converter implements PublicSuffixListSection
         $file = new SplTempFileObject();
         $file->fwrite($content);
         $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        /** @var string $line */
         foreach ($file as $line) {
             $section = $this->getSection($section, $line);
             if ('' !== $section && false === strpos($line, '//')) {

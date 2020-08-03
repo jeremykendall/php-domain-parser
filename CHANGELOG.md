@@ -2,6 +2,29 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
+## 5.7.0 - 2020-08-02
+
+### Added
+
+- `Rules::getCookieDomain`
+- `Rules::getICANNDomain`
+- `Rules::getPrivateDomain`
+- `CouldNotResolvePublicSuffix::dueToUnresolvableDomain`
+
+### Fixed
+
+- Improve type hinting and return type by dropping EOL PHP versions support.
+- Improve development environment by dropping EOL PHP versions support.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- Support for PHP7.0 and PHP7.1
+- The external data from IANA and mozilla is no longer part of the package and will be downloaded only on demand on composer update/install.
+
 ## 5.6.0 - 2019-12-29
 
 ### Added

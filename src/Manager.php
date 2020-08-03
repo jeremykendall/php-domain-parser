@@ -21,7 +21,6 @@ use DateTimeInterface;
 use Pdp\Exception\CouldNotLoadRules;
 use Pdp\Exception\CouldNotLoadTLDs;
 use Psr\SimpleCache\CacheInterface;
-use Psr\SimpleCache\InvalidArgumentException as SimpleCacheException;
 use TypeError;
 use function filter_var;
 use function gettype;
@@ -50,8 +49,8 @@ use const JSON_ERROR_NONE;
  */
 final class Manager
 {
-    const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
-    const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
+    public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    public const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
     /**
      * @var CacheInterface
@@ -90,7 +89,6 @@ final class Manager
      * @param int        $asciiIDNAOption
      * @param int        $unicodeIDNAOption
      *
-     * @throws SimpleCacheException
      * @throws CouldNotLoadRules
      *
      * @return Rules
@@ -126,7 +124,6 @@ final class Manager
      * @param string     $url the Public Suffix List URL
      * @param null|mixed $ttl the cache TTL
      *
-     * @throws SimpleCacheException
      * @throws HttpClientException
      *
      * @return bool
@@ -149,7 +146,6 @@ final class Manager
      * @param int        $asciiIDNAOption
      * @param int        $unicodeIDNAOption
      *
-     * @throws SimpleCacheException
      * @throws CouldNotLoadTLDs
      *
      * @return TopLevelDomains
@@ -179,10 +175,13 @@ final class Manager
             throw new CouldNotLoadTLDs('The root zone database cache content is corrupted');
         }
 
+        /** @var DateTimeImmutable $modifiedDate */
+        $modifiedDate = DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']);
+
         return new TopLevelDomains(
             $data['records'],
             $data['version'],
-            DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']),
+            $modifiedDate,
             $asciiIDNAOption,
             $unicodeIDNAOption
         );
@@ -196,7 +195,6 @@ final class Manager
      * @param string     $url the IANA Root Zone Database URL
      * @param null|mixed $ttl the cache TTL
      *
-     * @throws SimpleCacheException
      * @throws HttpClientException
      *
      * @return bool

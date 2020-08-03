@@ -160,7 +160,7 @@ final class Installer
      * Script to update the local cache using composer hook.
      * @param null|Event $event
      */
-    public static function updateLocalCache(Event $event = null)
+    public static function updateLocalCache(Event $event = null): void
     {
         $io = self::getIO($event);
         if (!extension_loaded('curl')) {
@@ -216,15 +216,33 @@ final class Installer
     private static function getIO(Event $event = null)
     {
         return null !== $event ? $event->getIO() : new class() {
-            public function write($messages, bool $newline = true, int $verbosity = 2)
+            /**
+             * @param string|string[] $messages
+             * @param bool            $newline
+             * @param int             $verbosity
+             */
+            public function write($messages, bool $newline = true, int $verbosity = 2): void
             {
                 $this->doWrite($messages, $newline, false, $verbosity);
             }
-            public function writeError($messages, bool $newline = true, int $verbosity = 2)
+
+            /**
+             * @param string|string[] $messages
+             * @param bool            $newline
+             * @param int             $verbosity
+             */
+            public function writeError($messages, bool $newline = true, int $verbosity = 2): void
             {
                 $this->doWrite($messages, $newline, true, $verbosity);
             }
-            private function doWrite($messages, bool $newline, bool $stderr, int $verbosity)
+
+            /**
+             * @param string|string[] $messages
+             * @param bool            $newline
+             * @param bool            $stderr
+             * @param int             $verbosity
+             */
+            private function doWrite($messages, bool $newline, bool $stderr, int $verbosity): void
             {
                 fwrite(
                     $stderr ? STDERR : STDOUT,

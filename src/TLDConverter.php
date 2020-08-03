@@ -33,10 +33,7 @@ use const DATE_ATOM;
  */
 final class TLDConverter
 {
-    /**
-     * @internal
-     */
-    const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
+    private const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
 
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
@@ -53,6 +50,7 @@ final class TLDConverter
         $file = new SplTempFileObject();
         $file->fwrite($content);
         $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        /** @var string $line */
         foreach ($file as $line) {
             $line = trim($line);
             if ([] === $data) {
@@ -91,10 +89,12 @@ final class TLDConverter
             throw new CouldNotLoadTLDs(sprintf('Invalid Version line: %s', $content));
         }
 
+        /** @var DateTimeImmutable $date */
+        $date = DateTimeImmutable::createFromFormat(self::IANA_DATE_FORMAT, $matches['date']);
+
         return [
             'version' => $matches['version'],
-            'modifiedDate' => DateTimeImmutable::createFromFormat(self::IANA_DATE_FORMAT, $matches['date'])
-                ->format(DATE_ATOM),
+            'modifiedDate' => $date->format(DATE_ATOM),
         ];
     }
 

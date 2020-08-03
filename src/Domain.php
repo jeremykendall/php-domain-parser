@@ -54,10 +54,7 @@ final class Domain implements DomainInterface, JsonSerializable
 {
     use IDNAConverterTrait;
 
-    /**
-     * @internal
-     */
-    const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
+    private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
 
     /**
      * @var string|null
@@ -155,11 +152,12 @@ final class Domain implements DomainInterface, JsonSerializable
             return $publicSuffix;
         }
 
-        if (!$this->isResolvable()) {
-            throw new CouldNotResolvePublicSuffix(sprintf('The domain `%s` can not contain a public suffix', $this->domain));
+        if (null === $this->domain || !$this->isResolvable()) {
+            throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($this);
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
+        /** @var string $psContent */
         $psContent = $publicSuffix->getContent();
         if ($this->domain === $psContent) {
             throw new CouldNotResolvePublicSuffix(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
@@ -186,10 +184,16 @@ final class Domain implements DomainInterface, JsonSerializable
         }
 
         if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
-            return $subject->toAscii();
+            /** @var PublicSuffix $result */
+            $result = $subject->toAscii();
+
+            return $result;
         }
 
-        return $subject->toUnicode();
+        /** @var PublicSuffix $result */
+        $result = $subject->toUnicode();
+
+        return $result;
     }
 
     /**
@@ -199,6 +203,10 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     private function setRegistrableDomain()
     {
+        if (null === $this->domain) {
+            return null;
+        }
+
         if (null === $this->publicSuffix->getContent()) {
             return null;
         }
@@ -216,6 +224,10 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     private function setSubDomain()
     {
+        if (null === $this->domain) {
+            return null;
+        }
+
         if (null === $this->registrableDomain) {
             return null;
         }
@@ -246,7 +258,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->__debugInfo();
     }
@@ -254,7 +266,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return  [
             'domain' => $this->domain,
@@ -270,7 +282,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         return count($this->labels);
     }
@@ -278,7 +290,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->domain;
     }
@@ -286,7 +298,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->domain;
     }
@@ -311,7 +323,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getLabel(int $key)
+    public function getLabel(int $key): ?string
     {
         if ($key < 0) {
             $key += count($this->labels);
@@ -385,7 +397,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @return string|null registrable domain
      */
-    public function getRegistrableDomain()
+    public function getRegistrableDomain(): ?string
     {
         return $this->registrableDomain;
     }
@@ -400,7 +412,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @return string|null registrable domain
      */
-    public function getSubDomain()
+    public function getSubDomain(): ?string
     {
         return $this->subDomain;
     }
@@ -410,7 +422,7 @@ final class Domain implements DomainInterface, JsonSerializable
      *
      * @return string|null
      */
-    public function getPublicSuffix()
+    public function getPublicSuffix(): ?string
     {
         return $this->publicSuffix->getContent();
     }
@@ -426,7 +438,10 @@ final class Domain implements DomainInterface, JsonSerializable
      */
     public function isResolvable(): bool
     {
-        return 1 < count($this->labels) && '.' !== substr($this->domain, -1, 1);
+        return null !== $this->domain
+            && '.' !== substr($this->domain, -1, 1)
+            && 1 < count($this->labels)
+        ;
     }
 
     /**
@@ -462,7 +477,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function toAscii()
+    public function toAscii(): DomainInterface
     {
         if (null === $this->domain) {
             return $this;
@@ -479,7 +494,7 @@ final class Domain implements DomainInterface, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function toUnicode()
+    public function toUnicode(): DomainInterface
     {
         if (null === $this->domain || false === strpos($this->domain, 'xn--')) {
             return $this;
@@ -537,8 +552,6 @@ final class Domain implements DomainInterface, JsonSerializable
      * otherwise the public suffix content is added to or remove from the current domain.
      *
      * @param mixed $publicSuffix
-     *
-     * @return self
      */
     public function withPublicSuffix($publicSuffix): self
     {
@@ -751,21 +764,21 @@ final class Domain implements DomainInterface, JsonSerializable
     {
         array_unshift($keys, $key);
         $nb_labels = count($this->labels);
-        foreach ($keys as &$key) {
-            if (- $nb_labels > $key || $nb_labels - 1 < $key) {
-                throw new InvalidLabelKey(sprintf('the key `%s` is invalid', $key));
+        foreach ($keys as &$offset) {
+            if (- $nb_labels > $offset || $nb_labels - 1 < $offset) {
+                throw new InvalidLabelKey(sprintf('the key `%s` is invalid', $offset));
             }
 
-            if (0 > $key) {
-                $key += $nb_labels;
+            if (0 > $offset) {
+                $offset += $nb_labels;
             }
         }
-        unset($key);
+        unset($offset);
 
         $deleted_keys = array_keys(array_count_values($keys));
         $labels = [];
-        foreach ($this->labels as $key => $label) {
-            if (!in_array($key, $deleted_keys, true)) {
+        foreach ($this->labels as $offset => $label) {
+            if (!in_array($offset, $deleted_keys, true)) {
                 $labels[] = $label;
             }
         }
