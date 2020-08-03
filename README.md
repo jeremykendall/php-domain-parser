@@ -60,7 +60,7 @@ echo $rules->getICANNDomain('www.ulb.ac.be'); // returns a Pdp\Domain object who
 echo $rules->getPrivateDomain('www.ulb.ac.be'); // returns a Pdp\Domain object whose Public Suffix is 'be';
 ~~~
 
-* Warning: If the Domain is not found an exception is thrown. *
+**WARNING: If the Domain can not be resolved an exception is thrown.**
 
 These methods are available since version `5.7.0` to ease the package usage. Prior to this version you could use the 
 `Rules::resolve` method with an optional `$section` argument to get the same results:
@@ -75,7 +75,7 @@ echo $rules->resolve('www.ulb.ac.be', Rules::ICANN_DOMAINS); // returns a Pdp\Do
 echo $rules->resolve('www.ulb.ac.be', Rules::PRIVATE_DOMAINS); // returns a Pdp\Domain object whose Public Suffix is 'be';
 ~~~
 
-* Warning: If the Domain can not be resolved or in case of error a null `Pdp\Domain` is returned. *
+**WARNING: If the Domain can not be resolved or in case of error a null `Pdp\Domain` is returned.**
 
 ### Top Level Domains resolution
 
