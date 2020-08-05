@@ -2,6 +2,24 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
+## 5.7.1 - 2020-08-04
+
+### Added
+
+- None
+
+### Fixed
+
+- Cache throws when cache directory doesn't exist [#280](https://github.com/jeremykendall/php-domain-parser/issues/280)
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 5.7.0 - 2020-08-02
 
 ### Added
@@ -15,6 +33,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - Improve type hinting and return type by dropping EOL PHP versions support.
 - Improve development environment by dropping EOL PHP versions support.
+- Composer script
 
 ### Deprecated
 
