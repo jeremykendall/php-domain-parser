@@ -23,8 +23,6 @@ interface ResolvedDomainName extends Host, ExternalDomainName
 
     public function getRegistrableDomain(): DomainName;
 
-    public function getSecondLevelDomain(): ?string;
-
     /**
      * Returns an instance with the specified sub domain added.
      *

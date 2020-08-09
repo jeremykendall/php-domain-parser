@@ -38,14 +38,12 @@ class ResolvedDomainTest extends TestCase
      * @covers ::getPublicSuffix
      * @covers ::getRegistrableDomain
      * @covers ::getSubDomain
-     * @covers ::getSecondLevelDomain
      */
     public function testRegistrableDomainIsNullWithFoundDomain(): void
     {
         $domain = new ResolvedDomain(new Domain('faketld'));
         self::assertNull($domain->getPublicSuffix()->getContent());
         self::assertNull($domain->getRegistrableDomain()->getContent());
-        self::assertNull($domain->getSecondLevelDomain());
         self::assertNull($domain->getSubDomain()->getContent());
     }
 
@@ -411,7 +409,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::getSecondLevelDomain
      * @covers ::withSubDomain
      * @dataProvider withSubDomainWorksProvider
      *
@@ -425,7 +422,6 @@ class ResolvedDomainTest extends TestCase
         self::assertSame($expected, $result->getSubDomain()->getContent());
         self::assertEquals($domain->getPublicSuffix(), $result->getPublicSuffix());
         self::assertEquals($domain->getRegistrableDomain(), $result->getRegistrableDomain());
-        self::assertSame($domain->getSecondLevelDomain(), $result->getSecondLevelDomain());
     }
 
     public function withSubDomainWorksProvider(): iterable

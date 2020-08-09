@@ -196,11 +196,6 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->registrableDomain;
     }
 
-    public function getSecondLevelDomain(): ?string
-    {
-        return $this->registrableDomain->label(-1);
-    }
-
     public function getSubDomain(): DomainName
     {
         return $this->subDomain;
