@@ -13,23 +13,23 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage;
+namespace Pdp\Storage\Cache;
 
-use Pdp\Rules;
+use Pdp\RootZoneDatabase;
 
-interface PublicSuffixListCache
+interface RootZoneDatabaseCache
 {
     /**
-     * Gets the Public Suffix List Rules.
+     * Retrieves the Root Zone Database from the Cache.
      */
-    public function fetchByUri(string $uri): ?Rules;
+    public function fetchByUri(string $uri): ?RootZoneDatabase;
 
     /**
-     * Cache the Public Suffix List Rules.
+     * Cache the Root Zone Database.
      *
      * If a local cache already exists, it will be overwritten.
      *
      * Returns true if the refresh was successful, false otherwise
      */
-    public function storeByUri(string $uri, Rules $rules): bool;
+    public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool;
 }

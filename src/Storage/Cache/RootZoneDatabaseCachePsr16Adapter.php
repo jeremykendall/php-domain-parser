@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage;
+namespace Pdp\Storage\Cache;
 
 use DateInterval;
 use DateTimeImmutable;
@@ -39,7 +39,7 @@ use const FILTER_VALIDATE_INT;
 
 final class RootZoneDatabaseCachePsr16Adapter implements RootZoneDatabaseCache
 {
-    private const CACHE_PREFIX = 'RZD';
+    private const CACHE_PREFIX = 'RZD_FULL_';
 
     private CacheInterface $cache;
 
@@ -130,7 +130,7 @@ final class RootZoneDatabaseCachePsr16Adapter implements RootZoneDatabaseCache
      */
     private function getCacheKey(string $str): string
     {
-        return sprintf('%s_FULL_%s', self::CACHE_PREFIX, md5(strtolower($str)));
+        return $this->prefix.md5(strtolower($str));
     }
 
     public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool
@@ -139,16 +139,16 @@ final class RootZoneDatabaseCachePsr16Adapter implements RootZoneDatabaseCache
             $result = $this->cache->set($this->getCacheKey($uri), json_encode($topLevelDomains), $this->ttl);
         } catch (Throwable $exception) {
             $this->logger->info(
-                'The Top Level Domains could not be saved with the following `'.$uri.'`:'.$exception->getMessage(),
+                'The Root Zone Database could not be saved with the following URI: `'.$uri.'` :'.$exception->getMessage(),
                 ['exception' => $exception]
             );
 
             return false;
         }
 
-        $message = 'The Root Zone Domains List is stored for the following `'.$uri.'`';
+        $message = 'The Root Zone Database is stored for the following URI: `'.$uri.'`.';
         if (!$result) {
-            $message = 'The  Root Zone Domains List could not be stored for the following '.$uri.'.';
+            $message = 'The  Root Zone Database could not be stored for the following URI: `'.$uri.'`.';
         }
 
         $this->logger->info($message);

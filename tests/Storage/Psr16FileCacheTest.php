@@ -19,8 +19,8 @@ use DateInterval;
 use Generator;
 use Iterator;
 use org\bovigo\vfs\vfsStream;
-use Pdp\Storage\Psr16CacheException;
-use Pdp\Storage\Psr16FileCache;
+use Pdp\Storage\Cache\Psr16CacheException;
+use Pdp\Storage\Cache\Psr16FileCache;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\InvalidArgumentException;
 use function dirname;
@@ -38,7 +38,7 @@ use function dirname;
 final class Psr16FileCacheTest extends TestCase
 {
     /**
-     * @var \Pdp\Storage\Psr16FileCache
+     * @var \Pdp\Storage\Cache\Psr16FileCache
      */
     protected $cache;
 
@@ -57,7 +57,7 @@ final class Psr16FileCacheTest extends TestCase
         $this->root = vfsStream::setup('pdp');
         vfsStream::create(['cache' => []], $this->root);
         $this->cacheDir = vfsStream::url('pdp/cache');
-        $this->cache = new Psr16FileCache($this->cacheDir);
+        $this->cache = new \Pdp\Storage\Cache\Psr16FileCache($this->cacheDir);
     }
 
     public function tearDown(): void
@@ -128,7 +128,7 @@ final class Psr16FileCacheTest extends TestCase
 
     public function testGetInvalidArg(): void
     {
-        self::expectException(Psr16CacheException::class);
+        self::expectException(\Pdp\Storage\Cache\Psr16CacheException::class);
 
         $this->cache->get(null);
     }
@@ -142,7 +142,7 @@ final class Psr16FileCacheTest extends TestCase
 
     public function testSetInvalidTTL(): void
     {
-        self::expectException(Psr16CacheException::class);
+        self::expectException(\Pdp\Storage\Cache\Psr16CacheException::class);
         $this->cache->set('foo', 'bar', date_create());
     }
 
@@ -421,7 +421,7 @@ final class Psr16FileCacheTest extends TestCase
 
     public function testSetMultipleInvalidArg(): void
     {
-        self::expectException(Psr16CacheException::class);
+        self::expectException(\Pdp\Storage\Cache\Psr16CacheException::class);
 
         $this->cache->setMultiple(null);
     }

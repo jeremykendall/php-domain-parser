@@ -15,12 +15,12 @@ declare(strict_types=1);
 
 namespace Pdp\Tests\Storage;
 
-use Pdp\Storage\CurlHttpClient;
-use Pdp\Storage\CurlHttpClientException;
+use Pdp\Storage\Http\CurlClient;
+use Pdp\Storage\Http\CurlClientException;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass \Pdp\Storage\CurlHttpClient
+ * @coversDefaultClass \Pdp\Storage\Http\CurlClient
  */
 final class CurlHttpClientTest extends TestCase
 {
@@ -30,7 +30,7 @@ final class CurlHttpClientTest extends TestCase
      */
     public function testGetContent(): void
     {
-        $content = (new CurlHttpClient())->getContent('https://www.google.com');
+        $content = (new \Pdp\Storage\Http\CurlClient())->getContent('https://www.google.com');
 
         self::assertStringContainsString('google', $content);
     }
@@ -41,8 +41,8 @@ final class CurlHttpClientTest extends TestCase
      */
     public function testThrowsException(): void
     {
-        self::expectException(CurlHttpClientException::class);
-        (new CurlHttpClient())->getContent('https://qsfsdfqdf.dfsf');
+        self::expectException(CurlClientException::class);
+        (new CurlClient())->getContent('https://qsfsdfqdf.dfsf');
     }
 
     /**
@@ -50,7 +50,7 @@ final class CurlHttpClientTest extends TestCase
      */
     public function testConstructorThrowsException(): void
     {
-        self::expectException(CurlHttpClientException::class);
-        new CurlHttpClient(['foo' => 'bar']);
+        self::expectException(CurlClientException::class);
+        new CurlClient(['foo' => 'bar']);
     }
 }

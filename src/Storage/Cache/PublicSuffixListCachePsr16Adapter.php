@@ -13,11 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage;
+namespace Pdp\Storage\Cache;
 
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Pdp\PublicSuffixList;
 use Pdp\Rules;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -132,22 +133,22 @@ final class PublicSuffixListCachePsr16Adapter implements PublicSuffixListCache
     /**
      * Cache the Top Level Domain List.
      */
-    public function storeByUri(string $uri, Rules $rules): bool
+    public function storeByUri(string $uri, PublicSuffixList $publicSuffixList): bool
     {
         try {
-            $result = $this->cache->set($this->getCacheKey($uri), json_encode($rules), $this->ttl);
+            $result = $this->cache->set($this->getCacheKey($uri), json_encode($publicSuffixList), $this->ttl);
         } catch (Throwable $exception) {
             $this->logger->info(
-                'The Public Suffix List could not be saved with the following `'.$uri.'`:'.$exception->getMessage(),
+                'The Public Suffix List could not be saved with the following URI: `'.$uri.'`:'.$exception->getMessage(),
                 ['exception' => $exception]
             );
 
             return false;
         }
 
-        $message = 'The Public Suffix List is stored for the following `'.$uri.'`';
+        $message = 'The Public Suffix List is stored for the following URI: `'.$uri.'`.';
         if (!$result) {
-            $message = 'The Public Suffix List could not be stored for the following '.$uri.'.';
+            $message = 'The Public Suffix List could not be stored for the following URI: `'.$uri.'`.';
         }
 
         $this->logger->info($message);

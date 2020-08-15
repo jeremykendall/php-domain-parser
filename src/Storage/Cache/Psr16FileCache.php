@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage;
+namespace Pdp\Storage\Cache;
 
 use DateInterval;
 use DateTimeImmutable;

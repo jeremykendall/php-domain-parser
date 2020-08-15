@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage;
+namespace Pdp\Storage\Http;
 
-use RuntimeException;
+use Throwable;
 
-class CurlHttpClientException extends RuntimeException implements HttpClientException
+interface ClientException extends Throwable
 {
 }

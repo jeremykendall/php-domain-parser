@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage;
+namespace Pdp\Storage\Http;
 
-use Psr\SimpleCache\InvalidArgumentException as PsrCacheException;
+use RuntimeException;
 
-class Psr16CacheException extends \InvalidArgumentException implements PsrCacheException
+class CurlClientException extends RuntimeException implements ClientException
 {
 }

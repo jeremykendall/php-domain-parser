@@ -14,16 +14,19 @@
 
 declare(strict_types=1);
 
+use Pdp\PublicSuffixListConverter;
+use Pdp\RootZoneDatabaseConverter;
+use Pdp\Storage\Http\PublicSuffixListClient;
+use Pdp\Storage\Http\RootZoneDatabaseClient;
 use Pdp\Storage\Logger;
-use Pdp\Storage\Psr16FileCache;
-use Pdp\Storage\PublicSuffixListCachePsr16Adapter;
-use Pdp\Storage\RootZoneDatabaseCachePsr16Adapter;
-use Pdp\Storage\CurlHttpClient;
-use Pdp\Storage\Manager;
+use Pdp\Storage\Cache\Psr16FileCache;
+use Pdp\Storage\Cache\PublicSuffixListCachePsr16Adapter;
+use Pdp\Storage\Cache\RootZoneDatabaseCachePsr16Adapter;
+use Pdp\Storage\Http\CurlClient;
+use Pdp\Storage\Http\PublicSuffixListCurlClient;
+use Pdp\Storage\Http\RootZoneDatabaseCurlClient;
 
 const KEY_CACHE_DIR = 'cache-dir';
-const KEY_TTL = 'ttl';
-const DEFAULT_TTL = '1 DAY';
 
 function success(string $message): void
 {
@@ -74,7 +77,6 @@ $arguments = getopt('h::', [
     'h',
     'help',
     KEY_CACHE_DIR.':',
-    KEY_TTL.':',
 ]);
 
 if (isset($arguments['help']) || isset($arguments['h']) || [] === $arguments) {
@@ -84,7 +86,6 @@ if (isset($arguments['help']) || isset($arguments['h']) || [] === $arguments) {
     $script [options]
 
 {$yellow}Options:$reset
-$green    --%s=TTL$reset        set the TTL for the cache ({$yellow}default:$reset '%s')
 $green    --%s=PATH$reset set the cache root directory ({$yellow}default:$reset '$default_cache_dir')
 $green    -h, --help$reset       show the following help message
 
@@ -92,9 +93,6 @@ $green    -h, --help$reset       show the following help message
    The {$green}update-php$reset command updates your PDP local cache.
 
 {$yellow}Examples:$reset
-   Refresh all the cache for a TTL of 3 DAY
-   $green$script --ttl="3 DAYS"$reset
-
    Refresh all the cache using another cache directory
    $green$script --cache-dir=/temp$reset
 
@@ -103,8 +101,6 @@ HELP;
 
     success(sprintf(
         $helpText,
-        KEY_TTL,
-        DEFAULT_TTL,
         KEY_CACHE_DIR
     ));
 
@@ -117,20 +113,22 @@ if (!extension_loaded('curl')) {
     die(1);
 }
 
-$context = filter_var_array($arguments + [KEY_CACHE_DIR => $default_cache_dir, KEY_TTL => DEFAULT_TTL], [
-    KEY_TTL => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW],
+$context = filter_var_array($arguments + [KEY_CACHE_DIR => $default_cache_dir], [
     KEY_CACHE_DIR => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW],
 ]);
 
-try {
-    $logger = new Logger( STDOUT, STDERR);
-    $cache = new Psr16FileCache($context[KEY_CACHE_DIR]);
-    $manager = new Manager(
-        new CurlHttpClient(),
-        new PublicSuffixListCachePsr16Adapter($cache, $context[KEY_TTL], $logger),
-        new RootZoneDatabaseCachePsr16Adapter($cache, $context[KEY_TTL], $logger),
-    );
+$ttl = new DateInterval('P1D');
+$logger = new Logger( STDOUT, STDERR);
+$curlClient = new CurlClient();
 
+
+try {
+    $cache = new Psr16FileCache($context[KEY_CACHE_DIR]);
+    $pslClient = new PublicSuffixListCurlClient($curlClient, new PublicSuffixListConverter());
+    $pslCache = new PublicSuffixListCachePsr16Adapter($cache, $ttl, $logger);
+
+    $rzdClient = new RootZoneDatabaseCurlClient($curlClient, new RootZoneDatabaseConverter());
+    $rzdCache = new RootZoneDatabaseCachePsr16Adapter($cache, $ttl, $logger);
 } catch (Throwable $exception) {
     if (null !== $logger) {
         $logger->error('Local cache update initialisation failed with {exception}', ['exception' => $exception->getMessage()]);
@@ -144,7 +142,10 @@ success("$yellow Starting updating your local cache.$reset");
 $error = 0;
 
 try {
-    $manager->getPublicSuffixListRemoteCopy();
+    $publicSuffixList = $pslClient->getByUri(PublicSuffixListClient::PSL_URL);
+    if (!$pslCache->storeByUri(PublicSuffixListClient::PSL_URL, $publicSuffixList)) {
+        throw new RuntimeException('Could not save the Public Suffix List to the `'.$context[KEY_CACHE_DIR].'` cache.');
+    }
 } catch (Throwable $exception) {
     $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
     fail("$redbg The command failed to update the public suffix list local cache. $reset");
@@ -152,7 +153,10 @@ try {
 }
 
 try {
-    $manager->getRootZoneDatabaseRemoteCopy();
+    $rootZoneDatabase = $rzdClient->getByUri(RootZoneDatabaseClient::RZD_URL);
+    if (!$rzdCache->storeByUri(RootZoneDatabaseClient::RZD_URL, $rootZoneDatabase)) {
+        throw new RuntimeException('Could not save the Root Zone Database to the `'.$context[KEY_CACHE_DIR].'` cache.');
+    }
 } catch (Throwable $exception) {
     $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
     fail("$redbg The command failed to update the root zone database local cache. $reset");
@@ -165,4 +169,5 @@ if (0 === $error) {
     die(0);
 }
 
+fail("$redbg The command failed to update the root zone database local cache. $reset");
 die(1);

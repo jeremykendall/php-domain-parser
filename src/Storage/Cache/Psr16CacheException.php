@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage;
+namespace Pdp\Storage\Cache;
 
-use Throwable;
+use Psr\SimpleCache\InvalidArgumentException as PsrCacheException;
 
-interface HttpClientException extends Throwable
+class Psr16CacheException extends \InvalidArgumentException implements PsrCacheException
 {
 }
