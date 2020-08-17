@@ -16,8 +16,6 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
-use Pdp\Storage\Cache\PublicSuffixListCache;
-use Pdp\Storage\Http\PublicSuffixListClient;
 
 final class PublicSuffixListStorage implements PublicSuffixListClient
 {
@@ -31,7 +29,7 @@ final class PublicSuffixListStorage implements PublicSuffixListClient
         $this->cache = $cache;
     }
 
-    public function getByUri(string $uri = self::PSL_URL): PublicSuffixList
+    public function getByUri(string $uri): PublicSuffixList
     {
         $publicSuffixList = $this->cache->fetchByUri($uri);
         if (null !== $publicSuffixList) {

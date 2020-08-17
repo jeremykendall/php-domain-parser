@@ -54,4 +54,14 @@ class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements E
     {
         return new self($message, $code);
     }
+
+    public static function dueToUnavailableService(string $uri, Throwable $exception): self
+    {
+        return new self('Could not access the Root Zone Database URI: `'.$uri.'`.', 0, $exception);
+    }
+
+    public static function dueToUnexpectedContent(string $uri, int $statusCode): self
+    {
+        return new self('Invalid response from Root Zone Database URI: `'.$uri.'`.', $statusCode);
+    }
 }

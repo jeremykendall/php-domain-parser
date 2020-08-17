@@ -13,10 +13,17 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage\Http;
+namespace Pdp\Storage;
 
-use Throwable;
+use Pdp\PublicSuffixList;
+use Pdp\UnableToLoadPublicSuffixList;
 
-interface ClientException extends Throwable
+interface PublicSuffixListClient
 {
+    public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+
+    /**
+     * @throws UnableToLoadPublicSuffixList
+     */
+    public function getByUri(string $uri): PublicSuffixList;
 }

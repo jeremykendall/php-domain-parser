@@ -44,21 +44,23 @@
     "require-dev": {
         "composer/composer": "^1.6",
         "friendsofphp/php-cs-fixer": "^2.16",
-        "mikey179/vfsstream": "^1.6.7",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
         "phpstan/phpstan-strict-rules": "^0.12",
         "phpunit/phpunit": "^9.0",
         "psr/log": "^1.1",
-        "psr/simple-cache": "^1.0.1"
+        "psr/simple-cache": "^1.0.1",
+        "guzzlehttp/guzzle": "^7.0.0",
+        "guzzlehttp/psr7": "^1.6.0",
+        "psr/http-factory": "^1.0.0",
+        "symfony/cache": "^v5.0.0"
     },
     "suggest": {
-        "psr/simple-cache-implementation": "To enable using other cache providers",
-        "psr/log-implementation": "To enable using other logger providers",
-        "ext-curl": "To use the package http client",
-        "league/uri": "To parse URL and validate host",
-        "psr/log": "^1.1",
-        "psr/simple-cache": "^1.0.1"
+        "psr/simple-cache-implementation": "To use the storage functionnality which depends on PSR-16",
+        "psr/log-implementation": "To use the storage functionnality which depends on PSR-3",
+        "psr/http-client-implementation": "To use the storage functionnality which depends on PSR-18",
+        "psr/http-factory": "To use the storage functionnality which depends on PSR-17",
+        "league/uri": "To parse URL and validate host"
     },
     "autoload": {
         "psr-4": {

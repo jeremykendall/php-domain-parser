@@ -13,23 +13,19 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage\Cache;
+namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabase;
+use Pdp\UnableToLoadRootZoneDatabase;
 
-interface RootZoneDatabaseCache
+interface RootZoneDatabaseClient
 {
-    /**
-     * Retrieves the Root Zone Database from the Cache.
-     */
-    public function fetchByUri(string $uri): ?RootZoneDatabase;
+    public const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
     /**
-     * Cache the Root Zone Database.
+     * Gets the Top Level Domains from the Local Storage or the Remote Storage.
      *
-     * If a local cache already exists, it will be overwritten.
-     *
-     * Returns true if the refresh was successful, false otherwise
+     * @throws UnableToLoadRootZoneDatabase
      */
-    public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool;
+    public function getByUri(string $uri): RootZoneDatabase;
 }

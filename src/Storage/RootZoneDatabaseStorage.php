@@ -16,10 +16,8 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabase;
-use Pdp\Storage\Cache\RootZoneDatabaseCache;
-use Pdp\Storage\Http\RootZoneDatabaseClient;
 
-class RootZoneDatabaseStorage implements RootZoneDatabaseClient
+final class RootZoneDatabaseStorage implements RootZoneDatabaseClient
 {
     private RootZoneDatabaseClient $client;
 
@@ -31,7 +29,7 @@ class RootZoneDatabaseStorage implements RootZoneDatabaseClient
         $this->cache = $cache;
     }
 
-    public function getByUri(string $uri = self::RZD_URL): RootZoneDatabase
+    public function getByUri(string $uri): RootZoneDatabase
     {
         $rootZoneDatabase = $this->cache->fetchByUri($uri);
         if (null !== $rootZoneDatabase) {
