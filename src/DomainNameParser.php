@@ -24,7 +24,6 @@ use function gettype;
 use function idn_to_ascii;
 use function idn_to_utf8;
 use function implode;
-use function is_string;
 use function method_exists;
 use function preg_match;
 use function rawurldecode;
@@ -136,6 +135,10 @@ abstract class DomainNameParser
      */
     final protected function idnToUnicode(string $domain, int $option = IDNA_DEFAULT): string
     {
+        if (false === strpos($domain, 'xn--')) {
+            return $domain;
+        }
+
         $output = idn_to_utf8($domain, $option, INTL_IDNA_VARIANT_UTS46, $info);
         if ([] === $info) {
             throw InvalidHost::dueToIDNAError($domain);
@@ -159,13 +162,14 @@ abstract class DomainNameParser
      * Returns an array containing the formatted domain name labels
      * and the domain transitional information.
      *
-     * For example: parse('wWw.uLb.Ac.be') should return
-     *     ['labels' => ['be', 'ac', 'ulb', 'www'], 'isTransitionalDifferant' => false];.
+     * For example: parse('wWw.uLb.Ac.be') should return ['be', 'ac', 'ulb', 'www'];.
      *
      * @param mixed $domain a domain
      *
      * @throws InvalidHost       If the domain is not a host
      * @throws InvalidDomainName If the host is not a domain
+     *
+     * @return array<string>
      */
     final protected function parse($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
     {
@@ -177,15 +181,19 @@ abstract class DomainNameParser
             return [];
         }
 
+        if (is_object($domain) && method_exists($domain, '__toString')) {
+            $domain = (string) $domain;
+        }
+
+        if (!is_scalar($domain)) {
+            throw new TypeError(sprintf('The domain must be a string, a stringable object, a Host object or NULL; `%s` given', gettype($domain)));
+        }
+
+        $domain = (string) $domain;
         if ('' === $domain) {
             return [''];
         }
 
-        if (!is_string($domain) && !method_exists($domain, '__toString')) {
-            throw new TypeError(sprintf('The domain must be a scalar, a stringable object, a DomainInterface object or null; `%s` given', gettype($domain)));
-        }
-
-        $domain = (string) $domain;
         $res = filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
         if (false !== $res) {
             throw InvalidDomainName::dueToUnsupportedType($domain);

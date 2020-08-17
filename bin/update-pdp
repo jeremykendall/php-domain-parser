@@ -14,17 +14,22 @@
 
 declare(strict_types=1);
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 use Pdp\PublicSuffixListConverter;
 use Pdp\RootZoneDatabaseConverter;
-use Pdp\Storage\Http\PublicSuffixListClient;
-use Pdp\Storage\Http\RootZoneDatabaseClient;
-use Pdp\Storage\Logger;
-use Pdp\Storage\Cache\Psr16FileCache;
-use Pdp\Storage\Cache\PublicSuffixListCachePsr16Adapter;
-use Pdp\Storage\Cache\RootZoneDatabaseCachePsr16Adapter;
-use Pdp\Storage\Http\CurlClient;
-use Pdp\Storage\Http\PublicSuffixListCurlClient;
-use Pdp\Storage\Http\RootZoneDatabaseCurlClient;
+use Pdp\Storage\PublicSuffixListClient;
+use Pdp\Storage\RootZoneDatabaseClient;
+use Pdp\Storage\PublicSuffixListCachePsr16Adapter;
+use Pdp\Storage\RootZoneDatabaseCachePsr16Adapter;
+use Pdp\Storage\PublicSuffixListClientPsr18Adapter;
+use Pdp\Storage\RootZoneDatabaseClientPsr18Adapter;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LogLevel;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 const KEY_CACHE_DIR = 'cache-dir';
 
@@ -63,6 +68,37 @@ if (null === $vendor) {
 require $vendor.'/autoload.php';
 
 $default_cache_dir = dirname(__DIR__).'/data';
+
+$requestFactory = new class implements RequestFactoryInterface {
+    public function createRequest(string $method, $uri): RequestInterface
+    {
+        return new Request($method, $uri);
+    }
+};
+
+$logger = new class extends AbstractLogger {
+    public function log($level, $message, array $context = [])
+    {
+        static $errorLevels = [
+            LogLevel::EMERGENCY => 1,
+            LogLevel::ALERT => 1,
+            LogLevel::CRITICAL => 1,
+            LogLevel::ERROR => 1,
+            LogLevel::WARNING => 1,
+            LogLevel::NOTICE => 1,
+        ];
+
+        $replace = [];
+        foreach ($context as $key => $val) {
+            $replace['{'.$key.'}'] = $val;
+        }
+
+        fwrite(
+            isset($errorLevels[$level]) ? STDERR : STDOUT,
+            strtr($message, $replace).PHP_EOL
+        );
+    }
+};
 
 /**
  * CLI colors
@@ -107,31 +143,19 @@ HELP;
     die(0);
 }
 
-if (!extension_loaded('curl')) {
-    fail("$redbg The required PHP cURL extension is missing. $reset");
-
-    die(1);
-}
-
 $context = filter_var_array($arguments + [KEY_CACHE_DIR => $default_cache_dir], [
     KEY_CACHE_DIR => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW],
 ]);
 
 $ttl = new DateInterval('P1D');
-$logger = new Logger( STDOUT, STDERR);
-$curlClient = new CurlClient();
-
+$psrHttpClient = new Client();
 
 try {
-    $cache = new Psr16FileCache($context[KEY_CACHE_DIR]);
-    $pslClient = new PublicSuffixListCurlClient($curlClient, new PublicSuffixListConverter());
-    $pslCache = new PublicSuffixListCachePsr16Adapter($cache, $ttl, $logger);
-
-    $rzdClient = new RootZoneDatabaseCurlClient($curlClient, new RootZoneDatabaseConverter());
-    $rzdCache = new RootZoneDatabaseCachePsr16Adapter($cache, $ttl, $logger);
+    $filesystemCache = new FilesystemAdapter('', 3600, $context[KEY_CACHE_DIR]);
+    $cache = new Psr16Cache($filesystemCache);
 } catch (Throwable $exception) {
     if (null !== $logger) {
-        $logger->error('Local cache update initialisation failed with {exception}', ['exception' => $exception->getMessage()]);
+        $logger->error('Local cache initialisation failed with {exception}', ['exception' => $exception->getMessage()]);
     }
     fail("$redbg The script failed on initialisation.$reset");
 
@@ -142,8 +166,11 @@ success("$yellow Starting updating your local cache.$reset");
 $error = 0;
 
 try {
-    $publicSuffixList = $pslClient->getByUri(PublicSuffixListClient::PSL_URL);
-    if (!$pslCache->storeByUri(PublicSuffixListClient::PSL_URL, $publicSuffixList)) {
+    $client = new PublicSuffixListClientPsr18Adapter($psrHttpClient, $requestFactory, new PublicSuffixListConverter());
+    $storage = new PublicSuffixListCachePsr16Adapter($cache, $ttl, $logger);
+
+    $publicSuffixList = $client->getByUri(PublicSuffixListClient::PSL_URL);
+    if (!$storage->storeByUri(PublicSuffixListClient::PSL_URL, $publicSuffixList)) {
         throw new RuntimeException('Could not save the Public Suffix List to the `'.$context[KEY_CACHE_DIR].'` cache.');
     }
 } catch (Throwable $exception) {
@@ -153,8 +180,11 @@ try {
 }
 
 try {
-    $rootZoneDatabase = $rzdClient->getByUri(RootZoneDatabaseClient::RZD_URL);
-    if (!$rzdCache->storeByUri(RootZoneDatabaseClient::RZD_URL, $rootZoneDatabase)) {
+    $client = new RootZoneDatabaseClientPsr18Adapter($psrHttpClient, $requestFactory, new RootZoneDatabaseConverter());
+    $storage = new RootZoneDatabaseCachePsr16Adapter($cache, $ttl, $logger);
+
+    $rootZoneDatabase = $client->getByUri(RootZoneDatabaseClient::RZD_URL);
+    if (!$storage->storeByUri(RootZoneDatabaseClient::RZD_URL, $rootZoneDatabase)) {
         throw new RuntimeException('Could not save the Root Zone Database to the `'.$context[KEY_CACHE_DIR].'` cache.');
     }
 } catch (Throwable $exception) {

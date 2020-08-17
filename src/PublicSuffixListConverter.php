@@ -16,8 +16,12 @@ declare(strict_types=1);
 namespace Pdp;
 
 use SplTempFileObject;
+use TypeError;
 use function array_pop;
 use function explode;
+use function gettype;
+use function is_object;
+use function method_exists;
 use function preg_match;
 use function strpos;
 use function substr;
@@ -39,9 +43,19 @@ final class PublicSuffixListConverter extends DomainNameParser
 
     /**
      * Convert the Public Suffix List into an associative, multidimensional array.
+     *
+     * @param object|string $content The object should expose the __toString method
      */
-    public function convert(string $content): array
+    public function convert($content): array
     {
+        if (is_object($content) && method_exists($content, '__toString')) {
+            $content = (string) $content;
+        }
+
+        if (!is_string($content)) {
+            throw new TypeError('The content to be converted should be a string or a Stringable object, `'.gettype($content).'` given.');
+        }
+
         $rules = ['ICANN_DOMAINS' => [], 'PRIVATE_DOMAINS' => []];
         $section = '';
         $file = new SplTempFileObject();

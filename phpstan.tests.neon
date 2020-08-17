@@ -5,21 +5,3 @@ includes:
 parameters:
   checkMissingIterableValueType: false
   ignoreErrors:
-    - message: '#Parameter \#1 \$key of method Pdp\\Storage\\Cache\\Psr16FileCache::set\(\) expects string, null given.#'
-      path: tests/Storage/Psr16FileCacheTest.php
-    - message: '#Parameter \#1 \$key of method Pdp\\Storage\\Cache\\Psr16FileCache::delete\(\) expects string, null given.#'
-      path: tests/Storage/Psr16FileCacheTest.php
-    - message: '#Parameter \#1 \$key of method Pdp\\Storage\\Cache\\Psr16FileCache::get\(\) expects string, null given.#'
-      path: tests/Storage/Psr16FileCacheTest.php
-    - message: '#Parameter \#3 \$ttl of method Pdp\\Storage\\Cache\\Psr16FileCache::set\(\) expects DateInterval\|int\|null, DateTime\|false given.#'
-      path: tests/Storage/Psr16FileCacheTest.php
-    - message: '#Parameter \#1 \$keys of method Pdp\\Storage\\Cache\\Psr16FileCache::deleteMultiple\(\) expects iterable, null given.#'
-      path: tests/Storage/Psr16FileCacheTest.php
-    - message: '#Parameter \#1 \$keys of method Pdp\\Storage\\Cache\\Psr16FileCache::getMultiple\(\) expects iterable, null given.#'
-      path: tests/Storage/Psr16FileCacheTest.php
-    - message: '#Parameter \#1 \$values of method Pdp\\Storage\\Cache\\Psr16FileCache::setMultiple\(\) expects iterable, null given.#'
-      path: tests/Storage/Psr16FileCacheTest.php
-    - message: '#Parameter \#1 \$key of method Pdp\\Storage\\Cache\\Psr16FileCache::has\(\) expects string, null given.#'
-      path: tests/Storage/Psr16FileCacheTest.php
-    - message: '#Parameter \#1 \$exception of method PHPUnit\\Framework\\TestCase::expectException\(\) expects class-string\<Throwable\>, string given.#'
-      path: tests/Storage/Psr16FileCacheTest.php

@@ -16,11 +16,16 @@ declare(strict_types=1);
 namespace Pdp;
 
 use DateTimeImmutable;
+use DateTimeInterface;
 use SplTempFileObject;
+use TypeError;
+use function gettype;
+use function is_object;
+use function is_string;
+use function method_exists;
 use function preg_match;
 use function strpos;
 use function trim;
-use const DATE_ATOM;
 
 final class RootZoneDatabaseConverter
 {
@@ -29,10 +34,20 @@ final class RootZoneDatabaseConverter
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
      *
+     * @param object|string $content The object should expose the __toString method
+     *
      * @throws UnableToLoadRootZoneDatabase if the content is invalid or can not be correctly parsed and converted
      */
-    public function convert(string $content): array
+    public function convert($content): array
     {
+        if (is_object($content) && method_exists($content, '__toString')) {
+            $content = (string) $content;
+        }
+
+        if (!is_string($content)) {
+            throw new TypeError('The content to be converted should be a string or a Stringable object, `'.gettype($content).'` given.');
+        }
+
         $data = [];
         $file = new SplTempFileObject();
         $file->fwrite($content);
@@ -77,7 +92,7 @@ final class RootZoneDatabaseConverter
 
         return [
             'version' => $matches['version'],
-            'modifiedDate' => $date->format(DATE_ATOM),
+            'modifiedDate' => $date->format(DateTimeInterface::ATOM),
         ];
     }
 

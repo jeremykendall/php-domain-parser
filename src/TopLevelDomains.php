@@ -26,7 +26,6 @@ use function json_last_error;
 use function json_last_error_msg;
 use function stream_get_contents;
 use function substr;
-use const DATE_ATOM;
 use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
 
@@ -90,8 +89,13 @@ final class TopLevelDomains implements RootZoneDatabase
         return self::fromString($content, $asciiIDNAOption, $unicodeIDNAOption);
     }
 
+    /**
+     * Returns a new instance from a string.
+     *
+     * @param object|string $content a string or an object which exposes the __toString method
+     */
     public static function fromString(
-        string $content,
+        $content,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ): self {
@@ -101,7 +105,7 @@ final class TopLevelDomains implements RootZoneDatabase
 
         $data = $converter->convert($content);
         /** @var DateTimeImmutable $modifiedDate */
-        $modifiedDate = DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']);
+        $modifiedDate = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['modifiedDate']);
 
         return new self(
             $data['records'],
@@ -128,7 +132,7 @@ final class TopLevelDomains implements RootZoneDatabase
         }
 
         /** @var DateTimeImmutable $modifiedDate */
-        $modifiedDate = DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']);
+        $modifiedDate = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['modifiedDate']);
 
         return new self($data['records'], $data['version'], $modifiedDate, $asciiIDNAOption, $unicodeIDNAOption);
     }
@@ -186,7 +190,7 @@ final class TopLevelDomains implements RootZoneDatabase
         return [
             'version' => $this->version,
             'records' => $this->records,
-            'modifiedDate' => $this->modifiedDate->format(DATE_ATOM),
+            'modifiedDate' => $this->modifiedDate->format(DateTimeInterface::ATOM),
         ];
     }
 

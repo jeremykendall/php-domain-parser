@@ -79,9 +79,11 @@ final class Rules implements PublicSuffixList
 
     /**
      * Returns a new instance from a string.
+     *
+     * @param object|string $content a string or an object which exposes the __toString method
      */
     public static function fromString(
-        string $content,
+        $content,
         int $asciiIDNAOption = IDNA_DEFAULT,
         int $unicodeIDNAOption = IDNA_DEFAULT
     ): self {

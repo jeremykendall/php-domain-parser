@@ -52,11 +52,11 @@ final class ResolvedDomain implements ResolvedDomainName
 
     private function setDomainName(Host $domain): DomainName
     {
-        if ($domain instanceof DomainName) {
-            return $domain;
+        if (!$domain instanceof DomainName) {
+            return new Domain($domain, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
         }
 
-        return new Domain($domain, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+        return $domain;
     }
 
     /**
