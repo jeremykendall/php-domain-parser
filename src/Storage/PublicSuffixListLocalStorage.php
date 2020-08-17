@@ -23,7 +23,7 @@ final class PublicSuffixListLocalStorage implements PublicSuffixListStorage
 
     private PublicSuffixListCache $cache;
 
-    public function __construct(PublicSuffixListStorage $client, PublicSuffixListCache $cache)
+    public function __construct(PublicSuffixListCache $cache, PublicSuffixListStorage $client)
     {
         $this->client = $client;
         $this->cache = $cache;

@@ -16,13 +16,11 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
-use Pdp\PublicSuffixListConverter;
 use Pdp\Rules;
 use Pdp\UnableToLoadPublicSuffixList;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
-use function json_encode;
 
 final class PublicSuffixListRemoteStorage implements PublicSuffixListStorage
 {
@@ -30,16 +28,10 @@ final class PublicSuffixListRemoteStorage implements PublicSuffixListStorage
 
     private RequestFactoryInterface $requestFactory;
 
-    private PublicSuffixListConverter $converter;
-
-    public function __construct(
-        ClientInterface $client,
-        RequestFactoryInterface $requestFactory,
-        PublicSuffixListConverter $converter
-    ) {
+    public function __construct(ClientInterface $client, RequestFactoryInterface $requestFactory)
+    {
         $this->client = $client;
         $this->requestFactory = $requestFactory;
-        $this->converter = $converter;
     }
 
     public function getByUri(string $uri): PublicSuffixList
@@ -55,11 +47,6 @@ final class PublicSuffixListRemoteStorage implements PublicSuffixListStorage
             throw UnableToLoadPublicSuffixList::dueToUnexpectedContent($uri, $response->getStatusCode());
         }
 
-        $rawPsl = $this->converter->convert($response->getBody());
-
-        /** @var string $jsonEncodedPsl */
-        $jsonEncodedPsl = json_encode($rawPsl);
-
-        return Rules::fromJsonString($jsonEncodedPsl);
+        return Rules::fromString($response->getBody());
     }
 }

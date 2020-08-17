@@ -23,7 +23,7 @@ final class RootZoneDatabaseLocalStorage implements RootZoneDatabaseStorage
 
     private RootZoneDatabaseCache $cache;
 
-    public function __construct(RootZoneDatabaseStorage $client, RootZoneDatabaseCache $cache)
+    public function __construct(RootZoneDatabaseCache $cache, RootZoneDatabaseStorage $client)
     {
         $this->client = $client;
         $this->cache = $cache;

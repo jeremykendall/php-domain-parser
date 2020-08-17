@@ -16,13 +16,11 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabase;
-use Pdp\RootZoneDatabaseConverter;
 use Pdp\TopLevelDomains;
 use Pdp\UnableToLoadRootZoneDatabase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
-use function json_encode;
 
 final class RootZoneDatabaseRemoteStorage implements RootZoneDatabaseStorage
 {
@@ -30,16 +28,12 @@ final class RootZoneDatabaseRemoteStorage implements RootZoneDatabaseStorage
 
     private RequestFactoryInterface $requestFactory;
 
-    private RootZoneDatabaseConverter $converter;
-
     public function __construct(
         ClientInterface $client,
-        RequestFactoryInterface $requestFactory,
-        RootZoneDatabaseConverter $converter
+        RequestFactoryInterface $requestFactory
     ) {
         $this->client = $client;
         $this->requestFactory = $requestFactory;
-        $this->converter = $converter;
     }
 
     public function getByUri(string $uri): RootZoneDatabase
@@ -55,11 +49,6 @@ final class RootZoneDatabaseRemoteStorage implements RootZoneDatabaseStorage
             throw UnableToLoadRootZoneDatabase::dueToUnexpectedContent($uri, $response->getStatusCode());
         }
 
-        $rawRzd = $this->converter->convert($response->getBody());
-
-        /** @var string $jsonEncodedRzd */
-        $jsonEncodedRzd = json_encode($rawRzd);
-
-        return TopLevelDomains::fromJsonString($jsonEncodedRzd);
+        return TopLevelDomains::fromString($response->getBody());
     }
 }
