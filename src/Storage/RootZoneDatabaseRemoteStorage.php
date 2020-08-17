@@ -28,10 +28,8 @@ final class RootZoneDatabaseRemoteStorage implements RootZoneDatabaseStorage
 
     private RequestFactoryInterface $requestFactory;
 
-    public function __construct(
-        ClientInterface $client,
-        RequestFactoryInterface $requestFactory
-    ) {
+    public function __construct(ClientInterface $client, RequestFactoryInterface $requestFactory)
+    {
         $this->client = $client;
         $this->requestFactory = $requestFactory;
     }

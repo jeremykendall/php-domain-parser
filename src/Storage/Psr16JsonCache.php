@@ -102,7 +102,7 @@ abstract class Psr16JsonCache
             $result = $this->cache->set($this->cacheKey($uri), json_encode($object), $this->ttl);
         } catch (Throwable $exception) {
             $this->logger->info(
-                'The content associated with URI: `'.$uri.'` could not be cached :'.$exception->getMessage(),
+                'The content associated with URI: `'.$uri.'` could not be cached: '.$exception->getMessage(),
                 ['exception' => $exception]
             );
 
