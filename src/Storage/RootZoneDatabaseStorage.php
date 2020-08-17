@@ -16,30 +16,16 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabase;
+use Pdp\UnableToLoadRootZoneDatabase;
 
-final class RootZoneDatabaseStorage implements RootZoneDatabaseClient
+interface RootZoneDatabaseStorage
 {
-    private RootZoneDatabaseClient $client;
+    public const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 
-    private RootZoneDatabaseCache $cache;
-
-    public function __construct(RootZoneDatabaseClient $client, RootZoneDatabaseCache $cache)
-    {
-        $this->client = $client;
-        $this->cache = $cache;
-    }
-
-    public function getByUri(string $uri): RootZoneDatabase
-    {
-        $rootZoneDatabase = $this->cache->fetchByUri($uri);
-        if (null !== $rootZoneDatabase) {
-            return $rootZoneDatabase;
-        }
-
-        $rootZoneDatabase = $this->client->getByUri($uri);
-
-        $this->cache->storeByUri($uri, $rootZoneDatabase);
-
-        return $rootZoneDatabase;
-    }
+    /**
+     * Gets the Top Level Domains from the Local Storage or the Remote Storage.
+     *
+     * @throws UnableToLoadRootZoneDatabase
+     */
+    public function getByUri(string $uri): RootZoneDatabase;
 }

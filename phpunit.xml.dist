@@ -13,11 +13,6 @@
   processIsolation="false"
   stopOnFailure="false">
   <coverage>
-    <testsuites>
-      <testsuite name="PHP Domain Parser Test Suite">
-        <directory>tests</directory>
-      </testsuite>
-    </testsuites>
     <include>
       <directory suffix=".php">src</directory>
     </include>
@@ -27,6 +22,11 @@
       <text outputFile="build/coverage.txt"/>
     </report>
   </coverage>
+  <testsuites>
+    <testsuite name="PHP Domain Parser Test Suite">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
   <logging>
     <junit outputFile="build/report.junit.xml"/>
   </logging>

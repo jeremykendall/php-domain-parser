@@ -24,7 +24,7 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use function json_encode;
 
-final class RootZoneDatabaseClientPsr18Adapter implements RootZoneDatabaseClient
+final class RootZoneDatabaseRemoteStorage implements RootZoneDatabaseStorage
 {
     private ClientInterface $client;
 

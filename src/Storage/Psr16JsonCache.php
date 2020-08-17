@@ -21,6 +21,7 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use JsonSerializable;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
 use TypeError;
@@ -35,7 +36,7 @@ use function sprintf;
 use function strtolower;
 use const FILTER_VALIDATE_INT;
 
-abstract class JsonPsr16Cache
+abstract class Psr16JsonCache
 {
     protected const CACHE_PREFIX = 'pdp_';
 
@@ -44,6 +45,16 @@ abstract class JsonPsr16Cache
     protected LoggerInterface $logger;
 
     protected ?DateInterval $ttl;
+
+    /**
+     * @param mixed $ttl the time to live for the given cache
+     */
+    public function __construct(CacheInterface $cache, $ttl = null, LoggerInterface $logger = null)
+    {
+        $this->cache = $cache;
+        $this->ttl = $this->setTtl($ttl);
+        $this->logger = $logger ?? new NullLogger();
+    }
 
     /**
      * Set the cache TTL.
@@ -68,7 +79,7 @@ abstract class JsonPsr16Cache
 
         if (!is_string($ttl)) {
             throw new TypeError(sprintf(
-                'The ttl must null, an integer, a string a DateTimeInterface or a DateInterval object %s given',
+                'The ttl must null, an integer, a string a DateTimeInterface or a DateInterval object %s given.',
                 is_object($ttl) ? get_class($ttl) : gettype($ttl)
             ));
         }
@@ -77,7 +88,7 @@ abstract class JsonPsr16Cache
         $date = @DateInterval::createFromDateString($ttl);
         if (!$date instanceof DateInterval) {
             throw new InvalidArgumentException(sprintf(
-                'The ttl value "%s" can not be parsable by `DateInterval::createFromDateString`',
+                'The ttl value "%s" can not be parsable by `DateInterval::createFromDateString`.',
                 $ttl
             ));
         }
@@ -85,22 +96,22 @@ abstract class JsonPsr16Cache
         return $date;
     }
 
-    final protected function storeJson(string $uri, JsonSerializable $object): bool
+    final protected function store(string $uri, JsonSerializable $object): bool
     {
         try {
-            $result = $this->cache->set($this->getCacheKey($uri), json_encode($object), $this->ttl);
+            $result = $this->cache->set($this->cacheKey($uri), json_encode($object), $this->ttl);
         } catch (Throwable $exception) {
             $this->logger->info(
-                'The following URI: `'.$uri.'` could not be cached :'.$exception->getMessage(),
+                'The content associated with URI: `'.$uri.'` could not be cached :'.$exception->getMessage(),
                 ['exception' => $exception]
             );
 
             return false;
         }
 
-        $message = 'The following URI: `'.$uri.'` was stored.';
+        $message = 'The content associated with URI: `'.$uri.'` was stored.';
         if (!$result) {
-            $message = 'The following URI: `'.$uri.'` could not be stored.';
+            $message = 'The content associated with URI: `'.$uri.'` could not be stored.';
         }
 
         $this->logger->info($message);
@@ -111,19 +122,19 @@ abstract class JsonPsr16Cache
     /**
      * Returns the cache key according to the source URL.
      */
-    final protected function getCacheKey(string $str): string
+    private function cacheKey(string $str): string
     {
         return self::CACHE_PREFIX.md5(strtolower($str));
     }
 
-    final protected function fetchJson(string $uri): ?string
+    final protected function fetch(string $uri): ?string
     {
-        return $this->cache->get($this->getCacheKey($uri));
+        return $this->cache->get($this->cacheKey($uri));
     }
 
-    final protected function forgetJson(string $uri, Throwable $exception = null): bool
+    final protected function forget(string $uri, Throwable $exception = null): bool
     {
-        $result = $this->cache->delete($this->getCacheKey($uri));
+        $result = $this->cache->delete($this->cacheKey($uri));
         if (null !== $exception) {
             $this->logger->warning($exception->getMessage());
         }

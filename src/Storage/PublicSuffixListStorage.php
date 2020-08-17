@@ -16,30 +16,14 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
+use Pdp\UnableToLoadPublicSuffixList;
 
-final class PublicSuffixListStorage implements PublicSuffixListClient
+interface PublicSuffixListStorage
 {
-    private PublicSuffixListClient $client;
+    public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
-    private PublicSuffixListCache $cache;
-
-    public function __construct(PublicSuffixListClient $client, PublicSuffixListCache $cache)
-    {
-        $this->client = $client;
-        $this->cache = $cache;
-    }
-
-    public function getByUri(string $uri): PublicSuffixList
-    {
-        $publicSuffixList = $this->cache->fetchByUri($uri);
-        if (null !== $publicSuffixList) {
-            return $publicSuffixList;
-        }
-
-        $publicSuffixList = $this->client->getByUri($uri);
-
-        $this->cache->storeByUri($uri, $publicSuffixList);
-
-        return $publicSuffixList;
-    }
+    /**
+     * @throws UnableToLoadPublicSuffixList
+     */
+    public function getByUri(string $uri): PublicSuffixList;
 }

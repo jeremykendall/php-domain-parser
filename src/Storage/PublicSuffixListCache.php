@@ -29,7 +29,7 @@ interface PublicSuffixListCache
      *
      * If a local cache already exists, it will be overwritten.
      *
-     * Returns true if the refresh was successful, false otherwise
+     * Returns true if the action was successful, false otherwise
      */
     public function storeByUri(string $uri, PublicSuffixList $publicSuffixList): bool;
 }

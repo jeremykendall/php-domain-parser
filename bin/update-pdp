@@ -18,12 +18,12 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use Pdp\PublicSuffixListConverter;
 use Pdp\RootZoneDatabaseConverter;
-use Pdp\Storage\PublicSuffixListClient;
-use Pdp\Storage\RootZoneDatabaseClient;
 use Pdp\Storage\PublicSuffixListCachePsr16Adapter;
+use Pdp\Storage\PublicSuffixListRemoteStorage;
+use Pdp\Storage\PublicSuffixListStorage;
 use Pdp\Storage\RootZoneDatabaseCachePsr16Adapter;
-use Pdp\Storage\PublicSuffixListClientPsr18Adapter;
-use Pdp\Storage\RootZoneDatabaseClientPsr18Adapter;
+use Pdp\Storage\RootZoneDatabaseRemoteStorage;
+use Pdp\Storage\RootZoneDatabaseStorage;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\AbstractLogger;
@@ -166,11 +166,11 @@ success("$yellow Starting updating your local cache.$reset");
 $error = 0;
 
 try {
-    $client = new PublicSuffixListClientPsr18Adapter($psrHttpClient, $requestFactory, new PublicSuffixListConverter());
+    $client = new PublicSuffixListRemoteStorage($psrHttpClient, $requestFactory, new PublicSuffixListConverter());
     $storage = new PublicSuffixListCachePsr16Adapter($cache, $ttl, $logger);
 
-    $publicSuffixList = $client->getByUri(PublicSuffixListClient::PSL_URL);
-    if (!$storage->storeByUri(PublicSuffixListClient::PSL_URL, $publicSuffixList)) {
+    $publicSuffixList = $client->getByUri(PublicSuffixListStorage::PSL_URL);
+    if (!$storage->storeByUri(PublicSuffixListStorage::PSL_URL, $publicSuffixList)) {
         throw new RuntimeException('Could not save the Public Suffix List to the `'.$context[KEY_CACHE_DIR].'` cache.');
     }
 } catch (Throwable $exception) {
@@ -180,11 +180,11 @@ try {
 }
 
 try {
-    $client = new RootZoneDatabaseClientPsr18Adapter($psrHttpClient, $requestFactory, new RootZoneDatabaseConverter());
+    $client = new RootZoneDatabaseRemoteStorage($psrHttpClient, $requestFactory, new RootZoneDatabaseConverter());
     $storage = new RootZoneDatabaseCachePsr16Adapter($cache, $ttl, $logger);
 
-    $rootZoneDatabase = $client->getByUri(RootZoneDatabaseClient::RZD_URL);
-    if (!$storage->storeByUri(RootZoneDatabaseClient::RZD_URL, $rootZoneDatabase)) {
+    $rootZoneDatabase = $client->getByUri(RootZoneDatabaseStorage::RZD_URL);
+    if (!$storage->storeByUri(RootZoneDatabaseStorage::RZD_URL, $rootZoneDatabase)) {
         throw new RuntimeException('Could not save the Root Zone Database to the `'.$context[KEY_CACHE_DIR].'` cache.');
     }
 } catch (Throwable $exception) {

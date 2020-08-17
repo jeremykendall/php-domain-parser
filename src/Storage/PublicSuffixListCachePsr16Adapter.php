@@ -17,26 +17,13 @@ namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
 use Pdp\Rules;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
-use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
-final class PublicSuffixListCachePsr16Adapter extends JsonPsr16Cache implements PublicSuffixListCache
+final class PublicSuffixListCachePsr16Adapter extends Psr16JsonCache implements PublicSuffixListCache
 {
-    /**
-     * @param mixed $ttl the time to live for the given cache
-     */
-    public function __construct(CacheInterface $cache, $ttl = null, LoggerInterface $logger = null)
-    {
-        $this->cache = $cache;
-        $this->ttl = $this->setTtl($ttl);
-        $this->logger = $logger ?? new NullLogger();
-    }
-
     public function fetchByUri(string $uri): ?Rules
     {
-        $cacheData = $this->fetchJson($uri);
+        $cacheData = $this->fetch($uri);
         if (null === $cacheData) {
             return null;
         }
@@ -44,7 +31,7 @@ final class PublicSuffixListCachePsr16Adapter extends JsonPsr16Cache implements 
         try {
             $rules = Rules::fromJsonString($cacheData);
         } catch (Throwable $exception) {
-            $this->forgetJson($uri, $exception);
+            $this->forget($uri, $exception);
 
             return null;
         }
@@ -54,6 +41,6 @@ final class PublicSuffixListCachePsr16Adapter extends JsonPsr16Cache implements 
 
     public function storeByUri(string $uri, PublicSuffixList $publicSuffixList): bool
     {
-        return $this->storeJson($uri, $publicSuffixList);
+        return $this->store($uri, $publicSuffixList);
     }
 }

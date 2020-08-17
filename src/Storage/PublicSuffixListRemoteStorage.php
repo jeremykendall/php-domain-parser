@@ -24,7 +24,7 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use function json_encode;
 
-final class PublicSuffixListClientPsr18Adapter implements PublicSuffixListClient
+final class PublicSuffixListRemoteStorage implements PublicSuffixListStorage
 {
     private ClientInterface $client;
 
