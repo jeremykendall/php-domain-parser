@@ -27,7 +27,7 @@ class UnableToLoadPublicSuffixList extends InvalidArgumentException implements E
 
     public static function dueToInvalidJson(int $code, string $message): self
     {
-        return new self($message, $code);
+        return new self('Failed to JSON decode the string: '.$message.'.', $code);
     }
 
     public static function dueToInvalidRule(?string $line, Throwable $exception): self

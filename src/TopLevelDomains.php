@@ -228,8 +228,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function resolve($domain): ResolvedDomainName
     {
         if ($domain instanceof ResolvedDomainName) {
-            $domain = $domain->getDomain();
-            $domain
+            $domain = $domain->getDomain()
                 ->withUnicodeIDNAOption($this->unicodeIDNAOption)
                 ->withAsciiIDNAOption($this->asciiIDNAOption);
         }

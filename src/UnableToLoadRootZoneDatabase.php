@@ -52,7 +52,7 @@ class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements E
 
     public static function dueToInvalidJson(int $code, string $message): self
     {
-        return new self($message, $code);
+        return new self('Failed to JSON decode the string: '.$message.'.', $code);
     }
 
     public static function dueToUnavailableService(string $uri, Throwable $exception): self

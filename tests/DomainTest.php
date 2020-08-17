@@ -30,10 +30,8 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 class DomainTest extends TestCase
 {
     /**
+     * @covers \Pdp\InvalidHost
      * @dataProvider invalidDomainProvider
-     * @covers ::__construct
-     * @covers ::parse
-     * @covers ::idnToAscii
      */
     public function testToAsciiThrowsException(string $domain): void
     {
@@ -51,10 +49,6 @@ class DomainTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::toUnicode
-     * @covers ::idnToUnicode
-     */
     public function testToUnicodeThrowsException(): void
     {
         self::expectException(InvalidHost::class);
@@ -62,13 +56,6 @@ class DomainTest extends TestCase
         (new Domain('xn--a-ecp.ru'))->toUnicode();
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::__set_state
-     * @covers ::__toString
-     * @covers ::jsonSerialize
-     * @covers ::getIterator
-     */
     public function testDomainInternalPhpMethod(): void
     {
         $domain = new Domain('www.ulb.ac.be');
@@ -80,8 +67,6 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::getIterator
-     * @covers ::count
      * @dataProvider countableProvider
      *
      * @param string[] $labels
@@ -104,9 +89,6 @@ class DomainTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::label
-     */
     public function testGetLabel(): void
     {
         $domain = new Domain('master.example.com');
@@ -117,9 +99,6 @@ class DomainTest extends TestCase
         self::assertNull($domain->label(-23));
     }
 
-    /**
-     * @covers ::keys
-     */
     public function testOffsets(): void
     {
         $domain = new Domain('master.com.example.com');
@@ -127,9 +106,6 @@ class DomainTest extends TestCase
         self::assertSame([], $domain->keys('toto'));
     }
 
-    /**
-     * @covers ::labels
-     */
     public function testLabels(): void
     {
         $domain = new Domain('master.com.example.com');
@@ -145,11 +121,6 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::parse
-     * @covers ::getContent
-     * @covers ::idnToUnicode
-     * @covers ::toUnicode
-     * @covers \Pdp\PublicSuffix::toUnicode
      * @dataProvider toUnicodeProvider
      *
      * @param ?string $domain
@@ -211,12 +182,6 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::parse
-     * @covers ::getContent
-     * @covers ::idnToAscii
-     * @covers ::toAscii
-     * @covers \Pdp\PublicSuffix::toAscii
-     *
      * @dataProvider toAsciiProvider
      * @param ?string $domain
      * @param ?string $expectedDomain
@@ -267,8 +232,6 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withLabel
-     * @covers ::normalizeContent
      * @dataProvider withLabelWorksProvider
      *
      * @param ?string $expected
@@ -347,27 +310,18 @@ class DomainTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::withLabel
-     */
     public function testWithLabelFailsWithTypeError(): void
     {
         self::expectException(TypeError::class);
         (new Domain('example.com'))->withLabel(1, null);
     }
 
-    /**
-     * @covers ::withLabel
-     */
     public function testWithLabelFailsWithInvalidKey(): void
     {
         self::expectException(InvalidDomainName::class);
         (new Domain('example.com'))->withLabel(-4, 'www');
     }
 
-    /**
-     * @covers ::withLabel
-     */
     public function testWithLabelFailsWithInvalidLabel2(): void
     {
         self::expectException(InvalidHost::class);
@@ -376,9 +330,6 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::append
-     * @covers ::withLabel
-     *
      * @dataProvider validAppend
      */
     public function testAppend(string $raw, string $append, string $expected): void
@@ -397,9 +348,6 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::prepend
-     * @covers ::withLabel
-     *
      * @dataProvider validPrepend
      */
     public function testPrepend(string $raw, string $prepend, string $expected): void
@@ -417,7 +365,6 @@ class DomainTest extends TestCase
     }
 
     /**
-     * @covers ::withoutLabel
      * @dataProvider withoutLabelWorksProvider
      * @param ?string $expected
      */
@@ -455,26 +402,17 @@ class DomainTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::withoutLabel
-     */
     public function testwithoutLabelFailsWithInvalidKey(): void
     {
         self::expectException(InvalidDomainName::class);
         (new Domain('example.com'))->withoutLabel(-3);
     }
 
-    /**
-     * @covers ::withoutLabel
-     */
     public function testwithoutLabelWorksWithMultipleKeys(): void
     {
         self::assertNull((new Domain('www.example.com'))->withoutLabel(0, 1, 2)->getContent());
     }
 
-    /**
-     * @covers ::__construct
-     */
     public function testConstructWithCustomIDNAOptions(): void
     {
         $domain = new Domain('example.com', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);

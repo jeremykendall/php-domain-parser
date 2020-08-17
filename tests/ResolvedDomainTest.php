@@ -31,14 +31,6 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
  */
 class ResolvedDomainTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::setRegistrableDomain
-     * @covers ::setSubDomain
-     * @covers ::getPublicSuffix
-     * @covers ::getRegistrableDomain
-     * @covers ::getSubDomain
-     */
     public function testRegistrableDomainIsNullWithFoundDomain(): void
     {
         $domain = new ResolvedDomain(new Domain('faketld'));
@@ -48,10 +40,7 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
-     * @covers ::normalize
      * @dataProvider provideWrongConstructor
-     *
      * @param ?string $domain
      */
     public function testConstructorThrowsExceptionOnMisMatchPublicSuffixDomain(?string $domain, string $publicSuffix): void
@@ -83,12 +72,6 @@ class ResolvedDomainTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::__set_state
-     * @covers ::__toString
-     * @covers ::jsonSerialize
-     */
     public function testDomainInternalPhpMethod(): void
     {
         $domain = new ResolvedDomain(new Domain('www.ulb.ac.be'), PublicSuffix::fromICANN('ac.be'));
@@ -99,8 +82,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::normalize
-     * @covers ::count
      * @dataProvider countableProvider
      * @param ?string $domain
      */
@@ -121,13 +102,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::normalize
-     * @covers ::setRegistrableDomain
-     * @covers ::setSubDomain
-     * @covers ::getContent
-     * @covers ::getPublicSuffix
-     * @covers ::toUnicode
-     * @covers \Pdp\PublicSuffix::toUnicode
      * @dataProvider toUnicodeProvider
      * @param ?string $domain
      * @param ?string $publicSuffix
@@ -219,14 +193,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::normalize
-     * @covers ::setRegistrableDomain
-     * @covers ::setSubDomain
-     * @covers ::getContent
-     * @covers ::getPublicSuffix
-     * @covers ::toAscii
-     * @covers \Pdp\PublicSuffix::toAscii
-     *
      * @dataProvider toAsciiProvider
      * @param ?string $domain
      * @param ?string $publicSuffix
@@ -302,8 +268,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::resolve
-     * @covers ::normalize
      * @dataProvider resolvePassProvider
      *
      * @param mixed   $publicSuffix the public suffix to resolve
@@ -359,7 +323,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::resolve
      * @dataProvider resolveFailsProvider
      */
     public function testResolveFails(ResolvedDomain $domain, PublicSuffix $publicSuffix): void
@@ -397,9 +360,6 @@ class ResolvedDomainTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::resolve
-     */
     public function testResolveReturnsInstance(): void
     {
         $publicSuffix = PublicSuffix::fromICANN('ac.be');
@@ -409,7 +369,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::withSubDomain
      * @dataProvider withSubDomainWorksProvider
      *
      * @param mixed   $subdomain the subdomain to add
@@ -455,9 +414,6 @@ class ResolvedDomainTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::withSubDomain
-     */
     public function testWithSubDomainFailsWithNullDomain(): void
     {
         self::expectException(UnableToResolveDomain::class);
@@ -465,9 +421,6 @@ class ResolvedDomainTest extends TestCase
         (new ResolvedDomain(new Domain(null)))->withSubDomain('www');
     }
 
-    /**
-     * @covers ::withSubDomain
-     */
     public function testWithSubDomainFailsWithOneLabelDomain(): void
     {
         self::expectException(UnableToResolveDomain::class);
@@ -475,9 +428,6 @@ class ResolvedDomainTest extends TestCase
         (new ResolvedDomain(new Domain('localhost')))->withSubDomain('www');
     }
 
-    /**
-     * @covers ::withSubDomain
-     */
     public function testWithEmptySubdomain(): void
     {
         self::expectException(InvalidHost::class);
@@ -487,9 +437,6 @@ class ResolvedDomainTest extends TestCase
         $domain->withSubDomain('');
     }
 
-    /**
-     * @covers ::withSubDomain
-     */
     public function testWithSubDomainFailsWithNonStringableObject(): void
     {
         self::expectException(TypeError::class);
@@ -498,9 +445,6 @@ class ResolvedDomainTest extends TestCase
         $domain->withSubDomain(date_create());
     }
 
-    /**
-     * @covers ::withSubDomain
-     */
     public function testWithSubDomainWithoutPublicSuffixInfo(): void
     {
         self::expectException(UnableToResolveDomain::class);
@@ -509,7 +453,6 @@ class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @covers ::withPublicSuffix
      * @dataProvider withPublicSuffixWorksProvider
      *
      * @param mixed   $publicSuffix the public suffix
@@ -608,9 +551,6 @@ class ResolvedDomainTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::withPublicSuffix
-     */
     public function testWithPublicSuffixFailsWithNullDomain(): void
     {
         self::expectException(InvalidHost::class);

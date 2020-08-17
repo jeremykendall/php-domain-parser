@@ -36,10 +36,7 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
  */
 class TopLevelDomainsTest extends TestCase
 {
-    /**
-     * @var TopLevelDomains
-     */
-    protected $topLevelDomains;
+    protected TopLevelDomains $topLevelDomains;
 
     public function setUp(): void
     {
@@ -61,6 +58,7 @@ class TopLevelDomainsTest extends TestCase
         ]);
 
         $topLevelDomains = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt', $context);
+
         self::assertEquals($this->topLevelDomains, $topLevelDomains);
     }
 
@@ -70,6 +68,7 @@ class TopLevelDomainsTest extends TestCase
     public function testCreateFromPathThrowsException(): void
     {
         self::expectException(UnableToLoadRootZoneDatabase::class);
+
         TopLevelDomains::fromPath('/foo/bar.dat');
     }
 
@@ -80,12 +79,14 @@ class TopLevelDomainsTest extends TestCase
     public function testSetState(): void
     {
         $topLevelDomains = eval('return '.var_export($this->topLevelDomains, true).';');
+
         self::assertEquals($this->topLevelDomains, $topLevelDomains);
     }
 
     public function testGetterProperties(): void
     {
         $topLevelDomains = TopLevelDomains::fromPath(__DIR__.'/data/root_zones.dat');
+
         self::assertCount(15, $topLevelDomains);
         self::assertSame('2018082200', $topLevelDomains->getVersion());
         self::assertEquals(
@@ -105,13 +106,7 @@ class TopLevelDomainsTest extends TestCase
         }
     }
 
-    /**
-     * @covers ::getAsciiIDNAOption
-     * @covers ::getUnicodeIDNAOption
-     * @covers ::withAsciiIDNAOption
-     * @covers ::withUnicodeIDNAOption
-     */
-    public function testwithIDNAOptions(): void
+    public function testWithIDNAOptions(): void
     {
         self::assertSame($this->topLevelDomains, $this->topLevelDomains->withAsciiIDNAOption(
             $this->topLevelDomains->getAsciiIDNAOption()
@@ -187,12 +182,14 @@ class TopLevelDomainsTest extends TestCase
     public function testResolveWithUnregisteredTLD(): void
     {
         $collection = TopLevelDomains::fromPath(__DIR__.'/data/root_zones.dat');
+
         self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix()->getContent());
     }
 
     public function testResolveWithIDNAOptions(): void
     {
         $resolved = $this->topLevelDomains->resolve('foo.de');
+
         self::assertSame(
             [IDNA_DEFAULT, IDNA_DEFAULT],
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
@@ -204,7 +201,9 @@ class TopLevelDomainsTest extends TestCase
             IDNA_NONTRANSITIONAL_TO_ASCII,
             IDNA_NONTRANSITIONAL_TO_UNICODE
         );
+
         $resolved = $collection->resolve('foo.de');
+
         self::assertSame(
             [IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE],
             [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]

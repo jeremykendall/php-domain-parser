@@ -29,12 +29,6 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
  */
 class PublicSuffixTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::__set_state
-     * @covers ::__toString
-     * @covers ::jsonSerialize
-     */
     public function testInternalPhpMethod(): void
     {
         $publicSuffix = PublicSuffix::fromICANN('ac.be');
@@ -44,21 +38,12 @@ class PublicSuffixTest extends TestCase
         self::assertSame('ac.be', (string) $publicSuffix);
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::getContent
-     * @covers ::toUnicode
-     */
     public function testPSToUnicodeWithUrlEncode(): void
     {
         self::assertSame('bébe', PublicSuffix::fromUnknown('b%C3%A9be')->toUnicode()->getContent());
     }
 
     /**
-     * @covers ::__construct
-     * @covers ::isKnown
-     * @covers ::isICANN
-     * @covers ::isPrivate
      * @dataProvider PSProvider
      * @param ?string $publicSuffix
      */
@@ -91,7 +76,6 @@ class PublicSuffixTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
      * @dataProvider invalidPublicSuffixProvider
      */
     public function testConstructorThrowsException(string $publicSuffix): void
@@ -109,9 +93,6 @@ class PublicSuffixTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::__construct
-     */
     public function testPSToAsciiThrowsException(): void
     {
         self::expectException(InvalidHost::class);
@@ -119,9 +100,6 @@ class PublicSuffixTest extends TestCase
         PublicSuffix::fromUnknown('a⒈com');
     }
 
-    /**
-     * @covers ::toUnicode
-     */
     public function testToUnicodeThrowsException(): void
     {
         self::expectException(InvalidHost::class);
@@ -130,9 +108,6 @@ class PublicSuffixTest extends TestCase
     }
 
     /**
-     * @covers ::toAscii
-     * @covers ::toUnicode
-     *
      * @dataProvider conversionReturnsTheSameInstanceProvider
      * @param ?string $publicSuffix
      */
@@ -152,9 +127,6 @@ class PublicSuffixTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::toUnicode
-     */
     public function testToUnicodeReturnsSameInstance(): void
     {
         $instance = PublicSuffix::fromUnknown('食狮.公司.cn');
@@ -163,7 +135,6 @@ class PublicSuffixTest extends TestCase
     }
 
     /**
-     * @covers ::count
      * @dataProvider countableProvider
      * @param ?string $domain
      */
@@ -234,13 +205,7 @@ class PublicSuffixTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::getAsciiIDNAOption
-     * @covers ::getUnicodeIDNAOption
-     * @covers ::withAsciiIDNAOption
-     * @covers ::withUnicodeIDNAOption
-     */
-    public function testwithIDNAOptions(): void
+    public function testWithIDNAOptions(): void
     {
         $publicSuffix = PublicSuffix::fromUnknown('com');
 
