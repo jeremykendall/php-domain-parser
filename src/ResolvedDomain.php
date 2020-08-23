@@ -73,19 +73,16 @@ final class ResolvedDomain implements ResolvedDomainName
             return PublicSuffix::fromNull($asciiIDNAOptions, $unicodeIDNAOptions);
         }
 
-        $domainContent = $this->domain->getContent();
-        if (null === $domainContent) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
-        }
-
         if (2 > count($this->domain)) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
-        if ('.' === substr($domainContent, -1, 1)) {
+        if ('.' === substr((string) $this->domain, -1, 1)) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
+        /** @var string $domainContent */
+        $domainContent = $this->domain->getContent();
         $publicSuffix = $this->normalize($publicSuffix);
         /** @var string $psContent */
         $psContent = $publicSuffix->getContent();
