@@ -12,4 +12,6 @@ parameters:
       path: src/ResolvedDomain.php
     - message: '#Method Pdp\\ResolvedDomain::withSubDomain\(\) has parameter \$subDomain with no typehint specified.#'
       path: src/ResolvedDomain.php
+    - message: '#Call to function array_keys\(\) requires parameter \#3 to be set.#'
+      path: src/Domain.php
   reportUnmatchedIgnoredErrors: true

@@ -191,9 +191,14 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->domain->getUnicodeIDNAOption();
     }
 
-    public function getRegistrableDomain(): DomainName
+    public function getRegistrableDomain(): ResolvedDomain
     {
-        return $this->registrableDomain;
+        return new self($this->registrableDomain, $this->publicSuffix);
+    }
+
+    public function getSecondLevelDomain(): ?string
+    {
+        return $this->registrableDomain->label(-1);
     }
 
     public function getSubDomain(): DomainName
@@ -271,15 +276,14 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this);
         }
 
-        if (null === $subDomain) {
-            $subDomain = Domain::fromNull($this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
-        }
-
         if (!$subDomain instanceof DomainName) {
             $subDomain = new Domain($subDomain);
         }
 
-        $subDomain = $subDomain ?? Domain::fromNull($this->getAsciiIDNAOption(), $this->getUnicodeIDNAOption());
+        $subDomain = $subDomain
+            ->withAsciiIDNAOption($this->getAsciiIDNAOption())
+            ->withUnicodeIDNAOption($this->getUnicodeIDNAOption());
+
         if ($this->subDomain == $subDomain) {
             return $this;
         }
@@ -291,13 +295,33 @@ final class ResolvedDomain implements ResolvedDomainName
             $subDomain = $subDomain->toUnicode();
         }
 
-        $domain = new Domain(
+        return new self(new Domain(
             $subDomain.'.'.$this->registrableDomain,
             $this->getAsciiIDNAOption(),
             $this->getUnicodeIDNAOption()
-        );
+        ), $this->publicSuffix);
+    }
 
-        return new self($domain, $this->publicSuffix);
+    public function withSecondLevelDomain($label): self
+    {
+        if (null === $this->registrableDomain->getContent()) {
+            throw UnableToResolveDomain::dueToMissingRegistrableDomain($this);
+        }
+
+        $newRegistrableDomain = $this->registrableDomain->withLabel(-1, $label);
+        if ($newRegistrableDomain == $this->registrableDomain) {
+            return $this;
+        }
+
+        if (null === $this->subDomain->getContent()) {
+            return new self($newRegistrableDomain, $this->publicSuffix);
+        }
+
+        return new self(new Domain(
+            $this->subDomain->getContent().'.'.$newRegistrableDomain->getContent(),
+            $this->getAsciiIDNAOption(),
+            $this->getUnicodeIDNAOption()
+        ), $this->publicSuffix);
     }
 
     /**

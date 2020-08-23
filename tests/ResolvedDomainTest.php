@@ -37,6 +37,7 @@ class ResolvedDomainTest extends TestCase
         self::assertNull($domain->getPublicSuffix()->getContent());
         self::assertNull($domain->getRegistrableDomain()->getContent());
         self::assertNull($domain->getSubDomain()->getContent());
+        self::assertNull($domain->getSecondLevelDomain());
     }
 
     /**
@@ -467,8 +468,12 @@ class ResolvedDomainTest extends TestCase
         bool $isPrivate
     ): void {
         $result = $domain->withPublicSuffix($publicSuffix);
+        $newPublicSuffix = $result->getPublicSuffix();
 
-        self::assertSame($expected, $result->getPublicSuffix()->getContent());
+        self::assertSame($expected, $newPublicSuffix->getContent());
+        self::assertSame($isKnown, $newPublicSuffix->isKnown());
+        self::assertSame($isICANN, $newPublicSuffix->isICANN());
+        self::assertSame($isPrivate, $newPublicSuffix->isPrivate());
     }
 
     public function withPublicSuffixWorksProvider(): iterable
@@ -565,27 +570,24 @@ class ResolvedDomainTest extends TestCase
      * @param ?string $expectedUnicode
      * @param ?string $expectedRegistrable
      * @param ?string $expectedSubDomain
-     * @param ?string $expectedWithLabel
      */
     public function testResolveWorksWithCustomIDNAOptions(
         string $domainName,
         string $publicSuffix,
-        string $withLabel,
         ?string $expectedContent,
         ?string $expectedAscii,
         ?string $expectedUnicode,
         ?string $expectedRegistrable,
-        ?string $expectedSubDomain,
-        ?string $expectedWithLabel
+        ?string $expectedSubDomain
     ): void {
-        $domainHost = new Domain($domainName, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-        $domain = new ResolvedDomain($domainHost, PublicSuffix::fromICANN($publicSuffix));
+        $host = new Domain($domainName, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $resolvedDomain = new ResolvedDomain($host, PublicSuffix::fromICANN($publicSuffix));
 
-        self::assertSame($expectedContent, $domain->getContent());
-        self::assertSame($expectedAscii, $domain->toAscii()->getContent());
-        self::assertSame($expectedUnicode, $domain->toUnicode()->getContent());
-        self::assertSame($expectedRegistrable, $domain->getRegistrableDomain()->getContent());
-        self::assertSame($expectedSubDomain, $domain->getSubDomain()->getContent());
+        self::assertSame($expectedContent, $resolvedDomain->getContent());
+        self::assertSame($expectedAscii, $resolvedDomain->toAscii()->getContent());
+        self::assertSame($expectedUnicode, $resolvedDomain->toUnicode()->getContent());
+        self::assertSame($expectedRegistrable, $resolvedDomain->getRegistrableDomain()->getContent());
+        self::assertSame($expectedSubDomain, $resolvedDomain->getSubDomain()->getContent());
     }
 
     public function resolveCustomIDNAOptionsProvider(): iterable
@@ -594,46 +596,38 @@ class ResolvedDomainTest extends TestCase
             'without deviation characters' => [
                 'example.com',
                 'com',
-                'größe',
                 'example.com',
                 'example.com',
                 'example.com',
                 'example.com',
                  null,
-                'xn--gre-6ka8i.com',
             ],
             'without deviation characters with label' => [
                 'www.example.com',
                 'com',
-                'größe',
                 'www.example.com',
                 'www.example.com',
                 'www.example.com',
                 'example.com',
                 'www',
-                'xn--gre-6ka8i.example.com',
             ],
             'with deviation in domain' => [
                 'www.faß.de',
                 'de',
-                'größe',
                 'www.faß.de',
                 'www.xn--fa-hia.de',
                 'www.faß.de',
                 'faß.de',
                 'www',
-                'größe.faß.de',
             ],
             'with deviation in label' => [
                 'faß.test.de',
                 'de',
-                'größe',
                 'faß.test.de',
                 'xn--fa-hia.test.de',
                 'faß.test.de',
                 'test.de',
                 'faß',
-                'größe.test.de',
             ],
         ];
     }
@@ -675,5 +669,56 @@ class ResolvedDomainTest extends TestCase
             [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
             [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
         );
+    }
+
+    /**
+     * @dataProvider withSldWorksProvider
+     * @param ?string $host
+     * @param ?string $publicSuffix
+     * @param ?string $sld
+     * @param ?string $expectedSld
+     * @param ?string $expectedHost
+     */
+    public function testWithSecondLevelDomain(
+        ?string $host,
+        ?string $publicSuffix,
+        ?string $sld,
+        ?string $expectedSld,
+        ?string $expectedHost
+    ): void {
+        $domain = new ResolvedDomain(new Domain($host), PublicSuffix::fromICANN($publicSuffix));
+        $newDomain = $domain->withSecondLevelDomain($sld);
+
+        self::assertSame($expectedSld, $newDomain->getSecondLevelDomain());
+        self::assertEquals($expectedHost, $newDomain->getContent());
+        self::assertEquals($domain->getPublicSuffix(), $newDomain->getPublicSuffix());
+        self::assertEquals($domain->getSubDomain(), $newDomain->getSubDomain());
+    }
+
+    public function withSldWorksProvider(): iterable
+    {
+        return [
+            [
+                'host' => 'example.com',
+                'publicSuffix' => 'com',
+                'sld' => 'www',
+                'expectedSld' => 'www',
+                'expectedHost' => 'www.com',
+            ],
+            [
+                'host' => 'www.example.com',
+                'publicSuffix' => 'com',
+                'sld' => 'www',
+                'expectedSld' => 'www',
+                'expectedHost' => 'www.www.com',
+            ],
+            [
+                'host' => 'www.bbc.co.uk',
+                'publicSuffix' => 'co.uk',
+                'sld' => 'hamburger',
+                'expectedSld' => 'hamburger',
+                'expectedHost' => 'www.hamburger.co.uk',
+            ],
+        ];
     }
 }
