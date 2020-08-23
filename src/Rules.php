@@ -162,9 +162,9 @@ final class Rules implements PublicSuffixList
      */
     public function getCookieDomain($host): ResolvedDomainName
     {
-        $host = $this->validateDomain($host);
+        $domain = $this->validateDomain($host);
 
-        return $host->resolve($this->findPublicSuffix($host, ''));
+        return new ResolvedDomain($domain, $this->findPublicSuffix($domain, ''));
     }
 
     /**
@@ -172,9 +172,9 @@ final class Rules implements PublicSuffixList
      */
     public function getICANNDomain($host): ResolvedDomainName
     {
-        $host = $this->validateDomain($host);
+        $domain = $this->validateDomain($host);
 
-        return $host->resolve($this->findPublicSuffix($host, EffectiveTLD::ICANN_DOMAINS));
+        return new ResolvedDomain($domain, $this->findPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS));
     }
 
     /**
@@ -182,9 +182,9 @@ final class Rules implements PublicSuffixList
      */
     public function getPrivateDomain($host): ResolvedDomainName
     {
-        $host = $this->validateDomain($host);
+        $domain = $this->validateDomain($host);
 
-        return $host->resolve($this->findPublicSuffix($host, PublicSuffix::PRIVATE_DOMAINS));
+        return new ResolvedDomain($domain, $this->findPublicSuffix($domain, PublicSuffix::PRIVATE_DOMAINS));
     }
 
     /**
@@ -192,36 +192,31 @@ final class Rules implements PublicSuffixList
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    private function validateDomain($domain): ResolvedDomainName
+    private function validateDomain($domain): DomainName
     {
-        if (!($domain instanceof ResolvedDomainName)) {
-            $domain = new ResolvedDomain(new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption));
+        if ($domain instanceof ExternalDomainName) {
+            $domain = $domain->getDomain();
         }
 
-        $domainContent = $domain->getContent();
-        if (2 > count($domain)) {
+        if (!($domain instanceof DomainName)) {
+            $domain = new Domain($domain);
+        }
+
+        if ((2 > count($domain)) || ('.' === substr((string) $domain, -1, 1))) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
-        if (null === $domainContent) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
-        }
-
-        if ('.' === substr($domainContent, -1, 1)) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
-        }
-
-        return $domain;
+        return $domain
+            ->withAsciiIDNAOption($this->asciiIDNAOption)
+            ->withUnicodeIDNAOption($this->unicodeIDNAOption);
     }
 
     /**
      * Returns the matched public suffix.
      */
-    private function findPublicSuffix(ResolvedDomainName $domain, string $section): PublicSuffix
+    private function findPublicSuffix(DomainName $domain, string $section): PublicSuffix
     {
-        $asciiDomain = $domain->getDomain();
-        /** @var DomainName $asciiDomain */
-        $asciiDomain = $asciiDomain->toAscii();
+        $asciiDomain = $domain->toAscii();
         $icann = $this->findPublicSuffixFromSection($asciiDomain, EffectiveTLD::ICANN_DOMAINS);
         if (EffectiveTLD::ICANN_DOMAINS === $section) {
             return $icann;

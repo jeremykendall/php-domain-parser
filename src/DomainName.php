@@ -49,11 +49,9 @@ interface DomainName extends Host, IteratorAggregate
      * If a value is specified only the keys associated with
      * the given value will be returned
      *
-     * @param string $label the total number of argument given to the method
-     *
      * @return array<int>
      */
-    public function keys(string $label): array;
+    public function keys(string $label = null): array;
 
     /**
      * {@inheritdoc}

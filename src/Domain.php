@@ -27,7 +27,6 @@ use function in_array;
 use function ksort;
 use function preg_match;
 use function sprintf;
-use function strpos;
 use const IDNA_DEFAULT;
 
 final class Domain extends DomainNameParser implements DomainName
@@ -112,9 +111,11 @@ final class Domain extends DomainNameParser implements DomainName
         return $this->labels[$key] ?? null;
     }
 
-    public function keys(string $label): array
+    public function keys(string $label = null): array
     {
-        return array_keys($this->labels, $label, true);
+        $args = (null !== $label) ? [$label, true] : [];
+
+        return array_keys($this->labels, ...$args);
     }
 
     public function labels(): array
@@ -148,15 +149,16 @@ final class Domain extends DomainNameParser implements DomainName
 
     public function toUnicode(): self
     {
-        if (null === $this->domain || false === strpos($this->domain, 'xn--')) {
+        if (null === $this->domain) {
             return $this;
         }
 
-        return new self(
-            $this->idnToUnicode($this->domain, $this->unicodeIDNAOption),
-            $this->asciiIDNAOption,
-            $this->unicodeIDNAOption
-        );
+        $domain = $this->idnToUnicode($this->domain, $this->unicodeIDNAOption);
+        if ($domain === $this->domain) {
+            return $this;
+        }
+
+        return new self($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
     /**

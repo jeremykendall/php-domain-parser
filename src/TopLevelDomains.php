@@ -227,41 +227,30 @@ final class TopLevelDomains implements RootZoneDatabase
      */
     public function resolve($domain): ResolvedDomainName
     {
-        if ($domain instanceof ResolvedDomainName) {
-            $domain = $domain->getDomain()
-                ->withUnicodeIDNAOption($this->unicodeIDNAOption)
-                ->withAsciiIDNAOption($this->asciiIDNAOption);
+        if ($domain instanceof ExternalDomainName) {
+            $domain = $domain->getDomain();
         }
 
         if (!$domain instanceof DomainName) {
-            $domain = new Domain($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            $domain = new Domain($domain);
         }
 
-        $domainContent = $domain->getContent();
-        if (null === $domainContent) {
+        if ((2 > count($domain)) || ('.' === substr((string) $domain, -1, 1))) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
-        if (2 > count($domain)) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
-        }
+        $domain = $domain
+            ->withAsciiIDNAOption($this->asciiIDNAOption)
+            ->withUnicodeIDNAOption($this->unicodeIDNAOption);
 
-        if ('.' === substr($domainContent, -1, 1)) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
-        }
-
-        $asciiDomain = $domain->toAscii();
-
-        $publicSuffix = null;
-        $label = $asciiDomain->label(0);
+        $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
             if ($tld->getContent() === $label) {
-                $publicSuffix = $tld;
-                break;
+                return new ResolvedDomain($domain, PublicSuffix::fromUnknown($tld));
             }
         }
 
-        return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
+        return new ResolvedDomain($domain, PublicSuffix::fromNull($this->asciiIDNAOption, $this->unicodeIDNAOption));
     }
 
     public function withAsciiIDNAOption(int $option): RootZoneDatabase
