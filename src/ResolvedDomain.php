@@ -81,16 +81,13 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
-        /** @var string $domainContent */
-        $domainContent = $this->domain->getContent();
         $publicSuffix = $this->normalize($publicSuffix);
-        /** @var string $psContent */
-        $psContent = $publicSuffix->getContent();
-        if ($domainContent === $psContent) {
-            throw new UnableToResolveDomain(sprintf('The public suffix `%s` can not be equal to the domain name `%s`', $psContent, $this->domain));
+        if ($this->domain->getContent() === $publicSuffix->getContent()) {
+            throw new UnableToResolveDomain(sprintf('The public suffix and the domain name are is identical `%s`.', $this->domain));
         }
 
-        if ('.'.$psContent !== substr($domainContent, - strlen($psContent) - 1)) {
+        $psContent = (string) $publicSuffix;
+        if ('.'.$psContent !== substr((string) $this->domain, - strlen($psContent) - 1)) {
             throw new UnableToResolveDomain(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
         }
 
