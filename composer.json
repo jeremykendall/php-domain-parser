@@ -23,6 +23,12 @@
             "homepage": "https://github.com/jeremykendall/php-domain-parser/graphs/contributors"
         }
     ],
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/nyamsprod"
+        }
+    ],
     "bin": [
         "bin/update-psl"
     ],

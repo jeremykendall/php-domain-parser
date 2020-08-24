@@ -2,7 +2,7 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
-## 5.7.1 - 2020-08-04
+## 5.7.1 - 2020-08-24
 
 ### Added
 
