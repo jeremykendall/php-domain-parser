@@ -40,7 +40,7 @@ final class RootZoneDatabaseRemoteStorageTest extends TestCase
             public function sendRequest(RequestInterface $request): ResponseInterface
             {
                 /** @var string $body */
-                $body = file_get_contents(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt');
+                $body = file_get_contents(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
 
                 return new Response(200, [], $body);
             }

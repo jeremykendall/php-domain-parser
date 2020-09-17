@@ -30,7 +30,7 @@ final class PublicSuffixListLocalStorageTest extends TestCase
         $cache = new class() implements PublicSuffixListCache {
             public function fetchByUri(string $uri): ?PublicSuffixList
             {
-                return Rules::fromPath(dirname(__DIR__).'/data/public_suffix_list.dat');
+                return Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
             }
 
             public function storeByUri(string $uri, PublicSuffixList $publicSuffixList): bool
@@ -42,7 +42,7 @@ final class PublicSuffixListLocalStorageTest extends TestCase
         $client = new class() implements PublicSuffixListStorage {
             public function getByUri(string $uri): PublicSuffixList
             {
-                return Rules::fromPath(dirname(__DIR__).'/data/public_suffix_list.dat');
+                return Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
             }
         };
 
@@ -69,7 +69,7 @@ final class PublicSuffixListLocalStorageTest extends TestCase
         $client = new class() implements PublicSuffixListStorage {
             public function getByUri(string $uri): PublicSuffixList
             {
-                return Rules::fromPath(dirname(__DIR__).'/data/public_suffix_list.dat');
+                return Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
             }
         };
 

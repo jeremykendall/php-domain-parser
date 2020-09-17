@@ -26,6 +26,7 @@ use Pdp\UnableToLoadRootZoneDatabase;
 use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use function dirname;
 use function file_get_contents;
 use const IDNA_DEFAULT;
 use const IDNA_NONTRANSITIONAL_TO_ASCII;
@@ -40,7 +41,7 @@ class TopLevelDomainsTest extends TestCase
 
     public function setUp(): void
     {
-        $this->topLevelDomains = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt');
+        $this->topLevelDomains = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/tlds-alpha-by-domain.txt');
     }
 
     /**
@@ -57,7 +58,7 @@ class TopLevelDomainsTest extends TestCase
             ],
         ]);
 
-        $topLevelDomains = TopLevelDomains::fromPath(__DIR__.'/data/tlds-alpha-by-domain.txt', $context);
+        $topLevelDomains = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/tlds-alpha-by-domain.txt', $context);
 
         self::assertEquals($this->topLevelDomains, $topLevelDomains);
     }
@@ -85,7 +86,7 @@ class TopLevelDomainsTest extends TestCase
 
     public function testGetterProperties(): void
     {
-        $topLevelDomains = TopLevelDomains::fromPath(__DIR__.'/data/root_zones.dat');
+        $topLevelDomains = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
 
         self::assertCount(15, $topLevelDomains);
         self::assertSame('2018082200', $topLevelDomains->getVersion());
@@ -97,7 +98,7 @@ class TopLevelDomainsTest extends TestCase
 
         $converter = new RootZoneDatabaseConverter();
         /** @var string $content */
-        $content = file_get_contents(__DIR__.'/data/root_zones.dat');
+        $content = file_get_contents(dirname(__DIR__).'/test_data/root_zones.dat');
         $data = $converter->convert($content);
         self::assertEquals($data, $topLevelDomains->jsonSerialize());
 
@@ -181,7 +182,7 @@ class TopLevelDomainsTest extends TestCase
 
     public function testResolveWithUnregisteredTLD(): void
     {
-        $collection = TopLevelDomains::fromPath(__DIR__.'/data/root_zones.dat');
+        $collection = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
 
         self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix()->getContent());
     }
@@ -196,7 +197,7 @@ class TopLevelDomainsTest extends TestCase
         );
 
         $collection = TopLevelDomains::fromPath(
-            __DIR__.'/data/root_zones.dat',
+            dirname(__DIR__).'/test_data/root_zones.dat',
             null,
             IDNA_NONTRANSITIONAL_TO_ASCII,
             IDNA_NONTRANSITIONAL_TO_UNICODE

@@ -30,7 +30,7 @@ final class RootZoneDatabaseLocalStorageTest extends TestCase
         $cache = new class() implements RootZoneDatabaseCache {
             public function fetchByUri(string $uri): ?RootZoneDatabase
             {
-                return TopLevelDomains::fromPath(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt');
+                return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
 
             public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool
@@ -42,7 +42,7 @@ final class RootZoneDatabaseLocalStorageTest extends TestCase
         $client = new class() implements RootZoneDatabaseStorage {
             public function getByUri(string $uri): RootZoneDatabase
             {
-                return TopLevelDomains::fromPath(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt');
+                return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
         };
 
@@ -68,7 +68,7 @@ final class RootZoneDatabaseLocalStorageTest extends TestCase
         $client = new class() implements RootZoneDatabaseStorage {
             public function getByUri(string $uri): RootZoneDatabase
             {
-                return TopLevelDomains::fromPath(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt');
+                return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
         };
 

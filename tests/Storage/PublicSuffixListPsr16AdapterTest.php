@@ -85,7 +85,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
         $cache = new class() implements CacheInterface {
             public function get($key, $default = null)
             {
-                return json_encode(Rules::fromPath(dirname(__DIR__).'/data/public_suffix_list.dat'));
+                return json_encode(Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat'));
             }
 
             public function set($key, $value, $ttl = null)
@@ -126,7 +126,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
         $pslCache = new PublicSuffixListCachePsr16Adapter($cache, 86400);
 
         self::assertEquals(
-            Rules::fromPath(dirname(__DIR__).'/data/public_suffix_list.dat'),
+            Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat'),
             $pslCache->fetchByUri('http://www.example.com')
         );
     }
@@ -426,7 +426,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
             }
         };
 
-        $psl = Rules::fromPath(dirname(__DIR__).'/data/public_suffix_list.dat');
+        $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
         $pslCache = new PublicSuffixListCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
 
         self::assertTrue($pslCache->storeByUri('http://www.example.com', $psl));
@@ -495,7 +495,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
             }
         };
 
-        $psl = Rules::fromPath(dirname(__DIR__).'/data/public_suffix_list.dat');
+        $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
         $pslCache = new PublicSuffixListCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
 
         self::assertFalse($pslCache->storeByUri('http://www.example.com', $psl));
@@ -566,7 +566,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
             }
         };
 
-        $psl = Rules::fromPath(dirname(__DIR__).'/data/public_suffix_list.dat');
+        $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
         $pslCache = new PublicSuffixListCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
 
         self::assertFalse($pslCache->storeByUri('http://www.example.com', $psl));

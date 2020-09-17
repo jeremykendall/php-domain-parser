@@ -85,7 +85,7 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
         $cache = new class() implements CacheInterface {
             public function get($key, $default = null)
             {
-                return json_encode(TopLevelDomains::fromPath(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt'));
+                return json_encode(TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt'));
             }
 
             public function set($key, $value, $ttl = null)
@@ -126,7 +126,7 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
         $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, 86400);
 
         self::assertEquals(
-            TopLevelDomains::fromPath(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt'),
+            TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt'),
             $pslCache->fetchByUri('http://www.example.com')
         );
     }
@@ -426,7 +426,7 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
             }
         };
 
-        $rzd = TopLevelDomains::fromPath(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt');
+        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
         $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
 
         self::assertTrue($pslCache->storeByUri('http://www.example.com', $rzd));
@@ -495,7 +495,7 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
             }
         };
 
-        $rzd = TopLevelDomains::fromPath(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt');
+        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
         $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
 
         self::assertFalse($pslCache->storeByUri('http://www.example.com', $rzd));
@@ -566,7 +566,7 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
             }
         };
 
-        $rzd = TopLevelDomains::fromPath(dirname(__DIR__).'/data/tlds-alpha-by-domain.txt');
+        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
         $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
 
         self::assertFalse($pslCache->storeByUri('http://www.example.com', $rzd));

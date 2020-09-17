@@ -18,6 +18,7 @@ namespace Pdp\Tests;
 use Pdp\PublicSuffixListConverter;
 use Pdp\UnableToLoadPublicSuffixList;
 use PHPUnit\Framework\TestCase;
+use function dirname;
 
 /**
  * @coversDefaultClass \Pdp\PublicSuffixListConverter
@@ -27,7 +28,7 @@ class PublicSuffixListConverterTest extends TestCase
     public function testConverter(): void
     {
         /** @var string $string */
-        $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+        $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
         $retval = (new PublicSuffixListConverter())->convert($string);
 
         self::assertNotEmpty($retval['ICANN_DOMAINS']);
@@ -37,7 +38,7 @@ class PublicSuffixListConverterTest extends TestCase
     public function testConvertThrowsExceptionWithInvalidContent(): void
     {
         /** @var string $content */
-        $content = file_get_contents(__DIR__.'/data/invalid_suffix_list_content.dat');
+        $content = file_get_contents(dirname(__DIR__).'/test_data/invalid_suffix_list_content.dat');
 
         self::expectException(UnableToLoadPublicSuffixList::class);
 

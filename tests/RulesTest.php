@@ -26,6 +26,7 @@ use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function array_fill;
+use function dirname;
 use function file_get_contents;
 use function implode;
 use const IDNA_DEFAULT;
@@ -45,7 +46,7 @@ final class RulesTest extends TestCase
     public function setUp(): void
     {
         /** @var string $string */
-        $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+        $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
 
         $this->rules = Rules::fromString($string);
     }
@@ -53,7 +54,7 @@ final class RulesTest extends TestCase
     public function testCreateFromPath(): void
     {
         /** @var string $string */
-        $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+        $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
         $rulesFromString = Rules::fromString($string);
 
         $context = stream_context_create([
@@ -62,7 +63,7 @@ final class RulesTest extends TestCase
                 'header' => "Accept-language: en\r\nCookie: foo=bar\r\n",
             ],
         ]);
-        $rulesFromPath = Rules::fromPath(__DIR__.'/data/public_suffix_list.dat', $context);
+        $rulesFromPath = Rules::fromPath(dirname(__DIR__).'/test_data/public_suffix_list.dat', $context);
 
         self::assertEquals($rulesFromString, $rulesFromPath);
     }
@@ -591,7 +592,7 @@ final class RulesTest extends TestCase
         );
 
         /** @var string $string */
-        $string = file_get_contents(__DIR__.'/data/public_suffix_list.dat');
+        $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
         $rules = Rules::fromString($string, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         $resolved = $rules->resolve('foo.de');
 

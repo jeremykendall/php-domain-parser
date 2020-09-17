@@ -18,6 +18,7 @@ namespace Pdp\Tests;
 use Pdp\RootZoneDatabaseConverter;
 use Pdp\UnableToLoadRootZoneDatabase;
 use PHPUnit\Framework\TestCase;
+use function dirname;
 
 /**
  * @coversDefaultClass \Pdp\RootZoneDatabaseConverter
@@ -27,7 +28,7 @@ class RootZoneDatabaseConverterTest extends TestCase
     public function testConverter(): void
     {
         /** @var string $string */
-        $string = file_get_contents(__DIR__.'/data/root_zones.dat');
+        $string = file_get_contents(dirname(__DIR__).'/test_data/root_zones.dat');
         $res = (new RootZoneDatabaseConverter())->convert($string);
         self::assertArrayHasKey('version', $res);
         self::assertArrayHasKey('modifiedDate', $res);

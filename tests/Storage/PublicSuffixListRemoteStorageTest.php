@@ -40,7 +40,7 @@ final class PublicSuffixListRemoteStorageTest extends TestCase
             public function sendRequest(RequestInterface $request): ResponseInterface
             {
                 /** @var string $body */
-                $body = file_get_contents(dirname(__DIR__).'/data/public_suffix_list.dat');
+                $body = file_get_contents(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
                 return new Response(200, [], $body);
             }
         };
