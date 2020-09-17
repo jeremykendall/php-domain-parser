@@ -16,18 +16,21 @@
     <include>
       <directory suffix=".php">src</directory>
     </include>
+    <exclude>
+      <directory suffix="Test.php">src</directory>
+    </exclude>
     <report>
       <clover outputFile="build/clover.xml"/>
       <html outputDirectory="build/coverage"/>
-      <text outputFile="build/coverage.txt"/>
+      <xml outputDirectory="build/coverage-xml"/>
     </report>
   </coverage>
   <testsuites>
-    <testsuite name="PHP Domain Parser Test Suite">
-      <directory>tests</directory>
+    <testsuite name="Dire Roller Test Suite">
+      <directory suffix="Test.php">src</directory>
     </testsuite>
   </testsuites>
   <logging>
-    <junit outputFile="build/report.junit.xml"/>
+    <junit outputFile="build/junit.xml"/>
   </logging>
 </phpunit>

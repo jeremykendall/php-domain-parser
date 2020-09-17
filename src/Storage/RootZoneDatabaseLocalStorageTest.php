@@ -13,12 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests\Storage;
+namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabase;
-use Pdp\Storage\RootZoneDatabaseCache;
-use Pdp\Storage\RootZoneDatabaseLocalStorage;
-use Pdp\Storage\RootZoneDatabaseStorage;
 use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use function dirname;

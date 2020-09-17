@@ -13,10 +13,8 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests;
+namespace Pdp;
 
-use Pdp\RootZoneDatabaseConverter;
-use Pdp\UnableToLoadRootZoneDatabase;
 use PHPUnit\Framework\TestCase;
 use function dirname;
 

@@ -13,11 +13,8 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests;
+namespace Pdp;
 
-use Pdp\Domain;
-use Pdp\InvalidDomainName;
-use Pdp\InvalidHost;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use const IDNA_DEFAULT;

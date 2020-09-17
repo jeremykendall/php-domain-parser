@@ -13,12 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests;
+namespace Pdp;
 
 use InvalidArgumentException;
-use Pdp\InvalidDomainName;
-use Pdp\InvalidHost;
-use Pdp\PublicSuffix;
 use PHPUnit\Framework\TestCase;
 use function json_encode;
 use const IDNA_NONTRANSITIONAL_TO_ASCII;

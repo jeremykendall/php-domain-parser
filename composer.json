@@ -67,19 +67,9 @@
             "Pdp\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Pdp\\Tests\\": "tests/"
-        }
-    },
     "scripts": {
         "phpcs": "php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi",
-        "phpstan-src": "phpstan analyse -l max -c phpstan.src.neon src --ansi",
-        "phpstan-tests": "phpstan analyse -l max -c phpstan.tests.neon tests --ansi",
-        "phpstan": [
-            "@phpstan-src",
-            "@phpstan-tests"
-        ],
+        "phpstan": "phpstan analyse -l max -c phpstan.neon src --ansi",
         "phpunit": "phpunit --coverage-text",
         "test": [
             "@phpcs",
@@ -90,8 +80,6 @@
     "scripts-descriptions": {
         "phpcs": "Runs coding style test suite",
         "phpstan": "Runs complete codebase static analysis",
-        "phpstan-src": "Runs PHP stan on the source code",
-        "phpstan-test": "Runs PHP stan on the test suite",
         "phpunit": "Runs unit and functional testing",
         "test": "Runs the complete test suite"
     },

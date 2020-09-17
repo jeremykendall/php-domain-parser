@@ -13,10 +13,9 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests\Storage;
+namespace Pdp\Storage;
 
 use InvalidArgumentException;
-use Pdp\Storage\RootZoneDatabaseCachePsr16Adapter;
 use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;

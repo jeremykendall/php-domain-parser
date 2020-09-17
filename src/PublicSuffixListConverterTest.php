@@ -13,10 +13,8 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests;
+namespace Pdp;
 
-use Pdp\PublicSuffixListConverter;
-use Pdp\UnableToLoadPublicSuffixList;
 use PHPUnit\Framework\TestCase;
 use function dirname;
 

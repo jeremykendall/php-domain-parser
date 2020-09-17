@@ -13,11 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests\Storage;
+namespace Pdp\Storage;
 
 use InvalidArgumentException;
 use Pdp\Rules;
-use Pdp\Storage\PublicSuffixListCachePsr16Adapter;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
 use Psr\SimpleCache\CacheException;

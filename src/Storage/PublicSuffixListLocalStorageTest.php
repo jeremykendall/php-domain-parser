@@ -13,13 +13,10 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests\Storage;
+namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
 use Pdp\Rules;
-use Pdp\Storage\PublicSuffixListCache;
-use Pdp\Storage\PublicSuffixListLocalStorage;
-use Pdp\Storage\PublicSuffixListStorage;
 use PHPUnit\Framework\TestCase;
 use function dirname;
 

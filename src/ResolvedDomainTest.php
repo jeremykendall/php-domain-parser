@@ -13,13 +13,8 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Tests;
+namespace Pdp;
 
-use Pdp\Domain;
-use Pdp\InvalidHost;
-use Pdp\PublicSuffix;
-use Pdp\ResolvedDomain;
-use Pdp\UnableToResolveDomain;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function date_create;
