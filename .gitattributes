@@ -5,9 +5,9 @@
 /.github             export-ignore
 /.gitignore          export-ignore
 /.php_cs             export-ignore
-/.phpstan.src.neon   export-ignore
-/.phpstan.tests.neon export-ignore
+/.phpstan.neon       export-ignore
 /.travis.yml         export-ignore
 /README.md           export-ignore
 /phpunit.xml.dist    export-ignore
-/tests               export-ignore
+/CHANGELOG.md        export-ignore
+/**/*Test.php        export-ignore
