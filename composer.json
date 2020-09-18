@@ -24,7 +24,7 @@
         }
     ],
     "bin": [
-        "bin/update-psl"
+        "bin/update-pdp"
     ],
     "keywords": [
         "Public Suffix List",
@@ -85,7 +85,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.x-dev"
+            "dev-master": "6.x-dev"
         }
     },
     "config": {
