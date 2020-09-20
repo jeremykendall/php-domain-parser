@@ -73,25 +73,6 @@ final class RulesTest extends TestCase
         self::assertEquals($this->rules, $generateRules);
     }
 
-    public function testWithIDNAOptions(): void
-    {
-        self::assertSame($this->rules, $this->rules->withAsciiIDNAOption(
-            $this->rules->getAsciiIDNAOption()
-        ));
-
-        self::assertNotEquals($this->rules, $this->rules->withAsciiIDNAOption(
-            IDNA_NONTRANSITIONAL_TO_ASCII
-        ));
-
-        self::assertSame($this->rules, $this->rules->withUnicodeIDNAOption(
-            $this->rules->getUnicodeIDNAOption()
-        ));
-
-        self::assertNotEquals($this->rules, $this->rules->withUnicodeIDNAOption(
-            IDNA_NONTRANSITIONAL_TO_UNICODE
-        ));
-    }
-
     public function testNullWillReturnNullDomain(): void
     {
         $domain = $this->rules->resolve('COM');
@@ -585,13 +566,11 @@ final class RulesTest extends TestCase
 
         /** @var string $string */
         $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
-        $rules = Rules::fromString($string, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-        $resolved = $rules->resolve('foo.de');
+        $rules = Rules::fromString($string);
+        $resolved = $rules->resolve('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
 
-        self::assertSame(
-            [$rules->getAsciiIDNAOption(), $rules->getUnicodeIDNAOption()],
-            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
-        );
+        self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getAsciiIDNAOption());
+        self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getUnicodeIDNAOption());
     }
 
     /**

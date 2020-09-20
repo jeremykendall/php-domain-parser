@@ -100,25 +100,6 @@ class TopLevelDomainsTest extends TestCase
         }
     }
 
-    public function testWithIDNAOptions(): void
-    {
-        self::assertSame($this->topLevelDomains, $this->topLevelDomains->withAsciiIDNAOption(
-            $this->topLevelDomains->getAsciiIDNAOption()
-        ));
-
-        self::assertNotEquals($this->topLevelDomains, $this->topLevelDomains->withAsciiIDNAOption(
-            128
-        ));
-
-        self::assertSame($this->topLevelDomains, $this->topLevelDomains->withUnicodeIDNAOption(
-            $this->topLevelDomains->getUnicodeIDNAOption()
-        ));
-
-        self::assertNotEquals($this->topLevelDomains, $this->topLevelDomains->withUnicodeIDNAOption(
-            128
-        ));
-    }
-
     /**
      * @dataProvider validDomainProvider
      *
@@ -191,17 +172,13 @@ class TopLevelDomainsTest extends TestCase
 
         $collection = TopLevelDomains::fromPath(
             dirname(__DIR__).'/test_data/root_zones.dat',
-            null,
-            IDNA_NONTRANSITIONAL_TO_ASCII,
-            IDNA_NONTRANSITIONAL_TO_UNICODE
+            null
         );
 
-        $resolved = $collection->resolve('foo.de');
+        $resolved = $collection->resolve('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
 
-        self::assertSame(
-            [IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE],
-            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
-        );
+        self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getAsciiIDNAOption());
+        self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getUnicodeIDNAOption());
     }
 
     /**

@@ -19,8 +19,9 @@ use Countable;
 use DateTimeImmutable;
 use IteratorAggregate;
 use JsonSerializable;
+use const IDNA_DEFAULT;
 
-interface RootZoneDatabase extends Countable, IteratorAggregate, IDNConversion, JsonSerializable
+interface RootZoneDatabase extends Countable, IteratorAggregate, JsonSerializable
 {
     /**
      * Returns the Version ID.
@@ -55,10 +56,10 @@ interface RootZoneDatabase extends Countable, IteratorAggregate, IDNConversion, 
     /**
      * Tells whether the submitted TLD is a valid Top Level Domain.
      */
-    public function contains(Host $tld): bool;
+    public function contains(Host $tld, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): bool;
 
     /**
      * Returns a domain where its public suffix is the found TLD.
      */
-    public function resolve(Host $domain): ResolvedDomainName;
+    public function resolve(Host $domain, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): ResolvedDomainName;
 }

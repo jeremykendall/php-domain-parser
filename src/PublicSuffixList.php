@@ -16,8 +16,9 @@ declare(strict_types=1);
 namespace Pdp;
 
 use JsonSerializable;
+use const IDNA_DEFAULT;
 
-interface PublicSuffixList extends IDNConversion, JsonSerializable
+interface PublicSuffixList extends JsonSerializable
 {
     /**
      * Returns an array representation of the Public Suffix List Rules JSON serializable.
@@ -30,7 +31,7 @@ interface PublicSuffixList extends IDNConversion, JsonSerializable
      * If the effective TLD can not be resolved it returns a ResolvedDomainName with a null public suffix
      * If the host is not a valid domaine it returns a ResolvedDomainName with a null Domain name
      */
-    public function resolve(Host $host): ResolvedDomainName;
+    public function resolve(Host $host, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
@@ -38,7 +39,7 @@ interface PublicSuffixList extends IDNConversion, JsonSerializable
      * @throws InvalidDomainName     if the domain is invalid
      * @throws UnableToResolveDomain if the domain or the TLD are not resolvable of not resolved
      */
-    public function getCookieDomain(Host $host): ResolvedDomainName;
+    public function getCookieDomain(Host $host, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
@@ -46,7 +47,7 @@ interface PublicSuffixList extends IDNConversion, JsonSerializable
      * @throws InvalidDomainName     if the domain is invalid
      * @throws UnableToResolveDomain if the domain or the TLD are not resolvable of not resolved
      */
-    public function getICANNDomain(Host $host): ResolvedDomainName;
+    public function getICANNDomain(Host $host, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for private domain detection.
@@ -54,5 +55,5 @@ interface PublicSuffixList extends IDNConversion, JsonSerializable
      * @throws InvalidDomainName     if the domain is invalid
      * @throws UnableToResolveDomain if the domain or the TLD are not resolvable of not resolved
      */
-    public function getPrivateDomain(Host $host): ResolvedDomainName;
+    public function getPrivateDomain(Host $host, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): ResolvedDomainName;
 }
