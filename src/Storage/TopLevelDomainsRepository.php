@@ -17,15 +17,15 @@ namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabase;
 
-final class RootZoneDatabaseLocalStorage implements RootZoneDatabaseStorage
+final class TopLevelDomainsRepository implements RootZoneDatabaseRepository
 {
-    private RootZoneDatabaseStorage $client;
+    private RootZoneDatabaseRepository $repository;
 
     private RootZoneDatabaseCache $cache;
 
-    public function __construct(RootZoneDatabaseCache $cache, RootZoneDatabaseStorage $client)
+    public function __construct(RootZoneDatabaseRepository $repository, RootZoneDatabaseCache $cache)
     {
-        $this->client = $client;
+        $this->repository = $repository;
         $this->cache = $cache;
     }
 
@@ -36,7 +36,7 @@ final class RootZoneDatabaseLocalStorage implements RootZoneDatabaseStorage
             return $rootZoneDatabase;
         }
 
-        $rootZoneDatabase = $this->client->getByUri($uri);
+        $rootZoneDatabase = $this->repository->getByUri($uri);
 
         $this->cache->storeByUri($uri, $rootZoneDatabase);
 

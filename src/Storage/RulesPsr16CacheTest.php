@@ -27,9 +27,9 @@ use function dirname;
 use function json_encode;
 
 /**
- * @coversDefaultClass \Pdp\Storage\PublicSuffixListCachePsr16Adapter
+ * @coversDefaultClass \Pdp\Storage\RulesPsr16Cache
  */
-final class PublicSuffixListPsr16AdapterTest extends TestCase
+final class RulesPsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
@@ -74,7 +74,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
             }
         };
 
-        $pslCache = new PublicSuffixListCachePsr16Adapter($cache, '1 DAY');
+        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, '1 DAY'));
 
         self::assertNull($pslCache->fetchByUri('http://www.example.com'));
     }
@@ -122,7 +122,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
             }
         };
 
-        $pslCache = new PublicSuffixListCachePsr16Adapter($cache, 86400);
+        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 86400));
 
         self::assertEquals(
             Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat'),
@@ -192,7 +192,8 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
             }
         };
 
-        $pslCache = new PublicSuffixListCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
+        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 86400, $logger));
+
         self::assertNull($pslCache->fetchByUri('http://www.example.com'));
         self::assertSame('Failed to JSON decode the string: Syntax error.', $logger->logs()[0]);
     }
@@ -259,7 +260,8 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
             }
         };
 
-        $pslCache = new PublicSuffixListCachePsr16Adapter($cache, new \DateTimeImmutable('+1 DAY'), $logger);
+        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, new \DateTimeImmutable('+1 DAY'), $logger));
+
         self::assertNull($pslCache->fetchByUri('http://www.example.com'));
         self::assertSame(
             'The public suffix list data are missing one of the required ICANN or PRIVATE domain section.',
@@ -312,7 +314,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
 
         self::expectException(TypeError::class);
 
-        new PublicSuffixListCachePsr16Adapter($cache, []);
+        new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, []));
     }
 
     public function testItThrowsOnConstructionIfTheTTLStringCanNotBeParsed(): void
@@ -360,7 +362,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
 
         self::expectException(InvalidArgumentException::class);
 
-        new PublicSuffixListCachePsr16Adapter($cache, 'foobar');
+        new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'foobar'));
     }
 
     public function testItCanStoreAPublicSuffixListInstance(): void
@@ -426,7 +428,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new PublicSuffixListCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
+        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, new \DateInterval('P1D'), $logger));
 
         self::assertTrue($pslCache->storeByUri('http://www.example.com', $psl));
         self::assertSame('The content associated with URI: `http://www.example.com` was stored.', $logger->logs()[0]);
@@ -495,7 +497,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new PublicSuffixListCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
+        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, new \DateInterval('P1D'), $logger));
 
         self::assertFalse($pslCache->storeByUri('http://www.example.com', $psl));
         self::assertSame('The content associated with URI: `http://www.example.com` could not be stored.', $logger->logs()[0]);
@@ -566,7 +568,7 @@ final class PublicSuffixListPsr16AdapterTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new PublicSuffixListCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
+        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, new \DateInterval('P1D'), $logger));
 
         self::assertFalse($pslCache->storeByUri('http://www.example.com', $psl));
         self::assertSame('The content associated with URI: `http://www.example.com` could not be cached: Something went wrong.', $logger->logs()[0]);

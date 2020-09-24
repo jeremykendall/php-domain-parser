@@ -18,7 +18,7 @@ namespace Pdp\Storage;
 use Pdp\RootZoneDatabase;
 use Pdp\UnableToLoadRootZoneDatabase;
 
-interface RootZoneDatabaseStorage
+interface RootZoneDatabaseRepository
 {
     public const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 

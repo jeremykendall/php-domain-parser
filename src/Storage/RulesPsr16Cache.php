@@ -15,32 +15,39 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\RootZoneDatabase;
-use Pdp\TopLevelDomains;
+use Pdp\PublicSuffixList;
+use Pdp\Rules;
 use Throwable;
 
-final class RootZoneDatabaseCachePsr16Adapter extends Psr16JsonCache implements RootZoneDatabaseCache
+final class RulesPsr16Cache implements PublicSuffixListCache
 {
-    public function fetchByUri(string $uri): ?RootZoneDatabase
+    private JsonSerializablePsr16Cache $cache;
+
+    public function __construct(JsonSerializablePsr16Cache $cache)
     {
-        $cacheData = $this->fetch($uri);
+        $this->cache = $cache;
+    }
+
+    public function fetchByUri(string $uri): ?Rules
+    {
+        $cacheData = $this->cache->fetch($uri);
         if (null === $cacheData) {
             return null;
         }
 
         try {
-            $topLevelDomains = TopLevelDomains::fromJsonString($cacheData);
+            $rules = Rules::fromJsonString($cacheData);
         } catch (Throwable $exception) {
-            $this->forget($uri, $exception);
+            $this->cache->forget($uri, $exception);
 
             return null;
         }
 
-        return $topLevelDomains;
+        return $rules;
     }
 
-    public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool
+    public function storeByUri(string $uri, PublicSuffixList $publicSuffixList): bool
     {
-        return $this->store($uri, $topLevelDomains);
+        return $this->cache->store($uri, $publicSuffixList);
     }
 }

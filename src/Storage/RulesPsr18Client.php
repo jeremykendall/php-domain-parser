@@ -15,14 +15,14 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\RootZoneDatabase;
-use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadRootZoneDatabase;
+use Pdp\PublicSuffixList;
+use Pdp\Rules;
+use Pdp\UnableToLoadPublicSuffixList;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 
-final class RootZoneDatabaseRemoteStorage implements RootZoneDatabaseStorage
+final class RulesPsr18Client implements PublicSuffixListRepository
 {
     private ClientInterface $client;
 
@@ -34,19 +34,19 @@ final class RootZoneDatabaseRemoteStorage implements RootZoneDatabaseStorage
         $this->requestFactory = $requestFactory;
     }
 
-    public function getByUri(string $uri): RootZoneDatabase
+    public function getByUri(string $uri): PublicSuffixList
     {
         $request = $this->requestFactory->createRequest('GET', $uri);
         try {
             $response = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $exception) {
-            throw UnableToLoadRootZoneDatabase::dueToUnavailableService($uri, $exception);
+            throw UnableToLoadPublicSuffixList::dueToUnavailableService($uri, $exception);
         }
 
         if (400 <= $response->getStatusCode()) {
-            throw UnableToLoadRootZoneDatabase::dueToUnexpectedContent($uri, $response->getStatusCode());
+            throw UnableToLoadPublicSuffixList::dueToUnexpectedContent($uri, $response->getStatusCode());
         }
 
-        return TopLevelDomains::fromString($response->getBody());
+        return Rules::fromString($response->getBody());
     }
 }

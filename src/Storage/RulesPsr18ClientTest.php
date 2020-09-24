@@ -29,9 +29,9 @@ use function dirname;
 use function file_get_contents;
 
 /**
- * @coversDefaultClass \Pdp\Storage\PublicSuffixListRemoteStorage
+ * @coversDefaultClass \Pdp\Storage\RulesPsr18Client
  */
-final class PublicSuffixListRemoteStorageTest extends TestCase
+final class RulesPsr18ClientTest extends TestCase
 {
     public function testIsCanReturnAPublicSuffixListInstance(): void
     {
@@ -51,7 +51,7 @@ final class PublicSuffixListRemoteStorageTest extends TestCase
             }
         };
 
-        $storage = new PublicSuffixListRemoteStorage($client, $requestFactory);
+        $storage = new RulesPsr18Client($client, $requestFactory);
         $psl = $storage->getByUri('http://www.example.com');
 
         self::assertInstanceOf(Rules::class, $psl);
@@ -76,7 +76,7 @@ final class PublicSuffixListRemoteStorageTest extends TestCase
         self::expectException(UnableToLoadPublicSuffixList::class);
         self::expectExceptionMessage('Could not access the Public Suffix List URI: `http://www.example.com`.');
 
-        $storage = new PublicSuffixListRemoteStorage($client, $requestFactory);
+        $storage = new RulesPsr18Client($client, $requestFactory);
         $storage->getByUri('http://www.example.com');
     }
 
@@ -100,7 +100,7 @@ final class PublicSuffixListRemoteStorageTest extends TestCase
         self::expectExceptionMessage('Invalid response from Public Suffix List URI: `http://www.example.com`.');
         self::expectExceptionCode(404);
 
-        $storage = new PublicSuffixListRemoteStorage($client, $requestFactory);
+        $storage = new RulesPsr18Client($client, $requestFactory);
         $storage->getByUri('http://www.example.com');
     }
 }

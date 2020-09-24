@@ -18,7 +18,7 @@ namespace Pdp\Storage;
 use Pdp\PublicSuffixList;
 use Pdp\UnableToLoadPublicSuffixList;
 
-interface PublicSuffixListStorage
+interface PublicSuffixListRepository
 {
     public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
 

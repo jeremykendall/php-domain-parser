@@ -20,7 +20,10 @@ use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use function dirname;
 
-final class RootZoneDatabaseLocalStorageTest extends TestCase
+/**
+ * @coversDefaultClass \Pdp\Storage\TopLevelDomainsRepository
+ */
+final class TopLevelDomainsRepositoryTest extends TestCase
 {
     public function testIsCanReturnARootZoneDatabaseInstanceFromCache(): void
     {
@@ -36,14 +39,14 @@ final class RootZoneDatabaseLocalStorageTest extends TestCase
             }
         };
 
-        $client = new class() implements RootZoneDatabaseStorage {
+        $client = new class() implements RootZoneDatabaseRepository {
             public function getByUri(string $uri): RootZoneDatabase
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
         };
 
-        $storage = new RootZoneDatabaseLocalStorage($cache, $client);
+        $storage = new TopLevelDomainsRepository($client, $cache);
 
         self::assertInstanceOf(TopLevelDomains::class, $storage->getByUri('http://www.example.com'));
     }
@@ -62,14 +65,14 @@ final class RootZoneDatabaseLocalStorageTest extends TestCase
             }
         };
 
-        $client = new class() implements RootZoneDatabaseStorage {
+        $client = new class() implements RootZoneDatabaseRepository {
             public function getByUri(string $uri): RootZoneDatabase
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
         };
 
-        $storage = new RootZoneDatabaseLocalStorage($cache, $client);
+        $storage = new TopLevelDomainsRepository($client, $cache);
 
         self::assertInstanceOf(TopLevelDomains::class, $storage->getByUri('http://www.example.com'));
     }

@@ -29,9 +29,9 @@ use function dirname;
 use function file_get_contents;
 
 /**
- * @coversDefaultClass \Pdp\Storage\RootZoneDatabaseRemoteStorage
+ * @coversDefaultClass \Pdp\Storage\TopLevelDomainsPsr18Client
  */
-final class RootZoneDatabaseRemoteStorageTest extends TestCase
+final class TopLevelDomainsPsr18ClientTest extends TestCase
 {
     public function testIsCanReturnARootZoneDatabaseInstance(): void
     {
@@ -52,7 +52,7 @@ final class RootZoneDatabaseRemoteStorageTest extends TestCase
             }
         };
 
-        $storage = new RootZoneDatabaseRemoteStorage($client, $requestFactory);
+        $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
         $rzd = $storage->getByUri('http://www.example.com');
 
         self::assertInstanceOf(TopLevelDomains::class, $rzd);
@@ -77,7 +77,7 @@ final class RootZoneDatabaseRemoteStorageTest extends TestCase
         self::expectException(UnableToLoadRootZoneDatabase::class);
         self::expectExceptionMessage('Could not access the Root Zone Database URI: `http://www.example.com`.');
 
-        $storage = new RootZoneDatabaseRemoteStorage($client, $requestFactory);
+        $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
         $storage->getByUri('http://www.example.com');
     }
 
@@ -101,7 +101,7 @@ final class RootZoneDatabaseRemoteStorageTest extends TestCase
         self::expectExceptionMessage('Invalid response from Root Zone Database URI: `http://www.example.com`.');
         self::expectExceptionCode(404);
 
-        $storage = new RootZoneDatabaseRemoteStorage($client, $requestFactory);
+        $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
         $storage->getByUri('http://www.example.com');
     }
 }

@@ -20,7 +20,10 @@ use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use function dirname;
 
-final class PublicSuffixListLocalStorageTest extends TestCase
+/**
+ * @coversDefaultClass \Pdp\Storage\RulesRepository
+ */
+final class RulesRepositoryTest extends TestCase
 {
     public function testIsCanReturnAPublicSuffixListInstanceFromCache(): void
     {
@@ -36,14 +39,14 @@ final class PublicSuffixListLocalStorageTest extends TestCase
             }
         };
 
-        $client = new class() implements PublicSuffixListStorage {
+        $client = new class() implements PublicSuffixListRepository {
             public function getByUri(string $uri): PublicSuffixList
             {
                 return Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
             }
         };
 
-        $storage = new PublicSuffixListLocalStorage($cache, $client);
+        $storage = new RulesRepository($client, $cache);
         $psl = $storage->getByUri('http://www.example.com');
 
         self::assertInstanceOf(Rules::class, $psl);
@@ -63,14 +66,14 @@ final class PublicSuffixListLocalStorageTest extends TestCase
             }
         };
 
-        $client = new class() implements PublicSuffixListStorage {
+        $client = new class() implements PublicSuffixListRepository {
             public function getByUri(string $uri): PublicSuffixList
             {
                 return Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
             }
         };
 
-        $storage = new PublicSuffixListLocalStorage($cache, $client);
+        $storage = new RulesRepository($client, $cache);
         $psl = $storage->getByUri('http://www.example.com');
 
         self::assertInstanceOf(Rules::class, $psl);

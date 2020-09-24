@@ -17,15 +17,15 @@ namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
 
-final class PublicSuffixListLocalStorage implements PublicSuffixListStorage
+final class RulesRepository implements PublicSuffixListRepository
 {
-    private PublicSuffixListStorage $client;
+    private PublicSuffixListRepository $repository;
 
     private PublicSuffixListCache $cache;
 
-    public function __construct(PublicSuffixListCache $cache, PublicSuffixListStorage $client)
+    public function __construct(PublicSuffixListRepository $repository, PublicSuffixListCache $cache)
     {
-        $this->client = $client;
+        $this->repository = $repository;
         $this->cache = $cache;
     }
 
@@ -36,7 +36,7 @@ final class PublicSuffixListLocalStorage implements PublicSuffixListStorage
             return $publicSuffixList;
         }
 
-        $publicSuffixList = $this->client->getByUri($uri);
+        $publicSuffixList = $this->repository->getByUri($uri);
 
         $this->cache->storeByUri($uri, $publicSuffixList);
 

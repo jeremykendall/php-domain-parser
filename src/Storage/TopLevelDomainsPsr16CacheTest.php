@@ -27,9 +27,9 @@ use function dirname;
 use function json_encode;
 
 /**
- * @coversDefaultClass \Pdp\Storage\RootZoneDatabaseCachePsr16Adapter
+ * @coversDefaultClass \Pdp\Storage\TopLevelDomainsPsr16Cache
  */
-final class RootZoneDatabasePsr16AdapterTest extends TestCase
+final class TopLevelDomainsPsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
@@ -74,9 +74,9 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
             }
         };
 
-        $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, '1 DAY');
+        $cache = new TopLevelDomainsPsr16Cache(new JsonSerializablePsr16Cache($cache, '1 DAY'));
 
-        self::assertNull($pslCache->fetchByUri('http://www.example.com'));
+        self::assertNull($cache->fetchByUri('http://www.example.com'));
     }
 
     public function testItReturnsAnInstanceIfTheCorrectCacheExists(): void
@@ -122,11 +122,11 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
             }
         };
 
-        $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, 86400);
+        $cache = new TopLevelDomainsPsr16Cache(new JsonSerializablePsr16Cache($cache, 86400));
 
         self::assertEquals(
             TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt'),
-            $pslCache->fetchByUri('http://www.example.com')
+            $cache->fetchByUri('http://www.example.com')
         );
     }
 
@@ -192,8 +192,9 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
             }
         };
 
-        $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
-        self::assertNull($pslCache->fetchByUri('http://www.example.com'));
+        $cache = new TopLevelDomainsPsr16Cache(new JsonSerializablePsr16Cache($cache, 86400, $logger));
+
+        self::assertNull($cache->fetchByUri('http://www.example.com'));
         self::assertSame('Failed to JSON decode the string: Syntax error.', $logger->logs()[0]);
     }
 
@@ -259,8 +260,8 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
             }
         };
 
-        $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, new \DateTimeImmutable('+1 DAY'), $logger);
-        self::assertNull($pslCache->fetchByUri('http://www.example.com'));
+        $cache = new TopLevelDomainsPsr16Cache(new JsonSerializablePsr16Cache($cache, 86400, $logger));
+        self::assertNull($cache->fetchByUri('http://www.example.com'));
         self::assertSame(
             'The decoded hashmap structure is missing at least one of the required properties: `records`, `version` and/or `modifiedDate`.',
             $logger->logs()[0]
@@ -312,7 +313,7 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
 
         self::expectException(TypeError::class);
 
-        new RootZoneDatabaseCachePsr16Adapter($cache, []);
+        new JsonSerializablePsr16Cache($cache, []);
     }
 
     public function testItThrowsOnConstructionIfTheTTLStringCanNotBeParsed(): void
@@ -360,7 +361,7 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
 
         self::expectException(InvalidArgumentException::class);
 
-        new RootZoneDatabaseCachePsr16Adapter($cache, 'foobar');
+        new JsonSerializablePsr16Cache($cache, 'foobar');
     }
 
     public function testItCanStoreAPublicSuffixListInstance(): void
@@ -426,9 +427,9 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
         };
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
+        $cache = new TopLevelDomainsPsr16Cache(new JsonSerializablePsr16Cache($cache, new \DateInterval('P1D'), $logger));
 
-        self::assertTrue($pslCache->storeByUri('http://www.example.com', $rzd));
+        self::assertTrue($cache->storeByUri('http://www.example.com', $rzd));
         self::assertSame('The content associated with URI: `http://www.example.com` was stored.', $logger->logs()[0]);
     }
 
@@ -495,9 +496,9 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
         };
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
+        $cache = new TopLevelDomainsPsr16Cache(new JsonSerializablePsr16Cache($cache, new \DateInterval('P1D'), $logger));
 
-        self::assertFalse($pslCache->storeByUri('http://www.example.com', $rzd));
+        self::assertFalse($cache->storeByUri('http://www.example.com', $rzd));
         self::assertSame('The content associated with URI: `http://www.example.com` could not be stored.', $logger->logs()[0]);
     }
 
@@ -566,9 +567,9 @@ final class RootZoneDatabasePsr16AdapterTest extends TestCase
         };
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $pslCache = new RootZoneDatabaseCachePsr16Adapter($cache, new \DateInterval('P1D'), $logger);
+        $cache = new TopLevelDomainsPsr16Cache(new JsonSerializablePsr16Cache($cache, new \DateInterval('P1D'), $logger));
 
-        self::assertFalse($pslCache->storeByUri('http://www.example.com', $rzd));
+        self::assertFalse($cache->storeByUri('http://www.example.com', $rzd));
         self::assertSame('The content associated with URI: `http://www.example.com` could not be cached: Something went wrong.', $logger->logs()[0]);
     }
 }

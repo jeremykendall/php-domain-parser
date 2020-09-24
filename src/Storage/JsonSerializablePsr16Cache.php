@@ -36,7 +36,7 @@ use function sprintf;
 use function strtolower;
 use const FILTER_VALIDATE_INT;
 
-abstract class Psr16JsonCache
+final class JsonSerializablePsr16Cache
 {
     protected const CACHE_PREFIX = 'pdp_';
 
@@ -96,7 +96,7 @@ abstract class Psr16JsonCache
         return $date;
     }
 
-    final protected function store(string $uri, JsonSerializable $object): bool
+    public function store(string $uri, JsonSerializable $object): bool
     {
         try {
             $result = $this->cache->set($this->cacheKey($uri), json_encode($object), $this->ttl);
@@ -127,12 +127,12 @@ abstract class Psr16JsonCache
         return self::CACHE_PREFIX.md5(strtolower($str));
     }
 
-    final protected function fetch(string $uri): ?string
+    public function fetch(string $uri): ?string
     {
         return $this->cache->get($this->cacheKey($uri));
     }
 
-    final protected function forget(string $uri, Throwable $exception = null): bool
+    public function forget(string $uri, Throwable $exception = null): bool
     {
         $result = $this->cache->delete($this->cacheKey($uri));
         if (null !== $exception) {

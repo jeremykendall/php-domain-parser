@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
-use Pdp\Storage\PublicSuffixListCachePsr16Adapter;
-use Pdp\Storage\PublicSuffixListRemoteStorage;
-use Pdp\Storage\PublicSuffixListStorage;
-use Pdp\Storage\RootZoneDatabaseCachePsr16Adapter;
-use Pdp\Storage\RootZoneDatabaseRemoteStorage;
-use Pdp\Storage\RootZoneDatabaseStorage;
+use Pdp\Storage\RulesPsr16Cache;
+use Pdp\Storage\RulesPsr18Client;
+use Pdp\Storage\PublicSuffixListRepository;
+use Pdp\Storage\TopLevelDomainsPsr16Cache;
+use Pdp\Storage\TopLevelDomainsPsr18Client;
+use Pdp\Storage\RootZoneDatabaseRepository;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\AbstractLogger;
@@ -104,7 +104,7 @@ $logger = new class extends AbstractLogger {
 $cyan = chr(27)."[36m";
 $green = chr(27)."[32m";
 $reset = chr(27)."[0m";
-$redbg = chr(27)."[41m";
+$redBg = chr(27)."[41m";
 $yellow = chr(27)."[33m";
 
 $arguments = getopt('h::', [
@@ -154,7 +154,7 @@ try {
     if (null !== $logger) {
         $logger->error('Local cache initialisation failed with {exception}', ['exception' => $exception->getMessage()]);
     }
-    fail("$redbg The script failed on initialisation.$reset");
+    fail("$redBg The script failed on initialisation.$reset");
 
     die(1);
 }
@@ -163,32 +163,32 @@ success("$yellow Starting updating your local cache.$reset");
 $error = 0;
 
 try {
-    $client = new PublicSuffixListRemoteStorage($httpClient, $requestFactory);
-    $storage = new PublicSuffixListCachePsr16Adapter($cache, $ttl, $logger);
+    $rulesClient = new RulesPsr18Client($httpClient, $requestFactory);
+    $rulesCache = new RulesPsr16Cache($cache, $ttl, $logger);
 
-    $publicSuffixList = $client->getByUri(PublicSuffixListStorage::PSL_URL);
+    $rules = $rulesClient->getByUri(PublicSuffixListRepository::PSL_URL);
 
-    if (!$storage->storeByUri(PublicSuffixListStorage::PSL_URL, $publicSuffixList)) {
+    if (!$rulesCache->storeByUri(PublicSuffixListRepository::PSL_URL, $rules)) {
         throw new RuntimeException('Could not save the Public Suffix List to the `'.$context[KEY_CACHE_DIR].'` cache.');
     }
 } catch (Throwable $exception) {
     $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
-    fail("$redbg The command failed to update the public suffix list local cache. $reset");
+    fail("$redBg The command failed to update the public suffix list local cache. $reset");
     ++$error;
 }
 
 try {
-    $client = new RootZoneDatabaseRemoteStorage($httpClient, $requestFactory);
-    $storage = new RootZoneDatabaseCachePsr16Adapter($cache, $ttl, $logger);
+    $topLevelDomainClient = new TopLevelDomainsPsr18Client($httpClient, $requestFactory);
+    $topLevelDomainCache = new TopLevelDomainsPsr16Cache($cache, $ttl, $logger);
 
-    $rootZoneDatabase = $client->getByUri(RootZoneDatabaseStorage::RZD_URL);
+    $topLevelDomains = $topLevelDomainClient->getByUri(RootZoneDatabaseRepository::RZD_URL);
 
-    if (!$storage->storeByUri(RootZoneDatabaseStorage::RZD_URL, $rootZoneDatabase)) {
+    if (!$topLevelDomainCache->storeByUri(RootZoneDatabaseRepository::RZD_URL, $topLevelDomains)) {
         throw new RuntimeException('Could not save the Root Zone Database to the `'.$context[KEY_CACHE_DIR].'` cache.');
     }
 } catch (Throwable $exception) {
     $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
-    fail("$redbg The command failed to update the root zone database local cache. $reset");
+    fail("$redBg The command failed to update the root zone database local cache. $reset");
     ++$error;
 }
 
@@ -198,5 +198,5 @@ if (0 === $error) {
     die(0);
 }
 
-fail("$redbg The command failed to update the root zone database local cache. $reset");
+fail("$redBg The command failed to update the root zone database local cache. $reset");
 die(1);
