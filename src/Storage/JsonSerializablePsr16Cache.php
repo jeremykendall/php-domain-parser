@@ -38,19 +38,20 @@ use const FILTER_VALIDATE_INT;
 
 final class JsonSerializablePsr16Cache
 {
-    protected const CACHE_PREFIX = 'pdp_';
+    private string $keyPrefix;
 
-    protected CacheInterface $cache;
+    private CacheInterface $cache;
 
-    protected LoggerInterface $logger;
+    private LoggerInterface $logger;
 
-    protected ?DateInterval $ttl;
+    private ?DateInterval $ttl;
 
     /**
      * @param mixed $ttl the time to live for the given cache
      */
-    public function __construct(CacheInterface $cache, $ttl = null, LoggerInterface $logger = null)
+    public function __construct(string $keyPrefix, CacheInterface $cache, $ttl = null, LoggerInterface $logger = null)
     {
+        $this->keyPrefix = $keyPrefix;
         $this->cache = $cache;
         $this->ttl = $this->setTtl($ttl);
         $this->logger = $logger ?? new NullLogger();
@@ -63,7 +64,7 @@ final class JsonSerializablePsr16Cache
      *
      * @throws TypeError if the value type is not recognized
      */
-    final protected function setTtl($ttl): ?DateInterval
+    private function setTtl($ttl): ?DateInterval
     {
         if ($ttl instanceof DateInterval || null === $ttl) {
             return $ttl;
@@ -96,22 +97,22 @@ final class JsonSerializablePsr16Cache
         return $date;
     }
 
-    public function store(string $uri, JsonSerializable $object): bool
+    public function store(string $key, JsonSerializable $object): bool
     {
         try {
-            $result = $this->cache->set($this->cacheKey($uri), json_encode($object), $this->ttl);
+            $result = $this->cache->set($this->cacheKey($key), json_encode($object), $this->ttl);
         } catch (Throwable $exception) {
             $this->logger->info(
-                'The content associated with URI: `'.$uri.'` could not be cached: '.$exception->getMessage(),
+                'The content associated with: `'.$key.'` could not be cached: '.$exception->getMessage(),
                 ['exception' => $exception]
             );
 
             return false;
         }
 
-        $message = 'The content associated with URI: `'.$uri.'` was stored.';
+        $message = 'The content associated with: `'.$key.'` was stored.';
         if (!$result) {
-            $message = 'The content associated with URI: `'.$uri.'` could not be stored.';
+            $message = 'The content associated with: `'.$key.'` could not be stored.';
         }
 
         $this->logger->info($message);
@@ -124,17 +125,17 @@ final class JsonSerializablePsr16Cache
      */
     private function cacheKey(string $str): string
     {
-        return self::CACHE_PREFIX.md5(strtolower($str));
+        return $this->keyPrefix.md5(strtolower($str));
     }
 
-    public function fetch(string $uri): ?string
+    public function fetch(string $key): ?string
     {
-        return $this->cache->get($this->cacheKey($uri));
+        return $this->cache->get($this->cacheKey($key));
     }
 
-    public function forget(string $uri, Throwable $exception = null): bool
+    public function forget(string $key, Throwable $exception = null): bool
     {
-        $result = $this->cache->delete($this->cacheKey($uri));
+        $result = $this->cache->delete($this->cacheKey($key));
         if (null !== $exception) {
             $this->logger->warning($exception->getMessage());
         }
