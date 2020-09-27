@@ -136,8 +136,9 @@ final class Rules implements PublicSuffixList
     public function getCookieDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
+        $publicSuffix = $this->getPublicSuffix($domain, '');
 
-        return new ResolvedDomain($domain, $this->findPublicSuffix($domain, ''));
+        return new ResolvedDomain($domain, $publicSuffix);
     }
 
     /**
@@ -146,8 +147,9 @@ final class Rules implements PublicSuffixList
     public function getICANNDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
+        $publicSuffix = $this->getPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS);
 
-        return new ResolvedDomain($domain, $this->findPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS));
+        return new ResolvedDomain($domain, $publicSuffix);
     }
 
     /**
@@ -156,8 +158,9 @@ final class Rules implements PublicSuffixList
     public function getPrivateDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
+        $publicSuffix = $this->getPublicSuffix($domain, EffectiveTLD::PRIVATE_DOMAINS);
 
-        return new ResolvedDomain($domain, $this->findPublicSuffix($domain, PublicSuffix::PRIVATE_DOMAINS));
+        return new ResolvedDomain($domain, $publicSuffix);
     }
 
     /**
@@ -185,33 +188,29 @@ final class Rules implements PublicSuffixList
     /**
      * Returns the matched public suffix.
      */
-    private function findPublicSuffix(DomainName $domain, string $section): PublicSuffix
+    private function getPublicSuffix(DomainName $domain, string $section): EffectiveTLD
     {
-        $icann = $this->findPublicSuffixFromSection($domain, EffectiveTLD::ICANN_DOMAINS);
+        $icann = $this->getPublicSuffixFromSection($domain, EffectiveTLD::ICANN_DOMAINS);
         if (EffectiveTLD::ICANN_DOMAINS === $section) {
             return $icann;
         }
 
-        $private = $this->findPublicSuffixFromSection($domain, EffectiveTLD::PRIVATE_DOMAINS, );
+        $private = $this->getPublicSuffixFromSection($domain, EffectiveTLD::PRIVATE_DOMAINS);
         if (count($private) > count($icann)) {
             return $private;
         }
 
-        if (EffectiveTLD::PRIVATE_DOMAINS !== $section) {
+        if ('' === $section) {
             return $icann;
         }
 
-        return PublicSuffix::fromUnknown(
-            $domain->toAscii()->label(0),
-            $domain->getAsciiIDNAOption(),
-            $domain->getUnicodeIDNAOption()
-        );
+        return PublicSuffix::fromUnknown($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
     }
 
     /**
      * Returns the public suffix matched against a given PSL section.
      */
-    private function findPublicSuffixFromSection(DomainName $domain, string $section): PublicSuffix
+    private function getPublicSuffixFromSection(DomainName $domain, string $section): EffectiveTLD
     {
         $rules = $this->rules[$section] ?? [];
         $matches = [];

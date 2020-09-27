@@ -28,6 +28,7 @@ class RootZoneDatabaseConverterTest extends TestCase
         /** @var string $string */
         $string = file_get_contents(dirname(__DIR__).'/test_data/root_zones.dat');
         $res = (new RootZoneDatabaseConverter())->convert($string);
+
         self::assertArrayHasKey('version', $res);
         self::assertArrayHasKey('modifiedDate', $res);
         self::assertArrayHasKey('records', $res);
@@ -40,12 +41,13 @@ class RootZoneDatabaseConverterTest extends TestCase
     public function testConverterThrowsException(string $content): void
     {
         self::expectException(UnableToLoadRootZoneDatabase::class);
+
         (new RootZoneDatabaseConverter())->convert($content);
     }
 
     public function invalidContentProvider(): iterable
     {
-        $double_header = <<<EOF
+        $doubleHeader = <<<EOF
 # Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
 FOO
 BAR
@@ -56,13 +58,13 @@ ABBOTT
 ABBVIE
 EOF;
 
-        $invalid_header = <<<EOF
+        $invalidHeader = <<<EOF
 # Version 2018082200
 FOO
 BAR
 EOF;
 
-        $header_no_first_line = <<<EOF
+        $headerNoFirstLine = <<<EOF
 FOO
 BAR
 # Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
@@ -72,21 +74,21 @@ ABBOTT
 ABBVIE
 EOF;
 
-        $invalid_tld_content = <<<EOF
+        $invalidTldContent = <<<EOF
 # Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
 FOO
 BAR
 %ef%bc%85%ef%bc%94%ef%bc%91
 EOF;
 
-        $invalid_tld_content_not_root_zone = <<<EOF
+        $invalidTldContentNotRootZone = <<<EOF
 # Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
 FOO
 BAR
 GITHUB.COM
 EOF;
 
-        $invalid_tld_content_empty_tld = <<<EOF
+        $invalidTldContentEmptyTld = <<<EOF
 # Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
 FOO
 
@@ -94,13 +96,13 @@ GITHUB.COM
 EOF;
 
         return [
-            'double header' => [$double_header],
-            'invalid header' => [$invalid_header],
+            'double header' => [$doubleHeader],
+            'invalid header' => [$invalidHeader],
             'empty content' => [''],
-            'header not on the first line' => [$header_no_first_line],
-            'invalid tld content' => [$invalid_tld_content],
-            'invalid root zone' => [$invalid_tld_content_not_root_zone],
-            'empty tld' => [$invalid_tld_content_empty_tld],
+            'header not on the first line' => [$headerNoFirstLine],
+            'invalid tld content' => [$invalidTldContent],
+            'invalid root zone' => [$invalidTldContentNotRootZone],
+            'empty tld' => [$invalidTldContentEmptyTld],
         ];
     }
 }

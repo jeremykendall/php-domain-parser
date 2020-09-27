@@ -198,7 +198,7 @@ final class TopLevelDomains implements RootZoneDatabase
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
             if ($tld->getContent() === $label) {
-                return new ResolvedDomain($domain, PublicSuffix::fromUnknown($tld));
+                return new ResolvedDomain($domain, PublicSuffix::fromUnknown($tld, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
             }
         }
 

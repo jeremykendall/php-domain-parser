@@ -171,7 +171,7 @@ abstract class DomainNameParser
      *
      * @return array<string>
      */
-    final protected function parse($domain = null, int $asciiOption = 0, int $unicodeOption = 0): array
+    final protected function parse($domain = null, int $asciiOption = IDNA_DEFAULT, int $unicodeOption = IDNA_DEFAULT): array
     {
         if ($domain instanceof Host) {
             $domain = $domain->getContent();
@@ -199,33 +199,33 @@ abstract class DomainNameParser
             throw InvalidDomainName::dueToUnsupportedType($domain);
         }
 
-        $formatted_domain = rawurldecode($domain);
+        $formattedDomain = rawurldecode($domain);
 
         // Note that unreserved is purposely missing . as it is used to separate labels.
-        static $domain_name = '/(?(DEFINE)
+        static $domainName = '/(?(DEFINE)
                 (?<unreserved>[a-z0-9_~\-])
                 (?<sub_delims>[!$&\'()*+,;=])
                 (?<encoded>%[A-F0-9]{2})
                 (?<reg_name>(?:(?&unreserved)|(?&sub_delims)|(?&encoded)){1,63})
             )
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
-        if (1 === preg_match($domain_name, $formatted_domain)) {
-            return array_reverse(explode('.', strtolower($formatted_domain)));
+        if (1 === preg_match($domainName, $formattedDomain)) {
+            return array_reverse(explode('.', strtolower($formattedDomain)));
         }
 
         // a domain name can not contains URI delimiters or space
-        static $gen_delims = '/[:\/?#\[\]@ ]/';
-        if (1 === preg_match($gen_delims, $formatted_domain)) {
+        static $genDelimiters = '/[:\/?#\[\]@ ]/';
+        if (1 === preg_match($genDelimiters, $formattedDomain)) {
             throw InvalidDomainName::dueToInvalidCharacters($domain);
         }
 
         // if the domain name does not contains UTF-8 chars then it is malformed
         static $pattern = '/[^\x20-\x7f]/';
-        if (1 === preg_match($pattern, $formatted_domain)) {
-            $ascii_domain = $this->idnToAscii($domain, $asciiOption);
+        if (1 === preg_match($pattern, $formattedDomain)) {
+            $asciiDomain = $this->idnToAscii($domain, $asciiOption);
 
             /** @var array $labels */
-            $labels = array_reverse(explode('.', $this->idnToUnicode($ascii_domain, $unicodeOption)));
+            $labels = array_reverse(explode('.', $this->idnToUnicode($asciiDomain, $unicodeOption)));
 
             return $labels;
         }
