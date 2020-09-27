@@ -330,7 +330,7 @@ final class ResolvedDomain implements ResolvedDomainName
         /** @var DomainName $asciiDomain */
         $asciiDomain = $this->domain->withAsciiIDNAOption($option);
 
-        /** @var PublicSuffix $asciiPublicSuffix */
+        /** @var EffectiveTLD $asciiPublicSuffix */
         $asciiPublicSuffix = $this->publicSuffix->withAsciiIDNAOption($option);
 
         return new self($asciiDomain, $asciiPublicSuffix);

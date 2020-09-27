@@ -155,18 +155,23 @@ final class TopLevelDomains implements RootZoneDatabase
      */
     public function contains($tld): bool
     {
-        try {
-            if (!$tld instanceof DomainName) {
+        if ($tld instanceof ExternalDomainName) {
+            $tld = $tld->getDomain();
+        }
+
+        if (!$tld instanceof DomainName) {
+            try {
                 $tld = new Domain($tld);
+            } catch (ExceptionInterface $exception) {
+                return false;
             }
-        } catch (ExceptionInterface $exception) {
-            return false;
         }
 
         if (1 !== count($tld)) {
             return false;
         }
 
+        /** @var DomainName $asciiDomain */
         $asciiDomain = $tld->toAscii();
         $label = $asciiDomain->label(0);
         foreach ($this as $knownTld) {

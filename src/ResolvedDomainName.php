@@ -68,5 +68,5 @@ interface ResolvedDomainName extends Host, ExternalDomainName
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the modified Public Suffix Information.
      */
-    public function resolve(PublicSuffix $publicSuffix): self;
+    public function resolve(EffectiveTLD $publicSuffix): self;
 }

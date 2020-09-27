@@ -321,7 +321,7 @@ class ResolvedDomainTest extends TestCase
     /**
      * @dataProvider resolveFailsProvider
      */
-    public function testResolveFails(ResolvedDomain $domain, PublicSuffix $publicSuffix): void
+    public function testResolveFails(ResolvedDomain $domain, EffectiveTLD $publicSuffix): void
     {
         self::expectException(UnableToResolveDomain::class);
         $domain->resolve($publicSuffix);
