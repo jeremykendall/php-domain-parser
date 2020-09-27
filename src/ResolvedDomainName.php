@@ -17,7 +17,7 @@ namespace Pdp;
 
 interface ResolvedDomainName extends Host, ExternalDomainName
 {
-    public function getPublicSuffix(): PublicSuffix;
+    public function getPublicSuffix(): EffectiveTLD;
 
     public function getSecondLevelDomain(): ?string;
 
@@ -55,7 +55,7 @@ interface ResolvedDomainName extends Host, ExternalDomainName
      * If the domain already has a public suffix it will be replaced by the new value
      * otherwise the public suffix content is added to or remove from the current domain.
      */
-    public function withPublicSuffix(PublicSuffix $publicSuffix): self;
+    public function withPublicSuffix(EffectiveTLD $publicSuffix): self;
 
     /**
      * Returns a Domain object with a new resolve public suffix.

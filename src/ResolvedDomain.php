@@ -31,13 +31,13 @@ final class ResolvedDomain implements ResolvedDomainName
 
     private DomainName $domain;
 
-    private PublicSuffix $publicSuffix;
+    private EffectiveTLD $publicSuffix;
 
     private DomainName $registrableDomain;
 
     private DomainName $subDomain;
 
-    public function __construct(Host $domain, ?PublicSuffix $publicSuffix = null)
+    public function __construct(Host $domain, ?EffectiveTLD $publicSuffix = null)
     {
         $this->domain = $this->setDomainName($domain);
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
@@ -64,7 +64,7 @@ final class ResolvedDomain implements ResolvedDomainName
      *
      * @throws UnableToResolveDomain If the public suffic can not be attached to the domain
      */
-    private function setPublicSuffix(PublicSuffix $publicSuffix = null): PublicSuffix
+    private function setPublicSuffix(EffectiveTLD $publicSuffix = null): EffectiveTLD
     {
         $asciiIDNAOptions = $this->domain->getAsciiIDNAOption();
         $unicodeIDNAOptions = $this->domain->getUnicodeIDNAOption();
@@ -97,7 +97,7 @@ final class ResolvedDomain implements ResolvedDomainName
     /**
      * Normalize the domain name encoding content.
      */
-    private function normalize(PublicSuffix $subject): PublicSuffix
+    private function normalize(EffectiveTLD $subject): EffectiveTLD
     {
         if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain->__toString())) {
             return $subject->toAscii();
@@ -200,7 +200,7 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->subDomain;
     }
 
-    public function getPublicSuffix(): PublicSuffix
+    public function getPublicSuffix(): EffectiveTLD
     {
         return $this->publicSuffix;
     }
@@ -217,7 +217,7 @@ final class ResolvedDomain implements ResolvedDomainName
 
     public function resolve($publicSuffix): self
     {
-        if (!$publicSuffix instanceof PublicSuffix) {
+        if (!$publicSuffix instanceof EffectiveTLD) {
             $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
         }
 
@@ -229,7 +229,7 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     public function withPublicSuffix($publicSuffix): self
     {
-        if (!$publicSuffix instanceof PublicSuffix) {
+        if (!$publicSuffix instanceof EffectiveTLD) {
             $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
         }
 
@@ -253,7 +253,7 @@ final class ResolvedDomain implements ResolvedDomainName
             $this->domain->getUnicodeIDNAOption()
         );
 
-        /** @var PublicSuffix $publicSuffix */
+        /** @var EffectiveTLD $publicSuffix */
         $publicSuffix = $publicSuffix
             ->withAsciiIDNAOption($this->domain->getAsciiIDNAOption())
             ->withUnicodeIDNAOption($this->domain->getUnicodeIDNAOption());
@@ -348,7 +348,7 @@ final class ResolvedDomain implements ResolvedDomainName
         /** @var DomainName $unicodeDomain */
         $unicodeDomain = $this->domain->withUnicodeIDNAOption($option);
 
-        /** @var PublicSuffix $unicodePublicSuffix */
+        /** @var EffectiveTLD $unicodePublicSuffix */
         $unicodePublicSuffix = $this->publicSuffix->withUnicodeIDNAOption($option);
 
         return new self($unicodeDomain, $unicodePublicSuffix);
