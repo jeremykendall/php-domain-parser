@@ -567,7 +567,8 @@ final class RulesTest extends TestCase
         /** @var string $string */
         $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
         $rules = Rules::fromString($string);
-        $resolved = $rules->resolve('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $domain = new Domain('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $resolved = $rules->resolve($domain);
 
         self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getAsciiIDNAOption());
         self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getUnicodeIDNAOption());

@@ -175,7 +175,8 @@ class TopLevelDomainsTest extends TestCase
             null
         );
 
-        $resolved = $collection->resolve('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $domain = new Domain('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $resolved = $collection->resolve($domain);
 
         self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getAsciiIDNAOption());
         self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getUnicodeIDNAOption());

@@ -26,7 +26,6 @@ use function json_last_error;
 use function json_last_error_msg;
 use function stream_get_contents;
 use function substr;
-use const IDNA_DEFAULT;
 use const JSON_ERROR_NONE;
 
 final class TopLevelDomains implements RootZoneDatabase
@@ -154,11 +153,11 @@ final class TopLevelDomains implements RootZoneDatabase
     /**
      * @param mixed $tld a TLD in a type that can be converted into a DomainInterface instance
      */
-    public function contains($tld, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): bool
+    public function contains($tld): bool
     {
         try {
             if (!$tld instanceof DomainName) {
-                $tld = new Domain($tld, $asciiIDNAOption, $unicodeIDNAOption);
+                $tld = new Domain($tld);
             }
         } catch (ExceptionInterface $exception) {
             return false;
@@ -182,7 +181,7 @@ final class TopLevelDomains implements RootZoneDatabase
     /**
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): ResolvedDomainName
+    public function resolve($domain): ResolvedDomainName
     {
         if ($domain instanceof ExternalDomainName) {
             $domain = $domain->getDomain();
@@ -196,10 +195,6 @@ final class TopLevelDomains implements RootZoneDatabase
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
-        $domain = $domain
-            ->withAsciiIDNAOption($asciiIDNAOption)
-            ->withUnicodeIDNAOption($unicodeIDNAOption);
-
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
             if ($tld->getContent() === $label) {
@@ -207,6 +202,6 @@ final class TopLevelDomains implements RootZoneDatabase
             }
         }
 
-        return new ResolvedDomain($domain, PublicSuffix::fromNull($asciiIDNAOption, $unicodeIDNAOption));
+        return new ResolvedDomain($domain, PublicSuffix::fromNull($domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
     }
 }
