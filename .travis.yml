@@ -47,6 +47,9 @@ matrix:
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
+          install:
+              - travis_retry composer require $COMPOSER_ARGS --no-update --dev "composer/composer:2.0.x-dev"
+              - travis_retry composer update $COMPOSER_ARGS
     allow_failures:
         - php: nightly
     fast_finish: true
