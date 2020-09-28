@@ -50,6 +50,7 @@ matrix:
           install:
               - composer remove --no-interaction --no-update --dev "friendsofphp/php-cs-fixer"
               - travis_retry composer require $COMPOSER_ARGS --no-update --dev "composer/composer:2.0.x-dev"
+              - travis_retry composer require $COMPOSER_ARGS --no-update --dev "phpunit/phpunit:^9.3.11"
               - travis_retry composer update $COMPOSER_ARGS
     allow_failures:
         - php: nightly
