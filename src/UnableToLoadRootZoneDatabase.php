@@ -64,4 +64,9 @@ class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements E
     {
         return new self('Invalid response from Root Zone Database URI: `'.$uri.'`.', $statusCode);
     }
+
+    public static function dueToCachingIssues(): self
+    {
+        return new self('Could not save the Root Zone Database to the Cache.');
+    }
 }

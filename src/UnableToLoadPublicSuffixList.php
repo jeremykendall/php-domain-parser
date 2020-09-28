@@ -54,4 +54,9 @@ class UnableToLoadPublicSuffixList extends InvalidArgumentException implements E
     {
         return new self('Invalid response from Public Suffix List URI: `'.$uri.'`.', $statusCode);
     }
+
+    public static function dueToCachingIssues(): self
+    {
+        return new self('Could not save the Public Suffix List to the Cache.');
+    }
 }

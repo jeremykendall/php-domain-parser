@@ -72,7 +72,7 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new JsonSerializablePsr16Cache('pdp_', $cache, '1 DAY');
+        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', '1 DAY');
         $jsonInstance = new class() implements JsonSerializable {
             public function jsonSerialize(): array
             {
@@ -137,7 +137,7 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new JsonSerializablePsr16Cache('pdp_', $cache, 86400);
+        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', 86400);
         $cache->store('http://www.example.com', $jsonInstance);
 
         self::assertEquals('{"foo":"bar"}', $cache->fetch('http://www.example.com'));
@@ -188,7 +188,7 @@ final class JsonSerializablePsr16CacheTest extends TestCase
 
         self::expectException(TypeError::class);
 
-        new JsonSerializablePsr16Cache('pdp_', $cache, []);
+        new JsonSerializablePsr16Cache($cache, 'pdp_', []);
     }
 
     public function testItThrowsOnConstructionIfTheTTLStringCanNotBeParsed(): void
@@ -236,7 +236,7 @@ final class JsonSerializablePsr16CacheTest extends TestCase
 
         self::expectException(InvalidArgumentException::class);
 
-        new JsonSerializablePsr16Cache('pdp_', $cache, 'foobar');
+        new JsonSerializablePsr16Cache($cache, 'pdp_', 'foobar');
     }
 
     public function testItCanStoreAPublicSuffixListInstance(): void
@@ -307,7 +307,7 @@ final class JsonSerializablePsr16CacheTest extends TestCase
                 return ['foo' => 'bar'];
             }
         };
-        $cache = new JsonSerializablePsr16Cache('pdp_', $cache, new \DateInterval('P1D'), $logger);
+        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger);
 
         self::assertTrue($cache->store('http://www.example.com', $jsonInstance));
         self::assertSame('The content associated with: `http://www.example.com` was stored.', $logger->logs()[0]);
@@ -382,7 +382,7 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new JsonSerializablePsr16Cache('pdp_', $cache, new \DateTimeImmutable('+1 DAY'), $logger);
+        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'), $logger);
 
         self::assertFalse($cache->store('http://www.example.com', $jsonInstance));
         self::assertSame('The content associated with: `http://www.example.com` could not be stored.', $logger->logs()[0]);
@@ -459,7 +459,7 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new JsonSerializablePsr16Cache('pdp_', $cache, new \DateInterval('P1D'), $logger);
+        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger);
 
         self::assertFalse($cache->store('http://www.example.com', $jsonInstance));
         self::assertSame('The content associated with: `http://www.example.com` could not be cached: Something went wrong.', $logger->logs()[0]);

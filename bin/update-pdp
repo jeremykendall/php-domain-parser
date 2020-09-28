@@ -16,13 +16,7 @@ declare(strict_types=1);
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
-use Pdp\Storage\JsonSerializablePsr16Cache;
-use Pdp\Storage\RulesPsr16Cache;
-use Pdp\Storage\RulesPsr18Client;
-use Pdp\Storage\PublicSuffixListRepository;
-use Pdp\Storage\TopLevelDomainsPsr16Cache;
-use Pdp\Storage\TopLevelDomainsPsr18Client;
-use Pdp\Storage\RootZoneDatabaseRepository;
+use Pdp\Storage\PsrStorageFactory;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\AbstractLogger;
@@ -146,7 +140,6 @@ $context = filter_var_array($arguments + [KEY_CACHE_DIR => $default_cache_dir], 
     KEY_CACHE_DIR => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_STRIP_LOW],
 ]);
 
-$httpClient = new Client();
 
 try {
     $cache = new Psr16Cache(new FilesystemAdapter('pdp', 3600, $context[KEY_CACHE_DIR]));
@@ -158,20 +151,16 @@ try {
 
     die(1);
 }
-$jsonCache = new JsonSerializablePsr16Cache('pdp_', $cache, new DateInterval('P1D'), $logger);
 
+$factory = new PsrStorageFactory(new Client(), $requestFactory, $cache, $logger);
+$cachePrefix = 'pdp_';
+$cacheTtl = new DateInterval('P1D');
 success("$yellow Starting updating your local cache.$reset");
 $error = 0;
 
 try {
-    $rulesClient = new RulesPsr18Client($httpClient, $requestFactory);
-    $rulesCache = new RulesPsr16Cache($jsonCache);
-
-    $rules = $rulesClient->getByUri(PublicSuffixListRepository::PSL_URL);
-
-    if (!$rulesCache->storeByUri(PublicSuffixListRepository::PSL_URL, $rules)) {
-        throw new RuntimeException('Could not save the Public Suffix List to the `'.$context[KEY_CACHE_DIR].'` cache.');
-    }
+    $rulesStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
+    $rulesStorage->saveByUri(PsrStorageFactory::PSL_URL);
 } catch (Throwable $exception) {
     $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
     fail("$redBg The command failed to update the public suffix list local cache. $reset");
@@ -179,14 +168,8 @@ try {
 }
 
 try {
-    $topLevelDomainClient = new TopLevelDomainsPsr18Client($httpClient, $requestFactory);
-    $topLevelDomainCache = new TopLevelDomainsPsr16Cache($jsonCache);
-
-    $topLevelDomains = $topLevelDomainClient->getByUri(RootZoneDatabaseRepository::RZD_URL);
-
-    if (!$topLevelDomainCache->storeByUri(RootZoneDatabaseRepository::RZD_URL, $topLevelDomains)) {
-        throw new RuntimeException('Could not save the Root Zone Database to the `'.$context[KEY_CACHE_DIR].'` cache.');
-    }
+    $topLevelDomainsStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
+    $topLevelDomainsStorage->saveByUri(PsrStorageFactory::RZD_URL);
 } catch (Throwable $exception) {
     $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
     fail("$redBg The command failed to update the root zone database local cache. $reset");

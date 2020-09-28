@@ -15,13 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\PublicSuffixList;
-use Pdp\UnableToLoadPublicSuffixList;
-
-interface PublicSuffixListRepository
+interface RootZoneDatabaseClientFactory
 {
-    /**
-     * @throws UnableToLoadPublicSuffixList
-     */
-    public function getByUri(string $uri): PublicSuffixList;
+    public function createRootZoneDatabaseClient(): RootZoneDatabaseRepository;
 }

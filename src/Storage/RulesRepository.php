@@ -16,8 +16,9 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
+use Pdp\UnableToLoadPublicSuffixList;
 
-final class RulesRepository implements PublicSuffixListRepository
+final class RulesRepository implements PublicSuffixListStorage
 {
     private PublicSuffixListRepository $repository;
 
@@ -41,5 +42,14 @@ final class RulesRepository implements PublicSuffixListRepository
         $this->cache->storeByUri($uri, $publicSuffixList);
 
         return $publicSuffixList;
+    }
+
+    public function saveByUri(string $uri): void
+    {
+        $publicSuffixList = $this->repository->getByUri($uri);
+
+        if (!$this->cache->storeByUri($uri, $publicSuffixList)) {
+            throw  UnableToLoadPublicSuffixList::dueToCachingIssues();
+        }
     }
 }

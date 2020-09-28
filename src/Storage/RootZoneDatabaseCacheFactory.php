@@ -15,13 +15,10 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\PublicSuffixList;
-use Pdp\UnableToLoadPublicSuffixList;
-
-interface PublicSuffixListRepository
+interface RootZoneDatabaseCacheFactory
 {
     /**
-     * @throws UnableToLoadPublicSuffixList
+     * @param mixed $cacheTtl The cache TTL
      */
-    public function getByUri(string $uri): PublicSuffixList;
+    public function createRootZoneDatabaseCache(string $cachePrefix = '', $cacheTtl = null): RootZoneDatabaseCache;
 }

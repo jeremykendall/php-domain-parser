@@ -15,13 +15,9 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\PublicSuffixList;
-use Pdp\UnableToLoadPublicSuffixList;
-
-interface PublicSuffixListRepository
+interface RemoteStorageURL
 {
-    /**
-     * @throws UnableToLoadPublicSuffixList
-     */
-    public function getByUri(string $uri): PublicSuffixList;
+    public const PSL_URL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+
+    public const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 }

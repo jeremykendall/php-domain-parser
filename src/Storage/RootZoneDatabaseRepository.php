@@ -20,11 +20,7 @@ use Pdp\UnableToLoadRootZoneDatabase;
 
 interface RootZoneDatabaseRepository
 {
-    public const RZD_URL = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
-
     /**
-     * Gets the Top Level Domains from the Local Storage or the Remote Storage.
-     *
      * @throws UnableToLoadRootZoneDatabase
      */
     public function getByUri(string $uri): RootZoneDatabase;

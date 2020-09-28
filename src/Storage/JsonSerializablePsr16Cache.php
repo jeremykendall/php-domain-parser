@@ -38,22 +38,22 @@ use const FILTER_VALIDATE_INT;
 
 final class JsonSerializablePsr16Cache
 {
-    private string $keyPrefix;
+    private string $cachePrefix;
 
     private CacheInterface $cache;
 
     private LoggerInterface $logger;
 
-    private ?DateInterval $ttl;
+    private ?DateInterval $cacheTtl;
 
     /**
-     * @param mixed $ttl the time to live for the given cache
+     * @param mixed $cacheTtl the time to live for the given cache
      */
-    public function __construct(string $keyPrefix, CacheInterface $cache, $ttl = null, LoggerInterface $logger = null)
+    public function __construct(CacheInterface $cache, string $cachePrefix = '', $cacheTtl = null, LoggerInterface $logger = null)
     {
-        $this->keyPrefix = $keyPrefix;
         $this->cache = $cache;
-        $this->ttl = $this->setTtl($ttl);
+        $this->cachePrefix = $cachePrefix;
+        $this->cacheTtl = $this->setTtl($cacheTtl);
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -100,7 +100,7 @@ final class JsonSerializablePsr16Cache
     public function store(string $key, JsonSerializable $object): bool
     {
         try {
-            $result = $this->cache->set($this->cacheKey($key), json_encode($object), $this->ttl);
+            $result = $this->cache->set($this->cacheKey($key), json_encode($object), $this->cacheTtl);
         } catch (Throwable $exception) {
             $this->logger->info(
                 'The content associated with: `'.$key.'` could not be cached: '.$exception->getMessage(),
@@ -125,7 +125,7 @@ final class JsonSerializablePsr16Cache
      */
     private function cacheKey(string $str): string
     {
-        return $this->keyPrefix.md5(strtolower($str));
+        return $this->cachePrefix.md5(strtolower($str));
     }
 
     public function fetch(string $key): ?string

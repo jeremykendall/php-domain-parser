@@ -16,8 +16,9 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabase;
+use Pdp\UnableToLoadRootZoneDatabase;
 
-final class TopLevelDomainsRepository implements RootZoneDatabaseRepository
+final class TopLevelDomainsRepository implements RootZoneDatabaseStorage
 {
     private RootZoneDatabaseRepository $repository;
 
@@ -41,5 +42,14 @@ final class TopLevelDomainsRepository implements RootZoneDatabaseRepository
         $this->cache->storeByUri($uri, $rootZoneDatabase);
 
         return $rootZoneDatabase;
+    }
+
+    public function saveByUri(string $uri): void
+    {
+        $rootZoneDatabase = $this->repository->getByUri($uri);
+
+        if (!$this->cache->storeByUri($uri, $rootZoneDatabase)) {
+            throw  UnableToLoadRootZoneDatabase::dueToCachingIssues();
+        }
     }
 }
