@@ -44,7 +44,7 @@ matrix:
         - php: nightly
           env:
               - COLLECT_COVERAGE=false
-              - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --ignore-platform-reqs"
+              - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
     allow_failures:
