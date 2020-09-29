@@ -21,59 +21,69 @@ use PHPUnit\Framework\TestCase;
 use function dirname;
 
 /**
- * @coversDefaultClass \Pdp\Storage\TopLevelDomainsRepository
+ * @coversDefaultClass \Pdp\Storage\TopLevelDomainsStorage
  */
-final class TopLevelDomainsRepositoryTest extends TestCase
+final class TopLevelDomainsStorageTest extends TestCase
 {
     public function testIsCanReturnARootZoneDatabaseInstanceFromCache(): void
     {
         $cache = new class() implements RootZoneDatabaseCache {
-            public function fetchByUri(string $uri): ?RootZoneDatabase
+            public function fetch(string $uri): ?RootZoneDatabase
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
 
-            public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool
+            public function store(string $uri, RootZoneDatabase $topLevelDomains): bool
+            {
+                return true;
+            }
+
+            public function delete(string $uri): bool
             {
                 return true;
             }
         };
 
-        $client = new class() implements RootZoneDatabaseRepository {
-            public function getByUri(string $uri): RootZoneDatabase
+        $client = new class() implements RootZoneDatabaseClient {
+            public function get(string $uri): RootZoneDatabase
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
         };
 
-        $storage = new TopLevelDomainsRepository($client, $cache);
+        $storage = new TopLevelDomainsStorage($client, $cache);
 
-        self::assertInstanceOf(TopLevelDomains::class, $storage->getByUri('http://www.example.com'));
+        self::assertInstanceOf(TopLevelDomains::class, $storage->get('http://www.example.com'));
     }
 
     public function testIsCanReturnARootZoneDatabaseInstanceFromTheInnerStorage(): void
     {
         $cache = new class() implements RootZoneDatabaseCache {
-            public function fetchByUri(string $uri): ?RootZoneDatabase
+            public function fetch(string $uri): ?RootZoneDatabase
             {
                 return null;
             }
 
-            public function storeByUri(string $uri, RootZoneDatabase $publicSuffixList): bool
+            public function store(string $uri, RootZoneDatabase $publicSuffixList): bool
+            {
+                return true;
+            }
+
+            public function delete(string $uri): bool
             {
                 return true;
             }
         };
 
-        $client = new class() implements RootZoneDatabaseRepository {
-            public function getByUri(string $uri): RootZoneDatabase
+        $client = new class() implements RootZoneDatabaseClient {
+            public function get(string $uri): RootZoneDatabase
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
         };
 
-        $storage = new TopLevelDomainsRepository($client, $cache);
+        $storage = new TopLevelDomainsStorage($client, $cache);
 
-        self::assertInstanceOf(TopLevelDomains::class, $storage->getByUri('http://www.example.com'));
+        self::assertInstanceOf(TopLevelDomains::class, $storage->get('http://www.example.com'));
     }
 }

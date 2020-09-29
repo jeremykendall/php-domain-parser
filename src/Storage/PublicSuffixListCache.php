@@ -22,7 +22,7 @@ interface PublicSuffixListCache
     /**
      * Retrieves the Public Suffix List from Cache.
      */
-    public function fetchByUri(string $uri): ?PublicSuffixList;
+    public function fetch(string $uri): ?PublicSuffixList;
 
     /**
      * Caches the Public Suffix List.
@@ -31,5 +31,12 @@ interface PublicSuffixListCache
      *
      * Returns true if the action was successful, false otherwise
      */
-    public function storeByUri(string $uri, PublicSuffixList $publicSuffixList): bool;
+    public function store(string $uri, PublicSuffixList $publicSuffixList): bool;
+
+    /**
+     * Deletes the Public Suffix List entry.
+     *
+     * Returns true if the action was successful, false otherwise
+     */
+    public function delete(string $uri): bool;
 }

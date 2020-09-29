@@ -22,7 +22,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 
-final class RulesPsr18Client implements PublicSuffixListRepository
+final class RulesPsr18Client implements PublicSuffixListClient
 {
     private ClientInterface $client;
 
@@ -34,7 +34,7 @@ final class RulesPsr18Client implements PublicSuffixListRepository
         $this->requestFactory = $requestFactory;
     }
 
-    public function getByUri(string $uri): PublicSuffixList
+    public function get(string $uri): PublicSuffixList
     {
         $request = $this->requestFactory->createRequest('GET', $uri);
         try {

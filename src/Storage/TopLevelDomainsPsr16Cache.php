@@ -28,7 +28,7 @@ final class TopLevelDomainsPsr16Cache implements RootZoneDatabaseCache
         $this->cache = $cache;
     }
 
-    public function fetchByUri(string $uri): ?RootZoneDatabase
+    public function fetch(string $uri): ?RootZoneDatabase
     {
         $cacheData = $this->cache->fetch($uri);
         if (null === $cacheData) {
@@ -46,8 +46,13 @@ final class TopLevelDomainsPsr16Cache implements RootZoneDatabaseCache
         return $topLevelDomains;
     }
 
-    public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool
+    public function store(string $uri, RootZoneDatabase $topLevelDomains): bool
     {
         return $this->cache->store($uri, $topLevelDomains);
+    }
+
+    public function delete(string $uri): bool
+    {
+        return $this->cache->forget($uri);
     }
 }

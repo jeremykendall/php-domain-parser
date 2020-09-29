@@ -18,10 +18,10 @@ namespace Pdp\Storage;
 use Pdp\PublicSuffixList;
 use Pdp\UnableToLoadPublicSuffixList;
 
-interface PublicSuffixListRepository
+interface PublicSuffixListClient
 {
     /**
      * @throws UnableToLoadPublicSuffixList
      */
-    public function getByUri(string $uri): PublicSuffixList;
+    public function get(string $uri): PublicSuffixList;
 }

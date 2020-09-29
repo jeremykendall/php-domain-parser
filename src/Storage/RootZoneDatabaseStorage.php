@@ -15,12 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\UnableToLoadRootZoneDatabase;
-
-interface RootZoneDatabaseStorage extends RootZoneDatabaseRepository
+interface RootZoneDatabaseStorage extends RootZoneDatabaseClient
 {
-    /**
-     * @throws UnableToLoadRootZoneDatabase
-     */
-    public function saveByUri(string $uri): void;
+    public function delete(string $uri): bool;
 }

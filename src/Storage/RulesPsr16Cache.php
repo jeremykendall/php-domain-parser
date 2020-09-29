@@ -28,7 +28,7 @@ final class RulesPsr16Cache implements PublicSuffixListCache
         $this->cache = $cache;
     }
 
-    public function fetchByUri(string $uri): ?Rules
+    public function fetch(string $uri): ?Rules
     {
         $cacheData = $this->cache->fetch($uri);
         if (null === $cacheData) {
@@ -46,8 +46,13 @@ final class RulesPsr16Cache implements PublicSuffixListCache
         return $rules;
     }
 
-    public function storeByUri(string $uri, PublicSuffixList $publicSuffixList): bool
+    public function store(string $uri, PublicSuffixList $publicSuffixList): bool
     {
         return $this->cache->store($uri, $publicSuffixList);
+    }
+
+    public function delete(string $uri): bool
+    {
+        return $this->cache->forget($uri);
     }
 }

@@ -22,7 +22,7 @@ interface RootZoneDatabaseCache
     /**
      * Retrieves the Root Zone Database from the Cache.
      */
-    public function fetchByUri(string $uri): ?RootZoneDatabase;
+    public function fetch(string $uri): ?RootZoneDatabase;
 
     /**
      * Cache the Root Zone Database.
@@ -31,5 +31,12 @@ interface RootZoneDatabaseCache
      *
      * Returns true if the action was successful, false otherwise
      */
-    public function storeByUri(string $uri, RootZoneDatabase $topLevelDomains): bool;
+    public function store(string $uri, RootZoneDatabase $topLevelDomains): bool;
+
+    /**
+     * Deletes the Root Zone Database entry.
+     *
+     * Returns true if the action was successful, false otherwise
+     */
+    public function delete(string $uri): bool;
 }

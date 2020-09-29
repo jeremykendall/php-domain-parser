@@ -18,10 +18,10 @@ namespace Pdp\Storage;
 use Pdp\RootZoneDatabase;
 use Pdp\UnableToLoadRootZoneDatabase;
 
-interface RootZoneDatabaseRepository
+interface RootZoneDatabaseClient
 {
     /**
      * @throws UnableToLoadRootZoneDatabase
      */
-    public function getByUri(string $uri): RootZoneDatabase;
+    public function get(string $uri): RootZoneDatabase;
 }

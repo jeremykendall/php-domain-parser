@@ -50,7 +50,7 @@ final class PsrStorageFactory implements
      */
     public function createPublicSuffixListStorage(string $cachePrefix = '', $cacheTtl = null): PublicSuffixListStorage
     {
-        return new RulesRepository(
+        return new RulesStorage(
             new RulesPsr18Client($this->client, $this->requestFactory),
             new RulesPsr16Cache(
                 new JsonSerializablePsr16Cache($this->cache, $cachePrefix, $cacheTtl, $this->logger)
@@ -63,7 +63,7 @@ final class PsrStorageFactory implements
      */
     public function createRootZoneDatabaseStorage(string $cachePrefix = '', $cacheTtl = null): RootZoneDatabaseStorage
     {
-        return new TopLevelDomainsRepository(
+        return new TopLevelDomainsStorage(
             new TopLevelDomainsPsr18Client($this->client, $this->requestFactory),
             new TopLevelDomainsPsr16Cache(
                 new JsonSerializablePsr16Cache($this->cache, $cachePrefix, $cacheTtl, $this->logger)

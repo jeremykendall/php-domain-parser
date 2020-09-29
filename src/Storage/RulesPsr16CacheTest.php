@@ -74,7 +74,7 @@ final class RulesPsr16CacheTest extends TestCase
 
         $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', '1 DAY'));
 
-        self::assertNull($pslCache->fetchByUri('http://www.example.com'));
+        self::assertNull($pslCache->fetch('http://www.example.com'));
     }
 
     public function testItReturnsAnInstanceIfTheCorrectCacheExists(): void
@@ -124,7 +124,7 @@ final class RulesPsr16CacheTest extends TestCase
 
         self::assertEquals(
             Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat'),
-            $pslCache->fetchByUri('http://www.example.com')
+            $pslCache->fetch('http://www.example.com')
         );
     }
 
@@ -192,7 +192,7 @@ final class RulesPsr16CacheTest extends TestCase
 
         $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', 86400, $logger));
 
-        self::assertNull($pslCache->fetchByUri('http://www.example.com'));
+        self::assertNull($pslCache->fetch('http://www.example.com'));
         self::assertSame('Failed to JSON decode the string: Syntax error.', $logger->logs()[0]);
     }
 
@@ -260,7 +260,7 @@ final class RulesPsr16CacheTest extends TestCase
 
         $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'), $logger));
 
-        self::assertNull($pslCache->fetchByUri('http://www.example.com'));
+        self::assertNull($pslCache->fetch('http://www.example.com'));
         self::assertSame(
             'The public suffix list data are missing one of the required ICANN or PRIVATE domain section.',
             $logger->logs()[0]
@@ -332,7 +332,7 @@ final class RulesPsr16CacheTest extends TestCase
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
         $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger));
 
-        self::assertTrue($pslCache->storeByUri('http://www.example.com', $psl));
+        self::assertTrue($pslCache->store('http://www.example.com', $psl));
         self::assertSame('The content associated with: `http://www.example.com` was stored.', $logger->logs()[0]);
     }
 
@@ -401,7 +401,7 @@ final class RulesPsr16CacheTest extends TestCase
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
         $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger));
 
-        self::assertFalse($pslCache->storeByUri('http://www.example.com', $psl));
+        self::assertFalse($pslCache->store('http://www.example.com', $psl));
         self::assertSame('The content associated with: `http://www.example.com` could not be stored.', $logger->logs()[0]);
     }
 
@@ -472,7 +472,7 @@ final class RulesPsr16CacheTest extends TestCase
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
         $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger));
 
-        self::assertFalse($pslCache->storeByUri('http://www.example.com', $psl));
+        self::assertFalse($pslCache->store('http://www.example.com', $psl));
         self::assertSame('The content associated with: `http://www.example.com` could not be cached: Something went wrong.', $logger->logs()[0]);
     }
 }

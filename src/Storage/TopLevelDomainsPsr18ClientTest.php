@@ -53,7 +53,7 @@ final class TopLevelDomainsPsr18ClientTest extends TestCase
         };
 
         $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
-        $rzd = $storage->getByUri('http://www.example.com');
+        $rzd = $storage->get('http://www.example.com');
 
         self::assertInstanceOf(TopLevelDomains::class, $rzd);
     }
@@ -78,7 +78,7 @@ final class TopLevelDomainsPsr18ClientTest extends TestCase
         self::expectExceptionMessage('Could not access the Root Zone Database URI: `http://www.example.com`.');
 
         $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
-        $storage->getByUri('http://www.example.com');
+        $storage->get('http://www.example.com');
     }
 
     public function testItWillThrowIfTheReturnedStatusCodeIsNotOK(): void
@@ -102,6 +102,6 @@ final class TopLevelDomainsPsr18ClientTest extends TestCase
         self::expectExceptionCode(404);
 
         $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
-        $storage->getByUri('http://www.example.com');
+        $storage->get('http://www.example.com');
     }
 }

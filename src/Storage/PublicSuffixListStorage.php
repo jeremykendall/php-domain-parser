@@ -15,12 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\UnableToLoadPublicSuffixList;
-
-interface PublicSuffixListStorage extends PublicSuffixListRepository
+interface PublicSuffixListStorage extends PublicSuffixListClient
 {
-    /**
-     * @throws UnableToLoadPublicSuffixList
-     */
-    public function saveByUri(string $uri): void;
+    public function delete(string $uri): bool;
 }

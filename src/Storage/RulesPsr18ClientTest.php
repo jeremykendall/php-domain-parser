@@ -52,7 +52,7 @@ final class RulesPsr18ClientTest extends TestCase
         };
 
         $storage = new RulesPsr18Client($client, $requestFactory);
-        $psl = $storage->getByUri('http://www.example.com');
+        $psl = $storage->get('http://www.example.com');
 
         self::assertInstanceOf(Rules::class, $psl);
     }
@@ -77,7 +77,7 @@ final class RulesPsr18ClientTest extends TestCase
         self::expectExceptionMessage('Could not access the Public Suffix List URI: `http://www.example.com`.');
 
         $storage = new RulesPsr18Client($client, $requestFactory);
-        $storage->getByUri('http://www.example.com');
+        $storage->get('http://www.example.com');
     }
 
     public function testItWillThrowIfTheReturnedStatusCodeIsNotOK(): void
@@ -101,6 +101,6 @@ final class RulesPsr18ClientTest extends TestCase
         self::expectExceptionCode(404);
 
         $storage = new RulesPsr18Client($client, $requestFactory);
-        $storage->getByUri('http://www.example.com');
+        $storage->get('http://www.example.com');
     }
 }

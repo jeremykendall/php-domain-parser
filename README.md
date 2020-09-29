@@ -47,7 +47,7 @@ domain as a `Pdp\ResolvedDomain` object using the following methods:
 <?php 
 use Pdp\Rules;
 
-$rules = Rules::fromPath('/path/to/mozilla/public-suffix.dat');
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 echo $rules->resolve('www.ulb.ac.be')->getPublicSuffix();          //display 'ac.be';
 echo $rules->getCookieDomain('www.ulb.ac.be')->getPublicSuffix();  //display 'ac.be';
@@ -55,25 +55,33 @@ echo $rules->getICANNDomain('www.ulb.ac.be')->getPublicSuffix();   //display 'ac
 echo $rules->getPrivateDomain('www.ulb.ac.be')->getPublicSuffix(); //display 'be';
 ~~~
 
-If the domain can not be resolved or in case of error an exception which extends `Pdp\UnableToResolveDomain` is thrown.
+In case of an error an exception which extends `Pdp\ExceptionInterface` is thrown.
 
 ### Top Level Domains resolution
 
-While the [Public Suffix List](http://publicsuffix.org/) is a community based list. We can parse the Top Level domain
-information given by the [IANA website](https://data.iana.org/TLD/tlds-alpha-by-domain.txt) to always resolve
+While the [Public Suffix List](http://publicsuffix.org/) is a community based list, the package provides access to 
+the Top Level domain information given by the [IANA website](https://data.iana.org/TLD/tlds-alpha-by-domain.txt) to always resolve
 top domain against the newly registered TLD.
 
 ~~~php
 use Pdp\TopLevelDomains;
 
-$iana = TopLevelDomains::fromPath('/path/to/iana/tlds-alpha-by-domain.txt');
+$iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
 
 echo $iana->resolve('www.UlB.Ac.bE')->getPublicSuffix(); //display 'be';
 ~~~
 
-If the Domain is not resolved or in case of error a null `Pdp\UnableToResolveDomain` is returned.
+In case of an error an exception which extends `Pdp\ExceptionInterface` is thrown.
 
-### Domain object
+### Domain, ResolvedDomain and PublicSuffix
+
+In order to resolve a specific domain the package needs to make a distinction
+between several domain representations. Each on of them is expressed as an immutable value object
+which implements the `Pdp\Host` interface.
+
+#### Domain
+
+A `Pdp\Domain` instance is a host that exposes its labels and allow to change them.
 
 ~~~php
 use Pdp\Domain;
@@ -110,22 +118,7 @@ $altDomain = new Domain('faß.test.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONT
 echo $altDomain->toAscii()->getContent(); // 'xn--fa-hia.test.de'
 ~~~
 
-The `Pdp\Domain` object is an immutable value object representing a valid domain name.
-
-*The getter methods return normalized and lowercased domain labels or `null` if no value is found for a particular domain part.*
-
-Theses objects also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the domain labels and properties.
-
-Modify the domain content is only possible for the `Pdp\Domain` object using the following methods:
-
-~~~php
-public function Domain::withLabel(int $key, $label): Domain
-public function Domain::withoutLabel(int $key, int ...$keys): Domain
-public function Domain::append($label): Domain
-public function Domain::prepend($label): Domain
-public function Domain::withAsciiIDNAOption(int $option): Domain
-public function Domain::withUnicodeIDNAOption(int $option): Domain
-~~~
+The object also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the domain labels and properties.
 
 ~~~php
 use Pdp\Domain;
@@ -143,57 +136,7 @@ echo $domain;   // 'www.bébé.be'
 echo $newDomain // 'shop.com'
 ~~~
 
-Because the `Pdp\Domain` object is immutable:
-
-- If the method change any of the current object property, a new object is returned.
-- If a modification is not possible a `Pdp\Exception` exception is thrown.
-
-**WARNING: URI and URL accept registered name which encompass domain name. Therefore, some URI host are invalid domain name and will trigger an exception if you try to instantiate a `Pdp\Domain` with them.**
-
-Here's a more complex example:
-
-~~~php
-<?php
-
-use Pdp\Rules;
-
-$rules = Rules::fromPath('/path/to/public/suffix/list.dat');
-
-$domain = $rules->resolve('www.bbc.co.uk');
-$domain->getContent();                 //returns 'www.bbc.co.uk';
-echo $domain->getPublicSuffix();      //returns 'co.uk';
-$domain>getPublicSuffix()->isKnown(); //return true;
-$domain>getPublicSuffix()->isICANN(); //return true;
-
-$newDomain = $domain
-    ->withPublicSuffix('com')
-    ->withSubDomain('shop')
-    ->withSecondLevelDomain('example')
-;
-
-$newDomain->getContent();                 //returns 'shop.example.com';
-$newDomain->getPublicSuffix();            //returns 'com';
-$newDomain->getPublicSuffix()->isKnown(); //return false;
-~~~
-
-**WARNING: in the example above the public suffix informations are lost because the newly attached public suffix had none.**
-
-To avoid this data loss you should use a `Pdp\PublicSuffix` object instead.
-
-~~~php
-$domain = $rules->resolve('www.bbc.co.uk');
-$newPublicSuffix = $rules->getPublicSuffix('example.com'); //$newPublicSuffix is a Pdp\PublicSuffix object
-$newDomain = $domain
-    ->withPublicSuffix($newPublicSuffix)
-    ->withSubDomain('shop')
-    ->withLabel(-2, 'example')
-;
-$newDomain->getContent();      //returns 'shop.example.com';
-$newDomain->getPublicSuffix(); //returns 'com';
-$newDomain->isKnown();         //return true;
-~~~
-
-### Public suffix resolution.
+#### Public suffix resolution.
 
 **THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
 
@@ -314,8 +257,8 @@ $factory = new PsrStorageFactory(new Client(), $requestFactory, $cache);
 $pslStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
 $rzdStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
 
-$rules = $pslStorage->getByUri(PsrStorageFactory::PSL_URL);
-$tldDomains = $rzdStorage->getByUri(PsrStorageFactory::RZD_URL);
+$rules = $pslStorage->get(PsrStorageFactory::PSL_URL);
+$tldDomains = $rzdStorage->get(PsrStorageFactory::RZD_URL);
 ~~~
 
 ### Automatic Updates

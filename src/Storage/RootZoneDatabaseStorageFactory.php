@@ -20,5 +20,5 @@ interface RootZoneDatabaseStorageFactory
     /**
      * @param mixed $cacheTtl The cache TTL
      */
-    public function createRootZoneDatabaseStorage(string $cachePrefix = '', $cacheTtl = null): RootZoneDatabaseRepository;
+    public function createRootZoneDatabaseStorage(string $cachePrefix = '', $cacheTtl = null): RootZoneDatabaseClient;
 }

@@ -160,7 +160,8 @@ $error = 0;
 
 try {
     $rulesStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
-    $rulesStorage->saveByUri(PsrStorageFactory::PSL_URL);
+    $rulesStorage->delete(PsrStorageFactory::PSL_URL);
+    $rulesStorage->get(PsrStorageFactory::PSL_URL);
 } catch (Throwable $exception) {
     $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
     fail("$redBg The command failed to update the public suffix list local cache. $reset");
@@ -169,7 +170,8 @@ try {
 
 try {
     $topLevelDomainsStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
-    $topLevelDomainsStorage->saveByUri(PsrStorageFactory::RZD_URL);
+    $topLevelDomainsStorage->delete(PsrStorageFactory::RZD_URL);
+    $topLevelDomainsStorage->get(PsrStorageFactory::RZD_URL);
 } catch (Throwable $exception) {
     $logger->error('Local cache update failed with {exception}', ['exception' => $exception->getMessage()]);
     fail("$redBg The command failed to update the root zone database local cache. $reset");

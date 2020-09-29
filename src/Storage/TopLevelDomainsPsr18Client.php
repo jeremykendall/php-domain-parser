@@ -22,7 +22,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 
-final class TopLevelDomainsPsr18Client implements RootZoneDatabaseRepository
+final class TopLevelDomainsPsr18Client implements RootZoneDatabaseClient
 {
     private ClientInterface $client;
 
@@ -34,7 +34,7 @@ final class TopLevelDomainsPsr18Client implements RootZoneDatabaseRepository
         $this->requestFactory = $requestFactory;
     }
 
-    public function getByUri(string $uri): RootZoneDatabase
+    public function get(string $uri): RootZoneDatabase
     {
         $request = $this->requestFactory->createRequest('GET', $uri);
         try {
