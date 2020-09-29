@@ -20,7 +20,7 @@ use DateTimeImmutable;
 use IteratorAggregate;
 use JsonSerializable;
 
-interface RootZoneDatabase extends Countable, IteratorAggregate, JsonSerializable
+interface RootZoneDatabase extends Countable, DomainResolver, IteratorAggregate, JsonSerializable
 {
     /**
      * Returns the Version ID.
@@ -56,9 +56,4 @@ interface RootZoneDatabase extends Countable, IteratorAggregate, JsonSerializabl
      * Tells whether the submitted TLD is a valid Top Level Domain.
      */
     public function contains(Host $tld): bool;
-
-    /**
-     * Returns a domain where its public suffix is the found TLD.
-     */
-    public function resolve(Host $domain): ResolvedDomainName;
 }

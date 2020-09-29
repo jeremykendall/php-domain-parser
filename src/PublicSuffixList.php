@@ -17,20 +17,12 @@ namespace Pdp;
 
 use JsonSerializable;
 
-interface PublicSuffixList extends JsonSerializable
+interface PublicSuffixList extends DomainResolver, JsonSerializable
 {
     /**
      * Returns an array representation of the Public Suffix List Rules JSON serializable.
      */
     public function jsonSerialize(): array;
-
-    /**
-     * Returns PSL info for a given domain.
-     *
-     * If the effective TLD can not be resolved it returns a ResolvedDomainName with a null public suffix
-     * If the host is not a valid domaine it returns a ResolvedDomainName with a null Domain name
-     */
-    public function resolve(Host $host): ResolvedDomainName;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
