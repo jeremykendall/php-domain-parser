@@ -16,7 +16,7 @@ Consider the domain www.pref.okinawa.jp.  In this domain, the
 *public suffix* portion is **okinawa.jp**, the *registrable domain* is
 **pref.okinawa.jp**, and the *subdomain* is **www**. You can't regex that.
 
-PHP Domain Parser is built around:
+PHP Domain Parser is compliant around:
 
 - accurate Public Suffix List based parsing.
 - accurate Root Zone Database parsing.
@@ -101,7 +101,7 @@ $domain->getAsciiIDNAOption();     // IDNA_DEFAULT
 $domain->getUnicodeIDNAOption();   // IDNA_DEFAULT
 ~~~
 
-Using the above code you have parse, validate a domain name. The domain object has no information regarding its effective TLD.
+Using the above code you have parsed and validated a domain name. The domain object has no information regarding its effective TLD.
 To gain information against those databases you need to use their respective instance.
 
 The `Pdp\Domain` object supports IDNA options for a better transformation between i18n and ascii domain name.
@@ -133,15 +133,23 @@ $newDomain = $domain
     ->withoutLabel(1)
 ;
 echo $domain;   // 'www.bébé.be'
-echo $newDomain // 'shop.com'
+echo $newDomain; // 'shop.com'
 ~~~
 
-#### Public suffix resolution.
+#### Public Suffix
 
-**THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
+**The domain public suffix status depends on the PSL section used to resolve it:**
+
+- `Pdp\PublicSuffix::isKnown` returns `true` if the public suffix is part of the selected PSL;
+- `Pdp\PublicSuffix::isICANN` returns `true` if the public suffix is part of the PSL ICANN DOMAINS section;
+- `Pdp\PublicSuffix::isPrivate` returns `true` if the public suffix is part of the PSL PRIVATE DOMAINS section;
+
+#### Resolved Domain
+
+**THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTION**
 
 ~~~php
-$pdp_url = 'https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat';
+$pdp_url = 'https://example.com/public_suffix_list.dat';
 $rules = Pdp\Rules::fromPath($pdp_url);
 
 $domain = $rules->resolve('www.Ulb.AC.be'); // resolution is done against all the sections available
@@ -156,55 +164,18 @@ echo $domain->getPublicSuffix();
 // returns "be"
 ~~~
 
-**The domain public suffix status depends on the PSL section used to resolve it:**
-
-- `Pdp\PublicSuffix::isKnown` returns `true` if the public suffix is found in the selected PSL;
-- `Pdp\PublicSuffix::isICANN` returns `true` if the public suffix is found using a PSL which includes the ICANN DOMAINS section;
-- `Pdp\PublicSuffix::isPrivate` returns `true` if the public suffix is found using a PSL which includes the PRIVATE DOMAINS section;
-
 **WARNING:**
 
-**You should never use the library this way in production, without, at least, a caching mechanism to reduce PSL downloads.**
+**You should never use the library this way in production, without, at least, a caching mechanism to reduce HTTP calls.**
 
-**Using the PSL to determine what is a valid domain name and what isn't is dangerous, particularly in these days where new gTLDs are arriving at a rapid pace. The DNS is the proper source for this information. If you must use this library for this purpose, please consider integrating a PSL update mechanism into your software.**
-
-### Top Level Domains resolutions
-
-~~~php
-<?php
-
-namespace Pdp;
-
-final class TopLevelDomains implements Countable, IteratorAggregate
-{
-    public static function fromPath(string $path, resource $context = null): TopLevelDomains
-    public static function fromString(string $content): TopLevelDomains
-    public static function fromJsonString(string $content): TopLevelDomains
-
-    public function resolve($domain): ResolvedDomainName
-    public function contains($domain): bool
-    public function isEmpty(): bool
-}
-~~~
-
-The `Pdp\TopLevelDomains` object is responsible for top level domain resolution for a given domain. The resolution is done using a resource which should follow [IANA resource file](https://data.iana.org/TLD/tlds-alpha-by-domain.txt). The class is a collection which contains the list of all top levels domain as registered on the IANA servers.
-
-**THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTON**
-
-~~~php
-use Pdp\TopLevelDomains;
-
-$pdp_url = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
-$tlds    = TopLevelDomains::fromPath($pdp_url);
-$result  = $tlds->contains('be'); // resolution is done against the retrieves list
-$domain  = json_encode($tlds->resolve('www.Ulb.Ac.BE'), JSON_PRETTY_PRINT);
-// returns "www.ulb.ac.be"
-~~~
+**Using the PSL to determine what is a valid domain name and what isn't is dangerous, particularly in these days when new gTLDs are arriving at a rapid pace.  
+The IANA Root Zone Database is the proper source for this information.  
+Either way, if you must use this library for this purpose, please consider integrating an automatic update mechanism into your software.**
 
 ## Managing the package databases
 
 The library comes bundle with a service which enables resolving domain name without the constant network overhead of continuously downloading the remote databases.
-The `Pdp\Storage\PsrStorageFactory` enables returns instances that retrieve, convert and cache the Public Suffix List as well as the IANA Root Zone Database.
+The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that retrieve, convert and cache the Public Suffix List as well as the IANA Root Zone Database.
 
 ### Instantiate `Pdp\Storage\PsrStorageFactory`
 
@@ -216,8 +187,8 @@ To work as intended, the `Pdp\Storage\PsrStorageFactory` constructor requires:
 
 When creating a new storage instance you will require:
 
-- a `$cachePrefix` argument to optionally add a prefix to your cache index;
-- a `$ttl` argument if you need to set the default `$ttl`;
+- a `$cachePrefix` argument to optionally add a prefix to your cache index, default to the empty string `'''`;
+- a `$ttl` argument if you need to set the default `$ttl`, default to `null` to use the underlying caching default TTL;
 
 The `$ttl` argument can be:
 
@@ -225,12 +196,19 @@ The `$ttl` argument can be:
 - a `DateInterval` object (see PSR-16);
 - a `DateTimeInterface` object representing the date and time when the item should expire;
 
-The package comes bundle no longer provide any implementation of such interfaces are
-they are many robust implementation that can easily be found on packagist.org. 
+However, the package no longer provides any implementation of such interfaces are
+they are many robust implementations that can easily be found on packagist.org. 
 
 #### Refreshing the cached PSL and RZD data
 
 **THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY**
+
+For the purpose of this example we used:
+ 
+- Guzzle as a PSR-18 implementation HTTP client
+- The Symfony Cache Component to use a PSR-16 cache implementation
+
+You could easily use other packages as long as they implement the required PSR interfaces. 
 
 ~~~php
 <?php 
@@ -263,8 +241,8 @@ $tldDomains = $rzdStorage->get(PsrStorageFactory::RZD_URL);
 
 ### Automatic Updates
 
-It is important to always have an up to date Public Suffix List and a Root Zone Database.
-This library no longer provide an out of the box script to do so as implementing such job heavily depends on your application setup. 
+It is important to always have an up to date Public Suffix List and Root Zone Database.
+This library no longer provide an out of the box script to do so as implementing such a job heavily depends on your application setup. 
 
 Changelog
 -------
@@ -300,7 +278,7 @@ Credits
 -------
 
 - [Jeremy Kendall](https://github.com/jeremykendall)
-- [ignace nyamagana butera](https://github.com/nyamsprod)
+- [Ignace Nyamagana Butera](https://github.com/nyamsprod)
 - [All Contributors](https://github.com/jeremykendall/php-domain-parser/contributors)
 
 License

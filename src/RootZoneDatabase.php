@@ -53,7 +53,7 @@ interface RootZoneDatabase extends Countable, DomainResolver, IteratorAggregate,
     public function jsonSerialize(): array;
 
     /**
-     * Tells whether the submitted TLD is a valid Top Level Domain.
+     * Tells whether the submitted host is a valid Top Level Domain.
      */
     public function contains(Host $tld): bool;
 }

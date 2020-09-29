@@ -45,10 +45,6 @@ final class RulesTest extends TestCase
 
     public function testCreateFromPath(): void
     {
-        /** @var string $string */
-        $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
-        $rulesFromString = Rules::fromString($string);
-
         $context = stream_context_create([
             'http'=> [
                 'method' => 'GET',
@@ -57,7 +53,7 @@ final class RulesTest extends TestCase
         ]);
         $rulesFromPath = Rules::fromPath(dirname(__DIR__).'/test_data/public_suffix_list.dat', $context);
 
-        self::assertEquals($rulesFromString, $rulesFromPath);
+        self::assertEquals($this->rules, $rulesFromPath);
     }
 
     public function testCreateFromPathThrowsException(): void
@@ -70,6 +66,7 @@ final class RulesTest extends TestCase
     public function testDomainInternalPhpMethod(): void
     {
         $generateRules = eval('return '.var_export($this->rules, true).';');
+
         self::assertEquals($this->rules, $generateRules);
     }
 
