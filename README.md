@@ -1,7 +1,7 @@
 # PHP Domain Parser
 **PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based domain parser implemented in PHP.
 
-[![Build Status][ico-travis]][link-travis]
+![Quality Assurance](https://github.com/jeremykendall/php-domain-parser/workflows/Quality%20Assurance/badge.svg)
 [![Total Downloads][ico-packagist]][link-packagist]
 [![Latest Stable Version][ico-release]][link-release]
 [![Software License][ico-license]][link-license]

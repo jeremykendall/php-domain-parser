@@ -23,9 +23,6 @@
             "homepage": "https://github.com/jeremykendall/php-domain-parser/graphs/contributors"
         }
     ],
-    "bin": [
-        "bin/update-pdp"
-    ],
     "keywords": [
         "Public Suffix List",
         "Top Level Domains",
