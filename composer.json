@@ -39,7 +39,6 @@
         "ext-json": "*"
     },
     "require-dev": {
-        "composer/composer": "^1.10|^2.0",
         "friendsofphp/php-cs-fixer": "^2.16",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
