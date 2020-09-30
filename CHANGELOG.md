@@ -2,22 +2,65 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
-## Next - TBD
+## 6.x.x - TBD
 
 ### Added
 
-- `Rules::resolveCookieDomain`
-- `Rules::resolveICANNDomain`
-- `Rules::resolvePrivateDomain`
-- `Rules::getCookieEffectiveTLD`
-- `Rules::getICANNEffectiveTLD`
-- `Rules::getPrivateeEffectiveTLD`
+- Adding proper interfaces
+- Public Suffix List and IANA Root Zone Database are fully decoupled
+- Optional storage capability based on PSR related interface.
+
+### Fixed
+
+- The Domain not longer directly exposes Effective TLD status.
+- Effective TLD resolver no longer accept IDNA options.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- Support for PHP7.4-
+- Composer script for automatic updates of the remote databases
+- CLI command `bin/update-psl`
+- `Pdp\Cache`, `Pdp\CacheException`: The package PSR-16 Cache implementation using the underlying filesystem.
+- `Pdp\HttpClient`, `Pdp\CurlHttpClient` and `Pdp\HttpClientException`: The package Http Client.
+- `Pdp\Installer`, `Pdp\Manager`: The package source manager and installer
+- `Pdp\Logger`: The package logger implementation
+
+## 5.7.1 - 2020-08-24
+
+### Added
+
+- None
+
+### Fixed
+
+- Cache throws when cache directory doesn't exist [#280](https://github.com/jeremykendall/php-domain-parser/issues/280)
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
+## 5.7.0 - 2020-08-02
+
+### Added
+
+- `Rules::getCookieDomain`
+- `Rules::getICANNDomain`
+- `Rules::getPrivateDomain`
 - `CouldNotResolvePublicSuffix::dueToUnresolvableDomain`
 
 ### Fixed
 
 - Improve type hinting and return type by dropping EOL PHP versions support.
 - Improve development environment by dropping EOL PHP versions support.
+- Composer script
 
 ### Deprecated
 
@@ -76,12 +119,12 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - `Pdp\TopLevelDomains` to allow resolving domain againts IANA Root zone database
 - `Pdp\TLDConverter` converts the IANA Root Zones database into an associative array
-- `Pdp\Service\Manager::getTLDs` a service to return a cache version of the IANA Root zone database
-- `Pdp\Service\Manager::refreshTLDs` a service to refresh the cache version of the IANA Root zone database
+- `Pdp\Manager::getTLDs` a service to return a cache version of the IANA Root zone database
+- `Pdp\Manager::refreshTLDs` a service to refresh the cache version of the IANA Root zone database
 -  added a new `$ttl` parameter to improve PSR-16 supports to
-	- `Pdp\Service\Manager::__construct`
-	- `Pdp\Service\Manager::getRules`
-	- `Pdp\Service\Manager::refreshRules`
+	- `Pdp\Manager::__construct`
+	- `Pdp\Manager::getRules`
+	- `Pdp\Manager::refreshRules`
 - `Pdp\Exception\CouldNotLoadTLDs` exception
 
 ### Fixed
@@ -119,8 +162,8 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - `Pdp\Domain` domain part computation (public suffix, registrable domain and sub domain)
 - `Pdp\Domain` and `Pdp\PublicSuffix` host validation compliance to RFC improved
-- Improve `Pdp\Converter` and `Pdp\Service\Manager` class to better report error on IDN conversion.
-- Improve `Pdp\Service\Installer` vendor directory resolution see [PR #222](https://github.com/jeremykendall/php-domain-parser/pull/222)
+- Improve `Pdp\Converter` and `Pdp\Manager` class to better report error on IDN conversion.
+- Improve `Pdp\Installer` vendor directory resolution see [PR #222](https://github.com/jeremykendall/php-domain-parser/pull/222)
 - `Pdp\Exception` nows extends `InvalidArgumentException` instead of `RuntimeException`
 
 ### Deprecated
@@ -184,9 +227,9 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 - `Pdp\Exception` a base exception for the library
 - `Pdp\Rules` a class to resolve domain name against the public suffix list
 - `Pdp\Domain` an immutable value object to represents a parsed domain name
-- `Pdp\Service\Installer` a class to enable improve PSL maintenance
-- `Pdp\Storage\Cache` a PSR-16 file cache implementation to cache a local copy of the PSL
-- `Pdp\Service\Manager` a class to enable managing PSL sources and `Rules` objects creation
+- `Pdp\Installer` a class to enable improve PSL maintenance
+- `Pdp\Cache` a PSR-16 file cache implementation to cache a local copy of the PSL
+- `Pdp\Manager` a class to enable managing PSL sources and `Rules` objects creation
 - `Pdp\Converter` a class to convert the PSL into a PHP array
 
 ### Fixed
@@ -204,6 +247,6 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 - PHP5 support
 - URL Parsing capabilities and domain name validation
 - `Pdp\PublicSuffixList` class replaced by the `Pdp\Rules` class
-- `Pdp\PublicSuffixManager` class replaced by the `Pdp\Service\Manager` class
-- `Pdp\HttpAdapter\HttpAdapterInterface` interface replaced by the `Pdp\Client\HttpClient` interface
-- `Pdp\HttpAdapter\CurlHttpAdapter` class replaced by the `Pdp\Client\CurlHttpClient` class
+- `Pdp\PublicSuffixManager` class replaced by the `Pdp\Manager` class
+- `Pdp\HttpAdapter\HttpAdapterInterface` interface replaced by the `Pdp\HttpClient` interface
+- `Pdp\HttpAdapter\CurlHttpAdapter` class replaced by the `Pdp\CurlHttpClient` class

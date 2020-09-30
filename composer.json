@@ -1,6 +1,6 @@
 {
     "name": "jeremykendall/php-domain-parser",
-    "description": "Public Suffix List based URL parsing implemented in PHP.",
+    "description": "Public Suffix List and IANA Root Zone Database based Domain parsing implemented in PHP.",
     "homepage": "https://github.com/jeremykendall/php-domain-parser",
     "support": {
         "issues": "https://github.com/jeremykendall/php-domain-parser/issues",
