@@ -1,8 +1,8 @@
 data
-composer.lock
 vendor
 docs
 build
 .idea
 .php_cs.cache
 .phpunit.result.cache
+composer.lock

@@ -13,7 +13,6 @@ EOF;
 
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__.'/src')
-    ->in(__DIR__.'/bin')
 ;
 
 return PhpCsFixer\Config::create()
