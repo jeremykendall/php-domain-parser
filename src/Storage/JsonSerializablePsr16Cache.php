@@ -34,7 +34,7 @@ use function sprintf;
 use function strtolower;
 use const FILTER_VALIDATE_INT;
 
-final class JsonSerializablePsr16Cache
+final class JsonSerializablePsr16Cache implements JsonSerializableCache
 {
     private string $cachePrefix;
 
@@ -131,11 +131,11 @@ final class JsonSerializablePsr16Cache
         return $this->cache->get($this->cacheKey($key));
     }
 
-    public function forget(string $key, Throwable $exception = null): bool
+    public function forget(string $key): bool
     {
         $result = $this->cache->delete($this->cacheKey($key));
-        if (null !== $exception) {
-            $this->logger->warning($exception->getMessage());
+        if (!$result) {
+            $this->logger->warning('The content associated with: `'.$key.'` could not be deleted.');
         }
 
         return $result;

@@ -15,15 +15,19 @@ namespace Pdp\Storage;
 
 use Pdp\RootZoneDatabase;
 use Pdp\TopLevelDomains;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
-final class TopLevelDomainsPsr16Cache implements RootZoneDatabaseCache
+final class TopLevelDomainsCache implements RootZoneDatabaseCache
 {
-    private JsonSerializablePsr16Cache $cache;
+    private JsonSerializableCache $cache;
 
-    public function __construct(JsonSerializablePsr16Cache $cache)
+    private ?LoggerInterface $logger;
+
+    public function __construct(JsonSerializableCache $cache, LoggerInterface $logger = null)
     {
         $this->cache = $cache;
+        $this->logger = $logger;
     }
 
     public function fetch(string $uri): ?RootZoneDatabase
@@ -36,7 +40,10 @@ final class TopLevelDomainsPsr16Cache implements RootZoneDatabaseCache
         try {
             $topLevelDomains = TopLevelDomains::fromJsonString($cacheData);
         } catch (Throwable $exception) {
-            $this->cache->forget($uri, $exception);
+            $this->cache->forget($uri);
+            if (null !== $this->logger) {
+                $this->logger->error($exception->getMessage());
+            }
 
             return null;
         }

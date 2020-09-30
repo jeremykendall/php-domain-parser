@@ -50,8 +50,9 @@ final class PsrStorageFactory implements
     {
         return new RulesStorage(
             new RulesPsr18Client($this->client, $this->requestFactory),
-            new RulesPsr16Cache(
-                new JsonSerializablePsr16Cache($this->cache, $cachePrefix, $cacheTtl, $this->logger)
+            new RulesCache(
+                new JsonSerializablePsr16Cache($this->cache, $cachePrefix, $cacheTtl, $this->logger),
+                $this->logger
             )
         );
     }
@@ -63,8 +64,9 @@ final class PsrStorageFactory implements
     {
         return new TopLevelDomainsStorage(
             new TopLevelDomainsPsr18Client($this->client, $this->requestFactory),
-            new TopLevelDomainsPsr16Cache(
-                new JsonSerializablePsr16Cache($this->cache, $cachePrefix, $cacheTtl, $this->logger)
+            new TopLevelDomainsCache(
+                new JsonSerializablePsr16Cache($this->cache, $cachePrefix, $cacheTtl, $this->logger),
+                $this->logger
             )
         );
     }

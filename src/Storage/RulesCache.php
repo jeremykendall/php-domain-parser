@@ -15,18 +15,22 @@ namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
 use Pdp\Rules;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
-final class RulesPsr16Cache implements PublicSuffixListCache
+final class RulesCache implements PublicSuffixListCache
 {
-    private JsonSerializablePsr16Cache $cache;
+    private JsonSerializableCache $cache;
 
-    public function __construct(JsonSerializablePsr16Cache $cache)
+    private ?LoggerInterface $logger;
+
+    public function __construct(JsonSerializableCache $cache, LoggerInterface $logger = null)
     {
         $this->cache = $cache;
+        $this->logger = $logger;
     }
 
-    public function fetch(string $uri): ?Rules
+    public function fetch(string $uri): ?PublicSuffixList
     {
         $cacheData = $this->cache->fetch($uri);
         if (null === $cacheData) {
@@ -36,8 +40,10 @@ final class RulesPsr16Cache implements PublicSuffixListCache
         try {
             $rules = Rules::fromJsonString($cacheData);
         } catch (Throwable $exception) {
-            $this->cache->forget($uri, $exception);
-
+            $this->cache->forget($uri);
+            if (null !== $this->logger) {
+                $this->logger->error($exception->getMessage());
+            }
             return null;
         }
 

@@ -23,9 +23,9 @@ use function dirname;
 use function json_encode;
 
 /**
- * @coversDefaultClass \Pdp\Storage\RulesPsr16Cache
+ * @coversDefaultClass \Pdp\Storage\RulesCache
  */
-final class RulesPsr16CacheTest extends TestCase
+final class RulesCacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
@@ -70,7 +70,7 @@ final class RulesPsr16CacheTest extends TestCase
             }
         };
 
-        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', '1 DAY'));
+        $pslCache = new RulesCache(new JsonSerializablePsr16Cache($cache, 'pdp_', '1 DAY'));
 
         self::assertNull($pslCache->fetch('http://www.example.com'));
     }
@@ -118,7 +118,7 @@ final class RulesPsr16CacheTest extends TestCase
             }
         };
 
-        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', 86400));
+        $pslCache = new RulesCache(new JsonSerializablePsr16Cache($cache, 'pdp_', 86400));
 
         self::assertEquals(
             Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat'),
@@ -188,8 +188,10 @@ final class RulesPsr16CacheTest extends TestCase
             }
         };
 
-        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', 86400, $logger));
-
+        $pslCache = new RulesCache(
+            new JsonSerializablePsr16Cache($cache, 'pdp_', 86400, $logger),
+            $logger
+        );
         self::assertNull($pslCache->fetch('http://www.example.com'));
         self::assertSame('Failed to JSON decode the string: Syntax error.', $logger->logs()[0]);
     }
@@ -256,7 +258,10 @@ final class RulesPsr16CacheTest extends TestCase
             }
         };
 
-        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'), $logger));
+        $pslCache = new RulesCache(
+            new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'), $logger),
+            $logger
+        );
 
         self::assertNull($pslCache->fetch('http://www.example.com'));
         self::assertSame(
@@ -328,7 +333,10 @@ final class RulesPsr16CacheTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger));
+        $pslCache = new RulesCache(
+            new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger),
+            $logger
+        );
 
         self::assertTrue($pslCache->store('http://www.example.com', $psl));
         self::assertSame('The content associated with: `http://www.example.com` was stored.', $logger->logs()[0]);
@@ -397,7 +405,10 @@ final class RulesPsr16CacheTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger));
+        $pslCache = new RulesCache(
+            new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger),
+            $logger
+        );
 
         self::assertFalse($pslCache->store('http://www.example.com', $psl));
         self::assertSame('The content associated with: `http://www.example.com` could not be stored.', $logger->logs()[0]);
@@ -468,7 +479,10 @@ final class RulesPsr16CacheTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new RulesPsr16Cache(new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger));
+        $pslCache = new RulesCache(
+            new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger),
+            $logger
+        );
 
         self::assertFalse($pslCache->store('http://www.example.com', $psl));
         self::assertSame('The content associated with: `http://www.example.com` could not be cached: Something went wrong.', $logger->logs()[0]);

@@ -23,7 +23,7 @@ use RuntimeException;
 use TypeError;
 
 /**
- * @coversDefaultClass \Pdp\Storage\JsonSerializablePsr16Cache
+ * @coversDefaultClass JsonSerializableCache
  */
 final class JsonSerializablePsr16CacheTest extends TestCase
 {
