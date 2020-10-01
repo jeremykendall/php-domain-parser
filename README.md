@@ -156,8 +156,8 @@ $factory = new PsrStorageFactory(new Client(), $requestFactory, $cache);
 $pslStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
 $rzdStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
 
-$rules = $pslStorage->get(PsrStorageFactory::PSL_URL);
-$tldDomains = $rzdStorage->get(PsrStorageFactory::RZD_URL);
+$rules = $pslStorage->get(PsrStorageFactory::URL_PSL);
+$tldDomains = $rzdStorage->get(PsrStorageFactory::URL_RZD);
 ~~~
 
 ### Automatic Updates
