@@ -31,12 +31,12 @@ final class TopLevelDomainsStorageTest extends TestCase
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
 
-            public function store(string $uri, RootZoneDatabase $topLevelDomains): bool
+            public function store(string $uri, RootZoneDatabase $rootZoneDatabase): bool
             {
                 return true;
             }
 
-            public function delete(string $uri): bool
+            public function forget(string $uri): bool
             {
                 return true;
             }
@@ -67,7 +67,7 @@ final class TopLevelDomainsStorageTest extends TestCase
                 return true;
             }
 
-            public function delete(string $uri): bool
+            public function forget(string $uri): bool
             {
                 return true;
             }

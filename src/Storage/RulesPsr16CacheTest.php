@@ -13,19 +13,17 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\TopLevelDomains;
+use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\AbstractLogger;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
 use function dirname;
-use function json_encode;
 
 /**
- * @coversDefaultClass \Pdp\Storage\TopLevelDomainsCache
+ * @coversDefaultClass \Pdp\Storage\RulesPsr16Cache
  */
-final class TopLevelDomainsCacheTest extends TestCase
+final class RulesPsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
@@ -70,9 +68,9 @@ final class TopLevelDomainsCacheTest extends TestCase
             }
         };
 
-        $cache = new TopLevelDomainsCache(new JsonSerializablePsr16Cache($cache, 'pdp_', '1 DAY'));
+        $pslCache = new RulesPsr16Cache($cache, 'pdp_', '1 DAY');
 
-        self::assertNull($cache->fetch('http://www.example.com'));
+        self::assertNull($pslCache->fetch('http://www.example.com'));
     }
 
     public function testItReturnsAnInstanceIfTheCorrectCacheExists(): void
@@ -80,7 +78,7 @@ final class TopLevelDomainsCacheTest extends TestCase
         $cache = new class() implements CacheInterface {
             public function get($key, $default = null)
             {
-                return json_encode(TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt'));
+                return Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
             }
 
             public function set($key, $value, $ttl = null)
@@ -118,11 +116,11 @@ final class TopLevelDomainsCacheTest extends TestCase
             }
         };
 
-        $cache = new TopLevelDomainsCache(new JsonSerializablePsr16Cache($cache, 'pdp_', 86400));
+        $pslCache = new RulesPsr16Cache($cache, 'pdp_', 86400);
 
         self::assertEquals(
-            TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt'),
-            $cache->fetch('http://www.example.com')
+            Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat'),
+            $pslCache->fetch('http://www.example.com')
         );
     }
 
@@ -169,32 +167,8 @@ final class TopLevelDomainsCacheTest extends TestCase
             }
         };
 
-        $logger = new class() extends AbstractLogger {
-            private array $logs = [];
-
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->logs[] = strtr($message, $replace);
-            }
-
-            public function logs(): array
-            {
-                return $this->logs;
-            }
-        };
-
-        $cache = new TopLevelDomainsCache(
-            new JsonSerializablePsr16Cache($cache, 'pdp_', 86400, $logger),
-            $logger
-        );
-
-        self::assertNull($cache->fetch('http://www.example.com'));
-        self::assertSame('Failed to JSON decode the string: Syntax error.', $logger->logs()[0]);
+        $pslCache = new RulesPsr16Cache($cache, 'pdp_', 86400);
+        self::assertNull($pslCache->fetch('http://www.example.com'));
     }
 
     public function testItReturnsNullIfTheCacheContentCannotBeConvertedToTheCorrectInstance(): void
@@ -240,34 +214,9 @@ final class TopLevelDomainsCacheTest extends TestCase
             }
         };
 
-        $logger = new class() extends AbstractLogger {
-            private array $logs = [];
+        $pslCache = new RulesPsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'));
 
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->logs[] = strtr($message, $replace);
-            }
-
-            public function logs(): array
-            {
-                return $this->logs;
-            }
-        };
-
-        $cache = new TopLevelDomainsCache(
-            new JsonSerializablePsr16Cache($cache, 'pdp_', 86400, $logger),
-            $logger
-        );
-        self::assertNull($cache->fetch('http://www.example.com'));
-        self::assertSame(
-            'The decoded hashmap structure is missing at least one of the required properties: `records`, `version` and/or `modifiedDate`.',
-            $logger->logs()[0]
-        );
+        self::assertNull($pslCache->fetch('http://www.example.com'));
     }
 
     public function testItCanStoreAPublicSuffixListInstance(): void
@@ -313,33 +262,10 @@ final class TopLevelDomainsCacheTest extends TestCase
             }
         };
 
-        $logger = new class() extends AbstractLogger {
-            private array $logs = [];
+        $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
+        $pslCache = new RulesPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->logs[] = strtr($message, $replace);
-            }
-
-            public function logs(): array
-            {
-                return $this->logs;
-            }
-        };
-
-        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new TopLevelDomainsCache(
-            new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger),
-            $logger
-        );
-
-        self::assertTrue($cache->store('http://www.example.com', $rzd));
-        self::assertSame('The content associated with: `http://www.example.com` was stored.', $logger->logs()[0]);
+        self::assertTrue($pslCache->store('http://www.example.com', $psl));
     }
 
     public function testItReturnsFalseIfItCantStoreAPublicSuffixListInstance(): void
@@ -385,33 +311,10 @@ final class TopLevelDomainsCacheTest extends TestCase
             }
         };
 
-        $logger = new class() extends AbstractLogger {
-            private array $logs = [];
+        $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
+        $pslCache = new RulesPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->logs[] = strtr($message, $replace);
-            }
-
-            public function logs(): array
-            {
-                return $this->logs;
-            }
-        };
-
-        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new TopLevelDomainsCache(
-            new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger),
-            $logger
-        );
-
-        self::assertFalse($cache->store('http://www.example.com', $rzd));
-        self::assertSame('The content associated with: `http://www.example.com` could not be stored.', $logger->logs()[0]);
+        self::assertFalse($pslCache->store('http://www.example.com', $psl));
     }
 
 
@@ -459,32 +362,9 @@ final class TopLevelDomainsCacheTest extends TestCase
             }
         };
 
-        $logger = new class() extends AbstractLogger {
-            private array $logs = [];
+        $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
+        $pslCache = new RulesPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->logs[] = strtr($message, $replace);
-            }
-
-            public function logs(): array
-            {
-                return $this->logs;
-            }
-        };
-
-        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new TopLevelDomainsCache(
-            new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger),
-            $logger
-        );
-
-        self::assertFalse($cache->store('http://www.example.com', $rzd));
-        self::assertSame('The content associated with: `http://www.example.com` could not be cached: Something went wrong.', $logger->logs()[0]);
+        self::assertFalse($pslCache->store('http://www.example.com', $psl));
     }
 }

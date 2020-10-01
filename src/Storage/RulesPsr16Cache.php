@@ -17,42 +17,36 @@ use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use JsonSerializable;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
+use Pdp\PublicSuffixList;
+use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
-use Throwable;
 use TypeError;
 use function filter_var;
 use function get_class;
 use function gettype;
 use function is_object;
 use function is_string;
-use function json_encode;
 use function md5;
 use function sprintf;
 use function strtolower;
 use const FILTER_VALIDATE_INT;
 
-final class JsonSerializablePsr16Cache implements JsonSerializableCache
+final class RulesPsr16Cache implements PublicSuffixListCache
 {
-    private string $cachePrefix;
-
     private CacheInterface $cache;
 
-    private LoggerInterface $logger;
+    private string $cachePrefix;
 
     private ?DateInterval $cacheTtl;
 
     /**
-     * @param mixed $cacheTtl the time to live for the given cache
+     * @param mixed $cacheTtl cache TTL
      */
-    public function __construct(CacheInterface $cache, string $cachePrefix = '', $cacheTtl = null, LoggerInterface $logger = null)
+    public function __construct(CacheInterface $cache, string $cachePrefix = '', $cacheTtl = null)
     {
         $this->cache = $cache;
         $this->cachePrefix = $cachePrefix;
         $this->cacheTtl = $this->setTtl($cacheTtl);
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -95,27 +89,21 @@ final class JsonSerializablePsr16Cache implements JsonSerializableCache
         return $date;
     }
 
-    public function store(string $key, JsonSerializable $object): bool
+    public function fetch(string $uri): ?PublicSuffixList
     {
-        try {
-            $result = $this->cache->set($this->cacheKey($key), json_encode($object), $this->cacheTtl);
-        } catch (Throwable $exception) {
-            $this->logger->info(
-                'The content associated with: `'.$key.'` could not be cached: '.$exception->getMessage(),
-                ['exception' => $exception]
-            );
-
-            return false;
+        $cacheKey = $this->cacheKey($uri);
+        $publicSuffixList = $this->cache->get($cacheKey);
+        if (null === $publicSuffixList) {
+            return null;
         }
 
-        $message = 'The content associated with: `'.$key.'` was stored.';
-        if (!$result) {
-            $message = 'The content associated with: `'.$key.'` could not be stored.';
+        if (!$publicSuffixList instanceof PublicSuffixList) {
+            $this->cache->delete($cacheKey);
+
+            return null;
         }
 
-        $this->logger->info($message);
-
-        return $result;
+        return $publicSuffixList;
     }
 
     /**
@@ -126,18 +114,17 @@ final class JsonSerializablePsr16Cache implements JsonSerializableCache
         return $this->cachePrefix.md5(strtolower($str));
     }
 
-    public function fetch(string $key): ?string
+    public function store(string $uri, PublicSuffixList $publicSuffixList): bool
     {
-        return $this->cache->get($this->cacheKey($key));
+        try {
+            return $this->cache->set($this->cacheKey($uri), $publicSuffixList, $this->cacheTtl);
+        } catch (CacheException $exception) {
+            return false;
+        }
     }
 
-    public function forget(string $key): bool
+    public function forget(string $uri): bool
     {
-        $result = $this->cache->delete($this->cacheKey($key));
-        if (!$result) {
-            $this->logger->warning('The content associated with: `'.$key.'` could not be deleted.');
-        }
-
-        return $result;
+        return $this->cache->delete($this->cacheKey($uri));
     }
 }

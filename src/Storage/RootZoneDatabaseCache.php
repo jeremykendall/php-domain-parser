@@ -29,12 +29,12 @@ interface RootZoneDatabaseCache
      *
      * Returns true if the action was successful, false otherwise
      */
-    public function store(string $uri, RootZoneDatabase $topLevelDomains): bool;
+    public function store(string $uri, RootZoneDatabase $rootZoneDatabase): bool;
 
     /**
      * Deletes the Root Zone Database entry.
      *
      * Returns true if the action was successful, false otherwise
      */
-    public function delete(string $uri): bool;
+    public function forget(string $uri): bool;
 }

@@ -15,7 +15,6 @@ namespace Pdp\Storage;
 
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
 final class PsrStorageFactory implements
@@ -28,19 +27,15 @@ final class PsrStorageFactory implements
     private RequestFactoryInterface $requestFactory;
 
     private CacheInterface $cache;
-
-    private ?LoggerInterface $logger;
-
+    
     public function __construct(
         ClientInterface $client,
         RequestFactoryInterface $requestFactory,
-        CacheInterface $cache,
-        LoggerInterface $logger = null
+        CacheInterface $cache
     ) {
         $this->client = $client;
         $this->requestFactory = $requestFactory;
         $this->cache = $cache;
-        $this->logger = $logger;
     }
 
     /**
@@ -50,10 +45,7 @@ final class PsrStorageFactory implements
     {
         return new RulesStorage(
             new RulesPsr18Client($this->client, $this->requestFactory),
-            new RulesCache(
-                new JsonSerializablePsr16Cache($this->cache, $cachePrefix, $cacheTtl, $this->logger),
-                $this->logger
-            )
+            new RulesPsr16Cache($this->cache, $cachePrefix, $cacheTtl)
         );
     }
 
@@ -64,10 +56,7 @@ final class PsrStorageFactory implements
     {
         return new TopLevelDomainsStorage(
             new TopLevelDomainsPsr18Client($this->client, $this->requestFactory),
-            new TopLevelDomainsCache(
-                new JsonSerializablePsr16Cache($this->cache, $cachePrefix, $cacheTtl, $this->logger),
-                $this->logger
-            )
+            new TopLevelDomainsPsr16Cache($this->cache, $cachePrefix, $cacheTtl)
         );
     }
 }

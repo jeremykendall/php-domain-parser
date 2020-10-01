@@ -36,5 +36,5 @@ interface PublicSuffixListCache
      *
      * Returns true if the action was successful, false otherwise
      */
-    public function delete(string $uri): bool;
+    public function forget(string $uri): bool;
 }

@@ -43,6 +43,6 @@ final class RulesStorage implements PublicSuffixListStorage
 
     public function delete(string $uri): bool
     {
-        return $this->cache->delete($uri);
+        return $this->cache->forget($uri);
     }
 }

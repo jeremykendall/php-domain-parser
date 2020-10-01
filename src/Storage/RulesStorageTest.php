@@ -36,7 +36,7 @@ final class RulesStorageTest extends TestCase
                 return true;
             }
 
-            public function delete(string $uri): bool
+            public function forget(string $uri): bool
             {
                 return true;
             }
@@ -68,7 +68,7 @@ final class RulesStorageTest extends TestCase
                 return true;
             }
 
-            public function delete(string $uri): bool
+            public function forget(string $uri): bool
             {
                 return true;
             }
@@ -100,7 +100,7 @@ final class RulesStorageTest extends TestCase
                 return true;
             }
 
-            public function delete(string $uri): bool
+            public function forget(string $uri): bool
             {
                 return 'http://www.example.com' === $uri;
             }

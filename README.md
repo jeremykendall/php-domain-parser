@@ -82,16 +82,22 @@ In case of an error an exception which extends `Pdp\ExceptionInterface` is throw
 
 **WARNING:**
 
-**You should never use the library this way in production, without, at least, a caching mechanism to reduce HTTP calls.**
+**You should never use the library this way in production, without, at least, a caching mechanism to reduce PSL downloads.**
 
-**Using the PSL to determine what is a valid domain name and what isn't is dangerous, particularly in these days when new gTLDs are arriving at a rapid pace.  
-The IANA Root Zone Database is the proper source for this information.  
-Either way, if you must use this library for this purpose, please consider integrating an automatic update mechanism into your software.**
+**Using the Public Suffix List to determine what is a valid domain name and what isn't is dangerous, particularly in these days when new gTLDs are arriving at a rapid pace.**
+**The DNS is the proper source for this information.** 
+
+**If you are looking to know the validity of a Top Level Domain, the IANA Root Zone Database is the proper source for this information.** 
+
+**If you must use this library for any of the above purposes, please consider integrating an update mechanism into your software.**
 
 ## Managing the package databases
 
-The library comes bundle with a **optional** service which enables resolving domain name without the constant network overhead of continuously downloading the remote databases.
-The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that retrieve, convert and cache the Public Suffix List as well as the IANA Root Zone Database.
+Depending on your software the mechanism to store your database may differ, nevertheless, the library comes bundle with a **optional service** 
+which enables resolving domain name without the constant network overhead of continuously downloading the remote databases.
+
+The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that retrieve, convert and cache the Public Suffix List as well as the IANA Root Zone Database using
+standard interfaces published by the PHP-FIG to improve its interoperability with any modern PHP codebase.
 
 ### Instantiate `Pdp\Storage\PsrStorageFactory`
 
@@ -99,7 +105,6 @@ To work as intended, the `Pdp\Storage\PsrStorageFactory` constructor requires:
 
 - a [PSR-16](http://www.php-fig.org/psr/psr-16/) A Cache object to store the rules locally.
 - a [PSR-18](http://www.php-fig.org/psr/psr-18/) A PSR-18 HTTP Client.
-- a [PSR-3](http://www.php-fig.org/psr/psr-3/) A Logger object to log storage usage.
 
 When creating a new storage instance you will require:
 

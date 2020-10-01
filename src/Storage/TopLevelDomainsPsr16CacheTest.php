@@ -13,19 +13,17 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use InvalidArgumentException;
-use JsonSerializable;
+use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\AbstractLogger;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
-use TypeError;
+use function dirname;
 
 /**
- * @coversDefaultClass JsonSerializableCache
+ * @coversDefaultClass \Pdp\Storage\TopLevelDomainsPsr16Cache
  */
-final class JsonSerializablePsr16CacheTest extends TestCase
+final class TopLevelDomainsPsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
@@ -70,83 +68,17 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', '1 DAY');
-        $jsonInstance = new class() implements JsonSerializable {
-            public function jsonSerialize(): array
-            {
-                return ['foo' => 'bar'];
-            }
-        };
+        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', '1 DAY');
 
-        self::assertFalse($cache->store('http://www.example.com', $jsonInstance));
+        self::assertNull($cache->fetch('http://www.example.com'));
     }
 
-    public function testItReturnsAJsonStringIfTheCacheExists(): void
-    {
-        $cache = new class() implements CacheInterface {
-            private array $data = [];
-
-            public function get($key, $default = null)
-            {
-                return $this->data[$key] ?? $default;
-            }
-
-            public function set($key, $value, $ttl = null)
-            {
-                $this->data[$key] = $value;
-
-                return true;
-            }
-
-            public function delete($key)
-            {
-                return true;
-            }
-
-            public function clear()
-            {
-                return true;
-            }
-
-            public function getMultiple($keys, $default = null)
-            {
-                return [];
-            }
-
-            public function setMultiple($values, $ttl = null)
-            {
-                return true;
-            }
-            public function deleteMultiple($keys)
-            {
-                return true;
-            }
-
-            public function has($key)
-            {
-                return true;
-            }
-        };
-
-        $jsonInstance = new class() implements JsonSerializable {
-            public function jsonSerialize(): array
-            {
-                return ['foo' => 'bar'];
-            }
-        };
-
-        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', 86400);
-        $cache->store('http://www.example.com', $jsonInstance);
-
-        self::assertEquals('{"foo":"bar"}', $cache->fetch('http://www.example.com'));
-    }
-
-    public function testItThrowsOnConstructionIfTheTTLIsNotTheCorrectType(): void
+    public function testItReturnsAnInstanceIfTheCorrectCacheExists(): void
     {
         $cache = new class() implements CacheInterface {
             public function get($key, $default = null)
             {
-                return null;
+                return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
 
             public function set($key, $value, $ttl = null)
@@ -184,17 +116,20 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        self::expectException(TypeError::class);
+        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', 86400);
 
-        new JsonSerializablePsr16Cache($cache, 'pdp_', []);
+        self::assertEquals(
+            TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt'),
+            $cache->fetch('http://www.example.com')
+        );
     }
 
-    public function testItThrowsOnConstructionIfTheTTLStringCanNotBeParsed(): void
+    public function testItReturnsNullIfTheCacheContentContainsInvalidJsonData(): void
     {
         $cache = new class() implements CacheInterface {
             public function get($key, $default = null)
             {
-                return null;
+                return 'foobar';
             }
 
             public function set($key, $value, $ttl = null)
@@ -232,9 +167,56 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        self::expectException(InvalidArgumentException::class);
+        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', 86400);
 
-        new JsonSerializablePsr16Cache($cache, 'pdp_', 'foobar');
+        self::assertNull($cache->fetch('http://www.example.com'));
+    }
+
+    public function testItReturnsNullIfTheCacheContentCannotBeConvertedToTheCorrectInstance(): void
+    {
+        $cache = new class() implements CacheInterface {
+            public function get($key, $default = null)
+            {
+                return '{"foo":"bar"}';
+            }
+
+            public function set($key, $value, $ttl = null)
+            {
+                return false;
+            }
+
+            public function delete($key)
+            {
+                return true;
+            }
+
+            public function clear()
+            {
+                return true;
+            }
+
+            public function getMultiple($keys, $default = null)
+            {
+                return [];
+            }
+
+            public function setMultiple($values, $ttl = null)
+            {
+                return true;
+            }
+            public function deleteMultiple($keys)
+            {
+                return true;
+            }
+
+            public function has($key)
+            {
+                return true;
+            }
+        };
+
+        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', 86400);
+        self::assertNull($cache->fetch('http://www.example.com'));
     }
 
     public function testItCanStoreAPublicSuffixListInstance(): void
@@ -280,35 +262,10 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        $logger = new class() extends AbstractLogger {
-            private array $logs = [];
+        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
+        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->logs[] = strtr($message, $replace);
-            }
-
-            public function logs(): array
-            {
-                return $this->logs;
-            }
-        };
-
-        $jsonInstance = new class() implements JsonSerializable {
-            public function jsonSerialize(): array
-            {
-                return ['foo' => 'bar'];
-            }
-        };
-        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger);
-
-        self::assertTrue($cache->store('http://www.example.com', $jsonInstance));
-        self::assertSame('The content associated with: `http://www.example.com` was stored.', $logger->logs()[0]);
+        self::assertTrue($cache->store('http://www.example.com', $rzd));
     }
 
     public function testItReturnsFalseIfItCantStoreAPublicSuffixListInstance(): void
@@ -354,36 +311,10 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        $logger = new class() extends AbstractLogger {
-            private array $logs = [];
+        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
+        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->logs[] = strtr($message, $replace);
-            }
-
-            public function logs(): array
-            {
-                return $this->logs;
-            }
-        };
-
-        $jsonInstance = new class() implements JsonSerializable {
-            public function jsonSerialize(): array
-            {
-                return ['foo' => 'bar'];
-            }
-        };
-
-        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'), $logger);
-
-        self::assertFalse($cache->store('http://www.example.com', $jsonInstance));
-        self::assertSame('The content associated with: `http://www.example.com` could not be stored.', $logger->logs()[0]);
+        self::assertFalse($cache->store('http://www.example.com', $rzd));
     }
 
 
@@ -431,35 +362,9 @@ final class JsonSerializablePsr16CacheTest extends TestCase
             }
         };
 
-        $logger = new class() extends AbstractLogger {
-            private array $logs = [];
+        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
+        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-            public function log($level, $message, array $context = [])
-            {
-                $replace = [];
-                foreach ($context as $key => $val) {
-                    $replace['{'.$key.'}'] = $val;
-                }
-
-                $this->logs[] = strtr($message, $replace);
-            }
-
-            public function logs(): array
-            {
-                return $this->logs;
-            }
-        };
-
-        $jsonInstance = new class() implements JsonSerializable {
-            public function jsonSerialize(): array
-            {
-                return ['foo' => 'bar'];
-            }
-        };
-
-        $cache = new JsonSerializablePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'), $logger);
-
-        self::assertFalse($cache->store('http://www.example.com', $jsonInstance));
-        self::assertSame('The content associated with: `http://www.example.com` could not be cached: Something went wrong.', $logger->logs()[0]);
+        self::assertFalse($cache->store('http://www.example.com', $rzd));
     }
 }
