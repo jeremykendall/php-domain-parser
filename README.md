@@ -49,10 +49,12 @@ use Pdp\Rules;
 
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
-echo $rules->resolve('www.ulb.ac.be')->getPublicSuffix();          //display 'ac.be';
-echo $rules->getCookieDomain('www.ulb.ac.be')->getPublicSuffix();  //display 'ac.be';
-echo $rules->getICANNDomain('www.ulb.ac.be')->getPublicSuffix();   //display 'ac.be';
-echo $rules->getPrivateDomain('www.ulb.ac.be')->getPublicSuffix(); //display 'be';
+$resolvedDomain = $rules->resolve('www.PreF.OkiNawA.jP');
+echo $resolvedDomain->getDomain();            //display 'www.pref.okinawa.jp';
+echo $resolvedDomain->getPublicSuffix();      //display 'okinawa.jp';
+echo $resolvedDomain->getSecondLevelDomain(); //display 'pref';
+echo $resolvedDomain->getRegistrableDomain(); //display 'pref.okinawa.jp';
+echo $resolvedDomain->getSubDomain();         //display 'www';
 ~~~
 
 In case of an error an exception which extends `Pdp\ExceptionInterface` is thrown.
@@ -61,108 +63,22 @@ In case of an error an exception which extends `Pdp\ExceptionInterface` is throw
 
 While the [Public Suffix List](http://publicsuffix.org/) is a community based list, the package provides access to 
 the Top Level domain information given by the [IANA website](https://data.iana.org/TLD/tlds-alpha-by-domain.txt) to always resolve
-top domain against the newly registered TLD.
+top domain against all registered TLD even the new ones.
 
 ~~~php
 use Pdp\TopLevelDomains;
 
 $iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
 
-echo $iana->resolve('www.UlB.Ac.bE')->getPublicSuffix(); //display 'be';
+$resolvedDomain = $iana->resolve('www.PreF.OkiNawA.jP');
+echo $resolvedDomain->getDomain();            //display 'www.pref.okinawa.jp';
+echo $resolvedDomain->getPublicSuffix();      //display 'jp';
+echo $resolvedDomain->getSecondLevelDomain(); //display 'okinawa';
+echo $resolvedDomain->getRegistrableDomain(); //display 'okinawa.jp';
+echo $resolvedDomain->getSubDomain();         //display 'www.pref';
 ~~~
 
 In case of an error an exception which extends `Pdp\ExceptionInterface` is thrown.
-
-### Domain, ResolvedDomain and PublicSuffix
-
-In order to resolve a specific domain the package needs to make a distinction
-between several domain representations. Each on of them is expressed as an immutable value object
-which implements the `Pdp\Host` interface.
-
-#### Domain
-
-A `Pdp\Domain` instance is a host that exposes its labels and allow to change them.
-
-~~~php
-use Pdp\Domain;
-
-$domain = new Domain('www.bébé.ExAmple.com');
-$domain->getContent();             // www.bébé.example.com
-echo $domain;                      // www.bébé.example.com
-echo $domain->label(0);         // 'com'
-echo $domain->label(-1);        // 'www'
-$domain->keys('example');          // array(1)
-count($domain);                    //returns 4
-iterator_to_array($domain, false); // ['com', 'example', 'bébé', 'www']
-$domain->labels();                 // ['com', 'example', 'bébé', 'www']  since v5.5
-$domain->toAscii()->getContent();  // www.xn--bb-bjab.example.com
-echo (new Domain('www.xn--bb-bjab.example.com'))->toAscii(); // www.bébé.example.com
-$domain->getAsciiIDNAOption();     // IDNA_DEFAULT
-$domain->getUnicodeIDNAOption();   // IDNA_DEFAULT
-~~~
-
-Using the above code you have parsed and validated a domain name. The domain object has no information regarding its effective TLD.
-To gain information against those databases you need to use their respective instance.
-
-The `Pdp\Domain` object supports IDNA options for a better transformation between i18n and ascii domain name.
-
-~~~php
-<?php
-
-use Pdp\Domain;
-
-$defaultDomain = new Domain('faß.test.de');
-echo $defaultDomain->toAscii()->getContent(); // 'fass.test.de'
-
-$altDomain = new Domain('faß.test.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-echo $altDomain->toAscii()->getContent(); // 'xn--fa-hia.test.de'
-~~~
-
-The object also implements PHP's `Countable`, `IteratorAggregate` and `JsonSerializable` interfaces to ease retrieving the domain labels and properties.
-
-~~~php
-use Pdp\Domain;
-
-$domain = new Domain('www.bébé.be');
-$domain->getContent();     // 'www.bébé.be'
-echo $domain->toAscii();   // 'www.xn--bb-bjab.be'
-echo $domain->toUnicode(); // 'www.bébé.be'
-$newDomain = $domain
-    ->withLabel(-1, 'shop')
-    ->withLabel(0, 'com')
-    ->withoutLabel(1)
-;
-echo $domain;   // 'www.bébé.be'
-echo $newDomain; // 'shop.com'
-~~~
-
-#### Public Suffix
-
-**The domain public suffix status depends on the PSL section used to resolve it:**
-
-- `Pdp\PublicSuffix::isKnown` returns `true` if the public suffix is part of the selected PSL;
-- `Pdp\PublicSuffix::isICANN` returns `true` if the public suffix is part of the PSL ICANN DOMAINS section;
-- `Pdp\PublicSuffix::isPrivate` returns `true` if the public suffix is part of the PSL PRIVATE DOMAINS section;
-
-#### Resolved Domain
-
-**THIS EXAMPLE ILLUSTRATES HOW THE OBJECT WORK BUT SHOULD BE AVOIDED IN PRODUCTION**
-
-~~~php
-$pdp_url = 'https://example.com/public_suffix_list.dat';
-$rules = Pdp\Rules::fromPath($pdp_url);
-
-$domain = $rules->resolve('www.Ulb.AC.be'); // resolution is done against all the sections available
-echo $domain; // returns www.ulb.ac.be
-echo $domain->getPublicSuffix();
-// returns "ac.be"
-
-//The same domain will return a different result using the PSL PRIVATE DOMAIN SECTION only
-
-$domain = $rules->getPrivateDomain('www.Ulb.AC.be');
-echo $domain->getPublicSuffix();
-// returns "be"
-~~~
 
 **WARNING:**
 
@@ -174,7 +90,7 @@ Either way, if you must use this library for this purpose, please consider integ
 
 ## Managing the package databases
 
-The library comes bundle with a service which enables resolving domain name without the constant network overhead of continuously downloading the remote databases.
+The library comes bundle with a **optional** service which enables resolving domain name without the constant network overhead of continuously downloading the remote databases.
 The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that retrieve, convert and cache the Public Suffix List as well as the IANA Root Zone Database.
 
 ### Instantiate `Pdp\Storage\PsrStorageFactory`
@@ -294,12 +210,10 @@ Portions of the `Pdp\Converter` and `Pdp\Rules` are derivative works of the PHP
 Those parts of this codebase are heavily commented, and I've included a copy of
 the Apache Software Foundation License 2.0 in this project.
 
-[ico-travis]: https://img.shields.io/travis/jeremykendall/php-domain-parser/master.svg?style=flat-square
 [ico-packagist]: https://img.shields.io/packagist/dt/jeremykendall/php-domain-parser.svg?style=flat-square
 [ico-release]: https://img.shields.io/github/release/jeremykendall/php-domain-parser.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 
-[link-travis]: https://travis-ci.org/jeremykendall/php-domain-parser
 [link-packagist]: https://packagist.org/packages/jeremykendall/php-domain-parser
 [link-release]: https://github.com/jeremykendall/php-domain-parser/releases
 [link-license]: https://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE
