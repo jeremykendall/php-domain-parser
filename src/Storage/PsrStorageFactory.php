@@ -22,20 +22,17 @@ final class PsrStorageFactory implements
     PublicSuffixListStorageFactory,
     RootZoneDatabaseStorageFactory
 {
+    private CacheInterface $cache;
+
     private ClientInterface $client;
 
     private RequestFactoryInterface $requestFactory;
 
-    private CacheInterface $cache;
-    
-    public function __construct(
-        ClientInterface $client,
-        RequestFactoryInterface $requestFactory,
-        CacheInterface $cache
-    ) {
+    public function __construct(CacheInterface $cache, ClientInterface $client, RequestFactoryInterface $requestFactory)
+    {
+        $this->cache = $cache;
         $this->client = $client;
         $this->requestFactory = $requestFactory;
-        $this->cache = $cache;
     }
 
     /**
@@ -44,8 +41,8 @@ final class PsrStorageFactory implements
     public function createPublicSuffixListStorage(string $cachePrefix = '', $cacheTtl = null): PublicSuffixListStorage
     {
         return new RulesStorage(
-            new RulesPsr18Client($this->client, $this->requestFactory),
-            new RulesPsr16Cache($this->cache, $cachePrefix, $cacheTtl)
+            new RulesPsr16Cache($this->cache, $cachePrefix, $cacheTtl),
+            new RulesPsr18Client($this->client, $this->requestFactory)
         );
     }
 
@@ -55,8 +52,8 @@ final class PsrStorageFactory implements
     public function createRootZoneDatabaseStorage(string $cachePrefix = '', $cacheTtl = null): RootZoneDatabaseStorage
     {
         return new TopLevelDomainsStorage(
-            new TopLevelDomainsPsr18Client($this->client, $this->requestFactory),
-            new TopLevelDomainsPsr16Cache($this->cache, $cachePrefix, $cacheTtl)
+            new TopLevelDomainsPsr16Cache($this->cache, $cachePrefix, $cacheTtl),
+            new TopLevelDomainsPsr18Client($this->client, $this->requestFactory)
         );
     }
 }

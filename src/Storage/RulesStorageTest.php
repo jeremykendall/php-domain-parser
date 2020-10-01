@@ -49,7 +49,7 @@ final class RulesStorageTest extends TestCase
             }
         };
 
-        $storage = new RulesStorage($client, $cache);
+        $storage = new RulesStorage($cache, $client);
         $psl = $storage->get('http://www.example.com');
 
         self::assertInstanceOf(Rules::class, $psl);
@@ -81,7 +81,7 @@ final class RulesStorageTest extends TestCase
             }
         };
 
-        $storage = new RulesStorage($client, $cache);
+        $storage = new RulesStorage($cache, $client);
         $psl = $storage->get('http://www.example.com');
 
         self::assertInstanceOf(Rules::class, $psl);
@@ -113,7 +113,7 @@ final class RulesStorageTest extends TestCase
             }
         };
 
-        $storage = new RulesStorage($client, $cache);
+        $storage = new RulesStorage($cache, $client);
         $storage->get('http://www.example.com');
 
         self::assertTrue($storage->delete('http://www.example.com'));

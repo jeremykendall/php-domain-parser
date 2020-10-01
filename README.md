@@ -143,6 +143,7 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
 $cache = new Psr16Cache(new FilesystemAdapter('pdp', 3600, __DIR__.'/data'));
+$client = new Client();
 $requestFactory = new class implements RequestFactoryInterface {
     public function createRequest(string $method, $uri): RequestInterface
     {
@@ -152,7 +153,7 @@ $requestFactory = new class implements RequestFactoryInterface {
 
 $cachePrefix = 'pdp_';
 $cacheTtl = new DateInterval('P1D');
-$factory = new PsrStorageFactory(new Client(), $requestFactory, $cache);
+$factory = new PsrStorageFactory($cache, $client, $requestFactory);
 $pslStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
 $rzdStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
 

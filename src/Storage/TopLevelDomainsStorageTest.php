@@ -49,7 +49,7 @@ final class TopLevelDomainsStorageTest extends TestCase
             }
         };
 
-        $storage = new TopLevelDomainsStorage($client, $cache);
+        $storage = new TopLevelDomainsStorage($cache, $client);
 
         self::assertInstanceOf(TopLevelDomains::class, $storage->get('http://www.example.com'));
     }
@@ -80,7 +80,7 @@ final class TopLevelDomainsStorageTest extends TestCase
             }
         };
 
-        $storage = new TopLevelDomainsStorage($client, $cache);
+        $storage = new TopLevelDomainsStorage($cache, $client);
 
         self::assertInstanceOf(TopLevelDomains::class, $storage->get('http://www.example.com'));
     }

@@ -17,14 +17,14 @@ use Pdp\PublicSuffixList;
 
 final class RulesStorage implements PublicSuffixListStorage
 {
-    private PublicSuffixListClient $client;
-
     private PublicSuffixListCache $cache;
 
-    public function __construct(PublicSuffixListClient $client, PublicSuffixListCache $cache)
+    private PublicSuffixListClient $client;
+
+    public function __construct(PublicSuffixListCache $cache, PublicSuffixListClient $client)
     {
-        $this->client = $client;
         $this->cache = $cache;
+        $this->client = $client;
     }
 
     public function get(string $uri): PublicSuffixList

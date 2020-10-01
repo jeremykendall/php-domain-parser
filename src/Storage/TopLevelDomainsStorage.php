@@ -17,14 +17,14 @@ use Pdp\RootZoneDatabase;
 
 final class TopLevelDomainsStorage implements RootZoneDatabaseStorage
 {
-    private RootZoneDatabaseClient $repository;
-
     private RootZoneDatabaseCache $cache;
 
-    public function __construct(RootZoneDatabaseClient $repository, RootZoneDatabaseCache $cache)
+    private RootZoneDatabaseClient $client;
+
+    public function __construct(RootZoneDatabaseCache $cache, RootZoneDatabaseClient $client)
     {
-        $this->repository = $repository;
         $this->cache = $cache;
+        $this->client = $client;
     }
 
     public function get(string $uri): RootZoneDatabase
@@ -34,7 +34,7 @@ final class TopLevelDomainsStorage implements RootZoneDatabaseStorage
             return $rootZoneDatabase;
         }
 
-        $rootZoneDatabase = $this->repository->get($uri);
+        $rootZoneDatabase = $this->client->get($uri);
 
         $this->cache->store($uri, $rootZoneDatabase);
 
