@@ -53,7 +53,7 @@ final class TopLevelDomainsStorageTest extends TestCase
                 return null;
             }
 
-            public function store(string $uri, RootZoneDatabase $publicSuffixList): bool
+            public function remember(string $uri, RootZoneDatabase $publicSuffixList): bool
             {
                 return true;
             }

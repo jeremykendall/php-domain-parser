@@ -54,7 +54,7 @@ final class RulesStorageTest extends TestCase
                 return null;
             }
 
-            public function store(string $uri, PublicSuffixList $publicSuffixList): bool
+            public function remember(string $uri, PublicSuffixList $publicSuffixList): bool
             {
                 return true;
             }
@@ -86,7 +86,7 @@ final class RulesStorageTest extends TestCase
                 return null;
             }
 
-            public function store(string $uri, PublicSuffixList $publicSuffixList): bool
+            public function remember(string $uri, PublicSuffixList $publicSuffixList): bool
             {
                 return true;
             }
