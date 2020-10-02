@@ -1,14 +1,5 @@
 <?php
 
-/**
- * PHP Domain Parser: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Pdp\Storage;
@@ -16,8 +7,8 @@ namespace Pdp\Storage;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadRootZoneDatabase;
+use Pdp\Rules;
+use Pdp\UnableToLoadPublicSuffixList;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -27,18 +18,17 @@ use function dirname;
 use function file_get_contents;
 
 /**
- * @coversDefaultClass \Pdp\Storage\TopLevelDomainsPsr18Client
+ * @coversDefaultClass \Pdp\Storage\PublicSuffixListPsr18Client
  */
-final class TopLevelDomainsPsr18ClientTest extends TestCase
+final class PublicSuffixListPsr18ClientTest extends TestCase
 {
-    public function testIsCanReturnARootZoneDatabaseInstance(): void
+    public function testIsCanReturnAPublicSuffixListInstance(): void
     {
         $client = new class() implements ClientInterface {
             public function sendRequest(RequestInterface $request): ResponseInterface
             {
                 /** @var string $body */
-                $body = file_get_contents(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-
+                $body = file_get_contents(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
                 return new Response(200, [], $body);
             }
         };
@@ -50,10 +40,10 @@ final class TopLevelDomainsPsr18ClientTest extends TestCase
             }
         };
 
-        $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
-        $rzd = $storage->get('http://www.example.com');
+        $storage = new PublicSuffixListPsr18Client($client, $requestFactory);
+        $psl = $storage->get('http://www.example.com');
 
-        self::assertInstanceOf(TopLevelDomains::class, $rzd);
+        self::assertInstanceOf(Rules::class, $psl);
     }
 
     public function testItWillThrowIfTheClientCanNotConnectToTheRemoteURI(): void
@@ -72,10 +62,10 @@ final class TopLevelDomainsPsr18ClientTest extends TestCase
             }
         };
 
-        self::expectException(UnableToLoadRootZoneDatabase::class);
-        self::expectExceptionMessage('Could not access the Root Zone Database URI: `http://www.example.com`.');
+        self::expectException(UnableToLoadPublicSuffixList::class);
+        self::expectExceptionMessage('Could not access the Public Suffix List URI: `http://www.example.com`.');
 
-        $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
+        $storage = new PublicSuffixListPsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');
     }
 
@@ -95,11 +85,11 @@ final class TopLevelDomainsPsr18ClientTest extends TestCase
             }
         };
 
-        self::expectException(UnableToLoadRootZoneDatabase::class);
-        self::expectExceptionMessage('Invalid response from Root Zone Database URI: `http://www.example.com`.');
+        self::expectException(UnableToLoadPublicSuffixList::class);
+        self::expectExceptionMessage('Invalid response from Public Suffix List URI: `http://www.example.com`.');
         self::expectExceptionCode(404);
 
-        $storage = new TopLevelDomainsPsr18Client($client, $requestFactory);
+        $storage = new PublicSuffixListPsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');
     }
 }

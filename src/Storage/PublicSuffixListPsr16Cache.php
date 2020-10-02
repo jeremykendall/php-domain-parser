@@ -1,14 +1,5 @@
 <?php
 
-/**
- * PHP Domain Parser: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Pdp\Storage;
@@ -17,7 +8,7 @@ use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use Pdp\RootZoneDatabase;
+use Pdp\PublicSuffixList;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use TypeError;
@@ -31,7 +22,7 @@ use function sprintf;
 use function strtolower;
 use const FILTER_VALIDATE_INT;
 
-final class TopLevelDomainsPsr16Cache implements RootZoneDatabaseCache
+final class PublicSuffixListPsr16Cache implements PublicSuffixListCache
 {
     private CacheInterface $cache;
 
@@ -40,7 +31,7 @@ final class TopLevelDomainsPsr16Cache implements RootZoneDatabaseCache
     private ?DateInterval $cacheTtl;
 
     /**
-     * @param mixed $cacheTtl storage TTL
+     * @param mixed $cacheTtl cache TTL
      */
     public function __construct(CacheInterface $cache, string $cachePrefix = '', $cacheTtl = null)
     {
@@ -89,21 +80,21 @@ final class TopLevelDomainsPsr16Cache implements RootZoneDatabaseCache
         return $date;
     }
 
-    public function fetch(string $uri): ?RootZoneDatabase
+    public function fetch(string $uri): ?PublicSuffixList
     {
         $cacheKey = $this->cacheKey($uri);
-        $rootZoneDatabase = $this->cache->get($cacheKey);
-        if (null === $rootZoneDatabase) {
+        $publicSuffixList = $this->cache->get($cacheKey);
+        if (null === $publicSuffixList) {
             return null;
         }
 
-        if (!$rootZoneDatabase instanceof RootZoneDatabase) {
+        if (!$publicSuffixList instanceof PublicSuffixList) {
             $this->cache->delete($cacheKey);
 
             return null;
         }
 
-        return $rootZoneDatabase;
+        return $publicSuffixList;
     }
 
     /**
@@ -114,10 +105,10 @@ final class TopLevelDomainsPsr16Cache implements RootZoneDatabaseCache
         return $this->cachePrefix.md5(strtolower($str));
     }
 
-    public function store(string $uri, RootZoneDatabase $rootZoneDatabase): bool
+    public function remember(string $uri, PublicSuffixList $publicSuffixList): bool
     {
         try {
-            return $this->cache->set($this->cacheKey($uri), $rootZoneDatabase, $this->cacheTtl);
+            return $this->cache->set($this->cacheKey($uri), $publicSuffixList, $this->cacheTtl);
         } catch (CacheException $exception) {
             return false;
         }

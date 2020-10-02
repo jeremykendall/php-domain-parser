@@ -1,14 +1,5 @@
 <?php
 
-/**
- * PHP Domain Parser: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Pdp\Storage;
@@ -21,9 +12,9 @@ use RuntimeException;
 use function dirname;
 
 /**
- * @coversDefaultClass \Pdp\Storage\TopLevelDomainsPsr16Cache
+ * @coversDefaultClass \Pdp\Storage\RootZoneDatabasePsr16Cache
  */
-final class TopLevelDomainsPsr16CacheTest extends TestCase
+final class RootZoneDatabasePsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
@@ -68,7 +59,7 @@ final class TopLevelDomainsPsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', '1 DAY');
+        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', '1 DAY');
 
         self::assertNull($cache->fetch('http://www.example.com'));
     }
@@ -116,7 +107,7 @@ final class TopLevelDomainsPsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', 86400);
+        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
 
         self::assertEquals(
             TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt'),
@@ -167,7 +158,7 @@ final class TopLevelDomainsPsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', 86400);
+        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
 
         self::assertNull($cache->fetch('http://www.example.com'));
     }
@@ -215,7 +206,7 @@ final class TopLevelDomainsPsr16CacheTest extends TestCase
             }
         };
 
-        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', 86400);
+        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
         self::assertNull($cache->fetch('http://www.example.com'));
     }
 
@@ -263,9 +254,9 @@ final class TopLevelDomainsPsr16CacheTest extends TestCase
         };
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertTrue($cache->store('http://www.example.com', $rzd));
+        self::assertTrue($cache->remember('http://www.example.com', $rzd));
     }
 
     public function testItReturnsFalseIfItCantStoreAPublicSuffixListInstance(): void
@@ -312,9 +303,9 @@ final class TopLevelDomainsPsr16CacheTest extends TestCase
         };
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertFalse($cache->store('http://www.example.com', $rzd));
+        self::assertFalse($cache->remember('http://www.example.com', $rzd));
     }
 
 
@@ -363,8 +354,8 @@ final class TopLevelDomainsPsr16CacheTest extends TestCase
         };
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new TopLevelDomainsPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertFalse($cache->store('http://www.example.com', $rzd));
+        self::assertFalse($cache->remember('http://www.example.com', $rzd));
     }
 }

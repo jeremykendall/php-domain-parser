@@ -1,14 +1,5 @@
 <?php
 
-/**
- * PHP Domain Parser: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Pdp\Storage;
@@ -21,9 +12,9 @@ use RuntimeException;
 use function dirname;
 
 /**
- * @coversDefaultClass \Pdp\Storage\RulesPsr16Cache
+ * @coversDefaultClass \Pdp\Storage\PublicSuffixListPsr16Cache
  */
-final class RulesPsr16CacheTest extends TestCase
+final class PublicSuffixListPsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
@@ -68,7 +59,7 @@ final class RulesPsr16CacheTest extends TestCase
             }
         };
 
-        $pslCache = new RulesPsr16Cache($cache, 'pdp_', '1 DAY');
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', '1 DAY');
 
         self::assertNull($pslCache->fetch('http://www.example.com'));
     }
@@ -116,7 +107,7 @@ final class RulesPsr16CacheTest extends TestCase
             }
         };
 
-        $pslCache = new RulesPsr16Cache($cache, 'pdp_', 86400);
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', 86400);
 
         self::assertEquals(
             Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat'),
@@ -167,7 +158,7 @@ final class RulesPsr16CacheTest extends TestCase
             }
         };
 
-        $pslCache = new RulesPsr16Cache($cache, 'pdp_', 86400);
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', 86400);
         self::assertNull($pslCache->fetch('http://www.example.com'));
     }
 
@@ -214,7 +205,7 @@ final class RulesPsr16CacheTest extends TestCase
             }
         };
 
-        $pslCache = new RulesPsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'));
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'));
 
         self::assertNull($pslCache->fetch('http://www.example.com'));
     }
@@ -263,9 +254,9 @@ final class RulesPsr16CacheTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new RulesPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertTrue($pslCache->store('http://www.example.com', $psl));
+        self::assertTrue($pslCache->remember('http://www.example.com', $psl));
     }
 
     public function testItReturnsFalseIfItCantStoreAPublicSuffixListInstance(): void
@@ -312,9 +303,9 @@ final class RulesPsr16CacheTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new RulesPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertFalse($pslCache->store('http://www.example.com', $psl));
+        self::assertFalse($pslCache->remember('http://www.example.com', $psl));
     }
 
 
@@ -363,8 +354,8 @@ final class RulesPsr16CacheTest extends TestCase
         };
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new RulesPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertFalse($pslCache->store('http://www.example.com', $psl));
+        self::assertFalse($pslCache->remember('http://www.example.com', $psl));
     }
 }

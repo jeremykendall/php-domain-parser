@@ -1,14 +1,5 @@
 <?php
 
-/**
- * PHP Domain Parser: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Pdp\Storage;
@@ -31,7 +22,7 @@ final class TopLevelDomainsStorageTest extends TestCase
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
 
-            public function store(string $uri, RootZoneDatabase $rootZoneDatabase): bool
+            public function remember(string $uri, RootZoneDatabase $rootZoneDatabase): bool
             {
                 return true;
             }

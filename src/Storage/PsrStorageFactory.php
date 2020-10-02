@@ -1,14 +1,5 @@
 <?php
 
-/**
- * PHP Domain Parser: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Pdp\Storage;
@@ -41,8 +32,8 @@ final class PsrStorageFactory implements
     public function createPublicSuffixListStorage(string $cachePrefix = '', $cacheTtl = null): PublicSuffixListStorage
     {
         return new RulesStorage(
-            new RulesPsr16Cache($this->cache, $cachePrefix, $cacheTtl),
-            new RulesPsr18Client($this->client, $this->requestFactory)
+            new PublicSuffixListPsr16Cache($this->cache, $cachePrefix, $cacheTtl),
+            new PublicSuffixListPsr18Client($this->client, $this->requestFactory)
         );
     }
 
@@ -52,8 +43,8 @@ final class PsrStorageFactory implements
     public function createRootZoneDatabaseStorage(string $cachePrefix = '', $cacheTtl = null): RootZoneDatabaseStorage
     {
         return new TopLevelDomainsStorage(
-            new TopLevelDomainsPsr16Cache($this->cache, $cachePrefix, $cacheTtl),
-            new TopLevelDomainsPsr18Client($this->client, $this->requestFactory)
+            new RootZoneDatabasePsr16Cache($this->cache, $cachePrefix, $cacheTtl),
+            new RootZoneDatabasePsr18Client($this->client, $this->requestFactory)
         );
     }
 }
