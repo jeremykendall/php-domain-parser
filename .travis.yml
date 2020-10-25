@@ -7,50 +7,41 @@ matrix:
     include:
         - php: 7.2
           env:
-              - COLLECT_COVERAGE=false
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --prefer-lowest --prefer-stable"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
         - php: 7.2
           env:
-              - COLLECT_COVERAGE=true
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=true
+              - RUN_PHPSTAN=false
+              - VALIDATE_CODING_STYLE=false
         - php: 7.3
           env:
-              - COLLECT_COVERAGE=false
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --prefer-lowest --prefer-stable"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
         - php: 7.3
           env:
-              - COLLECT_COVERAGE=true
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=true
+              - RUN_PHPSTAN=false
+              - VALIDATE_CODING_STYLE=false
         - php: 7.4
           env:
-              - COLLECT_COVERAGE=false
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --prefer-lowest --prefer-stable"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
         - php: 7.4
           env:
-              - COLLECT_COVERAGE=true
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
               - RUN_PHPSTAN=true
               - VALIDATE_CODING_STYLE=true
         - php: nightly
           env:
-              - COLLECT_COVERAGE=false
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
           install:
               - composer remove --no-interaction --no-update --dev "friendsofphp/php-cs-fixer"
-              - travis_retry composer require $COMPOSER_ARGS --no-update --dev "composer/composer:2.0.x-dev"
-              - travis_retry composer require $COMPOSER_ARGS --no-update --dev "phpunit/phpunit:^9.3.11"
               - travis_retry composer update $COMPOSER_ARGS
     allow_failures:
         - php: nightly
@@ -62,4 +53,4 @@ install:
 script:
     - if [ "$VALIDATE_CODING_STYLE" == "true" ]; then composer phpcs; fi
     - if [ "$RUN_PHPSTAN" == "true" ]; then composer phpstan; fi
-    - composer run-script phpunit
+    - composer phpunit
