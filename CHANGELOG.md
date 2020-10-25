@@ -2,6 +2,24 @@
 
 All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
 
+## 5.7.2 - 2020-10-25
+
+### Added
+
+- None
+
+### Fixed
+
+- Added support for PHP8 see [#289](https://github.com/jeremykendall/php-domain-parser/pull/289) based on works by [@szepeviktor](https://github.com/szepeviktor)
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 5.7.1 - 2020-08-24
 
 ### Added
