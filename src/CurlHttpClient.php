@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Throwable;
 use function curl_close;
 use function curl_errno;
 use function curl_error;
@@ -52,8 +53,13 @@ final class CurlHttpClient implements HttpClient
             CURLOPT_HTTPGET => true,
         ];
 
-        $curl = curl_init();
-        $res = @curl_setopt_array($curl, $this->options);
+        try {
+            $curl = curl_init();
+            $res = @curl_setopt_array($curl, $this->options);
+        } catch (Throwable $exception) {
+            throw new Exception('Please verify your curl additionnal options', $exception->getCode(), $exception);
+        }
+
         curl_close($curl);
         if (!$res) {
             throw new Exception('Please verify your curl additionnal options');

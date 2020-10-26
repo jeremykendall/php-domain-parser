@@ -98,7 +98,8 @@ If the Domain is not resolved or in case of error a null `Pdp\Domain` is returne
 ~~~php
 <?php
 
-use Pdp\Rules;use Pdp\TopLevelDomains;
+use Pdp\Rules;
+use Pdp\TopLevelDomains;
 
 $rules = Rules::createFromPath('/path/to/mozilla/public-suffix.dat'); //$rules is a Pdp\Rules object
 
