@@ -30,6 +30,25 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\Logger`, The package logger implementation
 - `Pdp\Rules::ALL_DOMAINS` constant deprecated in version 5.3
 - `Pdp\Domain::getDomain` deprecaed in version 5.3
+- None
+
+## 5.7.2 - 2020-10-25
+
+### Added
+
+- None
+
+### Fixed
+
+- Added support for PHP8 see [#289](https://github.com/jeremykendall/php-domain-parser/pull/289) based on works by [@szepeviktor](https://github.com/szepeviktor)
+
+### Deprecated
+
+- None
+
+### Remove
+
+- None
 
 ## 5.7.1 - 2020-08-24
 
