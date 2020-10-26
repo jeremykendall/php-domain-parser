@@ -1,6 +1,36 @@
 # Changelog
 
-All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
+All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
+
+## 6.x.x - TBD
+
+### Added
+
+- Adding proper Interfaces around domain name and domain name parsing
+- Public Suffix List and IANA Root Zone Database are fully decoupled
+- Optional storage capability based on PSR related interfaces to improve interoperability with any framework
+
+### Fixed
+
+- The `Pdp\Domain` class not longer directly exposes Effective TLD status.
+- Effective TLD resolver (`Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve`) no longer accept IDNA options.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- Support for PHP7.4-
+- Composer script for automatic updates of the remote databases
+- CLI command `bin/update-psl`
+- `Pdp\Cache`, `Pdp\CacheException`: The package PSR-16 Cache implementation using the underlying filesystem.
+- `Pdp\HttpClient`, `Pdp\CurlHttpClient` and `Pdp\HttpClientException`: The package Http Client.
+- `Pdp\Installer`, `Pdp\Manager`: The package source manager and installer
+- `Pdp\Logger`, The package logger implementation
+- `Pdp\Rules::ALL_DOMAINS` constant deprecated in version 5.3
+- `Pdp\Domain::getDomain` deprecaed in version 5.3
+- None
 
 ## 5.7.2 - 2020-10-25
 
@@ -16,7 +46,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - None
 
-### Removed
+### Remove
 
 - None
 

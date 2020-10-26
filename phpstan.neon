@@ -1,0 +1,19 @@
+includes:
+  - vendor/phpstan/phpstan-strict-rules/rules.neon
+  - vendor/phpstan/phpstan-phpunit/extension.neon
+  - vendor/phpstan/phpstan-phpunit/rules.neon
+parameters:
+  checkMissingIterableValueType: false
+  checkGenericClassInNonGenericObjectType: false
+  treatPhpDocTypesAsCertain: false
+  ignoreErrors:
+    - '#should be covariant with return type#'
+    - message: '#Property Pdp\\TopLevelDomains::\$modifiedDate \(DateTimeImmutable\) does not accept DateTimeInterface.#'
+      path: src/TopLevelDomains.php
+    - message: '#Method Pdp\\ResolvedDomain::resolve\(\) has parameter \$publicSuffix with no typehint specified.#'
+      path: src/ResolvedDomain.php
+    - message: '#Method Pdp\\ResolvedDomain::withSubDomain\(\) has parameter \$subDomain with no typehint specified.#'
+      path: src/ResolvedDomain.php
+    - message: '#Call to function array_keys\(\) requires parameter \#3 to be set.#'
+      path: src/Domain.php
+  reportUnmatchedIgnoredErrors: true

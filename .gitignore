@@ -1,10 +1,8 @@
-tags
-composer.lock
+data
 vendor
-*.swp
 docs
-*~
 build
 .idea
 .php_cs.cache
 .phpunit.result.cache
+composer.lock

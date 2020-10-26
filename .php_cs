@@ -1,20 +1,7 @@
 <?php
 
-$header = <<<EOF
-PHP Domain Parser: Public Suffix List based URL parsing.
-
-@see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
-
-@copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
-
-For the full copyright and license information, please view the LICENSE
-file that was distributed with this source code.
-EOF;
-
 $finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__.'/bin')
     ->in(__DIR__.'/src')
-    ->in(__DIR__.'/tests')
 ;
 
 return PhpCsFixer\Config::create()
@@ -22,20 +9,14 @@ return PhpCsFixer\Config::create()
         '@PSR2' => true,
         'array_syntax' => ['syntax' => 'short'],
         'concat_space' => ['spacing' => 'none'],
-        'header_comment' => [
-            'commentType' => 'PHPDoc',
-            'header' => $header,
-            'location' => 'after_open',
-            'separate' => 'both',
-        ],
         'new_with_braces' => true,
         'no_blank_lines_after_phpdoc' => true,
         'no_empty_phpdoc' => true,
         'no_empty_comment' => true,
         'no_leading_import_slash' => true,
+        'no_superfluous_phpdoc_tags' => true,
         'no_trailing_comma_in_singleline_array' => true,
-        'no_trailing_whitespace' => true,
-        'no_whitespace_in_blank_line' => true,
+        'no_superfluous_phpdoc_tags' => true,
         'no_unused_imports' => true,
         'ordered_imports' => ['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'alpha'],
         'phpdoc_add_missing_param_annotation' => ['only_untyped' => false],
@@ -45,6 +26,7 @@ return PhpCsFixer\Config::create()
         'phpdoc_scalar' => true,
         'phpdoc_to_comment' => true,
         'phpdoc_summary' => true,
+        'psr0' => true,
         'psr4' => true,
         'return_type_declaration' => ['space_before' => 'none'],
         'single_blank_line_before_namespace' => true,
@@ -54,6 +36,7 @@ return PhpCsFixer\Config::create()
         'trailing_comma_in_multiline_array' => true,
         'trim_array_spaces' => true,
         'whitespace_after_comma_in_array' => true,
+        'yoda_style' => true,
     ])
     ->setFinder($finder)
 ;

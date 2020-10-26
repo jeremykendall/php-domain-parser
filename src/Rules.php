@@ -1,102 +1,43 @@
 <?php
 
-/**
- * PHP Domain Parser: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
- * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Pdp;
 
-use Pdp\Exception\CouldNotLoadRules;
-use Pdp\Exception\CouldNotResolvePublicSuffix;
-use Pdp\Exception\InvalidDomain;
 use function array_reverse;
 use function count;
 use function fclose;
 use function fopen;
 use function implode;
-use function in_array;
-use function sprintf;
+use function is_array;
+use function json_decode;
+use function json_last_error;
+use function json_last_error_msg;
 use function stream_get_contents;
-use const IDNA_DEFAULT;
+use function substr;
+use const JSON_ERROR_NONE;
 
-/**
- * A class to resolve domain name against the Public Suffix list.
- *
- * @author Jeremy Kendall <jeremy@jeremykendall.net>
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
-final class Rules implements PublicSuffixListSection
+final class Rules implements PublicSuffixList
 {
     /**
-     * @deprecated 5.3
-     */
-    public const ALL_DOMAINS = 'ALL_DOMAINS';
-
-    private const PSL_SECTION = [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS, ''];
-
-    /**
      * PSL rules as a multidimentional associative array.
-     *
-     * @var array
      */
-    private $rules;
+    private array $rules;
 
-    /**
-     * @var int
-     */
-    private $asciiIDNAOption;
-
-    /**
-     * @var int
-     */
-    private $unicodeIDNAOption;
-
-    /**
-     * New instance.
-     *
-     * @internal
-     *
-     * @param array $rules
-     * @param int   $asciiIDNAOption
-     * @param int   $unicodeIDNAOption
-     */
-    public function __construct(
-        array $rules,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ) {
+    private function __construct(array $rules)
+    {
         $this->rules = $rules;
-        $this->asciiIDNAOption = $asciiIDNAOption;
-        $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
 
     /**
      * Returns a new instance from a file path.
      *
-     * @param string        $path
      * @param null|resource $context
-     * @param int           $asciiIDNAOption
-     * @param int           $unicodeIDNAOption
      *
-     * @throws CouldNotLoadRules If the rules can not be loaded from the path
-     *
-     * @return self
+     * @throws UnableToLoadPublicSuffixList If the rules can not be loaded from the path
      */
-    public static function createFromPath(
-        string $path,
-        $context = null,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ): self {
+    public static function fromPath(string $path, $context = null): self
+    {
         $args = [$path, 'r', false];
         if (null !== $context) {
             $args[] = $context;
@@ -104,255 +45,165 @@ final class Rules implements PublicSuffixListSection
 
         $resource = @fopen(...$args);
         if (false === $resource) {
-            throw new CouldNotLoadRules(sprintf('`%s`: failed to open stream: No such file or directory.', $path));
+            throw UnableToLoadPublicSuffixList::dueToInvalidPath($path);
         }
 
         /** @var string $content */
         $content = stream_get_contents($resource);
         fclose($resource);
 
-        return self::createFromString($content, $asciiIDNAOption, $unicodeIDNAOption);
+        return self::fromString($content);
     }
 
     /**
      * Returns a new instance from a string.
      *
-     * @param string $content
-     * @param int    $asciiIDNAOption
-     * @param int    $unicodeIDNAOption
-     *
-     * @return self
+     * @param object|string $content a string or an object which exposes the __toString method
      */
-    public static function createFromString(
-        string $content,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ): self {
+    public static function fromString($content): self
+    {
         static $converter;
 
-        $converter = $converter ?? new Converter();
+        $converter = $converter ?? new PublicSuffixListConverter();
 
-        return new self($converter->convert($content), $asciiIDNAOption, $unicodeIDNAOption);
+        return new self($converter->convert($content));
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public static function fromJsonString(string $jsonString): self
+    {
+        $data = json_decode($jsonString, true);
+        $errorCode = json_last_error();
+        if (JSON_ERROR_NONE !== $errorCode) {
+            throw UnableToLoadPublicSuffixList::dueToInvalidJson($errorCode, json_last_error_msg());
+        }
+
+        if (!isset($data[EffectiveTLD::ICANN_DOMAINS], $data[EffectiveTLD::PRIVATE_DOMAINS])) {
+            throw UnableToLoadPublicSuffixList::dueToInvalidHashMap();
+        }
+
+        if (!is_array($data[EffectiveTLD::ICANN_DOMAINS]) || !is_array($data[EffectiveTLD::PRIVATE_DOMAINS])) {
+            throw UnableToLoadPublicSuffixList::dueToCorruptedSection();
+        }
+
+        return new self($data);
+    }
+
     public static function __set_state(array $properties): self
     {
-        return new self(
-            $properties['rules'],
-            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
-            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
-        );
+        return new self($properties['rules']);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->rules;
     }
 
     /**
-     * Gets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return int
+     * @param mixed $host a type that supports instantiating a Domain from.
      */
-    public function getAsciiIDNAOption(): int
+    public function resolve($host): ResolvedDomainName
     {
-        return $this->asciiIDNAOption;
-    }
-
-    /**
-     * Gets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return int
-     */
-    public function getUnicodeIDNAOption(): int
-    {
-        return $this->unicodeIDNAOption;
-    }
-
-    /**
-     * Determines the public suffix for a given domain.
-     *
-     * @param mixed  $domain
-     * @param string $section
-     *
-     * @throws CouldNotResolvePublicSuffix If the PublicSuffix can not be resolve.
-     *
-     * @return PublicSuffix
-     */
-    public function getPublicSuffix($domain, string $section = self::ALL_DOMAINS): PublicSuffix
-    {
-        if (!$domain instanceof Domain) {
-            $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-        }
-
-        if (!$domain->isResolvable()) {
-            throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($domain);
-        }
-
-        $publicSuffix = $this->findPublicSuffix($domain, $this->validateSection($section));
-
-        return PublicSuffix::createFromDomain($domain->resolve($publicSuffix));
-    }
-
-    /**
-     * Returns PSL info for a given domain.
-     *
-     * @param mixed  $domain
-     * @param string $section
-     *
-     * @return Domain
-     */
-    public function resolve($domain, string $section = self::ALL_DOMAINS): Domain
-    {
-        $section = $this->validateSection($section);
         try {
-            if ('' === $section) {
-                return $this->getCookieDomain($domain);
-            } elseif (self::ICANN_DOMAINS === $section) {
-                return $this->getICANNDomain($domain);
-            }
-
-            return $this->getPrivateDomain($domain);
-        } catch (CouldNotResolvePublicSuffix $exception) {
+            return $this->getCookieDomain($host);
+        } catch (UnableToResolveDomain $exception) {
             if ($exception->hasDomain()) {
-                /** @var Domain */
-                $domain = $exception->getDomain();
+                /** @var Host */
+                $host = $exception->getDomain();
 
-                return $domain;
+                return new ResolvedDomain($host);
             }
 
-            return new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-        } catch (Exception $exception) {
-            return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            return new ResolvedDomain(new Domain($host));
+        } catch (ExceptionInterface $exception) {
+            return new ResolvedDomain(Domain::fromNull());
         }
     }
 
     /**
-     * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
-     *
-     * @param mixed $domain the domain value
+     * @param mixed $host the domain value
      */
-    public function getCookieDomain($domain): Domain
+    public function getCookieDomain($host): ResolvedDomainName
     {
-        $domain = $this->validateDomain($domain);
+        $domain = $this->validateDomain($host);
+        $publicSuffix = $this->getPublicSuffix($domain, '');
 
-        return $domain->resolve($this->findPublicSuffix($domain, ''));
+        return new ResolvedDomain($domain, $publicSuffix);
     }
 
     /**
-     * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
-     *
-     * @param mixed $domain
+     * @param mixed $host a type that supports instantiating a Domain from.
      */
-    public function getICANNDomain($domain): Domain
+    public function getICANNDomain($host): ResolvedDomainName
     {
-        $domain = $this->validateDomain($domain);
+        $domain = $this->validateDomain($host);
+        $publicSuffix = $this->getPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS);
 
-        return $domain->resolve($this->findPublicSuffix($domain, self::ICANN_DOMAINS));
+        return new ResolvedDomain($domain, $publicSuffix);
     }
 
     /**
-     * Returns PSL info for a given domain against the PSL rules for private domain detection.
-     *
-     * @param mixed $domain
+     * @param mixed $host a type that supports instantiating a Domain from.
      */
-    public function getPrivateDomain($domain): Domain
+    public function getPrivateDomain($host): ResolvedDomainName
     {
-        $domain = $this->validateDomain($domain);
+        $domain = $this->validateDomain($host);
+        $publicSuffix = $this->getPublicSuffix($domain, EffectiveTLD::PRIVATE_DOMAINS);
 
-        return $domain->resolve($this->findPublicSuffix($domain, self::PRIVATE_DOMAINS));
+        return new ResolvedDomain($domain, $publicSuffix);
     }
 
     /**
      * Assert the domain is valid and is resolvable.
      *
-     * @param mixed $domain
-     *
-     * @throws InvalidDomain               if the domain is invalid
-     * @throws CouldNotResolvePublicSuffix if the domain is not resolvable
+     * @param mixed $domain a type that supports instantiating a Domain from.
      */
-    private function validateDomain($domain): Domain
+    private function validateDomain($domain): DomainName
     {
-        if (!($domain instanceof Domain)) {
-            $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        if ($domain instanceof ExternalDomainName) {
+            $domain = $domain->getDomain();
         }
 
-        if (!$domain->isResolvable()) {
-            throw CouldNotResolvePublicSuffix::dueToUnresolvableDomain($domain);
+        if (!($domain instanceof DomainName)) {
+            $domain = new Domain($domain);
+        }
+
+        if ((2 > count($domain)) || ('.' === substr((string) $domain, -1, 1))) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
         return $domain;
     }
 
     /**
-     * Assert the section status.
-     *
-     * @param string $section
-     *
-     * @throws Exception if the submitted section is not supported
-     *
-     * @return string
-     */
-    private function validateSection(string $section): string
-    {
-        if (self::ALL_DOMAINS === $section) {
-            $section = '';
-        }
-
-        if (in_array($section, self::PSL_SECTION, true)) {
-            return $section;
-        }
-
-        throw CouldNotResolvePublicSuffix::dueToUnSupportedSection($section);
-    }
-
-    /**
      * Returns the matched public suffix.
-     *
-     * @param DomainInterface $domain
-     * @param string          $section
-     *
-     * @return PublicSuffix
      */
-    private function findPublicSuffix(DomainInterface $domain, string $section): PublicSuffix
+    private function getPublicSuffix(DomainName $domain, string $section): EffectiveTLD
     {
-        $asciiDomain = $domain->toAscii();
-        $icann = $this->findPublicSuffixFromSection($asciiDomain, self::ICANN_DOMAINS);
-        if (self::ICANN_DOMAINS === $section) {
+        $icann = $this->getPublicSuffixFromSection($domain, EffectiveTLD::ICANN_DOMAINS);
+        if (EffectiveTLD::ICANN_DOMAINS === $section) {
             return $icann;
         }
 
-        $private = $this->findPublicSuffixFromSection($asciiDomain, self::PRIVATE_DOMAINS);
+        $private = $this->getPublicSuffixFromSection($domain, EffectiveTLD::PRIVATE_DOMAINS);
         if (count($private) > count($icann)) {
             return $private;
         }
 
-        if (self::PRIVATE_DOMAINS === $section) {
-            return new PublicSuffix($domain->getLabel(0), '', $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        if ('' === $section) {
+            return $icann;
         }
 
-        return $icann;
+        return PublicSuffix::fromUnknown($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
     }
 
     /**
      * Returns the public suffix matched against a given PSL section.
-     *
-     * @param DomainInterface $domain
-     * @param string          $section
-     *
-     * @return PublicSuffix
      */
-    private function findPublicSuffixFromSection(DomainInterface $domain, string $section): PublicSuffix
+    private function getPublicSuffixFromSection(DomainName $domain, string $section): EffectiveTLD
     {
         $rules = $this->rules[$section] ?? [];
         $matches = [];
-        foreach ($domain as $label) {
+        foreach ($domain->toAscii() as $label) {
             //match exception rule
             if (isset($rules[$label], $rules[$label]['!'])) {
                 break;
@@ -374,60 +225,15 @@ final class Rules implements PublicSuffixListSection
         }
 
         if ([] === $matches) {
-            return new PublicSuffix($domain->getLabel(0), '', $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            return PublicSuffix::fromUnknown($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
         }
 
-        return new PublicSuffix(
-            implode('.', array_reverse($matches)),
-            $section,
-            $this->asciiIDNAOption,
-            $this->unicodeIDNAOption
-        );
-    }
+        $content = implode('.', array_reverse($matches));
 
-    /**
-     * Sets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @param int $asciiIDNAOption
-     *
-     * @return self
-     */
-    public function withAsciiIDNAOption(int $asciiIDNAOption): self
-    {
-        if ($asciiIDNAOption === $this->asciiIDNAOption) {
-            return $this;
+        if (PublicSuffix::PRIVATE_DOMAINS === $section) {
+            return PublicSuffix::fromPrivate($content, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
         }
 
-        $clone = clone $this;
-        $clone->asciiIDNAOption = $asciiIDNAOption;
-
-        return $clone;
-    }
-
-    /**
-     * Sets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @param int $unicodeIDNAOption
-     *
-     * @return self
-     */
-    public function withUnicodeIDNAOption(int $unicodeIDNAOption): self
-    {
-        if ($unicodeIDNAOption === $this->unicodeIDNAOption) {
-            return $this;
-        }
-
-        $clone = clone $this;
-        $clone->unicodeIDNAOption = $unicodeIDNAOption;
-
-        return $clone;
+        return PublicSuffix::fromICANN($content, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
     }
 }
