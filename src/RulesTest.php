@@ -135,15 +135,24 @@ final class RulesTest extends TestCase
         self::assertNull($domain->getPublicSuffix()->getContent());
     }
 
+    public function testWithICANNDomainInvalid(): void
+    {
+        $domain = 'example.invalidICANNTLD';
+
+        self::expectException(UnableToResolveDomain::class);
+        self::expectExceptionMessage('The domain "'.strtolower($domain).'" does not contain a "ICANN" TLD.');
+
+        $this->rules->getICANNDomain($domain);
+    }
+
     public function testWithPrivateDomainInvalid(): void
     {
-        $domain = $this->rules->getPrivateDomain('private.ulb.ac.be');
+        $domain = 'private.ulb.ac.be';
 
-        self::assertSame('private.ulb.ac.be', $domain->getContent());
-        self::assertFalse($domain->getPublicSuffix()->isKnown());
-        self::assertFalse($domain->getPublicSuffix()->isICANN());
-        self::assertFalse($domain->getPublicSuffix()->isPrivate());
-        self::assertSame('be', $domain->getPublicSuffix()->getContent());
+        self::expectException(UnableToResolveDomain::class);
+        self::expectExceptionMessage('The domain "'.$domain.'" does not contain a "private" TLD.');
+
+        $this->rules->getPrivateDomain($domain);
     }
 
     public function testWithPrivateDomainValid(): void
@@ -157,7 +166,7 @@ final class RulesTest extends TestCase
         self::assertSame('github.io', $domain->getPublicSuffix()->getContent());
     }
 
-    public function testWithICANNDomainInvalid(): void
+    public function testResolvingICANNDomainInvalid(): void
     {
         $domain = $this->rules->resolve('private.ulb.ac.be');
 
@@ -573,18 +582,6 @@ final class RulesTest extends TestCase
     public function effectiveTLDProvider(): iterable
     {
         return [
-            'simple TLD' => [
-                'host' => 'www.example.com',
-                'cookieETLD' => 'com',
-                'icannETLD' => 'com',
-                'privateETLD' => 'com',
-            ],
-            'complex ICANN TLD' => [
-                'host' => 'www.ulb.ac.be',
-                'cookieETLD' => 'ac.be',
-                'icannETLD' => 'ac.be',
-                'privateETLD' => 'be',
-            ],
             'private domain effective TLD' => [
                 'host' => 'myblog.blogspot.com',
                 'cookieETLD' => 'blogspot.com',

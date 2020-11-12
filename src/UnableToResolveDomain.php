@@ -10,6 +10,16 @@ class UnableToResolveDomain extends InvalidArgumentException implements Exceptio
 {
     private ?Host $domain = null;
 
+    public static function dueToMissingPublicSuffix(Host $domain, string $type): self
+    {
+        $domainType = (EffectiveTLD::PRIVATE_DOMAINS === $type) ? 'private' : 'ICANN';
+
+        $exception = new self('The domain "'.$domain->getContent().'" does not contain a "'.$domainType.'" TLD.');
+        $exception->domain = $domain;
+
+        return $exception;
+    }
+
     public static function dueToUnresolvableDomain(?Host $domain): self
     {
         $content = $domain;
