@@ -193,7 +193,7 @@ final class Domain extends DomainNameParser implements DomainName
     {
         $nb_labels = count($this->labels);
         if ($key < - $nb_labels - 1 || $key > $nb_labels) {
-            throw InvalidDomainName::dueToInvalidLabelKey($key);
+            throw CannotResolveDomain::dueToInvalidLabelKey($key);
         }
 
         if (0 > $key) {
@@ -223,7 +223,7 @@ final class Domain extends DomainNameParser implements DomainName
         $nb_labels = count($this->labels);
         foreach ($keys as &$offset) {
             if (- $nb_labels > $offset || $nb_labels - 1 < $offset) {
-                throw InvalidDomainName::dueToInvalidLabelKey($key);
+                throw CannotResolveDomain::dueToInvalidLabelKey($key);
             }
 
             if (0 > $offset) {

@@ -6,7 +6,7 @@ namespace Pdp;
 
 use InvalidArgumentException;
 
-class InvalidHost extends InvalidArgumentException implements ExceptionInterface
+class CannotResolveHost extends InvalidArgumentException implements CannotProcessHost
 {
     public static function dueToInvalidCharacters(string $domain): self
     {

@@ -415,7 +415,7 @@ class ResolvedDomainTest extends TestCase
 
     public function testWithEmptySubdomain(): void
     {
-        self::expectException(InvalidHost::class);
+        self::expectException(CannotResolveHost::class);
 
         $domain = new ResolvedDomain(new Domain('www.example.com'), PublicSuffix::fromICANN('com'));
 
@@ -542,7 +542,7 @@ class ResolvedDomainTest extends TestCase
 
     public function testWithPublicSuffixFailsWithNullDomain(): void
     {
-        self::expectException(InvalidHost::class);
+        self::expectException(CannotResolveHost::class);
 
         (new ResolvedDomain(new Domain()))->withPublicSuffix('www');
     }

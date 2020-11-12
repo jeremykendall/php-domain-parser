@@ -20,7 +20,7 @@ interface ResolvedDomainName extends Host, ExternalDomainName
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the new sub domain
      *
-     * @throws ExceptionInterface If the Sub domain can not be added to the current Domain
+     * @throws CannotProcessHost If the Sub domain can not be added to the current Domain
      */
     public function withSubDomain(Host $subDomain): self;
 
@@ -30,8 +30,8 @@ interface ResolvedDomainName extends Host, ExternalDomainName
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the second level domain label
      *
-     * @param  ?string            $label
-     * @throws ExceptionInterface If the second level domain label can not be added
+     * @param  ?string           $label
+     * @throws CannotProcessHost If the second level domain label can not be added
      */
     public function withSecondLevelDomain(?string $label): self;
 

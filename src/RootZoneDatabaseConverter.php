@@ -94,7 +94,7 @@ final class RootZoneDatabaseConverter
     {
         try {
             $tld = PublicSuffix::fromUnknown($content)->toAscii();
-        } catch (ExceptionInterface $exception) {
+        } catch (CannotProcessHost $exception) {
             throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
         }
 

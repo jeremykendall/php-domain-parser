@@ -42,9 +42,9 @@ interface Host extends Countable, JsonSerializable, IDNConversion
      * This method MUST retain the state of the current instance, and return
      * an instance with its content converted to its IDNA ASCII form
      *
-     * @throws ExceptionInterface if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     *
+     * @throws CannotProcessHost if the domain can not be converted to ASCII using IDN UTS46 algorithm
      * @return static
+     *
      */
     public function toAscii(): self;
 
@@ -54,9 +54,9 @@ interface Host extends Countable, JsonSerializable, IDNConversion
      * This method MUST retain the state of the current instance, and return
      * an instance with its content converted to its IDNA UTF8 form
      *
-     * @throws ExceptionInterface if the domain can not be converted to Unicode using IDN UTS46 algorithm
-     *
+     * @throws CannotProcessHost if the domain can not be converted to Unicode using IDN UTS46 algorithm
      * @return static
+     *
      */
     public function toUnicode(): self;
 }
