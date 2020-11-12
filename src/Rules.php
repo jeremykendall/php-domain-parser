@@ -137,6 +137,9 @@ final class Rules implements PublicSuffixList
     {
         $domain = $this->validateDomain($host);
         $publicSuffix = $this->getPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS);
+        if (!$publicSuffix->isICANN()) {
+            throw UnableToResolveDomain::dueToMissingPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS);
+        }
 
         return new ResolvedDomain($domain, $publicSuffix);
     }
@@ -148,6 +151,9 @@ final class Rules implements PublicSuffixList
     {
         $domain = $this->validateDomain($host);
         $publicSuffix = $this->getPublicSuffix($domain, EffectiveTLD::PRIVATE_DOMAINS);
+        if (!$publicSuffix->isPrivate()) {
+            throw UnableToResolveDomain::dueToMissingPublicSuffix($domain, EffectiveTLD::PRIVATE_DOMAINS);
+        }
 
         return new ResolvedDomain($domain, $publicSuffix);
     }
