@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-class InvalidDomainName extends InvalidHost
+class CannotResolveDomain extends CannotResolveHost
 {
     public static function dueToInvalidLabelKey(int $key): self
     {

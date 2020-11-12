@@ -79,8 +79,8 @@ interface DomainName extends Host, IteratorAggregate
      *
      * @param mixed $label a domain label
      *
-     * @throws ExceptionInterface If the key is out of bounds
-     * @throws ExceptionInterface If the label is converted to the NULL value
+     * @throws CannotProcessHost If the key is out of bounds
+     * @throws CannotProcessHost If the label is converted to the NULL value
      */
     public function withLabel(int $key, $label): self;
 
@@ -95,7 +95,7 @@ interface DomainName extends Host, IteratorAggregate
      *
      * @param int ...$keys
      *
-     * @throws ExceptionInterface If the key is out of bounds
+     * @throws CannotProcessHost If the key is out of bounds
      */
     public function withoutLabel(int $key, int ...$keys): self;
 }

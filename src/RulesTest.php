@@ -354,7 +354,7 @@ final class RulesTest extends TestCase
      */
     public function testGetPublicSuffixThrowsInvalidDomainException(string $domain): void
     {
-        self::expectException(InvalidDomainName::class);
+        self::expectException(CannotResolveDomain::class);
 
         $this->rules->getICANNDomain($domain);
     }
@@ -376,7 +376,7 @@ final class RulesTest extends TestCase
      */
     public function testGetPublicSuffixThrowsInvalidHostException(string $domain): void
     {
-        self::expectException(InvalidHost::class);
+        self::expectException(CannotResolveHost::class);
 
         $this->rules->getICANNDomain($domain);
     }

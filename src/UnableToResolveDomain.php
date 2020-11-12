@@ -6,7 +6,7 @@ namespace Pdp;
 
 use InvalidArgumentException;
 
-class UnableToResolveDomain extends InvalidArgumentException implements ExceptionInterface
+class UnableToResolveDomain extends InvalidArgumentException implements CannotProcessHost
 {
     private ?Host $domain = null;
 

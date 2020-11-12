@@ -99,7 +99,7 @@ final class PublicSuffixListConverter extends DomainNameParser
             /** @var string $line */
             $line = array_pop($ruleParts);
             $rule = $this->idnToAscii($line);
-        } catch (ExceptionInterface $exception) {
+        } catch (CannotProcessHost $exception) {
             throw UnableToLoadPublicSuffixList::dueToInvalidRule($line ?? null, $exception);
         }
 

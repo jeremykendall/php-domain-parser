@@ -16,12 +16,12 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 class DomainTest extends TestCase
 {
     /**
-     * @covers \Pdp\InvalidHost
+     * @covers \Pdp\CannotResolveHost
      * @dataProvider invalidDomainProvider
      */
     public function testToAsciiThrowsException(string $domain): void
     {
-        self::expectException(InvalidHost::class);
+        self::expectException(CannotResolveHost::class);
 
         new Domain($domain);
     }
@@ -37,7 +37,7 @@ class DomainTest extends TestCase
 
     public function testToUnicodeThrowsException(): void
     {
-        self::expectException(InvalidHost::class);
+        self::expectException(CannotResolveHost::class);
 
         (new Domain('xn--a-ecp.ru'))->toUnicode();
     }
@@ -304,13 +304,13 @@ class DomainTest extends TestCase
 
     public function testWithLabelFailsWithInvalidKey(): void
     {
-        self::expectException(InvalidDomainName::class);
+        self::expectException(CannotResolveDomain::class);
         (new Domain('example.com'))->withLabel(-4, 'www');
     }
 
     public function testWithLabelFailsWithInvalidLabel2(): void
     {
-        self::expectException(InvalidHost::class);
+        self::expectException(CannotResolveHost::class);
 
         (new Domain('example.com'))->withLabel(-1, '');
     }
@@ -390,7 +390,7 @@ class DomainTest extends TestCase
 
     public function testwithoutLabelFailsWithInvalidKey(): void
     {
-        self::expectException(InvalidDomainName::class);
+        self::expectException(CannotResolveDomain::class);
         (new Domain('example.com'))->withoutLabel(-3);
     }
 

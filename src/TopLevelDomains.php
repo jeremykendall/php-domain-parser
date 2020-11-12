@@ -151,7 +151,7 @@ final class TopLevelDomains implements RootZoneDatabase
         if (!$tld instanceof DomainName) {
             try {
                 $tld = new Domain($tld);
-            } catch (ExceptionInterface $exception) {
+            } catch (CannotProcessHost $exception) {
                 return false;
             }
         }
