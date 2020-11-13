@@ -9,7 +9,7 @@
 ## Motivation
 
 While there are plenty of excellent URL parsers and builders available, there
-are very few projects that can accurately parse a domaine into its component
+are very few projects that can accurately parse a domain into its component
 subdomain, registrable domain, and public suffix parts.
 
 Consider the domain www.pref.okinawa.jp.  In this domain, the
