@@ -164,7 +164,7 @@ final class TopLevelDomains implements RootZoneDatabase
         $asciiDomain = $tld->toAscii();
         $label = $asciiDomain->label(0);
         foreach ($this as $knownTld) {
-            if ($knownTld->getContent() === $label) {
+            if ($knownTld->value() === $label) {
                 return true;
             }
         }
@@ -185,13 +185,13 @@ final class TopLevelDomains implements RootZoneDatabase
             $domain = new Domain($domain);
         }
 
-        if ((2 > count($domain)) || ('.' === substr((string) $domain, -1, 1))) {
+        if ((2 > count($domain)) || ('.' === substr($domain->toString(), -1, 1))) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
-            if ($tld->getContent() === $label) {
+            if ($tld->value() === $label) {
                 return new ResolvedDomain($domain, PublicSuffix::fromUnknown($tld, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
             }
         }

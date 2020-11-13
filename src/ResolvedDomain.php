@@ -58,7 +58,7 @@ final class ResolvedDomain implements ResolvedDomainName
         $asciiIDNAOptions = $this->domain->getAsciiIDNAOption();
         $unicodeIDNAOptions = $this->domain->getUnicodeIDNAOption();
 
-        if (null === $publicSuffix || null === $publicSuffix->getContent()) {
+        if (null === $publicSuffix || null === $publicSuffix->value()) {
             return PublicSuffix::fromNull($asciiIDNAOptions, $unicodeIDNAOptions);
         }
 
@@ -66,18 +66,18 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
-        if ('.' === substr((string) $this->domain, -1, 1)) {
+        if ('.' === substr($this->domain->toString(), -1, 1)) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
-        if ($this->domain->getContent() === $publicSuffix->getContent()) {
-            throw new UnableToResolveDomain(sprintf('The public suffix and the domain name are is identical `%s`.', $this->domain));
+        if ($this->domain->value() === $publicSuffix->value()) {
+            throw new UnableToResolveDomain(sprintf('The public suffix and the domain name are is identical `%s`.', $this->domain->toString()));
         }
 
-        $psContent = (string) $publicSuffix;
-        if ('.'.$psContent !== substr((string) $this->domain, - strlen($psContent) - 1)) {
-            throw new UnableToResolveDomain(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain));
+        $psContent = $publicSuffix->toString();
+        if ('.'.$psContent !== substr($this->domain->toString(), - strlen($psContent) - 1)) {
+            throw new UnableToResolveDomain(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain->toString()));
         }
 
         return $publicSuffix;
@@ -88,7 +88,7 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function normalize(EffectiveTLD $subject): EffectiveTLD
     {
-        if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain->__toString())) {
+        if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain->toString())) {
             return $subject->toAscii();
         }
 
@@ -100,12 +100,12 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function setRegistrableDomain(): DomainName
     {
-        if (null === $this->publicSuffix->getContent()) {
+        if (null === $this->publicSuffix->value()) {
             return Domain::fromNull($this->domain->getAsciiIDNAOption(), $this->domain->getUnicodeIDNAOption());
         }
 
         $domain = implode('.', array_slice(
-            explode('.', $this->domain->__toString()),
+            explode('.', $this->domain->toString()),
             count($this->domain) - count($this->publicSuffix) - 1
         ));
 
@@ -120,7 +120,7 @@ final class ResolvedDomain implements ResolvedDomainName
         $asciiIDNAOptions = $this->domain->getAsciiIDNAOption();
         $unicodeIDNAOptions = $this->domain->getUnicodeIDNAOption();
 
-        if (null === $this->registrableDomain->getContent()) {
+        if (null === $this->registrableDomain->value()) {
             return Domain::fromNull($asciiIDNAOptions, $unicodeIDNAOptions);
         }
 
@@ -131,7 +131,7 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $domain = implode('.', array_slice(
-            explode('.', $this->domain->__toString()),
+            explode('.', $this->domain->toString()),
             0,
             $nbLabels - $nbRegistrableLabels
         ));
@@ -151,17 +151,17 @@ final class ResolvedDomain implements ResolvedDomainName
 
     public function jsonSerialize(): ?string
     {
-        return $this->domain->getContent();
+        return $this->domain->value();
     }
 
-    public function getContent(): ?string
+    public function value(): ?string
     {
-        return $this->domain->getContent();
+        return $this->domain->value();
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
-        return $this->domain->__toString();
+        return $this->domain->toString();
     }
 
     public function getAsciiIDNAOption(): int
@@ -228,7 +228,7 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $domain = implode('.', array_reverse(array_slice($this->domain->labels(), count($this->publicSuffix))));
-        if (null === $publicSuffix->getContent()) {
+        if (null === $publicSuffix->value()) {
             return new self(
                 new Domain($domain, $this->domain->getAsciiIDNAOption(), $this->domain->getUnicodeIDNAOption()),
                 null
@@ -237,7 +237,7 @@ final class ResolvedDomain implements ResolvedDomainName
 
         /** @var DomainName $domain */
         $domain = new Domain(
-            $domain.'.'.$publicSuffix->getContent(),
+            $domain.'.'.$publicSuffix->value(),
             $this->domain->getAsciiIDNAOption(),
             $this->domain->getUnicodeIDNAOption()
         );
@@ -255,7 +255,7 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     public function withSubDomain($subDomain): self
     {
-        if (null === $this->registrableDomain->getContent()) {
+        if (null === $this->registrableDomain->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this);
         }
 
@@ -273,13 +273,13 @@ final class ResolvedDomain implements ResolvedDomainName
 
         /** @var DomainName $subDomain */
         $subDomain = $subDomain->toAscii();
-        if (1 === preg_match(self::REGEXP_IDN_PATTERN, (string) $this->domain->getContent())) {
+        if (1 === preg_match(self::REGEXP_IDN_PATTERN, $this->domain->toString())) {
             /** @var DomainName $subDomain */
             $subDomain = $subDomain->toUnicode();
         }
 
         return new self(new Domain(
-            $subDomain.'.'.$this->registrableDomain,
+            $subDomain->toString().'.'.$this->registrableDomain->toString(),
             $this->getAsciiIDNAOption(),
             $this->getUnicodeIDNAOption()
         ), $this->publicSuffix);
@@ -287,7 +287,7 @@ final class ResolvedDomain implements ResolvedDomainName
 
     public function withSecondLevelDomain($label): self
     {
-        if (null === $this->registrableDomain->getContent()) {
+        if (null === $this->registrableDomain->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this);
         }
 
@@ -296,12 +296,12 @@ final class ResolvedDomain implements ResolvedDomainName
             return $this;
         }
 
-        if (null === $this->subDomain->getContent()) {
+        if (null === $this->subDomain->value()) {
             return new self($newRegistrableDomain, $this->publicSuffix);
         }
 
         return new self(new Domain(
-            $this->subDomain->getContent().'.'.$newRegistrableDomain->getContent(),
+            $this->subDomain->value().'.'.$newRegistrableDomain->value(),
             $this->getAsciiIDNAOption(),
             $this->getUnicodeIDNAOption()
         ), $this->publicSuffix);

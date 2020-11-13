@@ -24,7 +24,7 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 
     public static function dueToInvalidPublicSuffix(Host $publicSuffix): self
     {
-        return new self('The public suffix `"'.$publicSuffix->getContent() ?? 'NULL'.'"` is invalid.');
+        return new self('The public suffix `"'.$publicSuffix->value() ?? 'NULL'.'"` is invalid.');
     }
 
     public static function dueToUnsupportedType(string $domain): self
@@ -34,6 +34,6 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 
     public static function dueToInvalidLabelKey(Host $domain, int $key): self
     {
-        return new self('the given key `'.$key.'` is invalid for the domain `"'.$domain->getContent() ?? 'NULL'.'"`.');
+        return new self('the given key `'.$key.'` is invalid for the domain `"'.$domain->value() ?? 'NULL'.'"`.');
     }
 }

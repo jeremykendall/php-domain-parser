@@ -14,7 +14,7 @@ class UnableToResolveDomain extends InvalidArgumentException implements CannotPr
     {
         $domainType = (EffectiveTLD::PRIVATE_DOMAINS === $type) ? 'private' : 'ICANN';
 
-        $exception = new self('The domain "'.$domain->getContent().'" does not contain a "'.$domainType.'" TLD.');
+        $exception = new self('The domain "'.$domain->value().'" does not contain a "'.$domainType.'" TLD.');
         $exception->domain = $domain;
 
         return $exception;
@@ -24,7 +24,7 @@ class UnableToResolveDomain extends InvalidArgumentException implements CannotPr
     {
         $content = $domain;
         if (null !== $content) {
-            $content = $content->getContent();
+            $content = $content->value();
         }
 
         $exception = new self('The domain "'.$content.'" can not contain a public suffix.');
@@ -37,7 +37,7 @@ class UnableToResolveDomain extends InvalidArgumentException implements CannotPr
     {
         $content = $domain;
         if (null !== $content) {
-            $content = $content->getContent();
+            $content = $content->value();
         }
 
         $exception = new self('A subdomain can not be added to a domain "'.$content.'" without a registrable domain part.');

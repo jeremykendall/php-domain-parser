@@ -19,7 +19,7 @@ final class PublicSuffix implements EffectiveTLD
             throw SyntaxError::dueToInvalidPublicSuffix($publicSuffix);
         }
 
-        if (null === $publicSuffix->getContent()) {
+        if (null === $publicSuffix->value()) {
             $section = '';
         }
 
@@ -73,17 +73,17 @@ final class PublicSuffix implements EffectiveTLD
 
     public function jsonSerialize(): ?string
     {
-        return $this->publicSuffix->getContent();
+        return $this->publicSuffix->value();
     }
 
-    public function getContent(): ?string
+    public function value(): ?string
     {
-        return $this->publicSuffix->getContent();
+        return $this->publicSuffix->value();
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
-        return $this->publicSuffix->__toString();
+        return $this->publicSuffix->toString();
     }
 
     public function getAsciiIDNAOption(): int

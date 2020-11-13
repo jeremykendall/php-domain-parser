@@ -18,9 +18,9 @@ class ResolvedDomainTest extends TestCase
     public function testRegistrableDomainIsNullWithFoundDomain(): void
     {
         $domain = new ResolvedDomain(new Domain('faketld'));
-        self::assertNull($domain->getPublicSuffix()->getContent());
-        self::assertNull($domain->getRegistrableDomain()->getContent());
-        self::assertNull($domain->getSubDomain()->getContent());
+        self::assertNull($domain->getPublicSuffix()->value());
+        self::assertNull($domain->getRegistrableDomain()->value());
+        self::assertNull($domain->getSubDomain()->value());
         self::assertNull($domain->getSecondLevelDomain());
     }
 
@@ -63,7 +63,7 @@ class ResolvedDomainTest extends TestCase
         $generateDomain = eval('return '.var_export($domain, true).';');
         self::assertEquals($domain, $generateDomain);
         self::assertEquals('"www.ulb.ac.be"', json_encode($domain->jsonSerialize()));
-        self::assertSame('www.ulb.ac.be', (string) $domain);
+        self::assertSame('www.ulb.ac.be', $domain->toString());
     }
 
     /**
@@ -106,13 +106,13 @@ class ResolvedDomainTest extends TestCase
         $objPublicSuffix = (null === $publicSuffix) ? PublicSuffix::fromNull() : PublicSuffix::fromICANN($publicSuffix);
 
         $domain = new ResolvedDomain(new Domain($domain), $objPublicSuffix);
-        self::assertSame($expectedDomain, $domain->getContent());
-        self::assertSame($expectedSuffix, $domain->getPublicSuffix()->getContent());
+        self::assertSame($expectedDomain, $domain->value());
+        self::assertSame($expectedSuffix, $domain->getPublicSuffix()->value());
 
         /** @var ResolvedDomain $domainIDN */
         $domainIDN = $domain->toUnicode();
-        self::assertSame($expectedIDNDomain, $domainIDN->getContent());
-        self::assertSame($expectedIDNSuffix, $domainIDN->getPublicSuffix()->getContent());
+        self::assertSame($expectedIDNDomain, $domainIDN->value());
+        self::assertSame($expectedIDNSuffix, $domainIDN->getPublicSuffix()->value());
     }
 
     public function toUnicodeProvider(): iterable
@@ -197,13 +197,13 @@ class ResolvedDomainTest extends TestCase
         $objPublicSuffix = (null === $publicSuffix) ? PublicSuffix::fromNull() : PublicSuffix::fromICANN($publicSuffix);
 
         $domain = new ResolvedDomain(new Domain($domain), $objPublicSuffix);
-        self::assertSame($expectedDomain, $domain->getContent());
-        self::assertSame($expectedSuffix, $domain->getPublicSuffix()->getContent());
+        self::assertSame($expectedDomain, $domain->value());
+        self::assertSame($expectedSuffix, $domain->getPublicSuffix()->value());
 
         /** @var ResolvedDomain $domainIDN */
         $domainIDN = $domain->toAscii();
-        self::assertSame($expectedAsciiDomain, $domainIDN->getContent());
-        self::assertSame($expectedAsciiSuffix, $domainIDN->getPublicSuffix()->getContent());
+        self::assertSame($expectedAsciiDomain, $domainIDN->value());
+        self::assertSame($expectedAsciiSuffix, $domainIDN->getPublicSuffix()->value());
     }
 
     public function toAsciiProvider(): iterable
@@ -260,7 +260,7 @@ class ResolvedDomainTest extends TestCase
      */
     public function testResolveWorks(ResolvedDomain $domain, $publicSuffix, ?string $expected): void
     {
-        self::assertSame($expected, $domain->resolve($publicSuffix)->getPublicSuffix()->getContent());
+        self::assertSame($expected, $domain->resolve($publicSuffix)->getPublicSuffix()->value());
     }
 
     public function resolvePassProvider(): iterable
@@ -363,7 +363,7 @@ class ResolvedDomainTest extends TestCase
     {
         $result = $domain->withSubDomain($subdomain);
 
-        self::assertSame($expected, $result->getSubDomain()->getContent());
+        self::assertSame($expected, $result->getSubDomain()->value());
         self::assertEquals($domain->getPublicSuffix(), $result->getPublicSuffix());
         self::assertEquals($domain->getRegistrableDomain(), $result->getRegistrableDomain());
     }
@@ -454,7 +454,7 @@ class ResolvedDomainTest extends TestCase
         $result = $domain->withPublicSuffix($publicSuffix);
         $newPublicSuffix = $result->getPublicSuffix();
 
-        self::assertSame($expected, $newPublicSuffix->getContent());
+        self::assertSame($expected, $newPublicSuffix->value());
         self::assertSame($isKnown, $newPublicSuffix->isKnown());
         self::assertSame($isICANN, $newPublicSuffix->isICANN());
         self::assertSame($isPrivate, $newPublicSuffix->isPrivate());
@@ -567,11 +567,11 @@ class ResolvedDomainTest extends TestCase
         $host = new Domain($domainName, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         $resolvedDomain = new ResolvedDomain($host, PublicSuffix::fromICANN($publicSuffix));
 
-        self::assertSame($expectedContent, $resolvedDomain->getContent());
-        self::assertSame($expectedAscii, $resolvedDomain->toAscii()->getContent());
-        self::assertSame($expectedUnicode, $resolvedDomain->toUnicode()->getContent());
-        self::assertSame($expectedRegistrable, $resolvedDomain->getRegistrableDomain()->getContent());
-        self::assertSame($expectedSubDomain, $resolvedDomain->getSubDomain()->getContent());
+        self::assertSame($expectedContent, $resolvedDomain->value());
+        self::assertSame($expectedAscii, $resolvedDomain->toAscii()->value());
+        self::assertSame($expectedUnicode, $resolvedDomain->toUnicode()->value());
+        self::assertSame($expectedRegistrable, $resolvedDomain->getRegistrableDomain()->value());
+        self::assertSame($expectedSubDomain, $resolvedDomain->getSubDomain()->value());
     }
 
     public function resolveCustomIDNAOptionsProvider(): iterable
@@ -674,7 +674,7 @@ class ResolvedDomainTest extends TestCase
         $newDomain = $domain->withSecondLevelDomain($sld);
 
         self::assertSame($expectedSld, $newDomain->getSecondLevelDomain());
-        self::assertEquals($expectedHost, $newDomain->getContent());
+        self::assertEquals($expectedHost, $newDomain->value());
         self::assertEquals($domain->getPublicSuffix(), $newDomain->getPublicSuffix());
         self::assertEquals($domain->getSubDomain(), $newDomain->getSubDomain());
     }
