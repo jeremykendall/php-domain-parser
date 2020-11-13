@@ -176,7 +176,7 @@ final class Rules implements PublicSuffixList
             $domain = new Domain($domain);
         }
 
-        if ((2 > count($domain)) || ('.' === substr((string) $domain, -1, 1))) {
+        if ((2 > count($domain)) || ('.' === substr($domain->toString(), -1, 1))) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 

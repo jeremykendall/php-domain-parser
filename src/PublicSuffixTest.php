@@ -21,12 +21,12 @@ class PublicSuffixTest extends TestCase
         $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
         self::assertEquals($publicSuffix, $generatePublicSuffix);
         self::assertEquals('"ac.be"', json_encode($publicSuffix));
-        self::assertSame('ac.be', (string) $publicSuffix);
+        self::assertSame('ac.be', $publicSuffix->toString());
     }
 
     public function testPSToUnicodeWithUrlEncode(): void
     {
-        self::assertSame('bébe', PublicSuffix::fromUnknown('b%C3%A9be')->toUnicode()->getContent());
+        self::assertSame('bébe', PublicSuffix::fromUnknown('b%C3%A9be')->toUnicode()->value());
     }
 
     /**
@@ -150,9 +150,9 @@ class PublicSuffixTest extends TestCase
         string $expectedUnicode
     ): void {
         $publicSuffix = PublicSuffix::fromUnknown($name, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-        self::assertSame($expectedContent, $publicSuffix->getContent());
-        self::assertSame($expectedAscii, $publicSuffix->toAscii()->getContent());
-        self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->getContent());
+        self::assertSame($expectedContent, $publicSuffix->value());
+        self::assertSame($expectedAscii, $publicSuffix->toAscii()->value());
+        self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->value());
         /** @var PublicSuffix $instance */
         $instance = $publicSuffix->toUnicode();
         self::assertSame(

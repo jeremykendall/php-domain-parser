@@ -98,10 +98,10 @@ final class RootZoneDatabaseConverter
             throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
         }
 
-        if (1 !== $tld->count() || '' === $tld->getContent()) {
+        if (1 !== $tld->count() || '' === $tld->value()) {
             throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content);
         }
 
-        return (string) $tld;
+        return $tld->toString();
     }
 }

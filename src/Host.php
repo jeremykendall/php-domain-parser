@@ -17,14 +17,12 @@ interface Host extends Countable, JsonSerializable, IDNConversion
     /**
      * Returns the domain content.
      */
-    public function getContent(): ?string;
+    public function value(): ?string;
 
     /**
-     * {@inheritdoc}
-     *
-     * The labels total number.
+     * Returns the domain content as a string.
      */
-    public function count(): int;
+    public function toString(): string;
 
     /**
      * Returns the domain content.
@@ -32,9 +30,11 @@ interface Host extends Countable, JsonSerializable, IDNConversion
     public function jsonSerialize(): ?string;
 
     /**
-     * Returns the domain content as a string.
+     * {@inheritdoc}
+     *
+     * The labels total number.
      */
-    public function __toString(): string;
+    public function count(): int;
 
     /**
      * Converts the domain to its IDNA ASCII form.

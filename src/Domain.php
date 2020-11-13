@@ -73,7 +73,7 @@ final class Domain extends DomainNameParser implements DomainName
 
     public function jsonSerialize(): ?string
     {
-        return $this->getContent();
+        return $this->value();
     }
 
     public function count(): int
@@ -81,14 +81,14 @@ final class Domain extends DomainNameParser implements DomainName
         return count($this->labels);
     }
 
-    public function getContent(): ?string
+    public function value(): ?string
     {
         return $this->domain;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
-        return (string) $this->domain;
+        return (string) $this->value();
     }
 
     public function label(int $key): ?string
@@ -160,7 +160,7 @@ final class Domain extends DomainNameParser implements DomainName
     private function normalizeContent($domain): string
     {
         if ($domain instanceof Host) {
-            $domain = $domain->getContent();
+            $domain = $domain->value();
         }
 
         if (null === $domain || (!is_string($domain) && !method_exists($domain, '__toString'))) {

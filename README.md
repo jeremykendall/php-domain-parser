@@ -1,4 +1,5 @@
 # PHP Domain Parser
+
 **PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based domain parser implemented in PHP.
 
 ![Quality Assurance](https://github.com/jeremykendall/php-domain-parser/workflows/Quality%20Assurance/badge.svg)
@@ -52,11 +53,11 @@ use Pdp\Rules;
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $resolvedDomain = $rules->resolve('www.PreF.OkiNawA.jP');
-echo $resolvedDomain->getDomain();            //display 'www.pref.okinawa.jp';
-echo $resolvedDomain->getPublicSuffix();      //display 'okinawa.jp';
-echo $resolvedDomain->getSecondLevelDomain(); //display 'pref';
-echo $resolvedDomain->getRegistrableDomain(); //display 'pref.okinawa.jp';
-echo $resolvedDomain->getSubDomain();         //display 'www';
+echo $resolvedDomain->getDomain()->toString();            //display 'www.pref.okinawa.jp';
+echo $resolvedDomain->getPublicSuffix()->toString();      //display 'okinawa.jp';
+echo $resolvedDomain->getSecondLevelDomain();             //display 'pref';
+echo $resolvedDomain->getRegistrableDomain()->toString(); //display 'pref.okinawa.jp';
+echo $resolvedDomain->getSubDomain()->toString();         //display 'www';
 ~~~
 
 In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
@@ -74,10 +75,10 @@ $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $publicSuffix = $rules->resolve('example.github.io')->getPublicSuffix();
 
-echo $publicSuffix;         // display 'github.io';
-$publicSuffix->isICANN();   // will return false
-$publicSuffix->isPrivate(); // will return true
-$publicSuffix->isKnown();   // will return true
+echo $publicSuffix->toString(); // display 'github.io';
+$publicSuffix->isICANN();       // will return false
+$publicSuffix->isPrivate();     // will return true
+$publicSuffix->isKnown();       // will return true
 ~~~
 
 Because the PSL algorithm is fault tolerant this library exposes more strict methods
@@ -109,6 +110,21 @@ $rules->resolve('com');
 // will return a Nullable Resolved domain
 ~~~
 
+It is possible to access the labels that compose the underlying public suffix domain using the following call:
+
+~~~php
+<?php 
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$publicSuffix = $rules->resolve('example.github.io')->getPublicSuffix();
+
+$publicSuffixDomain = $publicSuffix->getDomain();
+~~~
+ 
+Domain objects usage is explain in the next section.
+ 
 #### Accessing and processing Domain labels
 
 From the `ResolvedDomain` you can access the underlying domain object using the `ResolvedDomain::getDomain` method.
@@ -122,11 +138,12 @@ use Pdp\Rules;
 
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
-$resolvedDomain = $rules->resolve('www.example.com');
+$resolvedDomain = $rules->resolve('www.ExAmpLE.cOM');
 $domain = $resolvedDomain->getDomain();
-$domain->labels();  // returns ['com', 'example', 'www'];
-$domain->label(-1); // returns 'www'
-$domain->label(0);  // returns 'com'
+echo $domain->toString(); // display 'www.example.com'
+$domain->labels();        // returns ['com', 'example', 'www'];
+$domain->label(-1);       // returns 'www'
+$domain->label(0);        // returns 'com'
 foreach ($domain as $label) {
    echo $label, PHP_EOL;
 }
@@ -143,6 +160,13 @@ You can also add or remove labels according to their key index using the followi
 - `Domain::append(string|Stringable $label): self;`
 - `Domain::prepend(string|Stringable $label): self;`
 
+A domain object is directly returned from the following calls:
+
+- `ResolvedDomain::getDomain`
+- `ResolvedDomain::getRegistrableDomain`
+- `ResolvedDomain::getSubDomain`
+- `ResolvedDomain::getRegistrableDomain`
+
 ### Top Level Domains resolution
 
 While the [Public Suffix List](http://publicsuffix.org/) is a community based list, the package provides access to 
@@ -155,11 +179,11 @@ use Pdp\TopLevelDomains;
 $iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
 
 $resolvedDomain = $iana->resolve('www.PreF.OkiNawA.jP');
-echo $resolvedDomain->getDomain();            //display 'www.pref.okinawa.jp';
-echo $resolvedDomain->getPublicSuffix();      //display 'jp';
-echo $resolvedDomain->getSecondLevelDomain(); //display 'okinawa';
-echo $resolvedDomain->getRegistrableDomain(); //display 'okinawa.jp';
-echo $resolvedDomain->getSubDomain();         //display 'www.pref';
+echo $resolvedDomain->getDomain()->toString();            //display 'www.pref.okinawa.jp';
+echo $resolvedDomain->getPublicSuffix()->toString();      //display 'jp';
+echo $resolvedDomain->getSecondLevelDomain();             //display 'okinawa';
+echo $resolvedDomain->getRegistrableDomain()->toString(); //display 'okinawa.jp';
+echo $resolvedDomain->getSubDomain()->toString();         //display 'www.pref';
 ~~~
 
 In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.

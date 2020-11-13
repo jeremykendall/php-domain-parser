@@ -49,7 +49,7 @@ class DomainTest extends TestCase
         self::assertEquals($domain, $generateDomain);
         self::assertSame(['be', 'ac', 'ulb', 'www'], iterator_to_array($domain));
         self::assertEquals('"www.ulb.ac.be"', json_encode($domain));
-        self::assertSame('www.ulb.ac.be', (string) $domain);
+        self::assertSame('www.ulb.ac.be', $domain->toString());
     }
 
     /**
@@ -119,11 +119,11 @@ class DomainTest extends TestCase
         ?string $expectedIDNDomain
     ): void {
         $domain = new Domain($domain);
-        self::assertSame($expectedDomain, $domain->getContent());
+        self::assertSame($expectedDomain, $domain->value());
 
         /** @var Domain $domainIDN */
         $domainIDN = $domain->toUnicode();
-        self::assertSame($expectedIDNDomain, $domainIDN->getContent());
+        self::assertSame($expectedIDNDomain, $domainIDN->value());
     }
 
     public function toUnicodeProvider(): iterable
@@ -179,11 +179,11 @@ class DomainTest extends TestCase
         ?string $expectedAsciiDomain
     ): void {
         $domain = new Domain($domain);
-        self::assertSame($expectedDomain, $domain->getContent());
+        self::assertSame($expectedDomain, $domain->value());
 
         /** @var Domain $domainIDN */
         $domainIDN = $domain->toAscii();
-        self::assertSame($expectedAsciiDomain, $domainIDN->getContent());
+        self::assertSame($expectedAsciiDomain, $domainIDN->value());
     }
 
     public function toAsciiProvider(): iterable
@@ -225,7 +225,7 @@ class DomainTest extends TestCase
     public function testWithLabelWorks(Domain $domain, int $key, string $label, ?string $expected): void
     {
         $result = $domain->withLabel($key, $label);
-        self::assertSame($expected, $result->getContent());
+        self::assertSame($expected, $result->value());
     }
 
     public function withLabelWorksProvider(): iterable
@@ -320,7 +320,7 @@ class DomainTest extends TestCase
      */
     public function testAppend(string $raw, string $append, string $expected): void
     {
-        self::assertSame($expected, (string) (new Domain($raw))->append($append));
+        self::assertSame($expected, (new Domain($raw))->append($append)->toString());
     }
 
     public function validAppend(): iterable
@@ -338,7 +338,7 @@ class DomainTest extends TestCase
      */
     public function testPrepend(string $raw, string $prepend, string $expected): void
     {
-        self::assertSame($expected, (string) (new Domain($raw))->prepend($prepend));
+        self::assertSame($expected, (new Domain($raw))->prepend($prepend)->toString());
     }
 
     public function validPrepend(): iterable
@@ -357,7 +357,7 @@ class DomainTest extends TestCase
     public function testwithoutLabelWorks(Domain $domain, int $key, ?string $expected): void
     {
         $result = $domain->withoutLabel($key);
-        self::assertSame($expected, $result->getContent());
+        self::assertSame($expected, $result->value());
     }
 
     public function withoutLabelWorksProvider(): iterable
@@ -396,7 +396,7 @@ class DomainTest extends TestCase
 
     public function testwithoutLabelWorksWithMultipleKeys(): void
     {
-        self::assertNull((new Domain('www.example.com'))->withoutLabel(0, 1, 2)->getContent());
+        self::assertNull((new Domain('www.example.com'))->withoutLabel(0, 1, 2)->value());
     }
 
     public function testConstructWithCustomIDNAOptions(): void
@@ -428,10 +428,10 @@ class DomainTest extends TestCase
             IDNA_NONTRANSITIONAL_TO_ASCII,
             IDNA_NONTRANSITIONAL_TO_UNICODE
         );
-        self::assertSame($expectedContent, $domain->getContent());
-        self::assertSame($expectedAscii, $domain->toAscii()->getContent());
-        self::assertSame($expectedUnicode, $domain->toUnicode()->getContent());
-        self::assertSame($expectedWithLabel, $domain->withLabel(-1, $withLabel)->getContent());
+        self::assertSame($expectedContent, $domain->value());
+        self::assertSame($expectedAscii, $domain->toAscii()->value());
+        self::assertSame($expectedUnicode, $domain->toUnicode()->value());
+        self::assertSame($expectedWithLabel, $domain->withLabel(-1, $withLabel)->value());
     }
 
     public function resolveCustomIDNAOptionsProvider(): iterable

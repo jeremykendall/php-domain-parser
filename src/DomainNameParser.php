@@ -163,7 +163,7 @@ abstract class DomainNameParser
     final protected function parse($domain = null, int $asciiOption = IDNA_DEFAULT, int $unicodeOption = IDNA_DEFAULT): array
     {
         if ($domain instanceof Host) {
-            $domain = $domain->getContent();
+            $domain = $domain->value();
         }
 
         if (null === $domain) {

@@ -98,7 +98,7 @@ class TopLevelDomainsTest extends TestCase
     {
         self::assertSame(
             (new Domain($tld))->label(0),
-            $this->topLevelDomains->resolve($tld)->getPublicSuffix()->getContent()
+            $this->topLevelDomains->resolve($tld)->getPublicSuffix()->value()
         );
     }
 
@@ -114,7 +114,7 @@ class TopLevelDomainsTest extends TestCase
             'Unicode domain (2)' => ['кто.рф'],
             'Unicode domain (3)' => ['Deutsche.Vermögensberatung.vermögensberater'],
             'object with __toString method' => [new class() {
-                public function __toString()
+                public function __toString(): string
                 {
                     return 'www.இந.இந்தியா';
                 }
@@ -147,7 +147,7 @@ class TopLevelDomainsTest extends TestCase
     {
         $collection = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
 
-        self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix()->getContent());
+        self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix()->value());
     }
 
     public function testResolveWithIDNAOptions(): void
@@ -195,7 +195,7 @@ class TopLevelDomainsTest extends TestCase
             'Unicode TLD (4)' => ['இந்தியா'],
             'Unicode TLD (5)' => ['vermögensberater'],
             'object with __toString method' => [new class() {
-                public function __toString()
+                public function __toString(): string
                 {
                     return 'COM';
                 }
@@ -228,7 +228,7 @@ class TopLevelDomainsTest extends TestCase
             'invalid IDN to ASCII with leading dot' => ['.XN--TTT'],
             'null' => [null],
             'object with __toString method' => [new class() {
-                public function __toString()
+                public function __toString(): string
                 {
                     return 'COMMM';
                 }
