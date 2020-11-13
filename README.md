@@ -39,12 +39,23 @@ You need:
 
 ## Usage
 
+### Resolving Domains
+
+A resolved domain contains the following parts:
+
+- an effective TLD or public suffix
+- a second level domain which represent the label that follow the public suffix
+- a registrable domain which represents the effective TLD prepended with the second level domain
+- an optional subdomain
+
+To effectively resolve a domain you need a public source. This library can resolve domains against:
+ 
+- The [Public Suffix List](http://publicsuffix.org/)
+- The [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)
+
 ### Public Suffix List Resolution
 
-#### Resolving Domains
-
-The first objective of the library is to use the [Public Suffix List](http://publicsuffix.org/) to easily resolve a 
-domain as a `Pdp\ResolvedDomain` object using the following methods:
+Using the `Pdp\Rules` class you can easily resolve a domain as a `Pdp\ResolvedDomain` object against the  [Public Suffix List](http://publicsuffix.org/) as shown below:
 
 ~~~php
 <?php 
@@ -62,7 +73,7 @@ echo $resolvedDomain->getSubDomain()->toString();         //display 'www';
 
 In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
 
-#### Public Suffix Type
+#### Public Suffix Section
 
 The [Public Suffix List](http://publicsuffix.org/) is organized in sections. This library can give you access to this
 information via its public suffix object.
@@ -97,8 +108,7 @@ use Pdp\Rules;
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $rules->getICANNDomain('qfdsf.unknownTLD');
-// will trigger an UnableToResolveDomain exception because `.unknownTLD` is not 
-// part of the ICANN section
+// will throw because `.unknownTLD` is not  part of the ICANN section
 
 $rules->getCookieDomain('qfdsf.unknownTLD');
 // will not throw because the domain syntax is correct.
@@ -110,7 +120,7 @@ $rules->resolve('com');
 // will return a Nullable Resolved domain
 ~~~
 
-It is possible to access the labels that compose the underlying public suffix domain using the following call:
+It is possible to access the labels composing the underlying public suffix domain using the following call:
 
 ~~~php
 <?php 
@@ -120,10 +130,11 @@ $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $publicSuffix = $rules->resolve('example.github.io')->getPublicSuffix();
 
-$publicSuffixDomain = $publicSuffix->getDomain();
+$publicSuffixLabels = $publicSuffix->getDomain();
+$publicSuffixLabels->labels(); // will return ['io', 'github']
 ~~~
  
-Domain objects usage is explain in the next section.
+Domain objects usage are explain in the next section.
  
 #### Accessing and processing Domain labels
 
@@ -160,12 +171,21 @@ You can also add or remove labels according to their key index using the followi
 - `Domain::append(string|Stringable $label): self;`
 - `Domain::prepend(string|Stringable $label): self;`
 
-A domain object is directly returned from the following calls:
+The following methods from the `ResolvedDomain` object will return an `Domain` object:
 
 - `ResolvedDomain::getDomain`
 - `ResolvedDomain::getRegistrableDomain`
 - `ResolvedDomain::getSubDomain`
 - `ResolvedDomain::getRegistrableDomain`
+
+#### Modifying the ResolvedDomain
+
+You can still easily modify the returned `ResolvedDomain` object part using the following methods
+
+- `ResolvedDomain::withSubDomain(Host $subDomain): self`
+- `ResolvedDomain::withSecondLevelDomain(?string $label): self`
+- `ResolvedDomain::withPublicSuffix(PublicSuffix $publicSuffix): self`
+- `ResolvedDomain::resolve(PublicSuffix $publicSuffix): self`
 
 ### Top Level Domains resolution
 
@@ -211,8 +231,8 @@ standard interfaces published by the PHP-FIG to improve its interoperability wit
 
 To work as intended, the `Pdp\Storage\PsrStorageFactory` constructor requires:
 
-- a [PSR-16](http://www.php-fig.org/psr/psr-16/) A Cache object to store the rules locally.
-- a [PSR-18](http://www.php-fig.org/psr/psr-18/) A PSR-18 HTTP Client.
+- a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object.
+- a [PSR-18](http://www.php-fig.org/psr/psr-18/) HTTP Client.
 
 When creating a new storage instance you will require:
 
