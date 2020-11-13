@@ -40,6 +40,8 @@ You need:
 
 ### Public Suffix List Resolution
 
+#### Resolving Domains
+
 The first objective of the library is to use the [Public Suffix List](http://publicsuffix.org/) to easily resolve a 
 domain as a `Pdp\ResolvedDomain` object using the following methods:
 
@@ -57,7 +59,89 @@ echo $resolvedDomain->getRegistrableDomain(); //display 'pref.okinawa.jp';
 echo $resolvedDomain->getSubDomain();         //display 'www';
 ~~~
 
-In case of an error an exception which extends `Pdp\ExceptionInterface` is thrown.
+In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
+
+#### Public Suffix Type
+
+The [Public Suffix List](http://publicsuffix.org/) is organized in sections. This library can give you access to this
+information via its public suffix object.
+
+~~~php
+<?php 
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$publicSuffix = $rules->resolve('example.github.io')->getPublicSuffix();
+
+echo $publicSuffix;         // display 'github.io';
+$publicSuffix->isICANN();   // will return false
+$publicSuffix->isPrivate(); // will return true
+$publicSuffix->isKnown();   // will return true
+~~~
+
+Because the PSL algorithm is fault tolerant this library exposes more strict methods
+
+- `Rules::getCookieDomain`
+- `Rules::getICANNDomain`
+- `Rules::getPrivateDomain`
+
+These methods act and resolve the domain against the PSL just like the `resolve` method but will throw
+an exception if no valid effective TLD is found in the respective PSL section or if the submitted domain is invalid.
+
+~~~php
+<?php 
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$rules->getICANNDomain('qfdsf.unknownTLD');
+// will trigger an UnableToResolveDomain exception because `.unknownTLD` is not 
+// part of the ICANN section
+
+$rules->getCookieDomain('qfdsf.unknownTLD');
+// will not throw because the domain syntax is correct.
+
+$rules->getCookieDomain('com');
+// will throw because no public suffix can be determined
+
+$rules->resolve('com');
+// will return a Nullable Resolved domain
+~~~
+
+#### Accessing and processing Domain labels
+
+From the `ResolvedDomain` you can access the underlying domain object using the `ResolvedDomain::getDomain` method.
+Accessing this object enables you to work with the domain labels. 
+
+**WARNING: all objects are immutable, modifying the underlying object will not affect the parent object.**
+
+~~~php
+<?php 
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$resolvedDomain = $rules->resolve('www.example.com');
+$domain = $resolvedDomain->getDomain();
+$domain->labels();  // returns ['com', 'example', 'www'];
+$domain->label(-1); // returns 'www'
+$domain->label(0);  // returns 'com'
+foreach ($domain as $label) {
+   echo $label, PHP_EOL;
+}
+// display 
+// com
+// example
+// www
+~~~ 
+
+You can also add or remove labels according to their key index using the following methods:
+
+- `Domain::withLabel(int $key, string|Stringable $label): self;`
+- `Domain::withoutLabel(int $key, int ...$keys): self;`
+- `Domain::append(string|Stringable $label): self;`
+- `Domain::prepend(string|Stringable $label): self;`
 
 ### Top Level Domains resolution
 
@@ -78,7 +162,7 @@ echo $resolvedDomain->getRegistrableDomain(); //display 'okinawa.jp';
 echo $resolvedDomain->getSubDomain();         //display 'www.pref';
 ~~~
 
-In case of an error an exception which extends `Pdp\ExceptionInterface` is thrown.
+In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
 
 **WARNING:**
 

@@ -131,7 +131,7 @@ class TopLevelDomainsTest extends TestCase
 
     public function testResolveWithInvalidDomain(): void
     {
-        self::expectException(CannotResolveHost::class);
+        self::expectException(SyntaxError::class);
 
         $this->topLevelDomains->resolve('###');
     }

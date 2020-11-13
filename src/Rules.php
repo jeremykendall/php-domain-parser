@@ -114,7 +114,7 @@ final class Rules implements PublicSuffixList
             }
 
             return new ResolvedDomain(new Domain($host));
-        } catch (CannotProcessHost $exception) {
+        } catch (SyntaxError $exception) {
             return new ResolvedDomain(Domain::fromNull());
         }
     }
@@ -163,7 +163,8 @@ final class Rules implements PublicSuffixList
      *
      * @param mixed $domain a type that supports instantiating a Domain from.
      *
-     * @throws CannotResolveHost If the domain is invalid
+     * @throws SyntaxError           If the domain is invalid
+     * @throws UnableToResolveDomain If the domain can not be resolved
      */
     private function validateDomain($domain): DomainName
     {

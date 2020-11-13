@@ -66,7 +66,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testConstructorThrowsException(string $publicSuffix): void
     {
-        self::expectException(CannotResolveDomain::class);
+        self::expectException(SyntaxError::class);
 
         PublicSuffix::fromUnknown($publicSuffix);
     }
@@ -81,14 +81,14 @@ class PublicSuffixTest extends TestCase
 
     public function testPSToAsciiThrowsException(): void
     {
-        self::expectException(CannotResolveHost::class);
+        self::expectException(SyntaxError::class);
 
         PublicSuffix::fromUnknown('a⒈com');
     }
 
     public function testToUnicodeThrowsException(): void
     {
-        self::expectException(CannotResolveHost::class);
+        self::expectException(SyntaxError::class);
 
         PublicSuffix::fromUnknown('xn--a-ecp.ru')->toUnicode();
     }

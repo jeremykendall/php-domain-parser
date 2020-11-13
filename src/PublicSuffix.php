@@ -16,7 +16,7 @@ final class PublicSuffix implements EffectiveTLD
     private function __construct(DomainName $publicSuffix, string $section)
     {
         if ('' === $publicSuffix->label(0)) {
-            throw CannotResolveDomain::dueToInvalidPublicSuffix($publicSuffix);
+            throw SyntaxError::dueToInvalidPublicSuffix($publicSuffix);
         }
 
         if (null === $publicSuffix->getContent()) {
