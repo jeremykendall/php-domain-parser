@@ -80,7 +80,7 @@ abstract class DomainNameParser
      *
      * This method returns the string converted to IDN ASCII form
      *
-     * @throws CannotResolveHost if the string can not be converted to ASCII using IDN UTS46 algorithm
+     * @throws SyntaxError if the string can not be converted to ASCII using IDN UTS46 algorithm
      */
     final protected function idnToAscii(string $domain, int $option = IDNA_DEFAULT): string
     {
@@ -94,11 +94,11 @@ abstract class DomainNameParser
 
         $output = idn_to_ascii($domain, $option, INTL_IDNA_VARIANT_UTS46, $infos);
         if ([] === $infos) {
-            throw CannotResolveHost::dueToIDNAError($domain);
+            throw SyntaxError::dueToIDNAError($domain);
         }
 
         if (0 !== $infos['errors']) {
-            throw CannotResolveHost::dueToIDNAError($domain, self::getIdnErrors($infos['errors']));
+            throw SyntaxError::dueToIDNAError($domain, self::getIdnErrors($infos['errors']));
         }
 
         // @codeCoverageIgnoreStart
@@ -111,7 +111,7 @@ abstract class DomainNameParser
             return $output;
         }
 
-        throw CannotResolveHost::dueToInvalidCharacters($domain);
+        throw SyntaxError::dueToInvalidCharacters($domain);
     }
 
     /**
@@ -119,7 +119,7 @@ abstract class DomainNameParser
      *
      * This method returns the string converted to IDN UNICODE form
      *
-     * @throws CannotResolveHost        if the string can not be converted to UNICODE using IDN UTS46 algorithm
+     * @throws SyntaxError              if the string can not be converted to UNICODE using IDN UTS46 algorithm
      * @throws UnexpectedValueException if the intl extension is misconfigured
      */
     final protected function idnToUnicode(string $domain, int $option = IDNA_DEFAULT): string
@@ -130,11 +130,11 @@ abstract class DomainNameParser
 
         $output = idn_to_utf8($domain, $option, INTL_IDNA_VARIANT_UTS46, $info);
         if ([] === $info) {
-            throw CannotResolveHost::dueToIDNAError($domain);
+            throw SyntaxError::dueToIDNAError($domain);
         }
 
         if (0 !== $info['errors']) {
-            throw CannotResolveHost::dueToIDNAError($domain, self::getIdnErrors($info['errors']));
+            throw SyntaxError::dueToIDNAError($domain, self::getIdnErrors($info['errors']));
         }
 
         // @codeCoverageIgnoreStart
@@ -155,8 +155,8 @@ abstract class DomainNameParser
      *
      * @param mixed $domain a domain
      *
-     *@throws CannotResolveHost If the domain is not a host
-     * @throws CannotResolveDomain If the host is not a domain
+     *@throws SyntaxError If the host is not a domain
+     *@throws SyntaxError If the domain is not a host
      *@return array<string>
      *
      */
@@ -185,7 +185,7 @@ abstract class DomainNameParser
 
         $res = filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
         if (false !== $res) {
-            throw CannotResolveDomain::dueToUnsupportedType($domain);
+            throw SyntaxError::dueToUnsupportedType($domain);
         }
 
         $formattedDomain = rawurldecode($domain);
@@ -205,7 +205,7 @@ abstract class DomainNameParser
         // a domain name can not contains URI delimiters or space
         static $genDelimiters = '/[:\/?#\[\]@ ]/';
         if (1 === preg_match($genDelimiters, $formattedDomain)) {
-            throw CannotResolveDomain::dueToInvalidCharacters($domain);
+            throw SyntaxError::dueToInvalidCharacters($domain);
         }
 
         // if the domain name does not contains UTF-8 chars then it is malformed
@@ -219,6 +219,6 @@ abstract class DomainNameParser
             return $labels;
         }
 
-        throw CannotResolveDomain::dueToInvalidCharacters($domain);
+        throw SyntaxError::dueToInvalidCharacters($domain);
     }
 }
