@@ -382,11 +382,13 @@ find robust and battle tested implementations on packagist.
 
 For the purpose of this example we will use our PSR powered solution with:
  
-- Guzzle as our PSR-18 HTTP client implementation;
-- Guzzle\Psr7 to create a PSR-15 RequestFactory object;
-- The Symfony Cache Component to use a PSR-16 cache implementation;
+- *Guzzle* as our PSR-18 HTTP client;
+- *Guzzle\Psr7* to create a PSR-17 compliant `RequestFactoryInterface` object;
+- *Symfony Cache Component* as our PSR-16 cache implementation;
 
-You are free to use other libraries as long as they implement the required PSR interfaces. 
+We will cache both external sources for 24 hours in a PostgreSQL database.
+
+You are free to use other libraries/solutions as long as they implement the required PSR interfaces. 
 
 ~~~php
 <?php 
@@ -399,14 +401,13 @@ use Psr\Http\Message\RequestInterface;
 use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
-$pdoAdapter = new PdoAdapter(
-    'mysql:host=localhost;dbname=testdb', 
-    'pdp', 
-    3600, 
-    [ 'db_username' => 'user', 'db_password' => 'password']
+$pdo = new PDO(
+    'pgsql:host=localhost;port:5432;dbname=testdb', 
+    'user', 
+    'password', 
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
 );
-
-$cache = new Psr16Cache($pdoAdapter);
+$cache = new Psr16Cache(new PdoAdapter($pdo, 'pdp', 43200));
 $client = new Client();
 $requestFactory = new class implements RequestFactoryInterface {
     public function createRequest(string $method, $uri): RequestInterface
@@ -425,7 +426,7 @@ $rules = $pslStorage->get(PsrStorageFactory::URL_PSL);
 $tldDomains = $rzdStorage->get(PsrStorageFactory::URL_RZD);
 ~~~
 
-**Be sure to adapt the following code to your own framework/situation.
+**Be sure to adapt the following code to your own application.
 The following code is an example given without warranty of it working 
 out of the box.**
 
@@ -437,7 +438,8 @@ code in your application.**
 It is important to always have an up to date Public Suffix List and Root Zone
 Database.  
 This library no longer provide an out of the box script to do so as implementing
-such a job heavily depends on your application setup. 
+such a job heavily depends on your application setup.
+You can use the above example script as a starting point to implement such a job.
 
 Changelog
 -------
