@@ -251,13 +251,13 @@ $resolvedDomain = $rules->resolve('www.ExAmpLE.cOM');
 $domain = $resolvedDomain->getDomain();
 
 $newDomain = $domain
-    ->withLabel(1, 'com')
-    ->withoutLabel(0, -1)
+    ->withLabel(1, 'com')  //replace 'example' by 'com'
+    ->withoutLabel(0, -1)  //remove the first and last labels
     ->append('www')
-    ->prepend('example');
+    ->prepend('docs.example');
 
-echo $domain->toString(); // display 'www.example.com'
-echo $newDomain->toString(); // display 'example.com.www'
+echo $domain->toString();    // display 'www.example.com'
+echo $newDomain->toString(); // display 'docs.example.com.www'
 ~~~ 
 
 The following methods from the `ResolvedDomain` object will **also** return 
@@ -287,21 +287,18 @@ $domain = new Domain(''); // will throw
 ### Internationalization
 
 Domain names came in different forms, the package by default will resolve the 
-domain in its ascii form and convert it back to its source form. This is done
-using PHP `ext-intl` extension.
+domain in its ascii form against the public suffix source and convert it back 
+to its unicode form if needed. This is done using PHP `ext-intl` extension.
 
-As such:
- 
-All domain objects expose the following methods:
+As such all domain objects expose the following methods.
 
 ```php
 public function toAscii(): self;
 public function toUnicode(): self;
 ```
 
-The domain resolvers use those methods to convert back and forth between
-both formats and to return the domain and its public suffix into the
-submitted format.
+The domain resolvers use these methods to convert domains between both format
+and to return the domain and its public suffix into the submitted format.
 
 ~~~php
 <?php 
@@ -310,7 +307,7 @@ use Pdp\Rules;
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $unicodeDomain = $rules->resolve('bébé.be');
-echo $unicodeDomain->toString();   // returns 'bébé.be'
+echo $unicodeDomain->toString();        // returns 'bébé.be'
 $unicodeDomain->getSecondLevelDomain(); // returns 'bébé'
 
 $asciiDomain = $rules->resolve('xn--bb-bjab.be');
@@ -333,8 +330,22 @@ interface IDNConversion
 }
 ~~~
 
-where the `$options` variable should be a combination of `IDNA_*` constants 
-(except `IDNA_ERROR_*` constants).
+where the `$options` variable should be a combination of the `IDNA_*` constants 
+(except `IDNA_ERROR_*` constants) used with the `idn_to_utf8` and `idn_to_ascii` 
+functions from the `ext-intl` package.
+
+~~~php
+use Pdp\Domain;
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+echo $rules->resolve('faß.de')->toString(); // display 'fass.de'
+
+$domain = new Domain('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII,IDNA_NONTRANSITIONAL_TO_UNICODE);
+echo $rules->resolve($domain)->toString(); // display 'faß.de'
+~~~
+
+**TIPS: Always favor submitting a `Domain` object for resolution rather that a string or a stringable object.**
 
 ## Managing the package databases
 
