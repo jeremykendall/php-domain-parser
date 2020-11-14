@@ -45,17 +45,4 @@ interface ResolvedDomainName extends Host, ExternalDomainName
      * otherwise the public suffix content is added to or remove from the current domain.
      */
     public function withPublicSuffix(EffectiveTLD $publicSuffix): self;
-
-    /**
-     * Returns a Domain object with a new resolve public suffix.
-     *
-     * The Public Suffix must be valid for the given domain name.
-     * ex: if the domain name is www.ulb.ac.be the only valid public suffixes
-     * are: be, ac.be, ulb.ac.be, or the null public suffix. Any other public
-     * suffix will throw an Exception.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the modified Public Suffix Information.
-     */
-    public function resolve(EffectiveTLD $publicSuffix): self;
 }

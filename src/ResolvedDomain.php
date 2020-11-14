@@ -204,15 +204,6 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($this->domain->toUnicode(), $this->publicSuffix->toUnicode());
     }
 
-    public function resolve($publicSuffix): self
-    {
-        if (!$publicSuffix instanceof EffectiveTLD) {
-            $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
-        }
-
-        return new self($this->domain, $publicSuffix);
-    }
-
     /**
      * @param mixed $publicSuffix a public suffix
      */
@@ -227,17 +218,17 @@ final class ResolvedDomain implements ResolvedDomainName
             return $this;
         }
 
-        $domain = implode('.', array_reverse(array_slice($this->domain->labels(), count($this->publicSuffix))));
+        $host = implode('.', array_reverse(array_slice($this->domain->labels(), count($this->publicSuffix))));
         if (null === $publicSuffix->value()) {
             return new self(
-                new Domain($domain, $this->domain->getAsciiIDNAOption(), $this->domain->getUnicodeIDNAOption()),
+                new Domain($host, $this->domain->getAsciiIDNAOption(), $this->domain->getUnicodeIDNAOption()),
                 null
             );
         }
 
         /** @var DomainName $domain */
         $domain = new Domain(
-            $domain.'.'.$publicSuffix->value(),
+            $host.'.'.$publicSuffix->value(),
             $this->domain->getAsciiIDNAOption(),
             $this->domain->getUnicodeIDNAOption()
         );
