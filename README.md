@@ -96,9 +96,6 @@ echo $newResolvedDomain->toString();               //display 'foo.bar.test.examp
 $newResolvedDomain->getPublicSuffix()->isKnown();  //returns false;
 ~~~
 
-**WARNING: All the objects are immutable, the changes are applied on the new 
-instance while the source instance stays unchanged.**
-
 The public suffix method `isKnown` will always return `false` if 
 you use a simple string to update the public suffix. 
 If you use a `PublicSuffix` object the method may return `true`.
@@ -224,6 +221,7 @@ $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 $resolvedDomain = $rules->resolve('www.bbc.co.uk');
 $domain = $resolvedDomain->getDomain();
 echo $domain->toString(); // display 'www.bbc.co.uk'
+count($domain);           // returns 4
 $domain->labels();        // returns ['uk', 'co', 'bbc', 'www'];
 $domain->label(-1);       // returns 'www'
 $domain->label(0);        // returns 'uk'
@@ -267,7 +265,6 @@ an `Domain` object:
 
 - `ResolvedDomain::getRegistrableDomain`
 - `ResolvedDomain::getSubDomain`
-- `ResolvedDomain::getRegistrableDomain`
 
 **WARNING: Because of its definition, a domain name can be `null` or a non-empty 
 string; empty string domain are invalid.**
@@ -298,8 +295,8 @@ As such:
 All domain objects expose the following methods:
 
 ```php
-public function toAscii(): int;
-public function toUnicode(): int;
+public function toAscii(): self;
+public function toUnicode(): self;
 ```
 
 The domain resolvers use those methods to convert back and forth between
@@ -320,11 +317,11 @@ $asciiDomain = $rules->resolve('xn--bb-bjab.be');
 $asciiDomain->toString();             // returns 'xn--bb-bjab.be'
 $asciiDomain->getSecondLevelDomain(); // returns 'xn--bb-bjab'
 
-$asciiDomain->toUnicode() == $unicodeDomain; //returns true
+$asciiDomain->toUnicode()->toString() === $unicodeDomain->toString(); //returns true
 ~~~
 
-The domain conversion between the ascii and the unicode form can 
-be controlled using the following interface implemented in all domain objects
+The domain conversion between the ascii and the unicode form can be controlled
+using the following interface implemented in all domain objects.
 
 ~~~php
 interface IDNConversion
@@ -378,7 +375,7 @@ The `$ttl` argument can be:
 will expire;
 
 However, the package no longer provides any implementation of such interfaces
-are they are many robust implementations that can easily be found on packagist.
+as they are more robust and battle tested implementations on packagist.
 
 #### Refreshing the cached PSL and RZD data
 
@@ -390,7 +387,7 @@ For the purpose of this example we will use:
 - Guzzle to create a PSR-15 RequestFactory object;
 - The Symfony Cache Component to use a PSR-16 cache implementation;
 
-You could easily use other packages as long as they implement the required PSR interfaces. 
+You are free to use other libraries as long as they implement the required PSR interfaces. 
 
 ~~~php
 <?php 
@@ -422,22 +419,27 @@ $rules = $pslStorage->get(PsrStorageFactory::URL_PSL);
 $tldDomains = $rzdStorage->get(PsrStorageFactory::URL_RZD);
 ~~~
 
-The above code should be adapted to be invoked in your application via your dependency injection container.
+You should use your dependency injection container to avoid repeating this
+code in your application.
 
 ### Automatic Updates
 
-It is important to always have an up to date Public Suffix List and Root Zone Database.
-This library no longer provide an out of the box script to do so as implementing such a job heavily depends on your application setup. 
+It is important to always have an up to date Public Suffix List and Root Zone
+Database.  
+This library no longer provide an out of the box script to do so as implementing
+such a job heavily depends on your application setup. 
 
 Changelog
 -------
 
-Please see [CHANGELOG](CHANGELOG.md) for more information about what has been changed since version **5.0.0** was released.
+Please see [CHANGELOG](CHANGELOG.md) for more information about what has been
+changed since version **5.0.0** was released.
 
 Contributing
 -------
 
-Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
+Contributions are welcome and will be fully credited. Please see 
+[CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 
 Testing
 -------
@@ -457,7 +459,8 @@ $ composer test
 Security
 -------
 
-If you discover any security related issues, please email nyamsprod@gmail.com instead of using the issue tracker.
+If you discover any security related issues, please email nyamsprod@gmail.com
+instead of using the issue tracker.
 
 Credits
 -------
