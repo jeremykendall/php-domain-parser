@@ -1,6 +1,6 @@
 # PHP Domain Parser
 
-**PHP Domain Parser** is a [Public Suffix List](http://publicsuffix.org/) based domain parser implemented in PHP.
+**PHP Domain Parser** is domain parser implemented in PHP.
 
 ![Quality Assurance](https://github.com/jeremykendall/php-domain-parser/workflows/Quality%20Assurance/badge.svg)
 [![Total Downloads][ico-packagist]][link-packagist]
@@ -11,11 +11,13 @@
 
 While there are plenty of excellent URL parsers and builders available, there
 are very few projects that can accurately parse a domain into its component
-subdomain, registrable domain, and public suffix parts.
+subdomain, registrable domain, second level domain and public suffix parts.
 
 Consider the domain www.pref.okinawa.jp.  In this domain, the
 *public suffix* portion is **okinawa.jp**, the *registrable domain* is
-**pref.okinawa.jp**, and the *subdomain* is **www**. You can't regex that.
+**pref.okinawa.jp**, the *subdomain* is **www** and 
+the *second level domain* is **pref**.  
+You can't regex that.
 
 PHP Domain Parser is compliant around:
 
@@ -41,21 +43,19 @@ You need:
 
 ### Resolving Domains
 
-A resolved domain contains the following parts:
-
-- an effective TLD or public suffix
-- a second level domain which represent the label that follow the public suffix
-- a registrable domain which represents the effective TLD prepended with the second level domain
-- an optional subdomain
-
-To effectively resolve a domain you need a public source. This library can resolve domains against:
+To effectively resolve a domain you need a public source. This library can
+resolve a domain against:
  
 - The [Public Suffix List](http://publicsuffix.org/)
 - The [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)
 
-### Public Suffix List Resolution
+**WARNING: all objects are immutable, modifying the underlying object will not 
+affect the parent object.**
 
-Using the `Pdp\Rules` class you can easily resolve a domain as a `Pdp\ResolvedDomain` object against the  [Public Suffix List](http://publicsuffix.org/) as shown below:
+#### Resolving the Domain against the Public Suffix List
+
+Using the `Pdp\Rules` class you can resolve a domain as a `Pdp\ResolvedDomain` 
+object against the [Public Suffix List](http://publicsuffix.org/) as shown below:
 
 ~~~php
 <?php 
@@ -64,19 +64,51 @@ use Pdp\Rules;
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $resolvedDomain = $rules->resolve('www.PreF.OkiNawA.jP');
-echo $resolvedDomain->getDomain()->toString();            //display 'www.pref.okinawa.jp';
-echo $resolvedDomain->getPublicSuffix()->toString();      //display 'okinawa.jp';
+echo $resolvedDomain->toString();                         //display 'www.pref.okinawa.jp';
+echo $resolvedDomain->getSubDomain()->toString();         //display 'www';
 echo $resolvedDomain->getSecondLevelDomain();             //display 'pref';
 echo $resolvedDomain->getRegistrableDomain()->toString(); //display 'pref.okinawa.jp';
-echo $resolvedDomain->getSubDomain()->toString();         //display 'www';
+echo $resolvedDomain->getPublicSuffix()->toString();      //display 'okinawa.jp';
+$resolvedDomain->getPublicSuffix()->isICANN();            //returns true;
 ~~~
 
-In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
+In case of an error an exception which implements the `Pdp\CannotProcessHost` 
+is thrown.
 
-#### Public Suffix Section
+The `Pdp\ResolvedDomain` instance can be modify using the following methods:
 
-The [Public Suffix List](http://publicsuffix.org/) is organized in sections. This library can give you access to this
-information via its public suffix object.
+~~~php
+<?php 
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$resolvedDomain = $rules->resolve('shop.example.com');
+$newResolvedDomain = $resolvedDomain
+    ->withSubDomain('foo.bar')
+    ->withSecondLevelDomain('test')
+    ->withPublicSuffix('example');
+
+echo $resolvedDomain->toString();              //display 'shop.example.com';
+$resolvedDomain->getPublicSuffix()->isKnown(); //returns true;
+
+echo $newResolvedDomain->toString();               //display 'foo.bar.test.example';
+$newResolvedDomain->getPublicSuffix()->isKnown();  //returns false;
+~~~
+
+**WARNING: All the objects are immutable, the changes are applied on the new 
+instance while the source instance stays unchanged.**
+
+The public suffix method `isKnown` will always return `false` if 
+you use a simple string to update the public suffix. 
+If you use a `PublicSuffix` object the method may return `true`.
+See the following section for more information.
+
+#### Public Suffix List Sections
+
+The [Public Suffix List](http://publicsuffix.org/) is organized in sections.
+This library can give you access to this information via its public suffix 
+object.
 
 ~~~php
 <?php 
@@ -92,14 +124,25 @@ $publicSuffix->isPrivate();     // will return true
 $publicSuffix->isKnown();       // will return true
 ~~~
 
-Because the PSL algorithm is fault tolerant this library exposes more strict methods
+The public suffix state depends on its value:
+ 
+- `isKnown` returns `true` if the value is part of the PSL.
+- `isICANN` returns `true` if the value is part of the PSL ICANN section.
+- `isPrivate` returns `true` if the value is part of the PSL private section.
+
+If the value is not present in the PSL all the methods above will return `false`.
+
+Because the PSL algorithm is fault tolerant this library exposes more strict 
+methods:
 
 - `Rules::getCookieDomain`
 - `Rules::getICANNDomain`
 - `Rules::getPrivateDomain`
 
-These methods act and resolve the domain against the PSL just like the `resolve` method but will throw
-an exception if no valid effective TLD is found in the respective PSL section or if the submitted domain is invalid.
+These methods act and resolve the domain against the PSL just like 
+the `resolve` method but will throw an exception if no valid effective 
+TLD is found in the respective PSL section or if the submitted domain 
+is invalid.
 
 ~~~php
 <?php 
@@ -108,7 +151,7 @@ use Pdp\Rules;
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $rules->getICANNDomain('qfdsf.unknownTLD');
-// will throw because `.unknownTLD` is not  part of the ICANN section
+// will throw because `.unknownTLD` is not part of the ICANN section
 
 $rules->getCookieDomain('qfdsf.unknownTLD');
 // will not throw because the domain syntax is correct.
@@ -119,79 +162,13 @@ $rules->getCookieDomain('com');
 $rules->resolve('com');
 // will return a Nullable Resolved domain
 ~~~
-
-It is possible to access the labels composing the underlying public suffix domain using the following call:
-
-~~~php
-<?php 
-use Pdp\Rules;
-
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
-
-$publicSuffix = $rules->resolve('example.github.io')->getPublicSuffix();
-
-$publicSuffixLabels = $publicSuffix->getDomain();
-$publicSuffixLabels->labels(); // will return ['io', 'github']
-~~~
  
-Domain objects usage are explain in the next section.
- 
-#### Accessing and processing Domain labels
+#### Resolving the Domain against the IANA Root Zone Database
 
-From the `ResolvedDomain` you can access the underlying domain object using the `ResolvedDomain::getDomain` method.
-Accessing this object enables you to work with the domain labels. 
-
-**WARNING: all objects are immutable, modifying the underlying object will not affect the parent object.**
-
-~~~php
-<?php 
-use Pdp\Rules;
-
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
-
-$resolvedDomain = $rules->resolve('www.ExAmpLE.cOM');
-$domain = $resolvedDomain->getDomain();
-echo $domain->toString(); // display 'www.example.com'
-$domain->labels();        // returns ['com', 'example', 'www'];
-$domain->label(-1);       // returns 'www'
-$domain->label(0);        // returns 'com'
-foreach ($domain as $label) {
-   echo $label, PHP_EOL;
-}
-// display 
-// com
-// example
-// www
-~~~ 
-
-You can also add or remove labels according to their key index using the following methods:
-
-- `Domain::withLabel(int $key, string|Stringable $label): self;`
-- `Domain::withoutLabel(int $key, int ...$keys): self;`
-- `Domain::append(string|Stringable $label): self;`
-- `Domain::prepend(string|Stringable $label): self;`
-
-The following methods from the `ResolvedDomain` object will return an `Domain` object:
-
-- `ResolvedDomain::getDomain`
-- `ResolvedDomain::getRegistrableDomain`
-- `ResolvedDomain::getSubDomain`
-- `ResolvedDomain::getRegistrableDomain`
-
-#### Modifying the ResolvedDomain
-
-You can still easily modify the returned `ResolvedDomain` object part using the following methods
-
-- `ResolvedDomain::withSubDomain(Host $subDomain): self`
-- `ResolvedDomain::withSecondLevelDomain(?string $label): self`
-- `ResolvedDomain::withPublicSuffix(PublicSuffix $publicSuffix): self`
-- `ResolvedDomain::resolve(PublicSuffix $publicSuffix): self`
-
-### Top Level Domains resolution
-
-While the [Public Suffix List](http://publicsuffix.org/) is a community based list, the package provides access to 
-the Top Level domain information given by the [IANA website](https://data.iana.org/TLD/tlds-alpha-by-domain.txt) to always resolve
-top domain against all registered TLD even the new ones.
+While the [Public Suffix List](http://publicsuffix.org/) is a community based 
+list, the package provides access to the Top Level domain information given by 
+the [IANA website](https://data.iana.org/TLD/tlds-alpha-by-domain.txt) to always 
+resolve top domain against all registered TLD even the new ones.
 
 ~~~php
 use Pdp\TopLevelDomains;
@@ -199,7 +176,7 @@ use Pdp\TopLevelDomains;
 $iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
 
 $resolvedDomain = $iana->resolve('www.PreF.OkiNawA.jP');
-echo $resolvedDomain->getDomain()->toString();            //display 'www.pref.okinawa.jp';
+echo $resolvedDomain->toString();                         //display 'www.pref.okinawa.jp';
 echo $resolvedDomain->getPublicSuffix()->toString();      //display 'jp';
 echo $resolvedDomain->getSecondLevelDomain();             //display 'okinawa';
 echo $resolvedDomain->getRegistrableDomain()->toString(); //display 'okinawa.jp';
@@ -210,52 +187,208 @@ In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown
 
 **WARNING:**
 
-**You should never use the library this way in production, without, at least, a caching mechanism to reduce PSL downloads.**
+**You should never use the library this way in production, without, at least, a 
+caching mechanism to reduce PSL downloads.**
 
-**Using the Public Suffix List to determine what is a valid domain name and what isn't is dangerous, particularly in these days when new gTLDs are arriving at a rapid pace.**
+**Using the Public Suffix List to determine what is a valid domain name and what 
+isn't is dangerous, particularly in these days when new gTLDs are arriving at a 
+rapid pace.**
+
 **The DNS is the proper source for this information.** 
 
-**If you are looking to know the validity of a Top Level Domain, the IANA Root Zone Database is the proper source for this information.** 
+**If you are looking to know the validity of a Top Level Domain, the IANA Root Zone 
+Database is the proper source for this information.** 
 
-**If you must use this library for any of the above purposes, please consider integrating an update mechanism into your software.**
+**If you must use this library for any of the above purposes, please consider 
+integrating an update mechanism into your software.**
+
+### Accessing and processing Domain labels
+
+If you are interested into manipulating the domain labels without taking into 
+account the Effective TLD, you can access them using the `getDomain` method 
+from the `ResolvedDomain` or the `PublicSuffixList` instances.
+
+Accessing this object enables you to work with the domain labels.
+
+It is possible to access the labels composing the underlying public suffix 
+domain using the following call:
+
+Domain objects usage are explain in the next section.
+
+~~~php
+<?php 
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$resolvedDomain = $rules->resolve('www.bbc.co.uk');
+$domain = $resolvedDomain->getDomain();
+echo $domain->toString(); // display 'www.bbc.co.uk'
+$domain->labels();        // returns ['uk', 'co', 'bbc', 'www'];
+$domain->label(-1);       // returns 'www'
+$domain->label(0);        // returns 'uk'
+foreach ($domain as $label) {
+   echo $label, PHP_EOL;
+}
+// display 
+// uk
+// co
+// bbc
+// www
+
+$publicSuffixDomain = $resolvedDomain->getPublicSuffix()->getDomain();
+$publicSuffixDomain->labels(); // returns ['uk', 'co']
+~~~ 
+
+You can also add or remove labels according to their key index using the 
+following methods:
+
+~~~php
+<?php 
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$resolvedDomain = $rules->resolve('www.ExAmpLE.cOM');
+$domain = $resolvedDomain->getDomain();
+
+$newDomain = $domain
+    ->withLabel(1, 'com')
+    ->withoutLabel(0, -1)
+    ->append('www')
+    ->prepend('example');
+
+echo $domain->toString(); // display 'www.example.com'
+echo $newDomain->toString(); // display 'example.com.www'
+~~~ 
+
+The following methods from the `ResolvedDomain` object will **also** return 
+an `Domain` object:
+
+- `ResolvedDomain::getRegistrableDomain`
+- `ResolvedDomain::getSubDomain`
+- `ResolvedDomain::getRegistrableDomain`
+
+**WARNING: Because of its definition, a domain name can be `null` or a non-empty 
+string; empty string domain are invalid.**
+
+To distinguish this possibility the object exposes two (2) formatting methods 
+`Domain::value` which can be `null` or a `string` and `Domain::toString` which 
+will always cast the domain value to a string.
+
+ ~~~php
+ <?php 
+use Pdp\Domain;
+ 
+$domain = new Domain(null);
+$domain->value(); // returns null;
+$domain->toString(); // returns '';
+ 
+$domain = new Domain(''); // will throw
+ ~~~ 
+
+### Internationalization
+
+Domain names came in different forms, the package by default will resolve the 
+domain in its ascii form and convert it back to its source form. This is done
+using PHP `ext-intl` extension.
+
+As such:
+ 
+All domain objects expose the following methods:
+
+```php
+public function toAscii(): int;
+public function toUnicode(): int;
+```
+
+The domain resolvers use those methods to convert back and forth between
+both formats and to return the domain and its public suffix into the
+submitted format.
+
+~~~php
+<?php 
+use Pdp\Rules;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$unicodeDomain = $rules->resolve('bébé.be');
+echo $unicodeDomain->toString();   // returns 'bébé.be'
+$unicodeDomain->getSecondLevelDomain(); // returns 'bébé'
+
+$asciiDomain = $rules->resolve('xn--bb-bjab.be');
+$asciiDomain->toString();             // returns 'xn--bb-bjab.be'
+$asciiDomain->getSecondLevelDomain(); // returns 'xn--bb-bjab'
+
+$asciiDomain->toUnicode() == $unicodeDomain; //returns true
+~~~
+
+The domain conversion between the ascii and the unicode form can 
+be controlled using the following interface implemented in all domain objects
+
+~~~php
+interface IDNConversion
+{
+    public function getAsciiIDNAOption(): int;
+    public function getUnicodeIDNAOption(): int;
+    public function withAsciiIDNAOption(int $option): self;
+    public function withUnicodeIDNAOption(int $option): self;
+}
+~~~
+
+where the `$options` variable should be a combination of `IDNA_*` constants 
+(except `IDNA_ERROR_*` constants).
 
 ## Managing the package databases
 
-Depending on your software the mechanism to store your database may differ, nevertheless, the library comes bundle with a **optional service** 
-which enables resolving domain name without the constant network overhead of continuously downloading the remote databases.
+Depending on your software the mechanism to store your database may differ, 
+nevertheless, the library comes bundle with a **optional service** which 
+enables resolving domain name without the constant network overhead of 
+continuously downloading the remote databases.
 
-The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that retrieve, convert and cache the Public Suffix List as well as the IANA Root Zone Database using
-standard interfaces published by the PHP-FIG to improve its interoperability with any modern PHP codebase.
+The interfaces defined under the `Pdp\Storage` storage namespace enable 
+integrating a database managing system and as an example we provided a 
+PHP-FIG PSR interfaces powered managing system.
+
+The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that
+retrieve, convert and cache the Public Suffix List as well as the IANA Root 
+Zone Database using standard interfaces published by the PHP-FIG to improve 
+its interoperability with any modern PHP codebase.
 
 ### Instantiate `Pdp\Storage\PsrStorageFactory`
 
 To work as intended, the `Pdp\Storage\PsrStorageFactory` constructor requires:
 
 - a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object.
+- a [PSR-17](http://www.php-fig.org/psr/psr-17/) HTTP Factory.
 - a [PSR-18](http://www.php-fig.org/psr/psr-18/) HTTP Client.
 
 When creating a new storage instance you will require:
 
-- a `$cachePrefix` argument to optionally add a prefix to your cache index, default to the empty string `'''`;
-- a `$ttl` argument if you need to set the default `$ttl`, default to `null` to use the underlying caching default TTL;
+- a `$cachePrefix` argument to optionally add a prefix to your cache index, 
+default to the empty string;
+- a `$ttl` argument if you need to set the default `$ttl`, default to `null` 
+to use the underlying caching default TTL;
 
 The `$ttl` argument can be:
 
 - an `int` representing time in second (see PSR-16);
 - a `DateInterval` object (see PSR-16);
-- a `DateTimeInterface` object representing the date and time when the item should expire;
+- a `DateTimeInterface` object representing the date and time when the item 
+will expire;
 
-However, the package no longer provides any implementation of such interfaces are
-they are many robust implementations that can easily be found on packagist.org. 
+However, the package no longer provides any implementation of such interfaces
+are they are many robust implementations that can easily be found on packagist.
 
 #### Refreshing the cached PSL and RZD data
 
 **THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY**
 
-For the purpose of this example we used:
+For the purpose of this example we will use:
  
-- Guzzle as a PSR-18 implementation HTTP client
-- The Symfony Cache Component to use a PSR-16 cache implementation
+- Guzzle as a PSR-18 implementation HTTP client;
+- Guzzle to create a PSR-15 RequestFactory object;
+- The Symfony Cache Component to use a PSR-16 cache implementation;
 
 You could easily use other packages as long as they implement the required PSR interfaces. 
 
@@ -288,6 +421,8 @@ $rzdStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
 $rules = $pslStorage->get(PsrStorageFactory::URL_PSL);
 $tldDomains = $rzdStorage->get(PsrStorageFactory::URL_RZD);
 ~~~
+
+The above code should be adapted to be invoked in your application via your dependency injection container.
 
 ### Automatic Updates
 
