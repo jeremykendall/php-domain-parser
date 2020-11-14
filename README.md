@@ -214,10 +214,7 @@ Domain objects usage are explain in the next section.
 
 ~~~php
 <?php 
-use Pdp\Rules;
-
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
-
+/** @var  Rules $rules */
 $resolvedDomain = $rules->resolve('www.bbc.co.uk');
 $domain = $resolvedDomain->getDomain();
 echo $domain->toString(); // display 'www.bbc.co.uk'
@@ -243,10 +240,8 @@ following methods:
 
 ~~~php
 <?php 
-use Pdp\Rules;
 
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
-
+/** @var  Rules $rules */
 $resolvedDomain = $rules->resolve('www.ExAmpLE.cOM');
 $domain = $resolvedDomain->getDomain();
 
@@ -274,7 +269,6 @@ To distinguish this possibility the object exposes two (2) formatting methods
 will always cast the domain value to a string.
 
  ~~~php
- <?php 
 use Pdp\Domain;
  
 $domain = new Domain(null);
@@ -301,11 +295,7 @@ The domain resolvers use these methods to convert domains between both format
 and to return the domain and its public suffix into the submitted format.
 
 ~~~php
-<?php 
-use Pdp\Rules;
-
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
-
+/** @var  Rules $rules */
 $unicodeDomain = $rules->resolve('bébé.be');
 echo $unicodeDomain->toString();        // returns 'bébé.be'
 $unicodeDomain->getSecondLevelDomain(); // returns 'bébé'
@@ -336,9 +326,8 @@ functions from the `ext-intl` package.
 
 ~~~php
 use Pdp\Domain;
-use Pdp\Rules;
 
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+/** @var  Rules $rules */
 echo $rules->resolve('faß.de')->toString(); // display 'fass.de'
 
 $domain = new Domain('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII,IDNA_NONTRANSITIONAL_TO_UNICODE);
@@ -349,19 +338,18 @@ echo $rules->resolve($domain)->toString(); // display 'faß.de'
 
 ## Managing the package databases
 
-Depending on your software the mechanism to store your database may differ, 
+Depending on your application, the mechanism to store your database may differ, 
 nevertheless, the library comes bundle with a **optional service** which 
 enables resolving domain name without the constant network overhead of 
 continuously downloading the remote databases.
 
 The interfaces defined under the `Pdp\Storage` storage namespace enable 
-integrating a database managing system and as an example we provided a 
-PHP-FIG PSR interfaces powered managing system.
+integrating a database managing system and as an implementation example 
+a PHP-FIG PSR interfaces powered managing system is provided.
 
 The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that
 retrieve, convert and cache the Public Suffix List as well as the IANA Root 
-Zone Database using standard interfaces published by the PHP-FIG to improve 
-its interoperability with any modern PHP codebase.
+Zone Database using standard interfaces published by the PHP-FIG.
 
 ### Instantiate `Pdp\Storage\PsrStorageFactory`
 
@@ -385,17 +373,17 @@ The `$ttl` argument can be:
 - a `DateTimeInterface` object representing the date and time when the item 
 will expire;
 
-However, the package no longer provides any implementation of such interfaces
-as they are more robust and battle tested implementations on packagist.
+The package does not provide any implementation of such interfaces as you can
+find robust and battle tested implementations on packagist.
 
 #### Refreshing the cached PSL and RZD data
 
 **THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY**
 
-For the purpose of this example we will use:
+For the purpose of this example we will use our PSR powered solution with:
  
-- Guzzle as a PSR-18 implementation HTTP client;
-- Guzzle to create a PSR-15 RequestFactory object;
+- Guzzle as our PSR-18 HTTP client implementation;
+- Guzzle\Psr7 to create a PSR-15 RequestFactory object;
 - The Symfony Cache Component to use a PSR-16 cache implementation;
 
 You are free to use other libraries as long as they implement the required PSR interfaces. 
@@ -408,10 +396,17 @@ use GuzzleHttp\Psr7\Request;
 use Pdp\Storage\PsrStorageFactory;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
-$cache = new Psr16Cache(new FilesystemAdapter('pdp', 3600, __DIR__.'/data'));
+$pdoAdapter = new PdoAdapter(
+    'mysql:host=localhost;dbname=testdb', 
+    'pdp', 
+    3600, 
+    [ 'db_username' => 'user', 'db_password' => 'password']
+);
+
+$cache = new Psr16Cache($pdoAdapter);
 $client = new Client();
 $requestFactory = new class implements RequestFactoryInterface {
     public function createRequest(string $method, $uri): RequestInterface
@@ -430,8 +425,12 @@ $rules = $pslStorage->get(PsrStorageFactory::URL_PSL);
 $tldDomains = $rzdStorage->get(PsrStorageFactory::URL_RZD);
 ~~~
 
-You should use your dependency injection container to avoid repeating this
-code in your application.
+**Be sure to adapt the following code to your own framework/situation.
+The following code is an example given without warranty of it working 
+out of the box.**
+
+**You should use your dependency injection container to avoid repeating this
+code in your application.**
 
 ### Automatic Updates
 
