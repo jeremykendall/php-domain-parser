@@ -106,10 +106,8 @@ final class Rules implements PublicSuffixList
         try {
             return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
-            if ($exception->hasDomain()) {
-                /** @var Host */
-                $host = $exception->getDomain();
-
+            $host = $exception->getDomain();
+            if (null !== $host) {
                 return new ResolvedDomain($host);
             }
 

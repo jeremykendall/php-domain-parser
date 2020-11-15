@@ -46,16 +46,6 @@ class UnableToResolveDomain extends InvalidArgumentException implements CannotPr
         return $exception;
     }
 
-    public static function dueToUnSupportedSection(string $section): self
-    {
-        return new self('`'.$section.'` is an unknown Public Suffix List section.');
-    }
-
-    public function hasDomain(): bool
-    {
-        return null !== $this->domain;
-    }
-
     public function getDomain(): ?Host
     {
         return $this->domain;
