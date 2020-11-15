@@ -41,6 +41,10 @@ final class ResolvedDomain implements ResolvedDomainName
 
     private function setDomainName(Host $domain): DomainName
     {
+        if ($domain instanceof ExternalDomainName) {
+            return $domain->getDomain();
+        }
+
         if (!$domain instanceof DomainName) {
             return new Domain($domain);
         }

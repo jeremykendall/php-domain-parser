@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use TypeError;
 use function dirname;
 use function file_get_contents;
+use function json_encode;
 use const IDNA_DEFAULT;
 use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
@@ -47,6 +48,7 @@ class TopLevelDomainsTest extends TestCase
 
     /**
      * @covers ::fromPath
+     * @covers \Pdp\UnableToLoadRootZoneDatabase
      */
     public function testCreateFromPathThrowsException(): void
     {
@@ -64,6 +66,40 @@ class TopLevelDomainsTest extends TestCase
         $topLevelDomains = eval('return '.var_export($this->topLevelDomains, true).';');
 
         self::assertEquals($this->topLevelDomains, $topLevelDomains);
+    }
+
+    /**
+     * @covers ::jsonSerialize
+     * @covers ::fromJsonString
+     */
+    public function testJsonMethods(): void
+    {
+        /** @var string $data */
+        $data = json_encode($this->topLevelDomains);
+
+        self::assertEquals($this->topLevelDomains, TopLevelDomains::fromJsonString($data));
+    }
+
+    /**
+     * @covers ::fromJsonString
+     * @covers \Pdp\UnableToLoadRootZoneDatabase
+     */
+    public function testJsonStringFailsWithInvalidJson(): void
+    {
+        self::expectException(UnableToLoadRootZoneDatabase::class);
+
+        TopLevelDomains::fromJsonString('');
+    }
+
+    /**
+     * @covers ::fromJsonString
+     * @covers \Pdp\UnableToLoadRootZoneDatabase
+     */
+    public function testJsonStringFailsWithMissingIndexes(): void
+    {
+        self::expectException(UnableToLoadRootZoneDatabase::class);
+
+        TopLevelDomains::fromJsonString('{"foo":"bar"}');
     }
 
     public function testGetterProperties(): void
@@ -104,6 +140,11 @@ class TopLevelDomainsTest extends TestCase
 
     public function validDomainProvider(): iterable
     {
+        $resolvedDomain = new ResolvedDomain(
+            new Domain('www.example.com'),
+            PublicSuffix::fromICANN('com')
+        );
+
         return [
             'simple domain' => ['GOOGLE.COM'],
             'case insensitive domain (1)' => ['GooGlE.com'],
@@ -119,6 +160,7 @@ class TopLevelDomainsTest extends TestCase
                     return 'www.இந.இந்தியா';
                 }
             }],
+            'external domain name' => [$resolvedDomain],
         ];
     }
 
@@ -200,6 +242,7 @@ class TopLevelDomainsTest extends TestCase
                     return 'COM';
                 }
             }],
+            'externalDomain' => [PublicSuffix::fromICANN('com')],
         ];
     }
 
