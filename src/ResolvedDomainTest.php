@@ -525,26 +525,30 @@ class ResolvedDomainTest extends TestCase
         /** @var ResolvedDomain $instance */
         $instance = $domain->toAscii();
         self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+            [$domain->getDomain()->getAsciiIDNAOption(), $domain->getDomain()->getUnicodeIDNAOption()],
+            [$instance->getDomain()->getAsciiIDNAOption(), $instance->getDomain()->getUnicodeIDNAOption()]
         );
 
         /** @var ResolvedDomain $instance */
         $instance = $domain->toUnicode();
+
         self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+            [$domain->getDomain()->getAsciiIDNAOption(), $domain->getDomain()->getUnicodeIDNAOption()],
+            [$instance->getDomain()->getAsciiIDNAOption(), $instance->getDomain()->getUnicodeIDNAOption()]
         );
 
         $instance = $domain->withPublicSuffix(PublicSuffix::fromICANN('us'));
+
         self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+            [$domain->getDomain()->getAsciiIDNAOption(), $domain->getDomain()->getUnicodeIDNAOption()],
+            [$instance->getDomain()->getAsciiIDNAOption(), $instance->getDomain()->getUnicodeIDNAOption()]
         );
+
         $instance = $domain->withSubDomain(new Domain('foo'));
+
         self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
+            [$domain->getDomain()->getAsciiIDNAOption(), $domain->getDomain()->getUnicodeIDNAOption()],
+            [$instance->getDomain()->getAsciiIDNAOption(), $instance->getDomain()->getUnicodeIDNAOption()]
         );
     }
 

@@ -150,6 +150,17 @@ final class Domain extends DomainNameParser implements DomainName
         return new self($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
     }
 
+    public function withValue(?string $domain, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOptions = IDNA_DEFAULT): self
+    {
+        if ($asciiIDNAOption === $this->asciiIDNAOption &&
+            $unicodeIDNAOptions === $this->unicodeIDNAOption &&
+            $domain === $this->domain) {
+            return $this;
+        }
+
+        return new self($domain, $asciiIDNAOption, $unicodeIDNAOptions);
+    }
+
     /**
      * Filter a subdomain to update the domain part.
      *
@@ -247,23 +258,5 @@ final class Domain extends DomainNameParser implements DomainName
         $domain = implode('.', array_reverse($labels));
 
         return new self($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-    }
-
-    public function withAsciiIDNAOption(int $option): self
-    {
-        if ($option === $this->asciiIDNAOption) {
-            return $this;
-        }
-
-        return new self($this->domain, $option, $this->unicodeIDNAOption);
-    }
-
-    public function withUnicodeIDNAOption(int $option): self
-    {
-        if ($option === $this->unicodeIDNAOption) {
-            return $this;
-        }
-
-        return new self($this->domain, $this->asciiIDNAOption, $option);
     }
 }

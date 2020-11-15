@@ -556,7 +556,7 @@ final class RulesTest extends TestCase
         $resolvedByDefault = $this->rules->resolve('foo.de');
         self::assertSame(
             [IDNA_DEFAULT, IDNA_DEFAULT],
-            [$resolvedByDefault->getAsciiIDNAOption(), $resolvedByDefault->getUnicodeIDNAOption()]
+            [$resolvedByDefault->getDomain()->getAsciiIDNAOption(), $resolvedByDefault->getDomain()->getUnicodeIDNAOption()]
         );
 
         /** @var string $string */
@@ -565,8 +565,8 @@ final class RulesTest extends TestCase
         $domain = new Domain('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         $resolved = $rules->resolve($domain);
 
-        self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getAsciiIDNAOption());
-        self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getUnicodeIDNAOption());
+        self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getDomain()->getAsciiIDNAOption());
+        self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getDomain()->getUnicodeIDNAOption());
     }
 
     /**
