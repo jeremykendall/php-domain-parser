@@ -41,6 +41,8 @@ You need:
 
 ## Usage
 
+**If you are upgrading from version 5 please check the [upgrading guide](UPGRADING.md) for known issues.**
+
 ### Resolving Domains
 
 To effectively resolve a domain you need a public source. This library can
@@ -280,61 +282,47 @@ $domain = new Domain(''); // will throw
 
 ### Internationalization
 
-Domain names came in different forms, the package by default will resolve the 
-domain in its ascii form against the public suffix source and convert it back 
-to its unicode form if needed. This is done using PHP `ext-intl` extension.
-
-As such all domain objects expose the following methods.
-
-```php
-public function toAscii(): self;
-public function toUnicode(): self;
-```
-
-The domain resolvers use these methods to convert domains between both format
-and to return the domain and its public suffix into the submitted format.
+Domain names come in different format (ascii and unicode format), the package 
+by default will convert the domain in its ascii format for resolution against
+the public suffix source and convert it back to its unicode form if needed. 
+This is done using PHP `ext-intl` extension. As such all domain objects expose 
+a `toAscii` and a `toUnicode` methods which returns a new instance in the
+converted format.
 
 ~~~php
 /** @var  Rules $rules */
-$unicodeDomain = $rules->resolve('bébé.be');
+$unicodeDomain = $rules->resolve(new Domain('bébé.be'));
 echo $unicodeDomain->toString();        // returns 'bébé.be'
 $unicodeDomain->getSecondLevelDomain(); // returns 'bébé'
 
-$asciiDomain = $rules->resolve('xn--bb-bjab.be');
+$asciiDomain = $rules->resolve(new Domain('xn--bb-bjab.be'));
 $asciiDomain->toString();             // returns 'xn--bb-bjab.be'
 $asciiDomain->getSecondLevelDomain(); // returns 'xn--bb-bjab'
 
 $asciiDomain->toUnicode()->toString() === $unicodeDomain->toString(); //returns true
 ~~~
 
-The domain conversion between the ascii and the unicode form can be controlled
-using the following interface implemented in all domain objects.
-
-~~~php
-interface IDNConversion
-{
-    public function getAsciiIDNAOption(): int;
-    public function getUnicodeIDNAOption(): int;
-    public function withAsciiIDNAOption(int $option): self;
-    public function withUnicodeIDNAOption(int $option): self;
-}
-~~~
-
-where the `$options` variable should be a combination of the `IDNA_*` constants 
-(except `IDNA_ERROR_*` constants) used with the `idn_to_utf8` and `idn_to_ascii` 
-functions from the `ext-intl` package.
+Because the domain conversion occurs during instantiation to normalize the 
+domain name you are required to give the `IDNA_*` constants on domain 
+construction. All domain objects accept as optional parameters the 
+`$asciiIDNAOption` and the `$unicodeIDNAOption` where those variables should be
+a combination of the `IDNA_*` constants (except `IDNA_ERROR_*` constants) used 
+with the `idn_to_utf8` and `idn_to_ascii` functions from the `ext-intl` package.
 
 ~~~php
 use Pdp\Domain;
 
-/** @var  Rules $rules */
-echo $rules->resolve('faß.de')->toString(); // display 'fass.de'
+$domain = new Domain('faß.de');
+$altDomain = new Domain('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
 
-$domain = new Domain('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII,IDNA_NONTRANSITIONAL_TO_UNICODE);
-echo $rules->resolve($domain)->toString(); // display 'faß.de'
+/** @var  Rules $rules */
+echo $rules->resolve($domain)->toString(); // display 'fass.de'
+echo $rules->resolve($altDomain)->toString(); // display 'faß.de'
 ~~~
 
-**TIPS: Always favor submitting a `Domain` object for resolution rather that a string or a stringable object.**
+**TIP: Always favor submitting a `Domain` object for resolution rather that a 
+string or an object that can be cast to a string to avoid unexpected format 
+conversion results.**
 
 ## Managing the package databases
 
