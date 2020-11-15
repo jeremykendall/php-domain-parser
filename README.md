@@ -282,7 +282,7 @@ $domain = new Domain(''); // will throw
 
 ### Internationalization
 
-Domain names come in different format (ascii and unicode format), the package 
+Domain names support different format (ascii and unicode format), the package 
 by default will convert the domain in its ascii format for resolution against
 the public suffix source and convert it back to its unicode form if needed. 
 This is done using PHP `ext-intl` extension. As such all domain objects expose 
@@ -302,18 +302,22 @@ $asciiDomain->getSecondLevelDomain(); // returns 'xn--bb-bjab'
 $asciiDomain->toUnicode()->toString() === $unicodeDomain->toString(); //returns true
 ~~~
 
-Because the domain conversion occurs during instantiation to normalize the 
-domain name you are required to give the `IDNA_*` constants on domain 
-construction. All domain objects accept as optional parameters the 
-`$asciiIDNAOption` and the `$unicodeIDNAOption` where those variables should be
-a combination of the `IDNA_*` constants (except `IDNA_ERROR_*` constants) used 
-with the `idn_to_utf8` and `idn_to_ascii` functions from the `ext-intl` package.
+Because the domain conversion occurs during normalization of the 
+domain name you should give the `IDNA_*` constants when updating
+the domain name value. 
+
+Only the `Pdp\Domain` and the `Pdp\PublicSuffix` 
+objects accept the following optional parameters: (`$asciiIDNAOption` and
+`$unicodeIDNAOption`) to tell the underlying methods using  the `idn_to_utf8`
+and `idn_to_ascii` functions from the `ext-intl` package how to convert the 
+value to its unicode or ascii form. Those variables should be a combination of
+the `IDNA_*` constants (except `IDNA_ERROR_*` constants).
 
 ~~~php
 use Pdp\Domain;
 
 $domain = new Domain('faß.de');
-$altDomain = new Domain('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+$altDomain = $domain->withValue('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
 
 /** @var  Rules $rules */
 echo $rules->resolve($domain)->toString(); // display 'fass.de'

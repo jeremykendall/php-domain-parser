@@ -96,16 +96,19 @@ $domain->value();         // can be a string or null
 
 #### Methods removed
 
-- `DomainInterface` is removed use `DomainName` instead or `ResolvedDomainName`. 
 - `__debugInfo` is removed from all classes.
+- `DomainInterface` is removed use `DomainName` instead or `ResolvedDomainName`. 
 - `Domain::isResolvable` is removed without replacement.
-- `Domain::isTransitionalDifferent` is removed without replacement. 
 - `Domain::resolve` is removed without replacement. 
 - `Domain::isTransitionalDifferent` is removed without replacement. 
+- `Domain::withAsciiIDNAOption` is removed use `Domain::withValue`. 
+- `Domain::withUnicodeIDNAOption` is removed use `Domain::withValue`. 
+- `PublicSuffix::isTransitionalDifferent` is removed without replacement. 
+- `PublicSuffix::withAsciiIDNAOption` is removed use `PublicSuffix::withValue`. 
+- `PublicSuffix::withUnicodeIDNAOption` is removed use `PublicSuffix::withValue`. 
 - `PublicSuffix::createFromDomain` is removed without replacement. 
 - `Rules::getPublicSuffix` is removed use `ResolvedDomain::getPublicSuffix` instead. 
-- IDNA related methods from `Rules` and `TopLevelDomains` classes are removed 
-if needed, use the domain objects constructors.
+- IDNA related methods from `Rules` and `TopLevelDomains` are removed.
 
 #### Methods return type changed
 

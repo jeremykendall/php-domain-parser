@@ -156,7 +156,7 @@ class TopLevelDomainsTest extends TestCase
 
         self::assertSame(
             [IDNA_DEFAULT, IDNA_DEFAULT],
-            [$resolved->getAsciiIDNAOption(), $resolved->getUnicodeIDNAOption()]
+            [$resolved->getDomain()->getAsciiIDNAOption(), $resolved->getDomain()->getUnicodeIDNAOption()]
         );
 
         $collection = TopLevelDomains::fromPath(
@@ -167,8 +167,8 @@ class TopLevelDomainsTest extends TestCase
         $domain = new Domain('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
         $resolved = $collection->resolve($domain);
 
-        self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getAsciiIDNAOption());
-        self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getUnicodeIDNAOption());
+        self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getDomain()->getAsciiIDNAOption());
+        self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getDomain()->getUnicodeIDNAOption());
     }
 
     /**

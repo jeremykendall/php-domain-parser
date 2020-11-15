@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface EffectiveTLD extends Host, ExternalDomainName
+interface EffectiveTLD extends Host, ExternalDomainName, IDNConversion
 {
     public const ICANN_DOMAINS = 'ICANN_DOMAINS';
 

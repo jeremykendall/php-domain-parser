@@ -9,27 +9,27 @@ use const IDNA_DEFAULT;
 
 final class PublicSuffix implements EffectiveTLD
 {
-    private DomainName $publicSuffix;
+    private DomainName $domain;
 
     private string $section;
 
-    private function __construct(DomainName $publicSuffix, string $section)
+    private function __construct(DomainName $domain, string $section)
     {
-        if ('' === $publicSuffix->label(0)) {
-            throw SyntaxError::dueToInvalidPublicSuffix($publicSuffix);
+        if ('' === $domain->label(0)) {
+            throw SyntaxError::dueToInvalidPublicSuffix($domain);
         }
 
-        if (null === $publicSuffix->value()) {
+        if (null === $domain->value()) {
             $section = '';
         }
 
-        $this->publicSuffix = $publicSuffix;
+        $this->domain = $domain;
         $this->section = $section;
     }
 
     public static function __set_state(array $properties): self
     {
-        return new self($properties['publicSuffix'], $properties['section']);
+        return new self($properties['domain'], $properties['section']);
     }
 
     /**
@@ -63,37 +63,37 @@ final class PublicSuffix implements EffectiveTLD
 
     public function getDomain(): DomainName
     {
-        return $this->publicSuffix;
+        return $this->domain;
     }
 
     public function count(): int
     {
-        return count($this->publicSuffix);
+        return count($this->domain);
     }
 
     public function jsonSerialize(): ?string
     {
-        return $this->publicSuffix->value();
+        return $this->domain->value();
     }
 
     public function value(): ?string
     {
-        return $this->publicSuffix->value();
+        return $this->domain->value();
     }
 
     public function toString(): string
     {
-        return $this->publicSuffix->toString();
+        return $this->domain->toString();
     }
 
     public function getAsciiIDNAOption(): int
     {
-        return $this->publicSuffix->getAsciiIDNAOption();
+        return $this->domain->getAsciiIDNAOption();
     }
 
     public function getUnicodeIDNAOption(): int
     {
-        return $this->publicSuffix->getUnicodeIDNAOption();
+        return $this->domain->getUnicodeIDNAOption();
     }
 
     public function isKnown(): bool
@@ -114,7 +114,7 @@ final class PublicSuffix implements EffectiveTLD
     public function toAscii(): self
     {
         $clone = clone $this;
-        $clone->publicSuffix = $this->publicSuffix->toAscii();
+        $clone->domain = $this->domain->toAscii();
 
         return $clone;
     }
@@ -122,32 +122,18 @@ final class PublicSuffix implements EffectiveTLD
     public function toUnicode(): self
     {
         $clone = clone $this;
-        $clone->publicSuffix = $this->publicSuffix->toUnicode();
+        $clone->domain = $this->domain->toUnicode();
 
         return $clone;
     }
 
-    public function withAsciiIDNAOption(int $option): self
+    public function withValue(?string $domain, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
     {
-        if ($option === $this->publicSuffix->getAsciiIDNAOption()) {
+        $newDomain = $this->domain->withValue($domain, $asciiIDNAOption, $unicodeIDNAOption);
+        if ($newDomain == $this->domain) {
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->publicSuffix = $this->publicSuffix->withAsciiIDNAOption($option);
-
-        return $clone;
-    }
-
-    public function withUnicodeIDNAOption(int $option): self
-    {
-        if ($option === $this->publicSuffix->getUnicodeIDNAOption()) {
-            return $this;
-        }
-
-        $clone = clone $this;
-        $clone->publicSuffix = $this->publicSuffix->withUnicodeIDNAOption($option);
-
-        return $clone;
+        return new self($newDomain, $this->section);
     }
 }

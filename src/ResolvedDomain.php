@@ -42,7 +42,7 @@ final class ResolvedDomain implements ResolvedDomainName
     private function setDomainName(Host $domain): DomainName
     {
         if (!$domain instanceof DomainName) {
-            return new Domain($domain, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+            return new Domain($domain);
         }
 
         return $domain;
@@ -70,6 +70,7 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
+        $publicSuffix = $publicSuffix->withValue($publicSuffix->value(), $asciiIDNAOptions, $unicodeIDNAOptions);
         $publicSuffix = $this->normalize($publicSuffix);
         if ($this->domain->value() === $publicSuffix->value()) {
             throw new UnableToResolveDomain(sprintf('The public suffix and the domain name are is identical `%s`.', $this->domain->toString()));
@@ -164,16 +165,6 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->domain->toString();
     }
 
-    public function getAsciiIDNAOption(): int
-    {
-        return $this->domain->getAsciiIDNAOption();
-    }
-
-    public function getUnicodeIDNAOption(): int
-    {
-        return $this->domain->getUnicodeIDNAOption();
-    }
-
     public function getRegistrableDomain(): ResolvedDomain
     {
         return new self($this->registrableDomain, $this->publicSuffix);
@@ -213,6 +204,12 @@ final class ResolvedDomain implements ResolvedDomainName
             $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
         }
 
+        $publicSuffix = $publicSuffix->withValue(
+            $publicSuffix->value(),
+            $this->domain->getAsciiIDNAOption(),
+            $this->domain->getUnicodeIDNAOption()
+        );
+
         $publicSuffix = $this->normalize($publicSuffix);
         if ($this->publicSuffix == $publicSuffix) {
             return $this;
@@ -233,11 +230,6 @@ final class ResolvedDomain implements ResolvedDomainName
             $this->domain->getUnicodeIDNAOption()
         );
 
-        /** @var EffectiveTLD $publicSuffix */
-        $publicSuffix = $publicSuffix
-            ->withAsciiIDNAOption($this->domain->getAsciiIDNAOption())
-            ->withUnicodeIDNAOption($this->domain->getUnicodeIDNAOption());
-
         return new self($domain, $publicSuffix);
     }
 
@@ -251,12 +243,18 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         if (!$subDomain instanceof DomainName) {
-            $subDomain = new Domain($subDomain);
+            $subDomain = new Domain(
+                $subDomain,
+                $this->domain->getAsciiIDNAOption(),
+                $this->domain->getUnicodeIDNAOption()
+            );
         }
 
-        $subDomain = $subDomain
-            ->withAsciiIDNAOption($this->getAsciiIDNAOption())
-            ->withUnicodeIDNAOption($this->getUnicodeIDNAOption());
+        $subDomain = $subDomain->withValue(
+            $subDomain->value(),
+            $this->domain->getAsciiIDNAOption(),
+            $this->domain->getUnicodeIDNAOption()
+        );
 
         if ($this->subDomain == $subDomain) {
             return $this;
@@ -271,8 +269,8 @@ final class ResolvedDomain implements ResolvedDomainName
 
         return new self(new Domain(
             $subDomain->toString().'.'.$this->registrableDomain->toString(),
-            $this->getAsciiIDNAOption(),
-            $this->getUnicodeIDNAOption()
+            $this->domain->getAsciiIDNAOption(),
+            $this->domain->getUnicodeIDNAOption()
         ), $this->publicSuffix);
     }
 
@@ -293,44 +291,8 @@ final class ResolvedDomain implements ResolvedDomainName
 
         return new self(new Domain(
             $this->subDomain->value().'.'.$newRegistrableDomain->value(),
-            $this->getAsciiIDNAOption(),
-            $this->getUnicodeIDNAOption()
+            $this->domain->getAsciiIDNAOption(),
+            $this->domain->getUnicodeIDNAOption()
         ), $this->publicSuffix);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function withAsciiIDNAOption(int $option): self
-    {
-        if ($option === $this->domain->getAsciiIDNAOption()) {
-            return $this;
-        }
-
-        /** @var DomainName $asciiDomain */
-        $asciiDomain = $this->domain->withAsciiIDNAOption($option);
-
-        /** @var EffectiveTLD $asciiPublicSuffix */
-        $asciiPublicSuffix = $this->publicSuffix->withAsciiIDNAOption($option);
-
-        return new self($asciiDomain, $asciiPublicSuffix);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function withUnicodeIDNAOption(int $option): self
-    {
-        if ($option === $this->domain->getUnicodeIDNAOption()) {
-            return $this;
-        }
-
-        /** @var DomainName $unicodeDomain */
-        $unicodeDomain = $this->domain->withUnicodeIDNAOption($option);
-
-        /** @var EffectiveTLD $unicodePublicSuffix */
-        $unicodePublicSuffix = $this->publicSuffix->withUnicodeIDNAOption($option);
-
-        return new self($unicodeDomain, $unicodePublicSuffix);
     }
 }

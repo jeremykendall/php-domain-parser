@@ -195,20 +195,9 @@ class PublicSuffixTest extends TestCase
     {
         $publicSuffix = PublicSuffix::fromUnknown('com');
 
-        self::assertSame($publicSuffix, $publicSuffix->withAsciiIDNAOption(
-            $publicSuffix->getAsciiIDNAOption()
-        ));
-
-        self::assertNotEquals($publicSuffix, $publicSuffix->withAsciiIDNAOption(
-            IDNA_NONTRANSITIONAL_TO_ASCII
-        ));
-
-        self::assertSame($publicSuffix, $publicSuffix->withUnicodeIDNAOption(
-            $publicSuffix->getUnicodeIDNAOption()
-        ));
-
-        self::assertNotEquals($publicSuffix, $publicSuffix->withUnicodeIDNAOption(
-            IDNA_NONTRANSITIONAL_TO_UNICODE
-        ));
+        self::assertSame($publicSuffix, $publicSuffix->withValue('com', $publicSuffix->getAsciiIDNAOption()));
+        self::assertNotEquals($publicSuffix, $publicSuffix->withValue('com', IDNA_NONTRANSITIONAL_TO_ASCII));
+        self::assertSame($publicSuffix, $publicSuffix->withValue('com', $publicSuffix->getAsciiIDNAOption(), $publicSuffix->getUnicodeIDNAOption()));
+        self::assertNotEquals($publicSuffix, $publicSuffix->withValue('com', $publicSuffix->getAsciiIDNAOption(), IDNA_NONTRANSITIONAL_TO_UNICODE));
     }
 }

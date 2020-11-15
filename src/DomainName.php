@@ -11,7 +11,7 @@ use IteratorAggregate;
  * @see https://tools.ietf.org/html/rfc1123#section-2.1
  * @see https://tools.ietf.org/html/rfc5890
  */
-interface DomainName extends Host, IteratorAggregate
+interface DomainName extends Host, IteratorAggregate, IDNConversion
 {
     /**
      * Retrieves a single domain label.
