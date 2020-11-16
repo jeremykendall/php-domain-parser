@@ -339,26 +339,26 @@ conversion errors/results.**
 
 ## Managing the package databases
 
-Depending on your application, the mechanism to store your database may differ, 
+Depending on your application, the mechanism to store your resources may differ, 
 nevertheless, the library comes bundle with a **optional service** which 
 enables resolving domain name without the constant network overhead of 
 continuously downloading the remote databases.
 
-The interfaces defined under the `Pdp\Storage` storage namespace enable 
-integrating a database managing system and as an implementation example 
-a PHP-FIG PSR interfaces powered managing system is provided.
+The interfaces defined under the `Pdp\Storage` namespace enable 
+integrating a database managing system and provide an implementation example 
+using PHP-FIG PSR interfaces.
 
 The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that
-retrieve, convert and cache the Public Suffix List as well as the IANA Root 
+retrieve, convert and cache the Public Suffix List and the IANA Root 
 Zone Database using standard interfaces published by the PHP-FIG.
 
 ### Instantiate `Pdp\Storage\PsrStorageFactory`
 
 To work as intended, the `Pdp\Storage\PsrStorageFactory` constructor requires:
 
-- a [PSR-16](http://www.php-fig.org/psr/psr-16/) Cache object.
-- a [PSR-17](http://www.php-fig.org/psr/psr-17/) HTTP Factory.
-- a [PSR-18](http://www.php-fig.org/psr/psr-18/) HTTP Client.
+- a [PSR-16](http://www.php-fig.org/psr/psr-16/) Simple Cache implementing library.
+- a [PSR-17](http://www.php-fig.org/psr/psr-17/) HTTP Factory implementing library.
+- a [PSR-18](http://www.php-fig.org/psr/psr-18/) HTTP Client implementing library.
 
 When creating a new storage instance you will require:
 
@@ -383,8 +383,8 @@ find robust and battle tested implementations on packagist.
 
 For the purpose of this example we will use our PSR powered solution with:
  
-- *Guzzle* as our PSR-18 HTTP client;
-- *Guzzle\Psr7* to create a PSR-17 compliant `RequestFactoryInterface` object;
+- *Symfony HTTP Client* as our PSR-18 HTTP client;
+- *nyholm/psr7* which provide factories to create a PSR-7 objects;
 - *Symfony Cache Component* as our PSR-16 cache implementation;
 
 We will cache both external sources for 24 hours in a PostgreSQL database.
@@ -394,11 +394,8 @@ You are free to use other libraries/solutions as long as they implement the requ
 ~~~php
 <?php 
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
 use Pdp\Storage\PsrStorageFactory;
-use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\RequestInterface;
+use Symfony\Component\HttpClient\Psr18Client;
 use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
@@ -409,17 +406,10 @@ $pdo = new PDO(
     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
 );
 $cache = new Psr16Cache(new PdoAdapter($pdo, 'pdp', 43200));
-$client = new Client();
-$requestFactory = new class implements RequestFactoryInterface {
-    public function createRequest(string $method, $uri): RequestInterface
-    {
-        return new Request($method, $uri);
-    }
-};
-
+$client = new Psr18Client();
 $cachePrefix = 'pdp_';
 $cacheTtl = new DateInterval('P1D');
-$factory = new PsrStorageFactory($cache, $client, $requestFactory);
+$factory = new PsrStorageFactory($cache, $client, $client);
 $pslStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
 $rzdStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
 

@@ -60,7 +60,7 @@
     },
     "suggest": {
         "psr/http-client-implementation": "To use the storage functionnality which depends on PSR-18",
-        "psr/http-factory": "To use the storage functionnality which depends on PSR-17",
+        "psr/http-factory-implementation": "To use the storage functionnality which depends on PSR-17",
         "psr/simple-cache-implementation": "To use the storage functionnality which depends on PSR-16",
         "league/uri": "To parse URL and validate host"
     },
