@@ -10,7 +10,6 @@ use function count;
 use function fclose;
 use function fopen;
 use function implode;
-use function is_array;
 use function json_decode;
 use function stream_get_contents;
 use function substr;
@@ -23,16 +22,9 @@ final class Rules implements PublicSuffixList
      */
     private array $rules;
 
-    private function __construct(array $rules)
+    private function __construct(array $icann, array $private)
     {
-        $rules[EffectiveTLD::ICANN_DOMAINS] = $rules[EffectiveTLD::ICANN_DOMAINS] ?? [];
-        $rules[EffectiveTLD::PRIVATE_DOMAINS] = $rules[EffectiveTLD::PRIVATE_DOMAINS] ?? [];
-
-        if (!is_array($rules[EffectiveTLD::ICANN_DOMAINS]) || !is_array($rules[EffectiveTLD::PRIVATE_DOMAINS])) {
-            throw UnableToLoadPublicSuffixList::dueToCorruptedSection();
-        }
-
-        $this->rules = $rules;
+        $this->rules = [EffectiveTLD::ICANN_DOMAINS => $icann, EffectiveTLD::PRIVATE_DOMAINS => $private];
     }
 
     /**
@@ -72,7 +64,12 @@ final class Rules implements PublicSuffixList
 
         $converter = $converter ?? new PublicSuffixListConverter();
 
-        return new self($converter->convert($content));
+        $data = $converter->convert($content);
+
+        $icann = $data[EffectiveTLD::ICANN_DOMAINS] ?? [];
+        $private = $data[EffectiveTLD::PRIVATE_DOMAINS] ?? [];
+
+        return new self($icann, $private);
     }
 
     public static function fromJsonString(string $jsonString): self
@@ -83,12 +80,18 @@ final class Rules implements PublicSuffixList
             throw UnableToLoadPublicSuffixList::dueToInvalidJson($exception);
         }
 
-        return new self($data);
+        $icann = $data[EffectiveTLD::ICANN_DOMAINS] ?? [];
+        $private = $data[EffectiveTLD::PRIVATE_DOMAINS] ?? [];
+
+        return new self($icann, $private);
     }
 
     public static function __set_state(array $properties): self
     {
-        return new self($properties['rules']);
+        return new self(
+            $properties['rules'][EffectiveTLD::ICANN_DOMAINS],
+            $properties['rules'][EffectiveTLD::PRIVATE_DOMAINS]
+        );
     }
 
     public function jsonSerialize(): array

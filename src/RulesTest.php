@@ -77,11 +77,10 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::fromJsonString
-     * @covers \Pdp\UnableToLoadPublicSuffixList
      */
     public function testJsonStringFailsWithMissingIndexesCollection(): void
     {
-        self::expectException(UnableToLoadPublicSuffixList::class);
+        self::expectException(TypeError::class);
 
         Rules::fromJsonString('{"ICANN_DOMAINS":"foo","PRIVATE_DOMAINS":"bar"}');
     }
