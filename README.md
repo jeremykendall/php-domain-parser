@@ -263,8 +263,7 @@ an `Domain` object:
 - `ResolvedDomain::getRegistrableDomain`
 - `ResolvedDomain::getSubDomain`
 
-**WARNING: Because of its definition, a domain name can be `null` or a non-empty 
-string; empty string domain are invalid.**
+**WARNING: Because of its definition, a domain name can be `null` or a string.**
 
 To distinguish this possibility the object exposes two (2) formatting methods 
 `Domain::value` which can be `null` or a `string` and `Domain::toString` which 
@@ -273,16 +272,18 @@ will always cast the domain value to a string.
  ~~~php
 use Pdp\Domain;
  
-$domain = new Domain(null);
-$domain->value(); // returns null;
-$domain->toString(); // returns '';
+$nullDomain = new Domain(null);
+$nullDomain->value();    // returns null;
+$nullDomain->toString(); // returns '';
  
-$domain = new Domain(''); // will throw
+$emptyDomain = new Domain('');
+$emptyDomain->value();    // returns '';
+$emptyDomain->toString(); // returns '';
  ~~~ 
 
 ### Internationalization
 
-Domain names support different format (ascii and unicode format), the package 
+Domain names support different formats (ascii and unicode format), the package 
 by default will convert the domain in its ascii format for resolution against
 the public suffix source and convert it back to its unicode form if needed. 
 This is done using PHP `ext-intl` extension. As such all domain objects expose 
@@ -303,30 +304,38 @@ $asciiDomain->toUnicode()->toString() === $unicodeDomain->toString(); //returns 
 ~~~
 
 Because the domain conversion occurs during normalization of the 
-domain name you should give the `IDNA_*` constants when updating
-the domain name value. 
+domain name you should give the proper `IDNA_*` constants when creating
+or updating the domain name value.
 
-Only the `Pdp\Domain` and the `Pdp\PublicSuffix` 
-objects accept the following optional parameters: (`$asciiIDNAOption` and
-`$unicodeIDNAOption`) to tell the underlying methods using  the `idn_to_utf8`
-and `idn_to_ascii` functions from the `ext-intl` package how to convert the 
-value to its unicode or ascii form. Those variables should be a combination of
-the `IDNA_*` constants (except `IDNA_ERROR_*` constants).
+Since the `ResolvedDomain` only cares about public suffix resolution,
+only the `Pdp\Domain` and the `Pdp\PublicSuffix` objects expose methods
+to correctly format domain names. their constructor as well as their
+`::withValue` methods accepts the following optional parameters: 
+(`$asciiIDNAOption` and`$unicodeIDNAOption`) to tell the underlying methods 
+using  the `idn_to_utf8` and `idn_to_ascii` functions from the `ext-intl` 
+package how to convert the value to its unicode or ascii form. Those variables
+should be a combination of the `IDNA_*` constants (except `IDNA_ERROR_*` 
+constants).  
+You can access the `IDNA_*`  current value using the `::getAsciiIDNAOption` and 
+`::getUnicodeIDNAOption` methods.
 
 ~~~php
 use Pdp\Domain;
 
 $domain = new Domain('faß.de');
-$altDomain = $domain->withValue('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+$domain->getAsciiIDNAOption();   // returns IDNA_DEFAULT
+$domain->getUnicodeIDNAOption(); // returns IDNA_DEFAULT
+echo $domain->value();           // display 'fass.de'
 
-/** @var  Rules $rules */
-echo $rules->resolve($domain)->toString(); // display 'fass.de'
-echo $rules->resolve($altDomain)->toString(); // display 'faß.de'
+$altDomain = $domain->withValue('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+$altDomain->getAsciiIDNAOption();   // returns IDNA_NONTRANSITIONAL_TO_ASCII
+$altDomain->getUnicodeIDNAOption(); // returns IDNA_NONTRANSITIONAL_TO_UNICODE
+echo $altDomain->value();           // display 'faß.de'
 ~~~
 
 **TIP: Always favor submitting a `Domain` object for resolution rather that a 
 string or an object that can be cast to a string to avoid unexpected format 
-conversion results.**
+conversion errors/results.**
 
 ## Managing the package databases
 
