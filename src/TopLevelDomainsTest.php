@@ -18,7 +18,7 @@ use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 /**
  * @coversDefaultClass \Pdp\TopLevelDomains
  */
-class TopLevelDomainsTest extends TestCase
+final class TopLevelDomainsTest extends TestCase
 {
     protected TopLevelDomains $topLevelDomains;
 

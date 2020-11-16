@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use JsonException;
 use function count;
 use function fclose;
 use function fopen;
 use function json_decode;
-use function json_last_error;
-use function json_last_error_msg;
 use function stream_get_contents;
 use function substr;
-use const JSON_ERROR_NONE;
+use const JSON_THROW_ON_ERROR;
 
 final class TopLevelDomains implements RootZoneDatabase
 {
@@ -25,12 +23,8 @@ final class TopLevelDomains implements RootZoneDatabase
 
     private array $records;
 
-    private function __construct(array $records, string $version, DateTimeInterface $modifiedDate)
+    private function __construct(array $records, string $version, DateTimeImmutable $modifiedDate)
     {
-        if ($modifiedDate instanceof DateTime) {
-            $modifiedDate = DateTimeImmutable::createFromMutable($modifiedDate);
-        }
-
         $this->records = $records;
         $this->version = $version;
         $this->modifiedDate = $modifiedDate;
@@ -82,14 +76,14 @@ final class TopLevelDomains implements RootZoneDatabase
 
     public static function fromJsonString(string $jsonString): self
     {
-        $data = json_decode($jsonString, true);
-        $errorCode = json_last_error();
-        if (JSON_ERROR_NONE !== $errorCode) {
-            throw UnableToLoadRootZoneDatabase::dueToInvalidJson($errorCode, json_last_error_msg());
+        try {
+            $data = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            throw UnableToLoadRootZoneDatabase::dueToInvalidJson($exception);
         }
 
         if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
-            throw  UnableToLoadRootZoneDatabase::dueToInvalidHashMap();
+            throw UnableToLoadRootZoneDatabase::dueToInvalidHashMap();
         }
 
         /** @var DateTimeImmutable $modifiedDate */

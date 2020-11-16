@@ -8,8 +8,6 @@ parameters:
   treatPhpDocTypesAsCertain: false
   ignoreErrors:
     - '#should be covariant with return type#'
-    - message: '#Property Pdp\\TopLevelDomains::\$modifiedDate \(DateTimeImmutable\) does not accept DateTimeInterface.#'
-      path: src/TopLevelDomains.php
     - message: '#Method Pdp\\ResolvedDomain::withSubDomain\(\) has parameter \$subDomain with no typehint specified.#'
       path: src/ResolvedDomain.php
     - message: '#Call to function array_keys\(\) requires parameter \#3 to be set.#'

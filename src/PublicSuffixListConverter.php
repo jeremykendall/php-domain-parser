@@ -45,7 +45,7 @@ final class PublicSuffixListConverter extends DomainNameParser
             throw new TypeError('The content to be converted should be a string or a Stringable object, `'.gettype($content).'` given.');
         }
 
-        $rules = ['ICANN_DOMAINS' => [], 'PRIVATE_DOMAINS' => []];
+        $rules = [];
         $section = '';
         $file = new SplTempFileObject();
         $file->fwrite($content);
@@ -54,6 +54,7 @@ final class PublicSuffixListConverter extends DomainNameParser
         foreach ($file as $line) {
             $section = $this->getSection($section, $line);
             if ('' !== $section && false === strpos($line, '//')) {
+                $rules[$section] = $rules[$section] ?? [];
                 $rules[$section] = $this->addRule($rules[$section], explode('.', $line));
             }
         }

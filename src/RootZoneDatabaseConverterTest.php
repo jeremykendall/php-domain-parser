@@ -5,18 +5,47 @@ declare(strict_types=1);
 namespace Pdp;
 
 use PHPUnit\Framework\TestCase;
+use TypeError;
 use function dirname;
+use function file_get_contents;
 
 /**
  * @coversDefaultClass \Pdp\RootZoneDatabaseConverter
  */
-class RootZoneDatabaseConverterTest extends TestCase
+final class RootZoneDatabaseConverterTest extends TestCase
 {
+    private RootZoneDatabaseConverter $converter;
+
+    public function setUp(): void
+    {
+        $this->converter = new RootZoneDatabaseConverter();
+    }
+
     public function testConverter(): void
     {
         /** @var string $string */
         $string = file_get_contents(dirname(__DIR__).'/test_data/root_zones.dat');
-        $res = (new RootZoneDatabaseConverter())->convert($string);
+        $res = $this->converter->convert($string);
+
+        self::assertArrayHasKey('version', $res);
+        self::assertArrayHasKey('modifiedDate', $res);
+        self::assertArrayHasKey('records', $res);
+        self::assertIsArray($res['records']);
+    }
+
+    public function testConvertWithStringableObject(): void
+    {
+        $stringObject = new class() {
+            public function __toString(): string
+            {
+                /** @var string $string */
+                $string = file_get_contents(dirname(__DIR__).'/test_data/root_zones.dat');
+
+                return $string;
+            }
+        };
+
+        $res = $this->converter->convert($stringObject);
 
         self::assertArrayHasKey('version', $res);
         self::assertArrayHasKey('modifiedDate', $res);
@@ -31,7 +60,16 @@ class RootZoneDatabaseConverterTest extends TestCase
     {
         self::expectException(UnableToLoadRootZoneDatabase::class);
 
-        (new RootZoneDatabaseConverter())->convert($content);
+        $this->converter->convert($content);
+    }
+
+    public function testConvertThrowsExceptionIfTheInputIsNotSupported(): void
+    {
+        $content = new \stdClass();
+
+        self::expectException(TypeError::class);
+
+        $this->converter->convert($content);
     }
 
     public function invalidContentProvider(): iterable
