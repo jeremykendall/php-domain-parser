@@ -79,17 +79,6 @@ final class RulesTest extends TestCase
      * @covers ::fromJsonString
      * @covers \Pdp\UnableToLoadPublicSuffixList
      */
-    public function testJsonStringFailsWithMissingIndexes(): void
-    {
-        self::expectException(UnableToLoadPublicSuffixList::class);
-
-        Rules::fromJsonString('{"foo":"bar"}');
-    }
-
-    /**
-     * @covers ::fromJsonString
-     * @covers \Pdp\UnableToLoadPublicSuffixList
-     */
     public function testJsonStringFailsWithMissingIndexesCollection(): void
     {
         self::expectException(UnableToLoadPublicSuffixList::class);

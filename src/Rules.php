@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use JsonException;
 use function array_reverse;
 use function count;
 use function fclose;
@@ -11,11 +12,9 @@ use function fopen;
 use function implode;
 use function is_array;
 use function json_decode;
-use function json_last_error;
-use function json_last_error_msg;
 use function stream_get_contents;
 use function substr;
-use const JSON_ERROR_NONE;
+use const JSON_THROW_ON_ERROR;
 
 final class Rules implements PublicSuffixList
 {
@@ -26,6 +25,13 @@ final class Rules implements PublicSuffixList
 
     private function __construct(array $rules)
     {
+        $rules[EffectiveTLD::ICANN_DOMAINS] = $rules[EffectiveTLD::ICANN_DOMAINS] ?? [];
+        $rules[EffectiveTLD::PRIVATE_DOMAINS] = $rules[EffectiveTLD::PRIVATE_DOMAINS] ?? [];
+
+        if (!is_array($rules[EffectiveTLD::ICANN_DOMAINS]) || !is_array($rules[EffectiveTLD::PRIVATE_DOMAINS])) {
+            throw UnableToLoadPublicSuffixList::dueToCorruptedSection();
+        }
+
         $this->rules = $rules;
     }
 
@@ -71,18 +77,10 @@ final class Rules implements PublicSuffixList
 
     public static function fromJsonString(string $jsonString): self
     {
-        $data = json_decode($jsonString, true);
-        $errorCode = json_last_error();
-        if (JSON_ERROR_NONE !== $errorCode) {
-            throw UnableToLoadPublicSuffixList::dueToInvalidJson($errorCode, json_last_error_msg());
-        }
-
-        if (!isset($data[EffectiveTLD::ICANN_DOMAINS], $data[EffectiveTLD::PRIVATE_DOMAINS])) {
-            throw UnableToLoadPublicSuffixList::dueToInvalidHashMap();
-        }
-
-        if (!is_array($data[EffectiveTLD::ICANN_DOMAINS]) || !is_array($data[EffectiveTLD::PRIVATE_DOMAINS])) {
-            throw UnableToLoadPublicSuffixList::dueToCorruptedSection();
+        try {
+            $data = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            throw UnableToLoadPublicSuffixList::dueToInvalidJson($exception);
         }
 
         return new self($data);
@@ -208,7 +206,7 @@ final class Rules implements PublicSuffixList
      */
     private function getPublicSuffixFromSection(DomainName $domain, string $section): EffectiveTLD
     {
-        $rules = $this->rules[$section] ?? [];
+        $rules = $this->rules[$section];
         $matches = [];
         foreach ($domain->toAscii() as $label) {
             //match exception rule

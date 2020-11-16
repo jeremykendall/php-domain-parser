@@ -39,9 +39,9 @@ class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements C
         return new self($path.': failed to open stream: No such file or directory.');
     }
 
-    public static function dueToInvalidJson(int $code, string $message): self
+    public static function dueToInvalidJson(Throwable $exception): self
     {
-        return new self('Failed to JSON decode the string: '.$message.'.', $code);
+        return new self('Failed to JSON decode the Root Zone Database string.', 0, $exception);
     }
 
     public static function dueToUnavailableService(string $uri, Throwable $exception): self

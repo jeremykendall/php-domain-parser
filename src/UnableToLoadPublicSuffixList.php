@@ -14,19 +14,14 @@ class UnableToLoadPublicSuffixList extends InvalidArgumentException implements C
         return new self($path.': failed to open stream: No such file or directory.');
     }
 
-    public static function dueToInvalidJson(int $code, string $message): self
+    public static function dueToInvalidJson(Throwable $exception): self
     {
-        return new self('Failed to JSON decode the string: '.$message.'.', $code);
+        return new self('Failed to JSON decode public suffix list string.', 0, $exception);
     }
 
     public static function dueToInvalidRule(?string $line, Throwable $exception): self
     {
         return new self('The following rule "'.$line ?? 'NULL'.'" could not be processed because it is invalid.', 0, $exception);
-    }
-
-    public static function dueToInvalidHashMap(): self
-    {
-        return new self('The public suffix list data are missing one of the required ICANN or PRIVATE domain section.');
     }
 
     public static function dueToCorruptedSection(): self
