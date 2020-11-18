@@ -198,7 +198,9 @@ final class Rules implements PublicSuffixList
             return $icann;
         }
 
-        return PublicSuffix::fromUnknown($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+        $publicSuffix = new Domain($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+
+        return PublicSuffix::fromUnknown($publicSuffix);
     }
 
     /**
@@ -230,15 +232,21 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            return PublicSuffix::fromUnknown($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+            $publicSuffix = new Domain($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+
+            return PublicSuffix::fromUnknown($publicSuffix);
         }
 
-        $content = implode('.', array_reverse($matches));
+        $publicSuffix = new Domain(
+            implode('.', array_reverse($matches)),
+            $domain->getAsciiIDNAOption(),
+            $domain->getUnicodeIDNAOption()
+        );
 
         if (PublicSuffix::PRIVATE_DOMAINS === $section) {
-            return PublicSuffix::fromPrivate($content, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+            return PublicSuffix::fromPrivate($publicSuffix);
         }
 
-        return PublicSuffix::fromICANN($content, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+        return PublicSuffix::fromICANN($publicSuffix);
     }
 }

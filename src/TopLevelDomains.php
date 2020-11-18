@@ -120,7 +120,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function getIterator()
     {
         foreach ($this->records as $tld) {
-            yield PublicSuffix::fromUnknown($tld)->toAscii();
+            yield PublicSuffix::fromUnknown((new Domain($tld))->toAscii());
         }
     }
 
@@ -186,10 +186,12 @@ final class TopLevelDomains implements RootZoneDatabase
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
             if ($tld->value() === $label) {
-                return new ResolvedDomain($domain, PublicSuffix::fromUnknown($tld, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
+                $publicSuffix = new Domain($tld, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+
+                return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
             }
         }
 
-        return new ResolvedDomain($domain, PublicSuffix::fromNull($domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
+        return new ResolvedDomain($domain, PublicSuffix::fromNull());
     }
 }

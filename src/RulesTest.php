@@ -215,7 +215,7 @@ final class RulesTest extends TestCase
     {
         $domain = new ResolvedDomain(
             new Domain('private.ulb.ac.be'),
-            PublicSuffix::fromICANN('ac.be')
+            PublicSuffix::fromICANN(new Domain('ac.be'))
         );
 
         $newDomain = $this->rules->resolve($domain);
@@ -230,7 +230,7 @@ final class RulesTest extends TestCase
 
     public function testWithDomainInterfaceObject(): void
     {
-        $domain = PublicSuffix::fromICANN('ulb.ac.be');
+        $domain = PublicSuffix::fromICANN(new Domain('ulb.ac.be'));
 
         self::assertSame(
             'ac.be',

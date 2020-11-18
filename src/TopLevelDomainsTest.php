@@ -142,7 +142,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         $resolvedDomain = new ResolvedDomain(
             new Domain('www.example.com'),
-            PublicSuffix::fromICANN('com')
+            PublicSuffix::fromICANN(new Domain('com'))
         );
 
         return [
@@ -242,7 +242,7 @@ final class TopLevelDomainsTest extends TestCase
                     return 'COM';
                 }
             }],
-            'externalDomain' => [PublicSuffix::fromICANN('com')],
+            'externalDomain' => [PublicSuffix::fromICANN(new Domain('com'))],
         ];
     }
 

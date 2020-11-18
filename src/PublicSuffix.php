@@ -32,33 +32,24 @@ final class PublicSuffix implements EffectiveTLD
         return new self($properties['domain'], $properties['section']);
     }
 
-    /**
-     * @param mixed $publicSuffix a public suffix
-     */
-    public static function fromICANN($publicSuffix, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    public static function fromICANN(DomainName $domain): self
     {
-        return new self(new Domain($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption), self::ICANN_DOMAINS);
+        return new self($domain, self::ICANN_DOMAINS);
     }
 
-    /**
-     * @param mixed $publicSuffix a public suffix
-     */
-    public static function fromPrivate($publicSuffix, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    public static function fromPrivate(DomainName $domain): self
     {
-        return new self(new Domain($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption), self::PRIVATE_DOMAINS);
+        return new self($domain, self::PRIVATE_DOMAINS);
     }
 
-    /**
-     * @param mixed $publicSuffix a public suffix
-     */
-    public static function fromUnknown($publicSuffix, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    public static function fromUnknown(DomainName $domain): self
     {
-        return new self(new Domain($publicSuffix, $asciiIDNAOption, $unicodeIDNAOption), '');
+        return new self($domain, '');
     }
 
-    public static function fromNull(int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    public static function fromNull(): self
     {
-        return new self(Domain::fromNull($asciiIDNAOption, $unicodeIDNAOption), '');
+        return new self(Domain::fromNull(), '');
     }
 
     public function getDomain(): DomainName

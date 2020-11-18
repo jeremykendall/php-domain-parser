@@ -59,11 +59,8 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function setPublicSuffix(EffectiveTLD $publicSuffix = null): EffectiveTLD
     {
-        $asciiIDNAOptions = $this->domain->getAsciiIDNAOption();
-        $unicodeIDNAOptions = $this->domain->getUnicodeIDNAOption();
-
         if (null === $publicSuffix || null === $publicSuffix->value()) {
-            return PublicSuffix::fromNull($asciiIDNAOptions, $unicodeIDNAOptions);
+            return PublicSuffix::fromNull();
         }
 
         if (2 > count($this->domain)) {
@@ -74,7 +71,6 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
-        $publicSuffix = $publicSuffix->withValue($publicSuffix->value(), $asciiIDNAOptions, $unicodeIDNAOptions);
         $publicSuffix = $this->normalize($publicSuffix);
         if ($this->domain->value() === $publicSuffix->value()) {
             throw new UnableToResolveDomain(sprintf('The public suffix and the domain name are is identical `%s`.', $this->domain->toString()));
@@ -93,6 +89,12 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function normalize(EffectiveTLD $subject): EffectiveTLD
     {
+        $subject = $subject->withValue(
+            $subject->value(),
+            $this->domain->getAsciiIDNAOption(),
+            $this->domain->getUnicodeIDNAOption()
+        );
+
         if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain->toString())) {
             return $subject->toAscii();
         }
@@ -205,14 +207,14 @@ final class ResolvedDomain implements ResolvedDomainName
     public function withPublicSuffix($publicSuffix): self
     {
         if (!$publicSuffix instanceof EffectiveTLD) {
-            $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
+            if ($publicSuffix instanceof ExternalDomainName) {
+                $publicSuffix = PublicSuffix::fromUnknown($publicSuffix->getDomain());
+            } elseif ($publicSuffix instanceof DomainName) {
+                $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
+            } else {
+                $publicSuffix = PublicSuffix::fromUnknown(new Domain($publicSuffix));
+            }
         }
-
-        $publicSuffix = $publicSuffix->withValue(
-            $publicSuffix->value(),
-            $this->domain->getAsciiIDNAOption(),
-            $this->domain->getUnicodeIDNAOption()
-        );
 
         $publicSuffix = $this->normalize($publicSuffix);
         if ($this->publicSuffix == $publicSuffix) {
