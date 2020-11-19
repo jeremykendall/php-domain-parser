@@ -109,9 +109,9 @@ final class Rules implements PublicSuffixList
                 return new ResolvedDomain($host);
             }
 
-            return new ResolvedDomain(new Domain($host));
+            return new ResolvedDomain(Domain::fromIDNA2008($host));
         } catch (SyntaxError $exception) {
-            return new ResolvedDomain(Domain::fromNull());
+            return new ResolvedDomain(Domain::fromIDNA2008(null));
         }
     }
 
@@ -169,7 +169,7 @@ final class Rules implements PublicSuffixList
         }
 
         if (!($domain instanceof DomainName)) {
-            $domain = new Domain($domain);
+            $domain = Domain::fromIDNA2008($domain);
         }
 
         if ((2 > count($domain)) || ('.' === substr($domain->toString(), -1, 1))) {
@@ -198,7 +198,8 @@ final class Rules implements PublicSuffixList
             return $icann;
         }
 
-        $publicSuffix = new Domain($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+        $topLabel = $domain->toAscii()->label(0);
+        $publicSuffix = $domain->isIDNA2008() ? Domain::fromIDNA2008($topLabel) : Domain::fromIDNA2003($topLabel);
 
         return PublicSuffix::fromUnknown($publicSuffix);
     }
@@ -232,16 +233,14 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            $publicSuffix = new Domain($domain->toAscii()->label(0), $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption());
+            $topLabel = $domain->toAscii()->label(0);
+            $publicSuffix = $domain->isIDNA2008() ? Domain::fromIDNA2008($topLabel) : Domain::fromIDNA2003($topLabel);
 
             return PublicSuffix::fromUnknown($publicSuffix);
         }
 
-        $publicSuffix = new Domain(
-            implode('.', array_reverse($matches)),
-            $domain->getAsciiIDNAOption(),
-            $domain->getUnicodeIDNAOption()
-        );
+        $publicSuffixLabels = implode('.', array_reverse($matches));
+        $publicSuffix = $domain->isIDNA2008() ? Domain::fromIDNA2008($publicSuffixLabels) : Domain::fromIDNA2003($publicSuffixLabels);
 
         if (PublicSuffix::PRIVATE_DOMAINS === $section) {
             return PublicSuffix::fromPrivate($publicSuffix);

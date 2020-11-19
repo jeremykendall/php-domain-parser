@@ -9,15 +9,12 @@ use function array_slice;
 use function count;
 use function explode;
 use function implode;
-use function preg_match;
 use function sprintf;
 use function strlen;
 use function substr;
 
 final class ResolvedDomain implements ResolvedDomainName
 {
-    private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
-
     private DomainName $domain;
 
     private EffectiveTLD $publicSuffix;
@@ -46,7 +43,7 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         if (!$domain instanceof DomainName) {
-            return new Domain($domain);
+            return Domain::fromIDNA2008($domain);
         }
 
         return $domain;
@@ -60,7 +57,9 @@ final class ResolvedDomain implements ResolvedDomainName
     private function setPublicSuffix(EffectiveTLD $publicSuffix = null): EffectiveTLD
     {
         if (null === $publicSuffix || null === $publicSuffix->value()) {
-            return PublicSuffix::fromNull();
+            $domain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
+
+            return PublicSuffix::fromUnknown($domain);
         }
 
         if (2 > count($this->domain)) {
@@ -89,17 +88,24 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function normalize(EffectiveTLD $subject): EffectiveTLD
     {
-        $subject = $subject->withValue(
-            $subject->value(),
-            $this->domain->getAsciiIDNAOption(),
-            $this->domain->getUnicodeIDNAOption()
-        );
-
-        if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain->toString())) {
-            return $subject->toAscii();
+        if ($subject->isIDNA2008() === $this->domain->isIDNA2008()) {
+            return $subject->isAscii() === $this->domain->isAscii() ? $subject : $subject->toUnicode();
         }
 
-        return $subject->toUnicode();
+        $newDomain = Domain::fromIDNA2003($subject->toUnicode()->value());
+        if ($this->domain->isAscii()) {
+            $newDomain = $newDomain->toAscii();
+        }
+
+        if ($subject->isPrivate()) {
+            return PublicSuffix::fromPrivate($newDomain);
+        }
+
+        if ($subject->isICANN()) {
+            return  PublicSuffix::fromICANN($newDomain);
+        }
+
+        return PublicSuffix::fromUnknown($newDomain);
     }
 
     /**
@@ -108,7 +114,7 @@ final class ResolvedDomain implements ResolvedDomainName
     private function setRegistrableDomain(): DomainName
     {
         if (null === $this->publicSuffix->value()) {
-            return Domain::fromNull($this->domain->getAsciiIDNAOption(), $this->domain->getUnicodeIDNAOption());
+            return $this->domain->isIDNA2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
         }
 
         $domain = implode('.', array_slice(
@@ -116,7 +122,9 @@ final class ResolvedDomain implements ResolvedDomainName
             count($this->domain) - count($this->publicSuffix) - 1
         ));
 
-        return new Domain($domain, $this->domain->getAsciiIDNAOption(), $this->domain->getUnicodeIDNAOption());
+        $registrableDomain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008($domain) : Domain::fromIDNA2003($domain);
+
+        return $this->domain->isAscii() ? $registrableDomain->toAscii() : $registrableDomain->toUnicode();
     }
 
     /**
@@ -124,17 +132,14 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function setSubDomain(): DomainName
     {
-        $asciiIDNAOptions = $this->domain->getAsciiIDNAOption();
-        $unicodeIDNAOptions = $this->domain->getUnicodeIDNAOption();
-
         if (null === $this->registrableDomain->value()) {
-            return Domain::fromNull($asciiIDNAOptions, $unicodeIDNAOptions);
+            return $this->domain->isIDNA2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
         }
 
         $nbLabels = count($this->domain);
         $nbRegistrableLabels = count($this->publicSuffix) + 1;
         if ($nbLabels === $nbRegistrableLabels) {
-            return Domain::fromNull($asciiIDNAOptions, $unicodeIDNAOptions);
+            return $this->domain->isIDNA2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
         }
 
         $domain = implode('.', array_slice(
@@ -143,7 +148,9 @@ final class ResolvedDomain implements ResolvedDomainName
             $nbLabels - $nbRegistrableLabels
         ));
 
-        return new Domain($domain, $asciiIDNAOptions, $unicodeIDNAOptions);
+        $subDomain = (!$this->domain->isIDNA2008()) ? Domain::fromIDNA2003($domain) : Domain::fromIDNA2008($domain);
+
+        return $this->domain->isAscii() ? $subDomain->toAscii() : $subDomain->toUnicode();
     }
 
     public function count(): int
@@ -212,7 +219,8 @@ final class ResolvedDomain implements ResolvedDomainName
             } elseif ($publicSuffix instanceof DomainName) {
                 $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
             } else {
-                $publicSuffix = PublicSuffix::fromUnknown(new Domain($publicSuffix));
+                $domain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008($publicSuffix) : Domain::fromIDNA2003($publicSuffix);
+                $publicSuffix = PublicSuffix::fromUnknown($domain);
             }
         }
 
@@ -222,19 +230,15 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $host = implode('.', array_reverse(array_slice($this->domain->labels(), count($this->publicSuffix))));
+
         if (null === $publicSuffix->value()) {
-            return new self(
-                new Domain($host, $this->domain->getAsciiIDNAOption(), $this->domain->getUnicodeIDNAOption()),
-                null
-            );
+            $domain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008($host) : Domain::fromIDNA2003($host);
+
+            return new self($domain, null);
         }
 
-        /** @var DomainName $domain */
-        $domain = new Domain(
-            $host.'.'.$publicSuffix->value(),
-            $this->domain->getAsciiIDNAOption(),
-            $this->domain->getUnicodeIDNAOption()
-        );
+        $host .= '.'.$publicSuffix->value();
+        $domain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008($host) : Domain::fromIDNA2003($host);
 
         return new self($domain, $publicSuffix);
     }
@@ -249,35 +253,25 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         if (!$subDomain instanceof DomainName) {
-            $subDomain = new Domain(
-                $subDomain,
-                $this->domain->getAsciiIDNAOption(),
-                $this->domain->getUnicodeIDNAOption()
-            );
+            $subDomain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008($subDomain) : Domain::fromIDNA2003($subDomain);
         }
 
-        $subDomain = $subDomain->withValue(
-            $subDomain->value(),
-            $this->domain->getAsciiIDNAOption(),
-            $this->domain->getUnicodeIDNAOption()
-        );
-
+        $subDomain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008($subDomain) : Domain::fromIDNA2003($subDomain);
         if ($this->subDomain == $subDomain) {
             return $this;
         }
 
         /** @var DomainName $subDomain */
         $subDomain = $subDomain->toAscii();
-        if (1 === preg_match(self::REGEXP_IDN_PATTERN, $this->domain->toString())) {
+        if (!$this->domain->isAscii()) {
             /** @var DomainName $subDomain */
             $subDomain = $subDomain->toUnicode();
         }
 
-        return new self(new Domain(
-            $subDomain->toString().'.'.$this->registrableDomain->toString(),
-            $this->domain->getAsciiIDNAOption(),
-            $this->domain->getUnicodeIDNAOption()
-        ), $this->publicSuffix);
+        $newDomainValue = $subDomain->toString().'.'.$this->registrableDomain->toString();
+        $newDomain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008($newDomainValue) : Domain::fromIDNA2003($newDomainValue);
+
+        return new self($newDomain, $this->publicSuffix);
     }
 
     public function withSecondLevelDomain($label): self
@@ -295,10 +289,9 @@ final class ResolvedDomain implements ResolvedDomainName
             return new self($newRegistrableDomain, $this->publicSuffix);
         }
 
-        return new self(new Domain(
-            $this->subDomain->value().'.'.$newRegistrableDomain->value(),
-            $this->domain->getAsciiIDNAOption(),
-            $this->domain->getUnicodeIDNAOption()
-        ), $this->publicSuffix);
+        $newDomainValue = $this->subDomain->value().'.'.$newRegistrableDomain->value();
+        $newDomain = $this->domain->isIDNA2008() ? Domain::fromIDNA2008($newDomainValue) : Domain::fromIDNA2003($newDomainValue);
+
+        return new self($newDomain, $this->publicSuffix);
     }
 }

@@ -272,11 +272,11 @@ will always cast the domain value to a string.
  ~~~php
 use Pdp\Domain;
  
-$nullDomain = new Domain(null);
+$nullDomain = Domain::fromIDNA2008(null);
 $nullDomain->value();    // returns null;
 $nullDomain->toString(); // returns '';
  
-$emptyDomain = new Domain('');
+$emptyDomain = Domain::fromIDNA2008('');
 $emptyDomain->value();    // returns '';
 $emptyDomain->toString(); // returns '';
  ~~~ 
@@ -286,56 +286,58 @@ $emptyDomain->toString(); // returns '';
 Domain names support different formats (ascii and unicode format), the package 
 by default will convert the domain in its ascii format for resolution against
 the public suffix source and convert it back to its unicode form if needed. 
-This is done using PHP `ext-intl` extension. As such all domain objects expose 
-a `toAscii` and a `toUnicode` methods which returns a new instance in the
-converted format.
+To do so all domain objects expose a `toAscii` and a `toUnicode` methods which 
+returns a new instance in the converted format.
+By default, resolver will use the IDNA2008 format to convert the submitted string.
 
 ~~~php
 /** @var  Rules $rules */
-$unicodeDomain = $rules->resolve(new Domain('bébé.be'));
+$unicodeDomain = $rules->resolve(Domain::fromIDNA2008('bébé.be'));
 echo $unicodeDomain->toString();        // returns 'bébé.be'
 $unicodeDomain->getSecondLevelDomain(); // returns 'bébé'
 
-$asciiDomain = $rules->resolve(new Domain('xn--bb-bjab.be'));
+$asciiDomain = $rules->resolve(Domain::fromIDNA2008('xn--bb-bjab.be'));
 $asciiDomain->toString();             // returns 'xn--bb-bjab.be'
 $asciiDomain->getSecondLevelDomain(); // returns 'xn--bb-bjab'
 
 $asciiDomain->toUnicode()->toString() === $unicodeDomain->toString(); //returns true
 ~~~
 
-Because the domain conversion occurs during normalization of the 
-domain name you should give the proper `IDNA_*` constants when creating
-or updating the domain name value.
-
 Since the `ResolvedDomain` only cares about public suffix resolution,
-only the `Pdp\Domain` and the `Pdp\PublicSuffix` objects expose methods
-to correctly format domain names. their constructor as well as their
-`::withValue` methods accepts the following optional parameters: 
-(`$asciiIDNAOption` and`$unicodeIDNAOption`) to tell the underlying methods 
-using  the `idn_to_utf8` and `idn_to_ascii` functions from the `ext-intl` 
-package how to convert the value to its unicode or ascii form. Those variables
-should be a combination of the `IDNA_*` constants (except `IDNA_ERROR_*` 
-constants).  
-You can access the `IDNA_*`  current value using the `::getAsciiIDNAOption` and 
-`::getUnicodeIDNAOption` methods.
+only the `Pdp\Domain` exposes methods to correctly format domain names. 
+the named constructors highlight the algorithm used to convert the 
+domain name between ascii and unicode format.
+`Domain::fromIDNA2008` convert the value to its unicode format using IDNA 2008
+rules. While `Domain::fromIDNA2003` does it using legacy rules. At any given
+moment you can tell which algorithm will be used to convert the domain and in which
+format it is using the following methods:
 
 ~~~php
 use Pdp\Domain;
 
-$domain = new Domain('faß.de');
-$domain->getAsciiIDNAOption();   // returns IDNA_DEFAULT
-$domain->getUnicodeIDNAOption(); // returns IDNA_DEFAULT
-echo $domain->value();           // display 'fass.de'
+$domain = Domain::fromIDNA2008('faß.de');
+echo $domain->value(); // display 'faß.de'
+$domain->isIDNA2008(); // returns true
+$domain->isAscii();    // return false
+$asciiDomain = $domain->toAscii(); 
+echo $asciiDomain->value(); // display 'xn--fa-hia.de'
+$asciiDomain->isIDNA2008(); // returns true
+$asciiDomain->isAscii();    // returns true
 
-$altDomain = $domain->withValue('faß.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-$altDomain->getAsciiIDNAOption();   // returns IDNA_NONTRANSITIONAL_TO_ASCII
-$altDomain->getUnicodeIDNAOption(); // returns IDNA_NONTRANSITIONAL_TO_UNICODE
-echo $altDomain->value();           // display 'faß.de'
+$domain = Domain::fromIDNA2003('faß.de');
+echo $domain->value(); // display 'fass.de'
+$domain->isIDNA2008(); // returns true
+$domain->isAscii();    // return false
+$asciiDomain = $domain->toAscii();
+echo $asciiDomain->value(); // display 'fass.de'
+$asciiDomain->isIDNA2008(); // returns true
+$asciiDomain->isAscii();    // returns true
 ~~~
 
 **TIP: Always favor submitting a `Domain` object for resolution rather that a 
 string or an object that can be cast to a string to avoid unexpected format 
-conversion errors/results.**
+conversion errors/results. By default and with lack of information conversion
+is done using IDNA 2008 rules.**
 
 ## Managing the package databases
 

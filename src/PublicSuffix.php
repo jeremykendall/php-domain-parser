@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use function count;
-use const IDNA_DEFAULT;
 
 final class PublicSuffix implements EffectiveTLD
 {
@@ -47,11 +46,6 @@ final class PublicSuffix implements EffectiveTLD
         return new self($domain, '');
     }
 
-    public static function fromNull(): self
-    {
-        return new self(Domain::fromNull(), '');
-    }
-
     public function getDomain(): DomainName
     {
         return $this->domain;
@@ -75,16 +69,6 @@ final class PublicSuffix implements EffectiveTLD
     public function toString(): string
     {
         return $this->domain->toString();
-    }
-
-    public function getAsciiIDNAOption(): int
-    {
-        return $this->domain->getAsciiIDNAOption();
-    }
-
-    public function getUnicodeIDNAOption(): int
-    {
-        return $this->domain->getUnicodeIDNAOption();
     }
 
     public function isKnown(): bool
@@ -118,13 +102,13 @@ final class PublicSuffix implements EffectiveTLD
         return $clone;
     }
 
-    public function withValue(?string $domain, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    public function isAscii(): bool
     {
-        $newDomain = $this->domain->withValue($domain, $asciiIDNAOption, $unicodeIDNAOption);
-        if ($newDomain == $this->domain) {
-            return $this;
-        }
+        return $this->domain->isAscii();
+    }
 
-        return new self($newDomain, $this->section);
+    public function isIDNA2008(): bool
+    {
+        return $this->domain->isIDNA2008();
     }
 }

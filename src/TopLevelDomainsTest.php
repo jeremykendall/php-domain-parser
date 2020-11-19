@@ -11,9 +11,6 @@ use TypeError;
 use function dirname;
 use function file_get_contents;
 use function json_encode;
-use const IDNA_DEFAULT;
-use const IDNA_NONTRANSITIONAL_TO_ASCII;
-use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass \Pdp\TopLevelDomains
@@ -133,7 +130,7 @@ final class TopLevelDomainsTest extends TestCase
     public function testResolve($tld): void
     {
         self::assertSame(
-            (new Domain($tld))->label(0),
+            Domain::fromIDNA2008($tld)->label(0),
             $this->topLevelDomains->resolve($tld)->getPublicSuffix()->value()
         );
     }
@@ -141,8 +138,8 @@ final class TopLevelDomainsTest extends TestCase
     public function validDomainProvider(): iterable
     {
         $resolvedDomain = new ResolvedDomain(
-            new Domain('www.example.com'),
-            PublicSuffix::fromICANN(new Domain('com'))
+            Domain::fromIDNA2008('www.example.com'),
+            PublicSuffix::fromICANN(Domain::fromIDNA2008('com'))
         );
 
         return [
@@ -196,21 +193,17 @@ final class TopLevelDomainsTest extends TestCase
     {
         $resolved = $this->topLevelDomains->resolve('foo.de');
 
-        self::assertSame(
-            [IDNA_DEFAULT, IDNA_DEFAULT],
-            [$resolved->getDomain()->getAsciiIDNAOption(), $resolved->getDomain()->getUnicodeIDNAOption()]
-        );
+        self::assertTrue($resolved->getDomain()->isIDNA2008());
 
         $collection = TopLevelDomains::fromPath(
             dirname(__DIR__).'/test_data/root_zones.dat',
             null
         );
 
-        $domain = new Domain('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $domain = Domain::fromIDNA2003('foo.de');
         $resolved = $collection->resolve($domain);
 
-        self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getDomain()->getAsciiIDNAOption());
-        self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getDomain()->getUnicodeIDNAOption());
+        self::assertFalse($resolved->getDomain()->isIDNA2008());
     }
 
     /**
@@ -242,7 +235,7 @@ final class TopLevelDomainsTest extends TestCase
                     return 'COM';
                 }
             }],
-            'externalDomain' => [PublicSuffix::fromICANN(new Domain('com'))],
+            'externalDomain' => [PublicSuffix::fromICANN(Domain::fromIDNA2008('com'))],
         ];
     }
 

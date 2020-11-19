@@ -7,8 +7,6 @@ namespace Pdp;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use function json_encode;
-use const IDNA_NONTRANSITIONAL_TO_ASCII;
-use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass \Pdp\PublicSuffix
@@ -17,7 +15,7 @@ class PublicSuffixTest extends TestCase
 {
     public function testInternalPhpMethod(): void
     {
-        $domain = new Domain('ac.be');
+        $domain = Domain::fromIDNA2008('ac.be');
         $publicSuffix = PublicSuffix::fromICANN($domain);
         $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
         self::assertEquals($publicSuffix, $generatePublicSuffix);
@@ -27,7 +25,7 @@ class PublicSuffixTest extends TestCase
 
     public function testPSToUnicodeWithUrlEncode(): void
     {
-        $domain = new Domain('b%C3%A9be');
+        $domain = Domain::fromIDNA2008('b%C3%A9be');
         self::assertSame('bébe', PublicSuffix::fromUnknown($domain)->toUnicode()->value());
     }
 
@@ -37,7 +35,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testSetSection(?string $publicSuffix, string $section, bool $isKnown, bool $isIcann, bool $isPrivate): void
     {
-        $domain = new Domain($publicSuffix);
+        $domain = Domain::fromIDNA2008($publicSuffix);
 
         if ('' === $section) {
             $ps = PublicSuffix::fromUnknown($domain);
@@ -72,7 +70,7 @@ class PublicSuffixTest extends TestCase
     {
         self::expectException(SyntaxError::class);
 
-        PublicSuffix::fromUnknown(new Domain($publicSuffix));
+        PublicSuffix::fromUnknown(Domain::fromIDNA2008($publicSuffix));
     }
 
     public function invalidPublicSuffixProvider(): iterable
@@ -87,14 +85,14 @@ class PublicSuffixTest extends TestCase
     {
         self::expectException(SyntaxError::class);
 
-        PublicSuffix::fromUnknown(new Domain('a⒈com'));
+        PublicSuffix::fromUnknown(Domain::fromIDNA2008('a⒈com'));
     }
 
     public function testToUnicodeThrowsException(): void
     {
         self::expectException(SyntaxError::class);
 
-        PublicSuffix::fromUnknown(new Domain('xn--a-ecp.ru'))->toUnicode();
+        PublicSuffix::fromUnknown(Domain::fromIDNA2008('xn--a-ecp.ru'))->toUnicode();
     }
 
     /**
@@ -103,7 +101,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testConversionReturnsTheSameInstance(?string $publicSuffix): void
     {
-        $instance = PublicSuffix::fromUnknown(new Domain($publicSuffix));
+        $instance = PublicSuffix::fromUnknown(Domain::fromIDNA2008($publicSuffix));
 
         self::assertEquals($instance->toUnicode(), $instance);
         self::assertEquals($instance->toAscii(), $instance);
@@ -119,7 +117,7 @@ class PublicSuffixTest extends TestCase
 
     public function testToUnicodeReturnsSameInstance(): void
     {
-        $instance = PublicSuffix::fromUnknown(new Domain('食狮.公司.cn'));
+        $instance = PublicSuffix::fromUnknown(Domain::fromIDNA2008('食狮.公司.cn'));
 
         self::assertEquals($instance->toUnicode(), $instance);
     }
@@ -130,7 +128,7 @@ class PublicSuffixTest extends TestCase
      */
     public function testCountable(?string $domain, int $nbLabels, array $labels): void
     {
-        $domain = PublicSuffix::fromUnknown(new Domain($domain));
+        $domain = PublicSuffix::fromUnknown(Domain::fromIDNA2008($domain));
 
         self::assertCount($nbLabels, $domain);
     }
@@ -153,17 +151,12 @@ class PublicSuffixTest extends TestCase
         string $expectedAscii,
         string $expectedUnicode
     ): void {
-        $domain = new Domain($name, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $domain = Domain::fromIDNA2008($name);
         $publicSuffix = PublicSuffix::fromUnknown($domain);
+
         self::assertSame($expectedContent, $publicSuffix->value());
         self::assertSame($expectedAscii, $publicSuffix->toAscii()->value());
         self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->value());
-        /** @var PublicSuffix $instance */
-        $instance = $publicSuffix->toUnicode();
-        self::assertSame(
-            [$publicSuffix->getAsciiIDNAOption(), $publicSuffix->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
-        );
     }
 
     public function customIDNAProvider(): iterable
@@ -198,11 +191,9 @@ class PublicSuffixTest extends TestCase
 
     public function testWithIDNAOptions(): void
     {
-        $publicSuffix = PublicSuffix::fromUnknown(new Domain('com'));
-
-        self::assertSame($publicSuffix, $publicSuffix->withValue('com', $publicSuffix->getAsciiIDNAOption()));
-        self::assertNotEquals($publicSuffix, $publicSuffix->withValue('com', IDNA_NONTRANSITIONAL_TO_ASCII));
-        self::assertSame($publicSuffix, $publicSuffix->withValue('com', $publicSuffix->getAsciiIDNAOption(), $publicSuffix->getUnicodeIDNAOption()));
-        self::assertNotEquals($publicSuffix, $publicSuffix->withValue('com', $publicSuffix->getAsciiIDNAOption(), IDNA_NONTRANSITIONAL_TO_UNICODE));
+        self::assertNotEquals(
+            PublicSuffix::fromUnknown(Domain::fromIDNA2008('com')),
+            PublicSuffix::fromUnknown(Domain::fromIDNA2003('com'))
+        );
     }
 }
