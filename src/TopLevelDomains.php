@@ -120,7 +120,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function getIterator()
     {
         foreach ($this->records as $tld) {
-            yield PublicSuffix::fromUnknown($tld)->toAscii();
+            yield PublicSuffix::fromUnknown(Domain::fromIDNA2008($tld)->toAscii());
         }
     }
 
@@ -144,7 +144,7 @@ final class TopLevelDomains implements RootZoneDatabase
 
         if (!$tld instanceof DomainName) {
             try {
-                $tld = new Domain($tld);
+                $tld = Domain::fromIDNA2008($tld);
             } catch (CannotProcessHost $exception) {
                 return false;
             }
@@ -176,7 +176,7 @@ final class TopLevelDomains implements RootZoneDatabase
         }
 
         if (!$domain instanceof DomainName) {
-            $domain = new Domain($domain);
+            $domain = Domain::fromIDNA2008($domain);
         }
 
         if ((2 > count($domain)) || ('.' === substr($domain->toString(), -1, 1))) {
@@ -186,10 +186,14 @@ final class TopLevelDomains implements RootZoneDatabase
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
             if ($tld->value() === $label) {
-                return new ResolvedDomain($domain, PublicSuffix::fromUnknown($tld, $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
+                $publicSuffix = $domain->isIDNA2008() ? Domain::fromIDNA2008($tld) : Domain::fromIDNA2003($tld);
+
+                return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
             }
         }
 
-        return new ResolvedDomain($domain, PublicSuffix::fromNull($domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
+        $publicSuffix = $domain->isIDNA2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
+
+        return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
     }
 }

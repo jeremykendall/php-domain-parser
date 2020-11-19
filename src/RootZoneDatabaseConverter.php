@@ -93,7 +93,7 @@ final class RootZoneDatabaseConverter
     private function extractRootZone(string $content): string
     {
         try {
-            $tld = PublicSuffix::fromUnknown($content)->toAscii();
+            $tld = PublicSuffix::fromUnknown(Domain::fromIDNA2008($content))->toAscii();
         } catch (CannotProcessHost $exception) {
             throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
         }

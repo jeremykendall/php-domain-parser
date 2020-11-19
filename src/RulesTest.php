@@ -10,9 +10,6 @@ use function array_fill;
 use function dirname;
 use function file_get_contents;
 use function implode;
-use const IDNA_DEFAULT;
-use const IDNA_NONTRANSITIONAL_TO_ASCII;
-use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass \Pdp\Rules
@@ -214,8 +211,8 @@ final class RulesTest extends TestCase
     public function testWithDomainObject(): void
     {
         $domain = new ResolvedDomain(
-            new Domain('private.ulb.ac.be'),
-            PublicSuffix::fromICANN('ac.be')
+            Domain::fromIDNA2008('private.ulb.ac.be'),
+            PublicSuffix::fromICANN(Domain::fromIDNA2008('ac.be'))
         );
 
         $newDomain = $this->rules->resolve($domain);
@@ -230,7 +227,7 @@ final class RulesTest extends TestCase
 
     public function testWithDomainInterfaceObject(): void
     {
-        $domain = PublicSuffix::fromICANN('ulb.ac.be');
+        $domain = PublicSuffix::fromICANN(Domain::fromIDNA2008('ulb.ac.be'));
 
         self::assertSame(
             'ac.be',
@@ -572,7 +569,7 @@ final class RulesTest extends TestCase
         $this->checkPublicSuffix('www.食狮.中国', '食狮.中国');
         $this->checkPublicSuffix('shishi.中国', 'shishi.中国');
         $this->checkPublicSuffix('中国', null);
-        $this->checkPublicSuffix('www.faß.de', 'fass.de');
+        $this->checkPublicSuffix('www.faß.de', 'faß.de'); // changed to honour IDNA2008 by default not part of the standard test
         // Same as above, but punycoded.
         $this->checkPublicSuffix('xn--85x722f.com.cn', 'xn--85x722f.com.cn');
         $this->checkPublicSuffix('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn');
@@ -588,19 +585,15 @@ final class RulesTest extends TestCase
     public function testResolveWithIDNAOptions(): void
     {
         $resolvedByDefault = $this->rules->resolve('foo.de');
-        self::assertSame(
-            [IDNA_DEFAULT, IDNA_DEFAULT],
-            [$resolvedByDefault->getDomain()->getAsciiIDNAOption(), $resolvedByDefault->getDomain()->getUnicodeIDNAOption()]
-        );
+        self::assertTrue($resolvedByDefault->getDomain()->isIDNA2008());
 
         /** @var string $string */
         $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
         $rules = Rules::fromString($string);
-        $domain = new Domain('foo.de', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        $domain = Domain::fromIDNA2008('foo.de');
         $resolved = $rules->resolve($domain);
 
-        self::assertSame(IDNA_NONTRANSITIONAL_TO_ASCII, $resolved->getDomain()->getAsciiIDNAOption());
-        self::assertSame(IDNA_NONTRANSITIONAL_TO_UNICODE, $resolved->getDomain()->getUnicodeIDNAOption());
+        self::assertTrue($resolved->getDomain()->isIDNA2008());
     }
 
     /**

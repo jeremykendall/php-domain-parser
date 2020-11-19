@@ -60,6 +60,9 @@ The `Domain` **has no access**  to the domain parts or the public suffix list st
 
 - Domain objects no longer exposes the `__toString` magic methods.
 - `Domain::getContent` is renamed `Domain::value`
+- The `Domain` constructor is private. To instantiate a domain object you
+need to use on of the two named constructor `Domain::fromIDNA2008` or 
+`Domain::fromIDNA2008`.
 
 **version 5**
 ~~~php
@@ -70,7 +73,7 @@ $domain->getContent();  // can be a string or null
 
 **version 6**
 ~~~php
-$domain = new Domain('www.example.com');
+$domain = Domain::fromIDNA2008('www.example.com');
 echo $domain->toString(); // display 'www.example.com'
 $domain->value();         // can be a string or null
 ~~~ 
@@ -118,4 +121,9 @@ representation in other languages.
 
 #### The Rules object instantiation
 
-The `Rules::__construct` and the `TopLevelDomains::__construct` methods are now private.
+- `Rules::__construct` 
+- `TopLevelDomains::__construct` 
+- `Domain::__construct` 
+- `PublicSuffix::__construct` 
+
+methods are now all private.

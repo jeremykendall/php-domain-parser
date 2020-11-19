@@ -39,6 +39,8 @@ use const INTL_IDNA_VARIANT_UTS46;
 
 abstract class DomainNameParser
 {
+    protected const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
+
     /**
      * Get and format IDN conversion error message.
      */
@@ -86,9 +88,7 @@ abstract class DomainNameParser
     {
         $domain = rawurldecode($domain);
 
-        static $pattern = '/[^\x20-\x7f]/';
-
-        if (1 !== preg_match($pattern, $domain)) {
+        if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $domain)) {
             return strtolower($domain);
         }
 
@@ -160,8 +160,12 @@ abstract class DomainNameParser
      *@return array<string>
      *
      */
-    final protected function parse($domain = null, int $asciiOption = IDNA_DEFAULT, int $unicodeOption = IDNA_DEFAULT): array
+    final protected function parse($domain, int $asciiOption, int $unicodeOption): array
     {
+        if ($domain instanceof ExternalDomainName) {
+            $domain = $domain->getDomain()->value();
+        }
+
         if ($domain instanceof Host) {
             $domain = $domain->value();
         }
@@ -209,8 +213,7 @@ abstract class DomainNameParser
         }
 
         // if the domain name does not contains UTF-8 chars then it is malformed
-        static $pattern = '/[^\x20-\x7f]/';
-        if (1 === preg_match($pattern, $formattedDomain)) {
+        if (1 === preg_match(self::REGEXP_IDN_PATTERN, $formattedDomain)) {
             $asciiDomain = $this->idnToAscii($domain, $asciiOption);
 
             /** @var array $labels */

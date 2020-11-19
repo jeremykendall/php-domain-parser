@@ -6,9 +6,6 @@ namespace Pdp;
 
 use PHPUnit\Framework\TestCase;
 use TypeError;
-use const IDNA_DEFAULT;
-use const IDNA_NONTRANSITIONAL_TO_ASCII;
-use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 /**
  * @coversDefaultClass \Pdp\Domain
@@ -23,7 +20,7 @@ class DomainTest extends TestCase
     {
         self::expectException(SyntaxError::class);
 
-        new Domain($domain);
+        Domain::fromIDNA2008($domain);
     }
 
     public function invalidDomainProvider(): iterable
@@ -39,12 +36,12 @@ class DomainTest extends TestCase
     {
         self::expectException(SyntaxError::class);
 
-        (new Domain('xn--a-ecp.ru'))->toUnicode();
+        Domain::fromIDNA2008('xn--a-ecp.ru')->toUnicode();
     }
 
     public function testDomainInternalPhpMethod(): void
     {
-        $domain = new Domain('www.ulb.ac.be');
+        $domain = Domain::fromIDNA2008('www.ulb.ac.be');
         $generateDomain = eval('return '.var_export($domain, true).';');
         self::assertEquals($domain, $generateDomain);
         self::assertSame(['be', 'ac', 'ulb', 'www'], iterator_to_array($domain));
@@ -60,7 +57,7 @@ class DomainTest extends TestCase
      */
     public function testCountable(?string $domain, int $nbLabels, array $labels): void
     {
-        $domain = new Domain($domain);
+        $domain = Domain::fromIDNA2008($domain);
         self::assertCount($nbLabels, $domain);
         self::assertSame($labels, iterator_to_array($domain));
     }
@@ -77,7 +74,8 @@ class DomainTest extends TestCase
 
     public function testGetLabel(): void
     {
-        $domain = new Domain('master.example.com');
+        $domain = Domain::fromIDNA2008('master.example.com');
+
         self::assertSame('com', $domain->label(0));
         self::assertSame('example', $domain->label(1));
         self::assertSame('master', $domain->label(-1));
@@ -87,23 +85,22 @@ class DomainTest extends TestCase
 
     public function testOffsets(): void
     {
-        $domain = new Domain('master.com.example.com');
+        $domain = Domain::fromIDNA2008('master.com.example.com');
+
         self::assertSame([0, 2], $domain->keys('com'));
         self::assertSame([], $domain->keys('toto'));
     }
 
     public function testLabels(): void
     {
-        $domain = new Domain('master.com.example.com');
         self::assertSame([
             'com',
             'example',
             'com',
             'master',
-        ], $domain->labels());
+        ], Domain::fromIDNA2008('master.com.example.com')->labels());
 
-        $domain = new Domain();
-        self::assertSame([], $domain->labels());
+        self::assertSame([], Domain::fromIDNA2008(null)->labels());
     }
 
     /**
@@ -118,7 +115,7 @@ class DomainTest extends TestCase
         ?string $expectedDomain,
         ?string $expectedIDNDomain
     ): void {
-        $domain = new Domain($domain);
+        $domain = Domain::fromIDNA2008($domain);
         self::assertSame($expectedDomain, $domain->value());
 
         /** @var Domain $domainIDN */
@@ -178,7 +175,7 @@ class DomainTest extends TestCase
         ?string $expectedDomain,
         ?string $expectedAsciiDomain
     ): void {
-        $domain = new Domain($domain);
+        $domain = Domain::fromIDNA2008($domain);
         self::assertSame($expectedDomain, $domain->value());
 
         /** @var Domain $domainIDN */
@@ -230,11 +227,11 @@ class DomainTest extends TestCase
 
     public function withLabelWorksProvider(): iterable
     {
-        $base_domain = new Domain('www.example.com');
+        $base_domain = Domain::fromIDNA2008('www.example.com');
 
         return [
             'null domain' => [
-                'domain' => new Domain(),
+                'domain' => Domain::fromIDNA2008(null),
                 'key' => 0,
                 'label' => 'localhost',
                 'expected' => 'localhost',
@@ -282,7 +279,7 @@ class DomainTest extends TestCase
                 'expected' => 'xn--p1ai.example.com',
             ],
             'simple update IDN (2)' => [
-                'domain' => new Domain('www.bébé.be'),
+                'domain' => Domain::fromIDNA2008('www.bébé.be'),
                 'key' => 2,
                 'label' => 'xn--p1ai',
                 'expected' => 'рф.bébé.be',
@@ -299,20 +296,20 @@ class DomainTest extends TestCase
     public function testWithLabelFailsWithTypeError(): void
     {
         self::expectException(TypeError::class);
-        (new Domain('example.com'))->withLabel(1, null);
+        Domain::fromIDNA2008('example.com')->withLabel(1, null);
     }
 
     public function testWithLabelFailsWithInvalidKey(): void
     {
         self::expectException(SyntaxError::class);
-        (new Domain('example.com'))->withLabel(-4, 'www');
+        Domain::fromIDNA2008('example.com')->withLabel(-4, 'www');
     }
 
     public function testWithLabelFailsWithInvalidLabel2(): void
     {
         self::expectException(SyntaxError::class);
 
-        (new Domain('example.com'))->withLabel(-1, '');
+        Domain::fromIDNA2008('example.com')->withLabel(-1, '');
     }
 
     /**
@@ -320,7 +317,7 @@ class DomainTest extends TestCase
      */
     public function testAppend(string $raw, string $append, string $expected): void
     {
-        self::assertSame($expected, (new Domain($raw))->append($append)->toString());
+        self::assertSame($expected, Domain::fromIDNA2008($raw)->append($append)->toString());
     }
 
     public function validAppend(): iterable
@@ -338,7 +335,7 @@ class DomainTest extends TestCase
      */
     public function testPrepend(string $raw, string $prepend, string $expected): void
     {
-        self::assertSame($expected, (new Domain($raw))->prepend($prepend)->toString());
+        self::assertSame($expected, Domain::fromIDNA2008($raw)->prepend($prepend)->toString());
     }
 
     public function validPrepend(): iterable
@@ -362,7 +359,7 @@ class DomainTest extends TestCase
 
     public function withoutLabelWorksProvider(): iterable
     {
-        $base_domain = new Domain('www.example.com');
+        $base_domain = Domain::fromIDNA2008('www.example.com');
 
         return [
             'simple removal positive offset' => [
@@ -391,21 +388,19 @@ class DomainTest extends TestCase
     public function testwithoutLabelFailsWithInvalidKey(): void
     {
         self::expectException(SyntaxError::class);
-        (new Domain('example.com'))->withoutLabel(-3);
+        Domain::fromIDNA2008('example.com')->withoutLabel(-3);
     }
 
     public function testwithoutLabelWorksWithMultipleKeys(): void
     {
-        self::assertNull((new Domain('www.example.com'))->withoutLabel(0, 1, 2)->value());
+        self::assertNull(Domain::fromIDNA2008('www.example.com')->withoutLabel(0, 1, 2)->value());
     }
 
     public function testConstructWithCustomIDNAOptions(): void
     {
-        $domain = new Domain('example.com', IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-        self::assertSame(
-            [IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE],
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()]
-        );
+        $domain = Domain::fromIDNA2008('example.com');
+
+        self::assertTrue($domain->isIDNA2008());
     }
 
     /**
@@ -423,11 +418,7 @@ class DomainTest extends TestCase
         ?string $expectedUnicode,
         ?string $expectedWithLabel
     ): void {
-        $domain = new Domain(
-            $domainName,
-            IDNA_NONTRANSITIONAL_TO_ASCII,
-            IDNA_NONTRANSITIONAL_TO_UNICODE
-        );
+        $domain = Domain::fromIDNA2008($domainName);
         self::assertSame($expectedContent, $domain->value());
         self::assertSame($expectedAscii, $domain->toAscii()->value());
         self::assertSame($expectedUnicode, $domain->toUnicode()->value());
@@ -472,65 +463,8 @@ class DomainTest extends TestCase
         ];
     }
 
-    public function testInstanceCreationWithCustomIDNAOptions(): void
+    public function testWithIDNAOptions(): void
     {
-        $domain = new Domain(
-            'example.com',
-            IDNA_NONTRANSITIONAL_TO_ASCII,
-            IDNA_NONTRANSITIONAL_TO_UNICODE
-        );
-
-        /** @var Domain $instance */
-        $instance = $domain->toAscii();
-        self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
-        );
-
-        /** @var Domain $instance */
-        $instance = $domain->toUnicode();
-        self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
-        );
-
-        $instance = $domain->withLabel(0, 'foo');
-        self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
-        );
-
-        $instance = $domain->withoutLabel(0);
-        self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
-        );
-
-        $instance = $domain->append('bar');
-        self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
-        );
-
-        $instance = $domain->prepend('bar');
-        self::assertSame(
-            [$domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()],
-            [$instance->getAsciiIDNAOption(), $instance->getUnicodeIDNAOption()]
-        );
-    }
-
-    /**
-     * @covers ::getAsciiIDNAOption
-     * @covers ::getUnicodeIDNAOption
-     * @covers ::withValue
-     */
-    public function testwithIDNAOptions(): void
-    {
-        $domain = new Domain('example.com', IDNA_DEFAULT, IDNA_DEFAULT);
-
-        self::assertSame($domain, $domain->withValue('example.com', $domain->getAsciiIDNAOption()));
-        self::assertNotEquals($domain, $domain->withValue('example.com', IDNA_NONTRANSITIONAL_TO_ASCII));
-        self::assertSame($domain, $domain->withValue('example.com', $domain->getAsciiIDNAOption(), $domain->getUnicodeIDNAOption()));
-        self::assertNotEquals($domain, $domain->withValue('example.com', $domain->getAsciiIDNAOption(), IDNA_NONTRANSITIONAL_TO_UNICODE));
+        self::assertNotEquals(Domain::fromIDNA2003('example.com'), Domain::fromIDNA2008('example.com'));
     }
 }

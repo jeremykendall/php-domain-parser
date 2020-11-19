@@ -7,36 +7,12 @@ namespace Pdp;
 interface IDNConversion
 {
     /**
-     * Gets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
+     * Tells whether IDNA Conversion is done using IDNA2008 algorithm.
      */
-    public function getAsciiIDNAOption(): int;
+    public function isIDNA2008(): bool;
 
     /**
-     * Gets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
+     * Tells whether the current domain is in its ascii form.
      */
-    public function getUnicodeIDNAOption(): int;
-
-    /**
-     * Sets the host value with its IDNA options.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance with its content converted to its IDNA ASCII form
-     *
-     * @param  ?string           $value
-     * @throws CannotProcessHost if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     * @return static
-     */
-    public function withValue(?string $value, int $asciiIDNAOption, int $unicodIDNAOption): self;
+    public function isAscii(): bool;
 }

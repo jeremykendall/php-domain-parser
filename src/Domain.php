@@ -17,11 +17,11 @@ use function ksort;
 use function preg_match;
 use function sprintf;
 use const IDNA_DEFAULT;
+use const IDNA_NONTRANSITIONAL_TO_ASCII;
+use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 final class Domain extends DomainNameParser implements DomainName
 {
-    private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
-
     /**
      * @var array<string>
      */
@@ -36,16 +36,14 @@ final class Domain extends DomainNameParser implements DomainName
     /**
      * @param null|mixed $domain
      */
-    public function __construct(
-        $domain = null,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ) {
+    private function __construct($domain, int $asciiIDNAOption, int $unicodeIDNAOption)
+    {
         $this->labels = $this->parse($domain, $asciiIDNAOption, $unicodeIDNAOption);
         $this->domain = implode('.', array_reverse($this->labels));
         if ([] === $this->labels) {
             $this->domain = null;
         }
+
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
@@ -59,9 +57,20 @@ final class Domain extends DomainNameParser implements DomainName
         );
     }
 
-    public static function fromNull(int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOption = IDNA_DEFAULT): self
+    /**
+     * @param null|mixed $domain
+     */
+    public static function fromIDNA2003($domain): self
     {
-        return new self(null, $asciiIDNAOption, $unicodeIDNAOption);
+        return new self($domain, IDNA_DEFAULT, IDNA_DEFAULT);
+    }
+
+    /**
+     * @param null|mixed $domain
+     */
+    public static function fromIDNA2008($domain): self
+    {
+        return new self($domain, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
     }
 
     public function getIterator()
@@ -69,6 +78,17 @@ final class Domain extends DomainNameParser implements DomainName
         foreach ($this->labels as $offset => $label) {
             yield $label;
         }
+    }
+
+    public function isIDNA2008(): bool
+    {
+        return IDNA_NONTRANSITIONAL_TO_ASCII === $this->asciiIDNAOption;
+    }
+
+    public function isAscii(): bool
+    {
+        return null === $this->domain ||
+            1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain);
     }
 
     public function jsonSerialize(): ?string
@@ -112,16 +132,6 @@ final class Domain extends DomainNameParser implements DomainName
         return $this->labels;
     }
 
-    public function getAsciiIDNAOption(): int
-    {
-        return $this->asciiIDNAOption;
-    }
-
-    public function getUnicodeIDNAOption(): int
-    {
-        return $this->unicodeIDNAOption;
-    }
-
     public function toAscii(): self
     {
         if (null === $this->domain) {
@@ -148,17 +158,6 @@ final class Domain extends DomainNameParser implements DomainName
         }
 
         return new self($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-    }
-
-    public function withValue(?string $domain, int $asciiIDNAOption = IDNA_DEFAULT, int $unicodeIDNAOptions = IDNA_DEFAULT): self
-    {
-        if ($asciiIDNAOption === $this->asciiIDNAOption &&
-            $unicodeIDNAOptions === $this->unicodeIDNAOption &&
-            $domain === $this->domain) {
-            return $this;
-        }
-
-        return new self($domain, $asciiIDNAOption, $unicodeIDNAOptions);
     }
 
     /**
