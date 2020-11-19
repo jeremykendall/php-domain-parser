@@ -36,10 +36,13 @@ The `Domain` **has access** to the domain parts and to the public suffix list st
 ~~~php
 /** @var ResolvedDomain $domain */
 $domain = $rules->resolve('www.example.com');
-$domain->getDomain();            //returns a Domain object similar to v5 Domain object
-$domain->getPublicSuffix();      //returns a Public Suffix object
-$domain->getSubDomain();         //returns a Domain object
-$domain->getRegistrableDomain(); //returns a Domain object
+$domain->getDomain();                    //returns a Domain object similar to v5 Domain object
+$domain->getPublicSuffix();              //returns a Public Suffix object
+$domain->getPublicSuffix()->isICANN();   //returns a boolean
+$domain->getPublicSuffix()->isPrivate(); //returns a boolean
+$domain->getPublicSuffix()->isKnown();   //returns a boolean
+$domain->getSubDomain();                 //returns a Domain object
+$domain->getRegistrableDomain();         //returns a Domain object
 ~~~ 
 
 The `Domain` **has no access**  to the domain parts or the public suffix list state.
@@ -104,11 +107,11 @@ $domain->value();         // can be a string or null
 - `Domain::isResolvable` is removed without replacement.
 - `Domain::resolve` is removed without replacement. 
 - `Domain::isTransitionalDifferent` is removed without replacement. 
-- `Domain::withAsciiIDNAOption` is removed use `Domain::withValue`. 
-- `Domain::withUnicodeIDNAOption` is removed use `Domain::withValue`. 
+- `Domain::withAsciiIDNAOption` is removed without replacement.
+- `Domain::withUnicodeIDNAOption` is removed without replacement.
 - `PublicSuffix::isTransitionalDifferent` is removed without replacement. 
-- `PublicSuffix::withAsciiIDNAOption` is removed use `PublicSuffix::withValue`. 
-- `PublicSuffix::withUnicodeIDNAOption` is removed use `PublicSuffix::withValue`. 
+- `PublicSuffix::withAsciiIDNAOption` is removed without replacement.
+- `PublicSuffix::withUnicodeIDNAOption` is removed without replacement.
 - `PublicSuffix::createFromDomain` is removed without replacement. 
 - `Rules::getPublicSuffix` is removed use `ResolvedDomain::getPublicSuffix` instead. 
 - IDNA related methods from `Rules` and `TopLevelDomains` are removed.
@@ -119,7 +122,7 @@ $domain->value();         // can be a string or null
 representation or `null` to allow better compatibility with URL components
 representation in other languages.
 
-#### The Rules object instantiation
+#### Objects instantiation
 
 - `Rules::__construct` 
 - `TopLevelDomains::__construct` 
