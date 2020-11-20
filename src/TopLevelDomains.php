@@ -186,13 +186,13 @@ final class TopLevelDomains implements RootZoneDatabase
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
             if ($tld->value() === $label) {
-                $publicSuffix = $domain->isIDNA2008() ? Domain::fromIDNA2008($tld) : Domain::fromIDNA2003($tld);
+                $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($tld) : Domain::fromIDNA2003($tld);
 
                 return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
             }
         }
 
-        $publicSuffix = $domain->isIDNA2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
+        $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
 
         return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
     }

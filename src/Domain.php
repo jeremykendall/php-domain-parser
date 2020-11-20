@@ -10,18 +10,29 @@ use function array_keys;
 use function array_reverse;
 use function array_unshift;
 use function count;
+use function explode;
+use function filter_var;
 use function gettype;
 use function implode;
 use function in_array;
+use function is_object;
+use function is_scalar;
 use function ksort;
+use function method_exists;
 use function preg_match;
+use function rawurldecode;
 use function sprintf;
+use function strtolower;
+use const FILTER_FLAG_IPV4;
+use const FILTER_VALIDATE_IP;
 use const IDNA_DEFAULT;
 use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
-final class Domain extends DomainNameParser implements DomainName
+final class Domain implements DomainName
 {
+    private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
+
     /**
      * @var array<string>
      */
@@ -73,6 +84,85 @@ final class Domain extends DomainNameParser implements DomainName
         return new self($domain, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
     }
 
+    /**
+     * Parse and format the domain to ensure it is valid.
+     * Returns an array containing the formatted domain name labels
+     * and the domain transitional information.
+     *
+     * For example: parse('wWw.uLb.Ac.be') should return ['be', 'ac', 'ulb', 'www'];.
+     *
+     * @param mixed $domain a domain
+     *
+     *@throws SyntaxError If the host is not a domain
+     *@throws SyntaxError If the domain is not a host
+     *
+     *@return array<string>
+     */
+    private function parse($domain, int $asciiOption, int $unicodeOption): array
+    {
+        if ($domain instanceof ExternalDomainName) {
+            $domain = $domain->domain();
+        }
+
+        if ($domain instanceof Host) {
+            $domain = $domain->value();
+        }
+
+        if (null === $domain) {
+            return [];
+        }
+
+        if (is_object($domain) && method_exists($domain, '__toString')) {
+            $domain = (string) $domain;
+        }
+
+        if (!is_scalar($domain)) {
+            throw new TypeError(sprintf('The domain must be a string, a stringable object, a Host object or NULL; `%s` given', gettype($domain)));
+        }
+
+        $domain = (string) $domain;
+        if ('' === $domain) {
+            return [''];
+        }
+
+        $res = filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+        if (false !== $res) {
+            throw SyntaxError::dueToUnsupportedType($domain);
+        }
+
+        $formattedDomain = rawurldecode($domain);
+
+        // Note that unreserved is purposely missing . as it is used to separate labels.
+        static $domainName = '/(?(DEFINE)
+                (?<unreserved>[a-z0-9_~\-])
+                (?<sub_delims>[!$&\'()*+,;=])
+                (?<encoded>%[A-F0-9]{2})
+                (?<reg_name>(?:(?&unreserved)|(?&sub_delims)|(?&encoded)){1,63})
+            )
+            ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
+        if (1 === preg_match($domainName, $formattedDomain)) {
+            return array_reverse(explode('.', strtolower($formattedDomain)));
+        }
+
+        // a domain name can not contains URI delimiters or space
+        static $genDelimiters = '/[:\/?#\[\]@ ]/';
+        if (1 === preg_match($genDelimiters, $formattedDomain)) {
+            throw SyntaxError::dueToInvalidCharacters($domain);
+        }
+
+        // if the domain name does not contains UTF-8 chars then it is malformed
+        if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $formattedDomain)) {
+            throw SyntaxError::dueToInvalidCharacters($domain);
+        }
+
+        $asciiDomain = IntlIdna::toAscii($domain, $asciiOption);
+
+        /** @var array $labels */
+        $labels = array_reverse(explode('.', IntlIdna::toUnicode($asciiDomain, $unicodeOption)));
+
+        return $labels;
+    }
+
     public function getIterator()
     {
         foreach ($this->labels as $offset => $label) {
@@ -80,7 +170,7 @@ final class Domain extends DomainNameParser implements DomainName
         }
     }
 
-    public function isIDNA2008(): bool
+    public function isIdna2008(): bool
     {
         return IDNA_NONTRANSITIONAL_TO_ASCII === $this->asciiIDNAOption;
     }
@@ -138,7 +228,7 @@ final class Domain extends DomainNameParser implements DomainName
             return $this;
         }
 
-        $domain = $this->idnToAscii($this->domain, $this->asciiIDNAOption);
+        $domain = IntlIdna::toAscii($this->domain, $this->asciiIDNAOption);
         if ($domain === $this->domain) {
             return $this;
         }
@@ -152,7 +242,7 @@ final class Domain extends DomainNameParser implements DomainName
             return $this;
         }
 
-        $domain = $this->idnToUnicode($this->domain, $this->unicodeIDNAOption);
+        $domain = IntlIdna::toUnicode($this->domain, $this->unicodeIDNAOption);
         if ($domain === $this->domain) {
             return $this;
         }
@@ -167,8 +257,12 @@ final class Domain extends DomainNameParser implements DomainName
      *
      * @throws TypeError if the domain can not be converted
      */
-    private function normalizeContent($domain): string
+    private function normalize($domain): string
     {
+        if ($domain instanceof ExternalDomainName) {
+            $domain = $domain->domain();
+        }
+
         if ($domain instanceof Host) {
             $domain = $domain->value();
         }
@@ -183,10 +277,10 @@ final class Domain extends DomainNameParser implements DomainName
         }
 
         if (1 === preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
-            return $this->idnToUnicode($domain, $this->unicodeIDNAOption);
+            return IntlIdna::toUnicode($domain, $this->unicodeIDNAOption);
         }
 
-        return $this->idnToAscii($domain, $this->asciiIDNAOption);
+        return IntlIdna::toAscii($domain, $this->asciiIDNAOption);
     }
 
     public function prepend($label): self
@@ -210,7 +304,7 @@ final class Domain extends DomainNameParser implements DomainName
             $key = $nb_labels + $key;
         }
 
-        $label = $this->normalizeContent($label);
+        $label = $this->normalize($label);
 
         if (($this->labels[$key] ?? null) === $label) {
             return $this;

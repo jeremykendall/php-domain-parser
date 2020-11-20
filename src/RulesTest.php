@@ -368,7 +368,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::validateDomain
-     * @covers \Pdp\DomainNameParser::parse
+     * @covers \Pdp\Domain::parse
      */
     public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix(): void
     {
@@ -379,7 +379,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::getICANNDomain
-     * @covers \Pdp\DomainNameParser::parse
+     * @covers \Pdp\Domain::parse
      *
      * @dataProvider invalidDomainParseProvider
      */
@@ -401,7 +401,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::getICANNDomain
-     * @covers \Pdp\DomainNameParser::parse
+     * @covers \Pdp\Domain::parse
      *
      * @dataProvider invalidHostParseProvider
      */
@@ -426,7 +426,7 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::getCookieDomain
-     * @covers \Pdp\DomainNameParser::parse
+     * @covers \Pdp\Domain::parse
      * @dataProvider validPublicSectionProvider
      * @param ?string $domain
      * @param ?string $expected
@@ -585,7 +585,7 @@ final class RulesTest extends TestCase
     public function testResolveWithIDNAOptions(): void
     {
         $resolvedByDefault = $this->rules->resolve('foo.de');
-        self::assertTrue($resolvedByDefault->domain()->isIDNA2008());
+        self::assertTrue($resolvedByDefault->domain()->isIdna2008());
 
         /** @var string $string */
         $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
@@ -593,7 +593,7 @@ final class RulesTest extends TestCase
         $domain = Domain::fromIDNA2008('foo.de');
         $resolved = $rules->resolve($domain);
 
-        self::assertTrue($resolved->domain()->isIDNA2008());
+        self::assertTrue($resolved->domain()->isIdna2008());
     }
 
     /**

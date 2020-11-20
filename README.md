@@ -51,9 +51,6 @@ resolve a domain against:
 - The [Public Suffix List](http://publicsuffix.org/)
 - The [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)
 
-**WARNING: all objects are immutable, modifying the underlying object will not 
-affect the parent object.**
-
 #### Resolving the Domain against the Public Suffix List
 
 Using the `Pdp\Rules` class you can resolve a domain as a `Pdp\ResolvedDomain` 
@@ -66,7 +63,7 @@ use Pdp\Rules;
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $resolvedDomain = $rules->resolve('www.PreF.OkiNawA.jP');
-echo $resolvedDomain->toString();                         //display 'www.pref.okinawa.jp';
+echo $resolvedDomain->toString();                      //display 'www.pref.okinawa.jp';
 echo $resolvedDomain->subDomain()->toString();         //display 'www';
 echo $resolvedDomain->secondLevelDomain();             //display 'pref';
 echo $resolvedDomain->registrableDomain()->toString(); //display 'pref.okinawa.jp';
@@ -77,7 +74,7 @@ $resolvedDomain->publicSuffix()->isICANN();            //returns true;
 In case of an error an exception which implements the `Pdp\CannotProcessHost` 
 is thrown.
 
-The `Pdp\ResolvedDomain` instance can be modify using the following methods:
+You can modify the returned `Pdp\ResolvedDomain` instance using the following methods:
 
 ~~~php
 <?php 
@@ -91,17 +88,16 @@ $newResolvedDomain = $resolvedDomain
     ->withSecondLevelDomain('test')
     ->withPublicSuffix('example');
 
-echo $resolvedDomain->toString();              //display 'shop.example.com';
+echo $resolvedDomain->toString();           //display 'shop.example.com';
 $resolvedDomain->publicSuffix()->isKnown(); //returns true;
 
-echo $newResolvedDomain->toString();               //display 'foo.bar.test.example';
+echo $newResolvedDomain->toString();            //display 'foo.bar.test.example';
 $newResolvedDomain->publicSuffix()->isKnown();  //returns false;
 ~~~
 
 The public suffix method `isKnown` will always return `false` if 
-you use a simple string to update the public suffix. 
-If you use a `PublicSuffix` object the method may return `true`.
-See the following section for more information.
+your input is not a `PublicSuffix` object in which case the method may return 
+`true`. For more information, see the following section.
 
 #### Public Suffix List Sections
 
@@ -125,13 +121,15 @@ $publicSuffix->isKnown();       // will return true
 
 The public suffix state depends on its value:
  
-- `isKnown` returns `true` if the value is part of the PSL.
-- `isICANN` returns `true` if the value is part of the PSL ICANN section.
-- `isPrivate` returns `true` if the value is part of the PSL private section.
+- `isKnown` returns `true` if the value is present in the PSL.
+- `isICANN` returns `true` if the value is present in the PSL ICANN section.
+- `isPrivate` returns `true` if the value is present in the PSL private section.
 
 If the value is not present in the PSL all the methods above will return `false`.
 
-Because the PSL algorithm is fault tolerant this library exposes more strict 
+`Rules::resolve` will always return a `ResolvedDomain` even if the domain
+syntax is invalid or no entry was found in the desired section. To work around
+the limitation of the official algorithm, this library exposes more strict 
 methods:
 
 - `Rules::getCookieDomain`
@@ -175,7 +173,7 @@ use Pdp\TopLevelDomains;
 $iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
 
 $resolvedDomain = $iana->resolve('www.PreF.OkiNawA.jP');
-echo $resolvedDomain->toString();                         //display 'www.pref.okinawa.jp';
+echo $resolvedDomain->toString();                      //display 'www.pref.okinawa.jp';
 echo $resolvedDomain->publicSuffix()->toString();      //display 'jp';
 echo $resolvedDomain->secondLevelDomain();             //display 'okinawa';
 echo $resolvedDomain->registrableDomain()->toString(); //display 'okinawa.jp';
@@ -204,15 +202,19 @@ integrating an update mechanism into your software.**
 ### Accessing and processing Domain labels
 
 If you are interested into manipulating the domain labels without taking into 
-account the Effective TLD, you can access them using the `getDomain` method 
-from the `ResolvedDomain` or the `PublicSuffixList` instances.
+account the Effective TLD, the library provides a `Domain` object tailored for
+manipulating domain labels. You can access the object using the `domain` method 
+from:
 
-Accessing this object enables you to work with the domain labels.
+- the `ResolvedDomain`
+- the `PublicSuffix` instances
 
-It is possible to access the labels composing the underlying public suffix 
-domain using the following call:
+or from
 
-Domain objects usage are explain in the next section.
+- the `ResolvedDomain::registrableDomain` result which is a `ResolvedDomain`
+- from `ResolvedDomain::subDomain`
+
+`Domain` objects usage are explain in the next section.
 
 ~~~php
 <?php 
@@ -256,12 +258,6 @@ $newDomain = $domain
 echo $domain->toString();    // display 'www.example.com'
 echo $newDomain->toString(); // display 'docs.example.com.www'
 ~~~ 
-
-The following methods from the `ResolvedDomain` object will **also** return 
-an `Domain` object:
-
-- `ResolvedDomain::registrableDomain`
-- `ResolvedDomain::subDomain`
 
 **WARNING: Because of its definition, a domain name can be `null` or a string.**
 
@@ -317,20 +313,20 @@ use Pdp\Domain;
 
 $domain = Domain::fromIDNA2008('faß.de');
 echo $domain->value(); // display 'faß.de'
-$domain->isIDNA2008(); // returns true
+$domain->isIdna2008(); // returns true
 $domain->isAscii();    // return false
 $asciiDomain = $domain->toAscii(); 
 echo $asciiDomain->value(); // display 'xn--fa-hia.de'
-$asciiDomain->isIDNA2008(); // returns true
+$asciiDomain->isIdna2008(); // returns true
 $asciiDomain->isAscii();    // returns true
 
 $domain = Domain::fromIDNA2003('faß.de');
 echo $domain->value(); // display 'fass.de'
-$domain->isIDNA2008(); // returns true
+$domain->isIdna2008(); // returns true
 $domain->isAscii();    // return false
 $asciiDomain = $domain->toAscii();
 echo $asciiDomain->value(); // display 'fass.de'
-$asciiDomain->isIDNA2008(); // returns true
+$asciiDomain->isIdna2008(); // returns true
 $asciiDomain->isAscii();    // returns true
 ~~~
 
@@ -339,7 +335,7 @@ string or an object that can be cast to a string to avoid unexpected format
 conversion errors/results. By default and with lack of information conversion
 is done using IDNA 2008 rules.**
 
-## Managing the package databases
+## Managing the package external resources
 
 Depending on your application, the mechanism to store your resources may differ, 
 nevertheless, the library comes bundle with a **optional service** which 

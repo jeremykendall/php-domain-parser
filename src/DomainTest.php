@@ -400,7 +400,7 @@ class DomainTest extends TestCase
     {
         $domain = Domain::fromIDNA2008('example.com');
 
-        self::assertTrue($domain->isIDNA2008());
+        self::assertTrue($domain->isIdna2008());
     }
 
     /**
