@@ -101,7 +101,7 @@ final class Domain implements DomainName
     private function parse($domain, int $asciiOption, int $unicodeOption): array
     {
         if ($domain instanceof ExternalDomainName) {
-            $domain = $domain->domain()->value();
+            $domain = $domain->domain();
         }
 
         if ($domain instanceof Host) {
@@ -151,16 +151,16 @@ final class Domain implements DomainName
         }
 
         // if the domain name does not contains UTF-8 chars then it is malformed
-        if (1 === preg_match(self::REGEXP_IDN_PATTERN, $formattedDomain)) {
-            $asciiDomain = IntlIdna::toAscii($domain, $asciiOption);
-
-            /** @var array $labels */
-            $labels = array_reverse(explode('.', IntlIdna::toUnicode($asciiDomain, $unicodeOption)));
-
-            return $labels;
+        if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $formattedDomain)) {
+            throw SyntaxError::dueToInvalidCharacters($domain);
         }
 
-        throw SyntaxError::dueToInvalidCharacters($domain);
+        $asciiDomain = IntlIdna::toAscii($domain, $asciiOption);
+
+        /** @var array $labels */
+        $labels = array_reverse(explode('.', IntlIdna::toUnicode($asciiDomain, $unicodeOption)));
+
+        return $labels;
     }
 
     public function getIterator()
