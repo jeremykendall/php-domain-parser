@@ -39,7 +39,7 @@ final class ResolvedDomain implements ResolvedDomainName
     private function setDomainName(Host $domain): DomainName
     {
         if ($domain instanceof ExternalDomainName) {
-            return $domain->getDomain();
+            return $domain->domain();
         }
 
         if (!$domain instanceof DomainName) {
@@ -158,7 +158,7 @@ final class ResolvedDomain implements ResolvedDomainName
         return count($this->domain);
     }
 
-    public function getDomain(): DomainName
+    public function domain(): DomainName
     {
         return $this->domain;
     }
@@ -178,22 +178,22 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->domain->toString();
     }
 
-    public function getRegistrableDomain(): ResolvedDomain
+    public function registrableDomain(): ResolvedDomain
     {
         return new self($this->registrableDomain, $this->publicSuffix);
     }
 
-    public function getSecondLevelDomain(): ?string
+    public function secondLevelDomain(): ?string
     {
         return $this->registrableDomain->label(-1);
     }
 
-    public function getSubDomain(): DomainName
+    public function subDomain(): DomainName
     {
         return $this->subDomain;
     }
 
-    public function getPublicSuffix(): EffectiveTLD
+    public function publicSuffix(): EffectiveTLD
     {
         return $this->publicSuffix;
     }
@@ -215,7 +215,7 @@ final class ResolvedDomain implements ResolvedDomainName
     {
         if (!$publicSuffix instanceof EffectiveTLD) {
             if ($publicSuffix instanceof ExternalDomainName) {
-                $publicSuffix = PublicSuffix::fromUnknown($publicSuffix->getDomain());
+                $publicSuffix = PublicSuffix::fromUnknown($publicSuffix->domain());
             } elseif ($publicSuffix instanceof DomainName) {
                 $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
             } else {

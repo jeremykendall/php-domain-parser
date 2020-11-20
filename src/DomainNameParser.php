@@ -163,7 +163,7 @@ abstract class DomainNameParser
     final protected function parse($domain, int $asciiOption, int $unicodeOption): array
     {
         if ($domain instanceof ExternalDomainName) {
-            $domain = $domain->getDomain()->value();
+            $domain = $domain->domain()->value();
         }
 
         if ($domain instanceof Host) {

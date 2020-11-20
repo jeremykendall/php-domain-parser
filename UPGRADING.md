@@ -35,14 +35,14 @@ The `Domain` **has access** to the domain parts and to the public suffix list st
 **version 6**
 ~~~php
 /** @var ResolvedDomain $domain */
-$domain = $rules->resolve('www.example.com');
-$domain->getDomain();                    //returns a Domain object similar to v5 Domain object
-$domain->getPublicSuffix();              //returns a Public Suffix object
-$domain->getPublicSuffix()->isICANN();   //returns a boolean
-$domain->getPublicSuffix()->isPrivate(); //returns a boolean
-$domain->getPublicSuffix()->isKnown();   //returns a boolean
-$domain->getSubDomain();                 //returns a Domain object
-$domain->getRegistrableDomain();         //returns a Domain object
+$result = $rules->resolve('www.example.com');
+$result->domain();                    //returns a Domain object similar to v5 Domain object
+$result->publicSuffix();              //returns a Public Suffix object
+$result->publicSuffix()->isICANN();   //returns a boolean
+$result->publicSuffix()->isPrivate(); //returns a boolean
+$result->publicSuffix()->isKnown();   //returns a boolean
+$result->subDomain();                 //returns a Domain object
+$result->registrableDomain();         //returns a Domain object
 ~~~ 
 
 The `Domain` **has no access**  to the domain parts or the public suffix list state.
