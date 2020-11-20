@@ -11,8 +11,18 @@ use IteratorAggregate;
  * @see https://tools.ietf.org/html/rfc1123#section-2.1
  * @see https://tools.ietf.org/html/rfc5890
  */
-interface DomainName extends Host, IteratorAggregate, IDNConversion
+interface DomainName extends Host, IteratorAggregate
 {
+    /**
+     * Tells whether IDNA Conversion is done using IDNA2008 algorithm.
+     */
+    public function isIdna2008(): bool;
+
+    /**
+     * Tells whether the current domain is in its ascii form.
+     */
+    public function isAscii(): bool;
+
     /**
      * Retrieves a single domain label.
      *

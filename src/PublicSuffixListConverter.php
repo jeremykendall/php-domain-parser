@@ -15,7 +15,7 @@ use function preg_match;
 use function strpos;
 use function substr;
 
-final class PublicSuffixListConverter extends DomainNameParser
+final class PublicSuffixListConverter
 {
     private const PSL_SECTION = [
         'ICANN' => [
@@ -99,7 +99,7 @@ final class PublicSuffixListConverter extends DomainNameParser
         try {
             /** @var string $line */
             $line = array_pop($ruleParts);
-            $rule = $this->idnToAscii($line);
+            $rule = IntlIdna::toAscii($line);
         } catch (CannotProcessHost $exception) {
             throw UnableToLoadPublicSuffixList::dueToInvalidRule($line ?? null, $exception);
         }

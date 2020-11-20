@@ -101,14 +101,4 @@ final class PublicSuffix implements EffectiveTLD
 
         return $clone;
     }
-
-    public function isAscii(): bool
-    {
-        return $this->domain->isAscii();
-    }
-
-    public function isIDNA2008(): bool
-    {
-        return $this->domain->isIDNA2008();
-    }
 }
