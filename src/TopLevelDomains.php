@@ -139,7 +139,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function contains($tld): bool
     {
         if ($tld instanceof ExternalDomainName) {
-            $tld = $tld->getDomain();
+            $tld = $tld->domain();
         }
 
         if (!$tld instanceof DomainName) {
@@ -172,7 +172,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function resolve($domain): ResolvedDomainName
     {
         if ($domain instanceof ExternalDomainName) {
-            $domain = $domain->getDomain();
+            $domain = $domain->domain();
         }
 
         if (!$domain instanceof DomainName) {

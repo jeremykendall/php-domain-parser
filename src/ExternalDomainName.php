@@ -6,5 +6,5 @@ namespace Pdp;
 
 interface ExternalDomainName
 {
-    public function getDomain(): DomainName;
+    public function domain(): DomainName;
 }

@@ -131,7 +131,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
-            $this->topLevelDomains->resolve($tld)->getPublicSuffix()->value()
+            $this->topLevelDomains->resolve($tld)->publicSuffix()->value()
         );
     }
 
@@ -186,14 +186,14 @@ final class TopLevelDomainsTest extends TestCase
     {
         $collection = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
 
-        self::assertNull($collection->resolve('localhost.locale')->getPublicSuffix()->value());
+        self::assertNull($collection->resolve('localhost.locale')->publicSuffix()->value());
     }
 
     public function testResolveWithIDNAOptions(): void
     {
         $resolved = $this->topLevelDomains->resolve('foo.de');
 
-        self::assertTrue($resolved->getDomain()->isIDNA2008());
+        self::assertTrue($resolved->domain()->isIDNA2008());
 
         $collection = TopLevelDomains::fromPath(
             dirname(__DIR__).'/test_data/root_zones.dat',
@@ -203,7 +203,7 @@ final class TopLevelDomainsTest extends TestCase
         $domain = Domain::fromIDNA2003('foo.de');
         $resolved = $collection->resolve($domain);
 
-        self::assertFalse($resolved->getDomain()->isIDNA2008());
+        self::assertFalse($resolved->domain()->isIDNA2008());
     }
 
     /**

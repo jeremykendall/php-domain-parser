@@ -67,11 +67,11 @@ $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
 $resolvedDomain = $rules->resolve('www.PreF.OkiNawA.jP');
 echo $resolvedDomain->toString();                         //display 'www.pref.okinawa.jp';
-echo $resolvedDomain->getSubDomain()->toString();         //display 'www';
-echo $resolvedDomain->getSecondLevelDomain();             //display 'pref';
-echo $resolvedDomain->getRegistrableDomain()->toString(); //display 'pref.okinawa.jp';
-echo $resolvedDomain->getPublicSuffix()->toString();      //display 'okinawa.jp';
-$resolvedDomain->getPublicSuffix()->isICANN();            //returns true;
+echo $resolvedDomain->subDomain()->toString();         //display 'www';
+echo $resolvedDomain->secondLevelDomain();             //display 'pref';
+echo $resolvedDomain->registrableDomain()->toString(); //display 'pref.okinawa.jp';
+echo $resolvedDomain->publicSuffix()->toString();      //display 'okinawa.jp';
+$resolvedDomain->publicSuffix()->isICANN();            //returns true;
 ~~~
 
 In case of an error an exception which implements the `Pdp\CannotProcessHost` 
@@ -92,10 +92,10 @@ $newResolvedDomain = $resolvedDomain
     ->withPublicSuffix('example');
 
 echo $resolvedDomain->toString();              //display 'shop.example.com';
-$resolvedDomain->getPublicSuffix()->isKnown(); //returns true;
+$resolvedDomain->publicSuffix()->isKnown(); //returns true;
 
 echo $newResolvedDomain->toString();               //display 'foo.bar.test.example';
-$newResolvedDomain->getPublicSuffix()->isKnown();  //returns false;
+$newResolvedDomain->publicSuffix()->isKnown();  //returns false;
 ~~~
 
 The public suffix method `isKnown` will always return `false` if 
@@ -115,7 +115,7 @@ use Pdp\Rules;
 
 $rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
-$publicSuffix = $rules->resolve('example.github.io')->getPublicSuffix();
+$publicSuffix = $rules->resolve('example.github.io')->publicSuffix();
 
 echo $publicSuffix->toString(); // display 'github.io';
 $publicSuffix->isICANN();       // will return false
@@ -176,10 +176,10 @@ $iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
 
 $resolvedDomain = $iana->resolve('www.PreF.OkiNawA.jP');
 echo $resolvedDomain->toString();                         //display 'www.pref.okinawa.jp';
-echo $resolvedDomain->getPublicSuffix()->toString();      //display 'jp';
-echo $resolvedDomain->getSecondLevelDomain();             //display 'okinawa';
-echo $resolvedDomain->getRegistrableDomain()->toString(); //display 'okinawa.jp';
-echo $resolvedDomain->getSubDomain()->toString();         //display 'www.pref';
+echo $resolvedDomain->publicSuffix()->toString();      //display 'jp';
+echo $resolvedDomain->secondLevelDomain();             //display 'okinawa';
+echo $resolvedDomain->registrableDomain()->toString(); //display 'okinawa.jp';
+echo $resolvedDomain->subDomain()->toString();         //display 'www.pref';
 ~~~
 
 In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
@@ -218,7 +218,7 @@ Domain objects usage are explain in the next section.
 <?php 
 /** @var  Rules $rules */
 $resolvedDomain = $rules->resolve('www.bbc.co.uk');
-$domain = $resolvedDomain->getDomain();
+$domain = $resolvedDomain->domain();
 echo $domain->toString(); // display 'www.bbc.co.uk'
 count($domain);           // returns 4
 $domain->labels();        // returns ['uk', 'co', 'bbc', 'www'];
@@ -233,7 +233,7 @@ foreach ($domain as $label) {
 // bbc
 // www
 
-$publicSuffixDomain = $resolvedDomain->getPublicSuffix()->getDomain();
+$publicSuffixDomain = $resolvedDomain->publicSuffix()->domain();
 $publicSuffixDomain->labels(); // returns ['uk', 'co']
 ~~~ 
 
@@ -245,7 +245,7 @@ following methods:
 
 /** @var  Rules $rules */
 $resolvedDomain = $rules->resolve('www.ExAmpLE.cOM');
-$domain = $resolvedDomain->getDomain();
+$domain = $resolvedDomain->domain();
 
 $newDomain = $domain
     ->withLabel(1, 'com')  //replace 'example' by 'com'
@@ -260,8 +260,8 @@ echo $newDomain->toString(); // display 'docs.example.com.www'
 The following methods from the `ResolvedDomain` object will **also** return 
 an `Domain` object:
 
-- `ResolvedDomain::getRegistrableDomain`
-- `ResolvedDomain::getSubDomain`
+- `ResolvedDomain::registrableDomain`
+- `ResolvedDomain::subDomain`
 
 **WARNING: Because of its definition, a domain name can be `null` or a string.**
 
@@ -294,11 +294,11 @@ By default, resolver will use the IDNA2008 format to convert the submitted strin
 /** @var  Rules $rules */
 $unicodeDomain = $rules->resolve(Domain::fromIDNA2008('bébé.be'));
 echo $unicodeDomain->toString();        // returns 'bébé.be'
-$unicodeDomain->getSecondLevelDomain(); // returns 'bébé'
+$unicodeDomain->secondLevelDomain(); // returns 'bébé'
 
 $asciiDomain = $rules->resolve(Domain::fromIDNA2008('xn--bb-bjab.be'));
 $asciiDomain->toString();             // returns 'xn--bb-bjab.be'
-$asciiDomain->getSecondLevelDomain(); // returns 'xn--bb-bjab'
+$asciiDomain->secondLevelDomain(); // returns 'xn--bb-bjab'
 
 $asciiDomain->toUnicode()->toString() === $unicodeDomain->toString(); //returns true
 ~~~

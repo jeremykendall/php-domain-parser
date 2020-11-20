@@ -165,7 +165,7 @@ final class Rules implements PublicSuffixList
     private function validateDomain($domain): DomainName
     {
         if ($domain instanceof ExternalDomainName) {
-            $domain = $domain->getDomain();
+            $domain = $domain->domain();
         }
 
         if (!($domain instanceof DomainName)) {

@@ -6,13 +6,25 @@ namespace Pdp;
 
 interface ResolvedDomainName extends Host, ExternalDomainName
 {
-    public function getPublicSuffix(): EffectiveTLD;
+    /**
+     * Returns the domain effective tld component.
+     */
+    public function publicSuffix(): EffectiveTLD;
 
-    public function getSecondLevelDomain(): ?string;
+    /**
+     * Returns the second level domain component.
+     */
+    public function secondLevelDomain(): ?string;
 
-    public function getRegistrableDomain(): self;
+    /**
+     * Returns the registrable domain component.
+     */
+    public function registrableDomain(): self;
 
-    public function getSubDomain(): DomainName;
+    /**
+     * Returns the sub domain component.
+     */
+    public function subDomain(): DomainName;
 
     /**
      * Returns an instance with the specified sub domain added.

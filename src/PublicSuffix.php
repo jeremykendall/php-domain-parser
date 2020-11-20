@@ -46,7 +46,7 @@ final class PublicSuffix implements EffectiveTLD
         return new self($domain, '');
     }
 
-    public function getDomain(): DomainName
+    public function domain(): DomainName
     {
         return $this->domain;
     }
