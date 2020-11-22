@@ -139,7 +139,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         $resolvedDomain = new ResolvedDomain(
             Domain::fromIDNA2008('www.example.com'),
-            PublicSuffix::fromICANN(Domain::fromIDNA2008('com'))
+            PublicSuffix::fromICANN('com')
         );
 
         return [
@@ -235,7 +235,7 @@ final class TopLevelDomainsTest extends TestCase
                     return 'COM';
                 }
             }],
-            'externalDomain' => [PublicSuffix::fromICANN(Domain::fromIDNA2008('com'))],
+            'externalDomain' => [PublicSuffix::fromICANN('com')],
         ];
     }
 

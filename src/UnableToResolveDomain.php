@@ -6,11 +6,11 @@ namespace Pdp;
 
 use InvalidArgumentException;
 
-class UnableToResolveDomain extends InvalidArgumentException implements CannotProcessHost
+final class UnableToResolveDomain extends InvalidArgumentException implements CannotProcessHost
 {
-    private ?Host $domain = null;
+    private ?DomainName $domain = null;
 
-    public static function dueToMissingPublicSuffix(Host $domain, string $type): self
+    public static function dueToMissingPublicSuffix(DomainName $domain, string $type): self
     {
         $domainType = (EffectiveTLD::PRIVATE_DOMAINS === $type) ? 'private' : 'ICANN';
 
@@ -20,33 +20,23 @@ class UnableToResolveDomain extends InvalidArgumentException implements CannotPr
         return $exception;
     }
 
-    public static function dueToUnresolvableDomain(?Host $domain): self
+    public static function dueToUnresolvableDomain(DomainName $domain): self
     {
-        $content = $domain;
-        if (null !== $content) {
-            $content = $content->value();
-        }
-
-        $exception = new self('The domain "'.$content.'" can not contain a public suffix.');
+        $exception = new self('The domain "'.$domain->value().'" can not contain a public suffix.');
         $exception->domain = $domain;
 
         return $exception;
     }
 
-    public static function dueToMissingRegistrableDomain(Host $domain = null): self
+    public static function dueToMissingRegistrableDomain(DomainName $domain): self
     {
-        $content = $domain;
-        if (null !== $content) {
-            $content = $content->value();
-        }
-
-        $exception = new self('A subdomain can not be added to a domain "'.$content.'" without a registrable domain part.');
+        $exception = new self('A subdomain can not be added to a domain "'.$domain->value().'" without a registrable domain part.');
         $exception->domain = $domain;
 
         return $exception;
     }
 
-    public function getDomain(): ?Host
+    public function fetchDomain(): ?DomainName
     {
         return $this->domain;
     }

@@ -212,7 +212,7 @@ final class RulesTest extends TestCase
     {
         $domain = new ResolvedDomain(
             Domain::fromIDNA2008('private.ulb.ac.be'),
-            PublicSuffix::fromICANN(Domain::fromIDNA2008('ac.be'))
+            PublicSuffix::fromICANN('ac.be')
         );
 
         $newDomain = $this->rules->resolve($domain);
@@ -227,7 +227,7 @@ final class RulesTest extends TestCase
 
     public function testWithDomainInterfaceObject(): void
     {
-        $domain = PublicSuffix::fromICANN(Domain::fromIDNA2008('ulb.ac.be'));
+        $domain = PublicSuffix::fromICANN('ulb.ac.be');
 
         self::assertSame(
             'ac.be',
@@ -368,7 +368,8 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::validateDomain
-     * @covers \Pdp\Domain::parse
+     * @covers \Pdp\Domain::parseDomain
+     * @covers \Pdp\Domain::parseValue
      */
     public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix(): void
     {
@@ -379,7 +380,8 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::getICANNDomain
-     * @covers \Pdp\Domain::parse
+     * @covers \Pdp\Domain::parseDomain
+     * @covers \Pdp\Domain::parseValue
      *
      * @dataProvider invalidDomainParseProvider
      */
@@ -401,7 +403,8 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::getICANNDomain
-     * @covers \Pdp\Domain::parse
+     * @covers \Pdp\Domain::parseDomain
+     * @covers \Pdp\Domain::parseValue
      *
      * @dataProvider invalidHostParseProvider
      */
@@ -426,7 +429,9 @@ final class RulesTest extends TestCase
 
     /**
      * @covers ::getCookieDomain
-     * @covers \Pdp\Domain::parse
+     * @covers \Pdp\Domain::parseDomain
+     * @covers \Pdp\Domain::parseValue
+     *
      * @dataProvider validPublicSectionProvider
      * @param ?string $domain
      * @param ?string $expected

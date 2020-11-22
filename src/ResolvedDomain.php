@@ -23,7 +23,7 @@ final class ResolvedDomain implements ResolvedDomainName
 
     private DomainName $subDomain;
 
-    public function __construct(Host $domain, ?EffectiveTLD $publicSuffix = null)
+    public function __construct(Host $domain, EffectiveTLD $publicSuffix = null)
     {
         $this->domain = $this->setDomainName($domain);
         $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
@@ -42,11 +42,11 @@ final class ResolvedDomain implements ResolvedDomainName
             return $domain->domain();
         }
 
-        if (!$domain instanceof DomainName) {
-            return Domain::fromIDNA2008($domain);
+        if ($domain instanceof DomainName) {
+            return $domain;
         }
 
-        return $domain;
+        return Domain::fromIDNA2008($domain->value());
     }
 
     /**
@@ -148,7 +148,7 @@ final class ResolvedDomain implements ResolvedDomainName
             $nbLabels - $nbRegistrableLabels
         ));
 
-        $subDomain = (!$this->domain->isIdna2008()) ? Domain::fromIDNA2003($domain) : Domain::fromIDNA2008($domain);
+        $subDomain = $this->domain->isIdna2008() ? Domain::fromIDNA2008($domain) : Domain::fromIDNA2003($domain);
 
         return $this->domain->isAscii() ? $subDomain->toAscii() : $subDomain->toUnicode();
     }
@@ -214,14 +214,7 @@ final class ResolvedDomain implements ResolvedDomainName
     public function withPublicSuffix($publicSuffix): self
     {
         if (!$publicSuffix instanceof EffectiveTLD) {
-            if ($publicSuffix instanceof ExternalDomainName) {
-                $publicSuffix = PublicSuffix::fromUnknown($publicSuffix->domain());
-            } elseif ($publicSuffix instanceof DomainName) {
-                $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
-            } else {
-                $domain = $this->domain->isIdna2008() ? Domain::fromIDNA2008($publicSuffix) : Domain::fromIDNA2003($publicSuffix);
-                $publicSuffix = PublicSuffix::fromUnknown($domain);
-            }
+            $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
@@ -249,7 +242,11 @@ final class ResolvedDomain implements ResolvedDomainName
     public function withSubDomain($subDomain): self
     {
         if (null === $this->registrableDomain->value()) {
-            throw UnableToResolveDomain::dueToMissingRegistrableDomain($this);
+            throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
+        }
+
+        if ($subDomain instanceof ExternalDomainName) {
+            $subDomain = $subDomain->domain();
         }
 
         if (!$subDomain instanceof DomainName) {
@@ -277,7 +274,7 @@ final class ResolvedDomain implements ResolvedDomainName
     public function withSecondLevelDomain($label): self
     {
         if (null === $this->registrableDomain->value()) {
-            throw UnableToResolveDomain::dueToMissingRegistrableDomain($this);
+            throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
         $newRegistrableDomain = $this->registrableDomain->withLabel(-1, $label);

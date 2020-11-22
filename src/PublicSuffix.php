@@ -12,8 +12,19 @@ final class PublicSuffix implements EffectiveTLD
 
     private string $section;
 
-    private function __construct(DomainName $domain, string $section)
+    /**
+     * @param mixed $domain the public suffix domain information
+     */
+    private function __construct($domain, string $section)
     {
+        if ($domain instanceof ExternalDomainName) {
+            $domain = $domain->domain();
+        }
+
+        if (!$domain instanceof DomainName) {
+            $domain = Domain::fromIDNA2008($domain);
+        }
+
         if ('' === $domain->label(0)) {
             throw SyntaxError::dueToInvalidPublicSuffix($domain);
         }
@@ -31,17 +42,26 @@ final class PublicSuffix implements EffectiveTLD
         return new self($properties['domain'], $properties['section']);
     }
 
-    public static function fromICANN(DomainName $domain): self
+    /**
+     * @param mixed $domain the public suffix domain information
+     */
+    public static function fromICANN($domain): self
     {
         return new self($domain, self::ICANN_DOMAINS);
     }
 
-    public static function fromPrivate(DomainName $domain): self
+    /**
+     * @param mixed $domain the public suffix domain information
+     */
+    public static function fromPrivate($domain): self
     {
         return new self($domain, self::PRIVATE_DOMAINS);
     }
 
-    public static function fromUnknown(DomainName $domain): self
+    /**
+     * @param mixed $domain the public suffix domain information
+     */
+    public static function fromUnknown($domain): self
     {
         return new self($domain, '');
     }
