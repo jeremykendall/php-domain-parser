@@ -30,6 +30,8 @@ use const FILTER_VALIDATE_IP;
 final class Domain implements DomainName
 {
     private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
+    private const IDNA_2003 = 'IDNA_2003';
+    private const IDNA_2008 = 'IDNA_2008';
 
     /**
      * @var array<string>
@@ -38,27 +40,20 @@ final class Domain implements DomainName
 
     private ?string $domain;
 
-    private int $asciiIDNAOption;
-
-    private int $unicodeIDNAOption;
+    private string $type;
 
     /**
      * @param null|mixed $domain
      */
-    private function __construct($domain, int $asciiIDNAOption, int $unicodeIDNAOption)
+    private function __construct($domain, string $type)
     {
-        [$this->domain, $this->labels] = $this->parseDomain($domain, $asciiIDNAOption, $unicodeIDNAOption);
-        $this->asciiIDNAOption = $asciiIDNAOption;
-        $this->unicodeIDNAOption = $unicodeIDNAOption;
+        $this->type = $type;
+        [$this->domain, $this->labels] = $this->parseDomain($domain);
     }
 
     public static function __set_state(array $properties): self
     {
-        return new self(
-            $properties['domain'],
-            $properties['asciiIDNAOption'],
-            $properties['unicodeIDNAOption']
-        );
+        return new self($properties['domain'], $properties['type']);
     }
 
     /**
@@ -66,7 +61,7 @@ final class Domain implements DomainName
      */
     public static function fromIDNA2003($domain): self
     {
-        return new self($domain, IntlIdna::IDNA2003_ASCII_OPTIONS, IntlIdna::IDNA2003_UNICODE_OPTIONS);
+        return new self($domain, self::IDNA_2003);
     }
 
     /**
@@ -74,7 +69,7 @@ final class Domain implements DomainName
      */
     public static function fromIDNA2008($domain): self
     {
-        return new self($domain, IntlIdna::IDNA2008_ASCII_OPTIONS, IntlIdna::IDNA2008_UNICODE_OPTIONS);
+        return new self($domain, self::IDNA_2008);
     }
 
     /**
@@ -82,7 +77,7 @@ final class Domain implements DomainName
      *
      * @return array{0:string|null, 1:array<string>}
      */
-    private function parseDomain($domain, int $asciiOption, int $unicodeOption): array
+    private function parseDomain($domain): array
     {
         if ($domain instanceof ExternalDomainName) {
             $domain = $domain->domain();
@@ -93,22 +88,22 @@ final class Domain implements DomainName
                 $domain = $domain->value();
             }
 
-            return $this->parseValue($domain, $asciiOption, $unicodeOption);
+            return $this->parseValue($domain);
         }
 
         if ($domain->isIdna2008()) {
-            if (IntlIdna::IDNA2008_ASCII_OPTIONS === $asciiOption) {
+            if (self::IDNA_2008 === $this->type) {
                 return [$domain->value(), $domain->labels()];
             }
 
-            return $this->parseValue($domain->value(), $asciiOption, $unicodeOption);
+            return $this->parseValue($domain->value());
         }
 
-        if (IntlIdna::IDNA2003_ASCII_OPTIONS === $asciiOption) {
+        if (self::IDNA_2003 === $this->type) {
             return [$domain->value(), $domain->labels()];
         }
 
-        return $this->parseValue($domain->value(), $asciiOption, $unicodeOption);
+        return $this->parseValue($domain->value());
     }
 
     /**
@@ -125,7 +120,7 @@ final class Domain implements DomainName
      *
      * @return array{0:string|null, 1:array<string>}
      */
-    private function parseValue($domain, int $asciiOption, int $unicodeOption): array
+    private function parseValue($domain): array
     {
         if (null === $domain) {
             return [null, []];
@@ -176,14 +171,31 @@ final class Domain implements DomainName
             throw SyntaxError::dueToInvalidCharacters($domain);
         }
 
-        $formattedDomain = IntlIdna::toUnicode(
-            IntlIdna::toAscii($domain, $asciiOption),
-            $unicodeOption
-        );
+        $formattedDomain = $this->domainToUnicode($this->domainToAscii($formattedDomain));
 
         $labels = array_reverse(explode('.', $formattedDomain));
 
         return [$formattedDomain, $labels];
+    }
+
+    private function domainToAscii(string $domain): string
+    {
+        $option = IntlIdna::IDNA2008_ASCII_OPTIONS;
+        if (self::IDNA_2003 === $this->type) {
+            $option = IntlIdna::IDNA2003_ASCII_OPTIONS;
+        }
+
+        return IntlIdna::toAscii($domain, $option);
+    }
+
+    private function domainToUnicode(string $domain): string
+    {
+        $option = IntlIdna::IDNA2008_UNICODE_OPTIONS;
+        if (self::IDNA_2003 === $this->type) {
+            $option = IntlIdna::IDNA2003_UNICODE_OPTIONS;
+        }
+
+        return IntlIdna::toUnicode($domain, $option);
     }
 
     public function getIterator(): Iterator
@@ -195,7 +207,7 @@ final class Domain implements DomainName
 
     public function isIdna2008(): bool
     {
-        return IntlIdna::IDNA2008_ASCII_OPTIONS  === $this->asciiIDNAOption;
+        return self::IDNA_2008 === $this->type;
     }
 
     public function isAscii(): bool
@@ -256,12 +268,12 @@ final class Domain implements DomainName
             return $this;
         }
 
-        $domain = IntlIdna::toAscii($this->domain, $this->asciiIDNAOption);
+        $domain = $this->domainToAscii($this->domain);
         if ($domain === $this->domain) {
             return $this;
         }
 
-        return new self($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        return new self($domain, $this->type);
     }
 
     public function toUnicode(): self
@@ -270,12 +282,12 @@ final class Domain implements DomainName
             return $this;
         }
 
-        $domain = IntlIdna::toUnicode($this->domain, $this->unicodeIDNAOption);
+        $domain = $this->domainToUnicode($this->domain);
         if ($domain === $this->domain) {
             return $this;
         }
 
-        return new self($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        return new self($domain, $this->type);
     }
 
     /**
@@ -305,10 +317,10 @@ final class Domain implements DomainName
         }
 
         if (!$this->isAscii()) {
-            return IntlIdna::toUnicode($domain, $this->unicodeIDNAOption);
+            return $this->domainToUnicode($domain);
         }
 
-        return IntlIdna::toAscii($domain, $this->asciiIDNAOption);
+        return $this->domainToAscii($domain);
     }
 
     public function prepend($label): self
@@ -342,11 +354,7 @@ final class Domain implements DomainName
         $labels[$key] = $label;
         ksort($labels);
 
-        return new self(
-            implode('.', array_reverse($labels)),
-            $this->asciiIDNAOption,
-            $this->unicodeIDNAOption
-        );
+        return new self(implode('.', array_reverse($labels)), $this->type);
     }
 
     public function withoutLabel(int $key, int ...$keys): self
@@ -373,11 +381,11 @@ final class Domain implements DomainName
         }
 
         if ([] === $labels) {
-            return new self(null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            return new self(null, $this->type);
         }
 
         $domain = implode('.', array_reverse($labels));
 
-        return new self($domain, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        return new self($domain, $this->type);
     }
 }
