@@ -416,7 +416,14 @@ $factory = new PsrStorageFactory($cache, $client, $client);
 $pslStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
 $rzdStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
 
+// if you need to force refreshing the rules 
+// before calling them (to use in a refresh script)
+// $pslStorage->delete(PsrStorageFactory::URL_PSL);
 $rules = $pslStorage->get(PsrStorageFactory::URL_PSL);
+
+// if you need to force refreshing the rules 
+// before calling them (to use in a refresh script)
+// $rzdStorage->delete(PsrStorageFactory::URL_RZD);
 $tldDomains = $rzdStorage->get(PsrStorageFactory::URL_RZD);
 ~~~
 
