@@ -42,11 +42,11 @@ final class ResolvedDomain implements ResolvedDomainName
             return $domain->domain();
         }
 
-        if (!$domain instanceof DomainName) {
-            return Domain::fromIDNA2008($domain);
+        if ($domain instanceof DomainName) {
+            return $domain;
         }
 
-        return $domain;
+        return Domain::fromIDNA2008($domain->value());
     }
 
     /**
@@ -214,11 +214,7 @@ final class ResolvedDomain implements ResolvedDomainName
     public function withPublicSuffix($publicSuffix): self
     {
         if (!$publicSuffix instanceof EffectiveTLD) {
-            if ($publicSuffix instanceof ExternalDomainName || $publicSuffix instanceof DomainName) {
-                $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
-            } else {
-                $publicSuffix = PublicSuffix::fromUnknown(Domain::fromIDNA2008($publicSuffix));
-            }
+            $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
         }
 
         $publicSuffix = $this->normalize($publicSuffix);
