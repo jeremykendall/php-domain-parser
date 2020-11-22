@@ -26,9 +26,6 @@ use function sprintf;
 use function strtolower;
 use const FILTER_FLAG_IPV4;
 use const FILTER_VALIDATE_IP;
-use const IDNA_DEFAULT;
-use const IDNA_NONTRANSITIONAL_TO_ASCII;
-use const IDNA_NONTRANSITIONAL_TO_UNICODE;
 
 final class Domain implements DomainName
 {
@@ -69,7 +66,7 @@ final class Domain implements DomainName
      */
     public static function fromIDNA2003($domain): self
     {
-        return new self($domain, IDNA_DEFAULT, IDNA_DEFAULT);
+        return new self($domain, IntlIdna::IDNA2003_ASCII_OPTIONS, IntlIdna::IDNA2003_UNICODE_OPTIONS);
     }
 
     /**
@@ -77,7 +74,7 @@ final class Domain implements DomainName
      */
     public static function fromIDNA2008($domain): self
     {
-        return new self($domain, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
+        return new self($domain, IntlIdna::IDNA2008_ASCII_OPTIONS, IntlIdna::IDNA2008_UNICODE_OPTIONS);
     }
 
     /**
@@ -100,14 +97,14 @@ final class Domain implements DomainName
         }
 
         if ($domain->isIdna2008()) {
-            if (IDNA_NONTRANSITIONAL_TO_ASCII === $asciiOption) {
+            if (IntlIdna::IDNA2008_ASCII_OPTIONS === $asciiOption) {
                 return [$domain->value(), $domain->labels()];
             }
 
             return $this->parseValue($domain->value(), $asciiOption, $unicodeOption);
         }
 
-        if (IDNA_DEFAULT === $asciiOption) {
+        if (IntlIdna::IDNA2003_ASCII_OPTIONS === $asciiOption) {
             return [$domain->value(), $domain->labels()];
         }
 
@@ -198,7 +195,7 @@ final class Domain implements DomainName
 
     public function isIdna2008(): bool
     {
-        return IDNA_NONTRANSITIONAL_TO_ASCII === $this->asciiIDNAOption;
+        return IntlIdna::IDNA2008_ASCII_OPTIONS  === $this->asciiIDNAOption;
     }
 
     public function isAscii(): bool

@@ -13,6 +13,9 @@ use function rawurldecode;
 use function sprintf;
 use function strpos;
 use function strtolower;
+use const IDNA_CHECK_BIDI;
+use const IDNA_CHECK_CONTEXTJ;
+use const IDNA_DEFAULT;
 use const IDNA_ERROR_BIDI;
 use const IDNA_ERROR_CONTEXTJ;
 use const IDNA_ERROR_DISALLOWED;
@@ -28,16 +31,30 @@ use const IDNA_ERROR_PUNYCODE;
 use const IDNA_ERROR_TRAILING_HYPHEN;
 use const IDNA_NONTRANSITIONAL_TO_ASCII;
 use const IDNA_NONTRANSITIONAL_TO_UNICODE;
+use const IDNA_USE_STD3_RULES;
 use const INTL_IDNA_VARIANT_UTS46;
 
 final class IntlIdna
 {
+    public const IDNA2008_ASCII_OPTIONS = IDNA_NONTRANSITIONAL_TO_ASCII
+        | IDNA_CHECK_BIDI
+        | IDNA_USE_STD3_RULES
+        | IDNA_CHECK_CONTEXTJ;
+
+    public const IDNA2008_UNICODE_OPTIONS = IDNA_NONTRANSITIONAL_TO_UNICODE
+        | IDNA_CHECK_BIDI
+        | IDNA_USE_STD3_RULES
+        | IDNA_CHECK_CONTEXTJ;
+
+    public const IDNA2003_ASCII_OPTIONS = IDNA_DEFAULT;
+    public const IDNA2003_UNICODE_OPTIONS = IDNA_DEFAULT;
+
     /**
      * IDNA errors.
      *
      * @see http://icu-project.org/apiref/icu4j/com/ibm/icu/text/IDNA.Error.html
      */
-    private const IDNA_ERRORS =  [
+    private const IDNA_ERRORS = [
         IDNA_ERROR_EMPTY_LABEL => 'a non-final domain name label (or the whole domain name) is empty',
         IDNA_ERROR_LABEL_TOO_LONG => 'a domain name label is longer than 63 bytes',
         IDNA_ERROR_DOMAIN_NAME_TOO_LONG => 'a domain name is longer than 255 bytes in its storage form',
@@ -77,7 +94,7 @@ final class IntlIdna
      *
      * @throws SyntaxError if the string can not be converted to ASCII using IDN UTS46 algorithm
      */
-    public static function toAscii(string $domain, int $option = IDNA_NONTRANSITIONAL_TO_ASCII): string
+    public static function toAscii(string $domain, int $option): string
     {
         $domain = rawurldecode($domain);
         if (1 !== preg_match(self::REGEXP_IDNA_PATTERN, $domain)) {
@@ -114,7 +131,7 @@ final class IntlIdna
      * @throws SyntaxError              if the string can not be converted to UNICODE using IDN UTS46 algorithm
      * @throws UnexpectedValueException if the intl extension is misconfigured
      */
-    public static function toUnicode(string $domain, int $option = IDNA_NONTRANSITIONAL_TO_UNICODE): string
+    public static function toUnicode(string $domain, int $option): string
     {
         if (false === strpos($domain, 'xn--')) {
             return $domain;
