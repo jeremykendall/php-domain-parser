@@ -7,7 +7,7 @@ namespace Pdp;
 use InvalidArgumentException;
 use Throwable;
 
-class UnableToLoadPublicSuffixList extends InvalidArgumentException implements CannotProcessHost
+final class UnableToLoadPublicSuffixList extends InvalidArgumentException implements CannotProcessHost
 {
     public static function dueToInvalidPath(string $path): self
     {

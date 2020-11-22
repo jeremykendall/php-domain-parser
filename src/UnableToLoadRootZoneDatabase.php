@@ -7,7 +7,7 @@ namespace Pdp;
 use InvalidArgumentException;
 use Throwable;
 
-class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements CannotProcessHost
+final class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements CannotProcessHost
 {
     public static function dueToInvalidHashMap(): self
     {
