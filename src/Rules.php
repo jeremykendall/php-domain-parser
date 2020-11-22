@@ -104,9 +104,9 @@ final class Rules implements PublicSuffixList
         try {
             return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
-            $host = $exception->getDomain();
-            if (null !== $host) {
-                return new ResolvedDomain($host);
+            $domain = $exception->fetchDomain();
+            if (null !== $domain) {
+                return new ResolvedDomain($domain);
             }
 
             return new ResolvedDomain(Domain::fromIDNA2008($host));

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Iterator;
 use IteratorAggregate;
 
 /**
@@ -58,7 +59,7 @@ interface DomainName extends Host, IteratorAggregate
      * The external iterator iterates over the DomainInterface labels
      * from the right-most label to the left-most label.
      */
-    public function getIterator();
+    public function getIterator(): Iterator;
 
     /**
      * Prepends a label to the domain.

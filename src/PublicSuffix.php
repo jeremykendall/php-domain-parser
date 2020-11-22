@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use TypeError;
 use function count;
+use function get_class;
 
 final class PublicSuffix implements EffectiveTLD
 {
@@ -12,8 +14,21 @@ final class PublicSuffix implements EffectiveTLD
 
     private string $section;
 
-    private function __construct(DomainName $domain, string $section)
+    /**
+     * @param DomainName|ExternalDomainName $domain
+     */
+    private function __construct(object $domain, string $section)
     {
+        if ($domain instanceof ExternalDomainName) {
+            $domain = $domain->domain();
+        }
+
+        if (!$domain instanceof DomainName) {
+            throw new TypeError(
+                'Domain must be a '.ExternalDomainName::class.' or a '.DomainName::class.' instance; '.get_class($domain).' given.'
+            );
+        }
+
         if ('' === $domain->label(0)) {
             throw SyntaxError::dueToInvalidPublicSuffix($domain);
         }
@@ -31,17 +46,26 @@ final class PublicSuffix implements EffectiveTLD
         return new self($properties['domain'], $properties['section']);
     }
 
-    public static function fromICANN(DomainName $domain): self
+    /**
+     * @param DomainName|ExternalDomainName $domain
+     */
+    public static function fromICANN(object $domain): self
     {
         return new self($domain, self::ICANN_DOMAINS);
     }
 
-    public static function fromPrivate(DomainName $domain): self
+    /**
+     * @param DomainName|ExternalDomainName $domain
+     */
+    public static function fromPrivate(object $domain): self
     {
         return new self($domain, self::PRIVATE_DOMAINS);
     }
 
-    public static function fromUnknown(DomainName $domain): self
+    /**
+     * @param DomainName|ExternalDomainName $domain
+     */
+    public static function fromUnknown(object $domain): self
     {
         return new self($domain, '');
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Iterator;
 use TypeError;
 use function array_count_values;
 use function array_keys;
@@ -49,12 +50,7 @@ final class Domain implements DomainName
      */
     private function __construct($domain, int $asciiIDNAOption, int $unicodeIDNAOption)
     {
-        $this->labels = $this->parse($domain, $asciiIDNAOption, $unicodeIDNAOption);
-        $this->domain = implode('.', array_reverse($this->labels));
-        if ([] === $this->labels) {
-            $this->domain = null;
-        }
-
+        [$this->domain, $this->labels] = $this->parseDomain($domain, $asciiIDNAOption, $unicodeIDNAOption);
         $this->asciiIDNAOption = $asciiIDNAOption;
         $this->unicodeIDNAOption = $unicodeIDNAOption;
     }
@@ -85,31 +81,57 @@ final class Domain implements DomainName
     }
 
     /**
-     * Parse and format the domain to ensure it is valid.
-     * Returns an array containing the formatted domain name labels
-     * and the domain transitional information.
-     *
-     * For example: parse('wWw.uLb.Ac.be') should return ['be', 'ac', 'ulb', 'www'];.
-     *
      * @param mixed $domain a domain
      *
-     *@throws SyntaxError If the host is not a domain
-     *@throws SyntaxError If the domain is not a host
-     *
-     *@return array<string>
+     * @return array{0:string|null, 1:array<string>}
      */
-    private function parse($domain, int $asciiOption, int $unicodeOption): array
+    private function parseDomain($domain, int $asciiOption, int $unicodeOption): array
     {
         if ($domain instanceof ExternalDomainName) {
             $domain = $domain->domain();
         }
 
-        if ($domain instanceof Host) {
-            $domain = $domain->value();
+        if (!$domain instanceof DomainName) {
+            if ($domain instanceof Host) {
+                $domain = $domain->value();
+            }
+
+            return $this->parseValue($domain, $asciiOption, $unicodeOption);
         }
 
+        if ($domain->isIdna2008()) {
+            if (IDNA_NONTRANSITIONAL_TO_ASCII === $asciiOption) {
+                return [$domain->value(), $domain->labels()];
+            }
+
+            return $this->parseValue($domain->value(), $asciiOption, $unicodeOption);
+        }
+
+        if (IDNA_DEFAULT === $asciiOption) {
+            return [$domain->value(), $domain->labels()];
+        }
+
+        return $this->parseValue($domain->value(), $asciiOption, $unicodeOption);
+    }
+
+    /**
+     * Parse and format the domain to ensure it is valid.
+     * Returns an array containing the formatted domain name labels
+     * and the domain transitional information.
+     *
+     * For example: parse('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];.
+     *
+     * @param mixed $domain a domain
+     *
+     * @throws SyntaxError If the host is not a domain
+     * @throws SyntaxError If the domain is not a host
+     *
+     * @return array{0:string|null, 1:array<string>}
+     */
+    private function parseValue($domain, int $asciiOption, int $unicodeOption): array
+    {
         if (null === $domain) {
-            return [];
+            return [null, []];
         }
 
         if (is_object($domain) && method_exists($domain, '__toString')) {
@@ -122,7 +144,7 @@ final class Domain implements DomainName
 
         $domain = (string) $domain;
         if ('' === $domain) {
-            return [''];
+            return ['', ['']];
         }
 
         $res = filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
@@ -141,7 +163,9 @@ final class Domain implements DomainName
             )
             ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
         if (1 === preg_match($domainName, $formattedDomain)) {
-            return array_reverse(explode('.', strtolower($formattedDomain)));
+            $formattedDomain = strtolower($formattedDomain);
+
+            return [$formattedDomain, array_reverse(explode('.', $formattedDomain))];
         }
 
         // a domain name can not contains URI delimiters or space
@@ -155,15 +179,17 @@ final class Domain implements DomainName
             throw SyntaxError::dueToInvalidCharacters($domain);
         }
 
-        $asciiDomain = IntlIdna::toAscii($domain, $asciiOption);
+        $formattedDomain = IntlIdna::toUnicode(
+            IntlIdna::toAscii($domain, $asciiOption),
+            $unicodeOption
+        );
 
-        /** @var array $labels */
-        $labels = array_reverse(explode('.', IntlIdna::toUnicode($asciiDomain, $unicodeOption)));
+        $labels = array_reverse(explode('.', $formattedDomain));
 
-        return $labels;
+        return [$formattedDomain, $labels];
     }
 
-    public function getIterator()
+    public function getIterator(): Iterator
     {
         foreach ($this->labels as $offset => $label) {
             yield $label;
@@ -177,8 +203,7 @@ final class Domain implements DomainName
 
     public function isAscii(): bool
     {
-        return null === $this->domain ||
-            1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain);
+        return null === $this->domain || 1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain);
     }
 
     public function jsonSerialize(): ?string
@@ -210,6 +235,9 @@ final class Domain implements DomainName
         return $this->labels[$key] ?? null;
     }
 
+    /**
+     * @return array<int>
+     */
     public function keys(string $label = null): array
     {
         $args = (null !== $label) ? [$label, true] : [];
@@ -217,6 +245,9 @@ final class Domain implements DomainName
         return array_keys($this->labels, ...$args);
     }
 
+    /**
+     * @return array<string>
+     */
     public function labels(): array
     {
         return $this->labels;
@@ -276,7 +307,7 @@ final class Domain implements DomainName
             return $domain;
         }
 
-        if (1 === preg_match(self::REGEXP_IDN_PATTERN, $this->domain)) {
+        if (!$this->isAscii()) {
             return IntlIdna::toUnicode($domain, $this->unicodeIDNAOption);
         }
 

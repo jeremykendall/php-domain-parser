@@ -63,6 +63,13 @@ class PublicSuffixTest extends TestCase
         ];
     }
 
+    public function testConstructorWithHostInstance(): void
+    {
+        $domain = PublicSuffix::fromICANN(Domain::fromIDNA2003('ac.be'));
+
+        self::assertEquals($domain, PublicSuffix::fromICANN($domain));
+    }
+
     /**
      * @dataProvider invalidPublicSuffixProvider
      */
