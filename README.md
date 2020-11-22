@@ -279,12 +279,16 @@ $emptyDomain->toString(); // returns '';
 
 ### Internationalization
 
-Domain names support different formats (ascii and unicode format), the package 
-by default will convert the domain in its ascii format for resolution against
-the public suffix source and convert it back to its unicode form if needed. 
-To do so all domain objects expose a `toAscii` and a `toUnicode` methods which 
+Domain names support different formats (ascii and unicode format). The package 
+by default converts the domain in its ascii format for resolution against
+the public suffix source and convert it back to its unicode form if needed.
+To do domain objects expose a `toAscii` and a `toUnicode` methods which 
 returns a new instance in the converted format.
-By default, resolver will use the IDNA2008 format to convert the submitted string.
+
+The conversion is done using the compliant implementation of 
+[UTS#46](https://www.unicode.org/reports/tr46/), otherwise known as Unicode IDNA 
+Compatibility Processing. By default, domain objects use the IDNA2008 format to 
+convert the submitted string.
 
 ~~~php
 /** @var  Rules $rules */
@@ -303,10 +307,11 @@ Since the `ResolvedDomain` only cares about public suffix resolution,
 only the `Pdp\Domain` exposes methods to correctly format domain names. 
 the named constructors highlight the algorithm used to convert the 
 domain name between ascii and unicode format.
-`Domain::fromIDNA2008` convert the value to its unicode format using IDNA 2008
-rules. While `Domain::fromIDNA2003` does it using legacy rules. At any given
-moment you can tell which algorithm will be used to convert the domain and in which
-format it is using the following methods:
+
+For backward compatibility, you can also use the IDNA2003 algorithm via the
+`Domain::fromIDNA2003`. At any given moment you can tell which algorithm 
+will be used to convert the domain and in which format it is using the 
+following methods:
 
 ~~~php
 use Pdp\Domain;
