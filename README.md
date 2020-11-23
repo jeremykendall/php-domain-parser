@@ -29,7 +29,7 @@ PHP Domain Parser is compliant around:
 ### Composer
 
 ~~~
-$ composer require jeremykendall/php-domain-parser
+$ composer require jeremykendall/php-domain-parser:^6.0
 ~~~
 
 ### System Requirements
@@ -160,6 +160,22 @@ $rules->resolve('com');
 // will return a Nullable Resolved domain
 ~~~
  
+ Last but not least it is possible to instantiate a PublicSuffix object 
+ using one of it's named constructor:
+ 
+ ~~~php
+ <?php 
+ use Pdp\PublicSuffix;
+
+$icann = PublicSuffix::fromICANN('ac.be');
+$private = PublicSuffix::fromPrivate('ac.be');
+$unknown = PublicSuffix::fromUnknown('ac.be');
+~~~
+
+Using a `PublicSuffix` object instead of a string or `null` with 
+`ResolvedDomain::withPublicSuffix` will ensure that the returned value will
+always contain the correct information regarding the public suffix resolution.
+ 
 #### Resolving the Domain against the IANA Root Zone Database
 
 While the [Public Suffix List](http://publicsuffix.org/) is a community based 
@@ -184,20 +200,19 @@ In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown
 
 **WARNING:**
 
-**You should never use the library this way in production, without, at least, a 
-caching mechanism to reduce PSL downloads.**
+**You should never use resolve domain name this way in production, without, at 
+least, a caching mechanism to reduce PSL downloads.**
 
 **Using the Public Suffix List to determine what is a valid domain name and what 
 isn't is dangerous, particularly in these days when new gTLDs are arriving at a 
 rapid pace.**
 
-**The DNS is the proper source for this information.** 
-
-**If you are looking to know the validity of a Top Level Domain, the IANA Root Zone 
-Database is the proper source for this information.** 
+**If you are looking to know the validity of a Top Level Domain, the 
+IANA Root Zone Database is the proper source for this information or alternatively
+consider using directly the DNS.** 
 
 **If you must use this library for any of the above purposes, please consider 
-integrating an update mechanism into your software.**
+integrating an updating mechanism into your software.**
 
 ### Accessing and processing Domain labels
 
@@ -215,8 +230,8 @@ manipulating domain labels. You can access the object using the following method
 ~~~php
 <?php 
 /** @var  Rules $rules */
-$resolvedDomain = $rules->resolve('www.bbc.co.uk');
-$domain = $resolvedDomain->domain();
+$result = $rules->resolve('www.bbc.co.uk');
+$domain = $rules->resolve('www.bbc.co.uk')->domain();
 echo $domain->toString(); // display 'www.bbc.co.uk'
 count($domain);           // returns 4
 $domain->labels();        // returns ['uk', 'co', 'bbc', 'www'];
@@ -231,7 +246,7 @@ foreach ($domain as $label) {
 // bbc
 // www
 
-$publicSuffixDomain = $resolvedDomain->publicSuffix()->domain();
+$publicSuffixDomain = $result->publicSuffix()->domain();
 $publicSuffixDomain->labels(); // returns ['uk', 'co']
 ~~~ 
 
@@ -242,8 +257,7 @@ following methods:
 <?php 
 
 /** @var  Rules $rules */
-$resolvedDomain = $rules->resolve('www.ExAmpLE.cOM');
-$domain = $resolvedDomain->domain();
+$domain = $rules->resolve('www.ExAmpLE.cOM')->domain();
 
 $newDomain = $domain
     ->withLabel(1, 'com')  //replace 'example' by 'com'
