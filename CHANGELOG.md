@@ -6,14 +6,18 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 ### Added
 
-- Adding proper Interfaces around domain name and domain name parsing
+- Adding proper Interfaces
+- Added `ResolvedDomain` object to normalize Resolver results.
 - Public Suffix List and IANA Root Zone Database are fully decoupled
-- Optional storage capability based on PSR related interfaces to improve interoperability with any framework
+- Added `IntlIdna`, IDN support has been completely revamped
+- Resolver uses by default UTS#46 IDNA2008 algorithm to convert domain names
+- Storage capability is optional and can be based on PHP-FIG related interfaces to improve interoperability
 
 ### Fixed
 
 - The `Pdp\Domain` class not longer directly exposes Effective TLD status.
 - Effective TLD resolver (`Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve`) no longer accept IDNA options.
+- `Rules::getICANNDomain`, `Rules::getPrivateDomain` will throw even if a `PublicSuffix` is found but does not belong to the correct PSL section.
 
 ### Deprecated
 
@@ -21,6 +25,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 ### Removed
 
+- `__toString` and `__debugInfo` usage
 - Support for PHP7.4-
 - Composer script for automatic updates of the remote databases
 - CLI command `bin/update-psl`
@@ -29,8 +34,15 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\Installer`, `Pdp\Manager`: The package source manager and installer
 - `Pdp\Logger`, The package logger implementation
 - `Pdp\Rules::ALL_DOMAINS` constant deprecated in version 5.3
-- `Pdp\Domain::getDomain` deprecaed in version 5.3
-- None
+- `Pdp\Domain::getDomain` deprecated in version 5.3
+- `Pdp\Domain::resolve`
+- `Pdp\Domain::getPublicSuffix` replaced by `Pdp\ResolvedDomain::publicSuffix`
+- `Pdp\Domain::getRegistrableDomain` replaced by `Pdp\ResolvedDomain::registrableDomain`
+- `Pdp\Domain::getSubDomain` replaced by `Pdp\ResolvedDomain::subDomain`
+- `Pdp\Domain::getLabel` replaced by `Pdp\Domain::label`
+- `Pdp\Domain::isTransitionalDifferent` without replacement
+- `Pdp\PublicSuffix::createFromDomain` without replacement
+- Directly accessing public suffix information from the domain object
 
 ## 5.7.2 - 2020-10-25
 
