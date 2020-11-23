@@ -13,6 +13,11 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
         return new self('The host `'.$domain.'` is invalid: it contains invalid characters.');
     }
 
+    public static function dueToInvalidLength(string $domain): self
+    {
+        return new self('The host `'.$domain.'` is invalid: its length is longer than 255 bytes in its storage form.');
+    }
+
     public static function dueToIDNAError(string $domain, string $message = ''): self
     {
         if ('' === $message) {
