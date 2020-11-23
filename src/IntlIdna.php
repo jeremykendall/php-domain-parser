@@ -10,7 +10,6 @@ use function idn_to_utf8;
 use function implode;
 use function preg_match;
 use function rawurldecode;
-use function sprintf;
 use function strpos;
 use function strtolower;
 use const IDNA_CHECK_BIDI;
@@ -112,7 +111,7 @@ final class IntlIdna
 
         // @codeCoverageIgnoreStart
         if (false === $output) {
-            throw new UnexpectedValueException(sprintf('The Intl extension is misconfigured for %s, please correct this issue before proceeding.', PHP_OS));
+            throw new UnexpectedValueException('The Intl extension is misconfigured for '.PHP_OS.', please correct this issue before proceeding.');
         }
         // @codeCoverageIgnoreEnd
 
@@ -148,7 +147,7 @@ final class IntlIdna
 
         // @codeCoverageIgnoreStart
         if (false === $output) {
-            throw new UnexpectedValueException(sprintf('The Intl extension for %s is misconfigured. Please correct this issue before proceeding.', PHP_OS));
+            throw new UnexpectedValueException('The Intl extension for '.PHP_OS.' is misconfigured. Please correct this issue before proceeding.');
         }
         // @codeCoverageIgnoreEnd
 

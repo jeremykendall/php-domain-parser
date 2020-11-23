@@ -22,7 +22,6 @@ use function ksort;
 use function method_exists;
 use function preg_match;
 use function rawurldecode;
-use function sprintf;
 use function strtolower;
 use const FILTER_FLAG_IPV4;
 use const FILTER_VALIDATE_IP;
@@ -131,7 +130,7 @@ final class Domain implements DomainName
         }
 
         if (!is_scalar($domain)) {
-            throw new TypeError(sprintf('The domain must be a string, a stringable object, a Host object or NULL; `%s` given', gettype($domain)));
+            throw new TypeError('The domain must be a string, a stringable object, a Host object or NULL; `'.gettype($domain).'` given.');
         }
 
         $domain = (string) $domain;
@@ -308,7 +307,7 @@ final class Domain implements DomainName
         }
 
         if (null === $domain || (!is_string($domain) && !method_exists($domain, '__toString'))) {
-            throw new TypeError(sprintf('The label must be a '.Host::class.', a stringable object or a string, `%s` given', gettype($domain)));
+            throw new TypeError('The label must be a '.Host::class.', a stringable object or a string, `'.gettype($domain).'` given.');
         }
 
         $domain = (string) $domain;

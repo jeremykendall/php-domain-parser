@@ -9,7 +9,6 @@ use function array_slice;
 use function count;
 use function explode;
 use function implode;
-use function sprintf;
 use function strlen;
 use function substr;
 
@@ -72,12 +71,12 @@ final class ResolvedDomain implements ResolvedDomainName
 
         $publicSuffix = $this->normalize($publicSuffix);
         if ($this->domain->value() === $publicSuffix->value()) {
-            throw new UnableToResolveDomain(sprintf('The public suffix and the domain name are is identical `%s`.', $this->domain->toString()));
+            throw new UnableToResolveDomain('The public suffix and the domain name are is identical `'.$this->domain->toString().'`.');
         }
 
         $psContent = $publicSuffix->toString();
         if ('.'.$psContent !== substr($this->domain->toString(), - strlen($psContent) - 1)) {
-            throw new UnableToResolveDomain(sprintf('The public suffix `%s` can not be assign to the domain name `%s`', $psContent, $this->domain->toString()));
+            throw new UnableToResolveDomain('The public suffix `'.$psContent.'` can not be assign to the domain name `'.$this->domain->toString().'`');
         }
 
         return $publicSuffix;

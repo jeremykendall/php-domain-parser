@@ -13,12 +13,8 @@ use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use TypeError;
 use function filter_var;
-use function get_class;
-use function gettype;
-use function is_object;
 use function is_string;
 use function md5;
-use function sprintf;
 use function strtolower;
 use const FILTER_VALIDATE_INT;
 
@@ -62,19 +58,13 @@ final class RootZoneDatabasePsr16Cache implements RootZoneDatabaseCache
         }
 
         if (!is_string($ttl)) {
-            throw new TypeError(sprintf(
-                'The ttl must null, an integer, a string a DateTimeInterface or a DateInterval object %s given.',
-                is_object($ttl) ? get_class($ttl) : gettype($ttl)
-            ));
+            throw new TypeError('The ttl must null, an integer, a string, a DateTimeInterface or a DateInterval object.');
         }
 
         /** @var DateInterval|false $date */
         $date = @DateInterval::createFromDateString($ttl);
         if (!$date instanceof DateInterval) {
-            throw new InvalidArgumentException(sprintf(
-                'The ttl value "%s" can not be parsable by `DateInterval::createFromDateString`.',
-                $ttl
-            ));
+            throw new InvalidArgumentException('The ttl value "'.$ttl.'" can not be parsable by `DateInterval::createFromDateString`.');
         }
 
         return $date;
