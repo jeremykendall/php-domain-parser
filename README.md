@@ -152,7 +152,7 @@ consider using directly the DNS.**
 integrating an updating mechanism into your software.**
 
 
-#### Dealing with the resolution result.
+### Dealing with the resolution result.
 
 You can modify the returned `Pdp\ResolvedDomain` instance using the following methods:
 
@@ -179,7 +179,7 @@ The value returned by `Pdp\PublicSuffix::isKnown` will depends if you use
 a proper `Pdp\PublicSuffix` instance or not 
 with `ResolvedDomain::withPublicSuffix`, more information in the next section.
 
-#### Public Suffix statuses
+### Public Suffix
 
 The [Public Suffix List](http://publicsuffix.org/) is organized in sections.
 This library can give you access to this information via its public suffix 
@@ -363,7 +363,7 @@ string or an object that can be cast to a string to avoid unexpected format
 conversion errors/results. By default, and with lack of information conversion
 is done using IDNA 2008 rules.**
 
-## Managing the package external resources
+### Managing the package external resources
 
 Depending on your application, the mechanism to store your resources may differ, 
 nevertheless, the library comes bundle with a **optional service** which 
@@ -378,7 +378,7 @@ The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that
 retrieve, convert and cache the Public Suffix List and the IANA Root 
 Zone Database using standard interfaces published by the PHP-FIG.
 
-### Instantiate `Pdp\Storage\PsrStorageFactory`
+#### Instantiate `Pdp\Storage\PsrStorageFactory`
 
 To work as intended, the `Pdp\Storage\PsrStorageFactory` constructor requires:
 
