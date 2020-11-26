@@ -141,7 +141,7 @@ final class TopLevelDomains implements RootZoneDatabase
         try {
             $domain = $this->validateDomain($host);
 
-            return new ResolvedDomain($domain, $this->fetchTopLevelDomain($domain));
+            return new ResolvedDomain($domain, $this->fetchEffectiveTLD($domain));
         } catch (UnableToResolveDomain $exception) {
             return new ResolvedDomain($exception->getDomain());
         } catch (SyntaxError $exception) {
@@ -174,7 +174,7 @@ final class TopLevelDomains implements RootZoneDatabase
         return $domain;
     }
 
-    private function fetchTopLevelDomain(DomainName $domain): ?EffectiveTLD
+    private function fetchEffectiveTLD(DomainName $domain): ?EffectiveTLD
     {
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
@@ -194,7 +194,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function getTopLevelDomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
-        $publicSuffix = $this->fetchTopLevelDomain($domain);
+        $publicSuffix = $this->fetchEffectiveTLD($domain);
         if (null === $publicSuffix) {
             throw UnableToResolveDomain::dueToMissingPublicSuffix($domain, EffectiveTLD::IANA_DOMAINS);
         }
