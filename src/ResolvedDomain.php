@@ -71,12 +71,12 @@ final class ResolvedDomain implements ResolvedDomainName
 
         $publicSuffix = $this->normalize($publicSuffix);
         if ($this->domain->value() === $publicSuffix->value()) {
-            throw new UnableToResolveDomain('The public suffix and the domain name are is identical `'.$this->domain->toString().'`.');
+            throw UnableToResolveDomain::dueToIdenticalValue($this->domain);
         }
 
         $psContent = $publicSuffix->toString();
         if ('.'.$psContent !== substr($this->domain->toString(), - strlen($psContent) - 1)) {
-            throw new UnableToResolveDomain('The public suffix `'.$psContent.'` can not be assign to the domain name `'.$this->domain->toString().'`');
+            throw UnableToResolveDomain::dueToMismatchedPublicSuffix($this->domain, $publicSuffix);
         }
 
         return $publicSuffix;

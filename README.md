@@ -45,16 +45,17 @@ You need:
 
 ### Resolving Domains
 
-To effectively resolve a domain you need a public source. This library can
-resolve a domain against:
+This library can resolve a domain against:
  
 - The [Public Suffix List](http://publicsuffix.org/)
 - The [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)
 
-In both cases this is done using the generic `resolve` method.
+In both cases this is done using the `resolve` method implemented on the resource 
+instance. The method returns a `Pdp\ResolvedDomain` object which represents the 
+result of that process.
 
-Using the `Pdp\Rules` class you resolve your domain as a `Pdp\ResolvedDomain` 
-object against the [Public Suffix List](http://publicsuffix.org/) as shown below:
+For the [Public Suffix List](http://publicsuffix.org/) you need to use the
+`Pdp\Rules` class as shown below:
 
 ~~~php
 <?php 
@@ -71,9 +72,8 @@ echo $result->publicSuffix()->toString();      //display 'okinawa.jp';
 $result->publicSuffix()->isICANN();            //returns true;
 ~~~
 
-Using the `Pdp\TopLevelDomains` class you resolve your domain as a 
-`Pdp\ResolvedDomain` object against 
-[IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
+For the [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt),
+the `Pdp\TopLevelDomains` class is use instead:
 
 ~~~php
 use Pdp\TopLevelDomains;
@@ -90,19 +90,21 @@ echo $result->subDomain()->toString();         //display 'www.pref';
 
 In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
 
-`:resolve` will always return a `ResolvedDomain` even if the domain
-syntax is invalid or no entry is found in the resource. To work around
-this limitation, this library exposes more strict methods:
+The `resolve` method will always return a `ResolvedDomain` even if the domain
+syntax is invalid or no match is found in the resource data. 
+To work around this limitation, the library exposes more strict methods:
 
 - `Rules::getCookieDomain`
 - `Rules::getICANNDomain`
 - `Rules::getPrivateDomain`
+
 and
+
 - `TopLevelDomains::getTopLevelDomain`
 
 These methods act and resolve the domain against the PSL just like 
 the `resolve` method but will throw an exception if no valid effective 
-TLD is found in the respective PSL section or if the submitted domain 
+TLD is found in the specified resource data or if the submitted domain 
 is invalid.
 
 ~~~php
@@ -131,7 +133,6 @@ $result->publicSuffix()->isKnown(); // returns false
 $topLevelDomains = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
 $topLevelDomains->getTopLevelDomain('com');
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
-
 ~~~
 
 **WARNING:**

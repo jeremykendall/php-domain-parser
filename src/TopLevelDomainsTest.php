@@ -135,6 +135,19 @@ final class TopLevelDomainsTest extends TestCase
         );
     }
 
+    /**
+     * @dataProvider validDomainProvider
+     *
+     * @param mixed $tld the tld
+     */
+    public function testGetTopLevelDomain($tld): void
+    {
+        self::assertSame(
+            Domain::fromIDNA2008($tld)->label(0),
+            $this->topLevelDomains->getTopLevelDomain($tld)->publicSuffix()->value()
+        );
+    }
+
     public function validDomainProvider(): iterable
     {
         $resolvedDomain = new ResolvedDomain(
@@ -198,11 +211,26 @@ final class TopLevelDomainsTest extends TestCase
         self::assertFalse($result->publicSuffix()->isIANA());
     }
 
+    public function testGetTopLevelDomainWithUnResolvableDomain(): void
+    {
+        self::expectException(UnableToResolveDomain::class);
+
+        $this->topLevelDomains->getTopLevelDomain('localhost');
+    }
+
     public function testResolveWithUnregisteredTLD(): void
     {
         $collection = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
 
         self::assertNull($collection->resolve('localhost.locale')->publicSuffix()->value());
+    }
+
+    public function testGetTopLevelDomainWithUnregisteredTLD(): void
+    {
+        self::expectException(UnableToResolveDomain::class);
+
+        $collection = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
+        $collection->getTopLevelDomain('localhost.locale');
     }
 
     public function testResolveWithIDNAOptions(): void

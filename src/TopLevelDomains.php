@@ -139,29 +139,31 @@ final class TopLevelDomains implements RootZoneDatabase
     public function resolve($host): ResolvedDomainName
     {
         try {
-            return $this->getTopLevelDomain($host);
-        } catch (UnableToResolveDomain $exception) {
-            $domain = $exception->fetchDomain();
-            if (null !== $domain) {
-                return new ResolvedDomain($domain);
-            }
+            $domain = $this->validateDomain($host);
 
-            return new ResolvedDomain(Domain::fromIDNA2008($host));
+            return new ResolvedDomain($domain, $this->fetchTopLevelDomain($domain));
+        } catch (UnableToResolveDomain $exception) {
+            return new ResolvedDomain($exception->getDomain());
         } catch (SyntaxError $exception) {
             return new ResolvedDomain(Domain::fromIDNA2008(null));
         }
     }
 
     /**
-     * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
+     * Assert the domain is valid and is resolvable.
+     *
+     * @param mixed $domain a type that supports instantiating a Domain from.
+     *
+     * @throws SyntaxError           If the domain is invalid
+     * @throws UnableToResolveDomain If the domain can not be resolved
      */
-    public function getTopLevelDomain($domain): ResolvedDomainName
+    private function validateDomain($domain): DomainName
     {
         if ($domain instanceof ExternalDomainName) {
             $domain = $domain->domain();
         }
 
-        if (!$domain instanceof DomainName) {
+        if (!($domain instanceof DomainName)) {
             $domain = Domain::fromIDNA2008($domain);
         }
 
@@ -169,17 +171,34 @@ final class TopLevelDomains implements RootZoneDatabase
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
+        return $domain;
+    }
+
+    private function fetchTopLevelDomain(DomainName $domain): ?EffectiveTLD
+    {
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
             if ($tld->value() === $label) {
-                $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($tld) : Domain::fromIDNA2003($tld);
+                $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($domain->label(0)) : Domain::fromIDNA2003($domain->label(0));
 
-                return new ResolvedDomain($domain, PublicSuffix::fromIANA($publicSuffix));
+                return PublicSuffix::fromIANA($publicSuffix);
             }
         }
 
-        $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
+        return null;
+    }
 
-        return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
+    /**
+     * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
+     */
+    public function getTopLevelDomain($domain): ResolvedDomainName
+    {
+        $domain = $this->validateDomain($domain);
+        $publicSuffix = $this->fetchTopLevelDomain($domain);
+        if (null === $publicSuffix) {
+            throw UnableToResolveDomain::dueToMissingPublicSuffix($domain, EffectiveTLD::IANA_DOMAINS);
+        }
+
+        return new ResolvedDomain($domain, PublicSuffix::fromIANA($publicSuffix));
     }
 }

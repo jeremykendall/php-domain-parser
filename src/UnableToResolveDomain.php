@@ -8,12 +8,33 @@ use InvalidArgumentException;
 
 final class UnableToResolveDomain extends InvalidArgumentException implements CannotProcessHost
 {
-    private ?DomainName $domain = null;
+    private const DOMAIN_CONVERTER = [
+        EffectiveTLD::ICANN_DOMAINS => 'ICANN',
+        EffectiveTLD::PRIVATE_DOMAINS => 'private',
+        EffectiveTLD::IANA_DOMAINS => 'IANA',
+    ];
+
+    private DomainName $domain;
+
+    public static function dueToIdenticalValue(DomainName $domain): self
+    {
+        $exception = new self('The public suffix and the domain name are is identical `'.$domain->toString().'`.');
+        $exception->domain = $domain;
+
+        return $exception;
+    }
+
+    public static function dueToMismatchedPublicSuffix(DomainName $domain, EffectiveTLD $effectiveTLD): self
+    {
+        $exception = new self('The public suffix `'.$effectiveTLD->value().'` can not be assign to the domain name `'.$domain->toString().'`');
+        $exception->domain = $domain;
+
+        return $exception;
+    }
 
     public static function dueToMissingPublicSuffix(DomainName $domain, string $type): self
     {
-        $domainType = (EffectiveTLD::PRIVATE_DOMAINS === $type) ? 'private' : 'ICANN';
-
+        $domainType = self::DOMAIN_CONVERTER[$type] ?? 'unsupported';
         $exception = new self('The domain "'.$domain->value().'" does not contain a "'.$domainType.'" TLD.');
         $exception->domain = $domain;
 
@@ -36,7 +57,7 @@ final class UnableToResolveDomain extends InvalidArgumentException implements Ca
         return $exception;
     }
 
-    public function fetchDomain(): ?DomainName
+    public function getDomain(): DomainName
     {
         return $this->domain;
     }

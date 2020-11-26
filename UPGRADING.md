@@ -64,6 +64,29 @@ $result->registrableDomain();         //returns a ResolvedDomain object
 
 The `Domain` **no longer has access** to component information.
 
+#### Normalizing domain resolution
+
+The `Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve` domain resolution
+rules are identical. They will alway returns a return even if the domain contains
+a syntax error. 
+
+**version 5**
+
+~~~php
+/** @var TopLevelDomains $rules */
+$result = $rules->resolve('####');
+//throws an Exception
+~~~ 
+
+**version 6**
+
+~~~php
+/** @var TopLevelDomains $rules */
+$result = $rules->resolve('####');
+//returns a ResolvedDomain object 
+~~~ 
+
+
 #### Strict domain resolution
 
 **version 5**
