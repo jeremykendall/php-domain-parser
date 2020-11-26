@@ -12,12 +12,15 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - Added `IntlIdna`, IDN support has been completely revamped
 - Resolver uses by default UTS#46 IDNA2008 algorithm to convert domain names
 - Storage capability is optional and can be based on PHP-FIG related interfaces to improve interoperability
+- `Pdp\TopLevelDomains::getTopLevelDomain` which throws on syntax error and if no effective TLD is found.
+- `Pdp\PublicSuffix::isIANA` tells whether the TLD was successfully resolved against IANA RZD
 
 ### Fixed
 
 - The `Pdp\Domain` class not longer directly exposes Effective TLD status.
 - Effective TLD resolver (`Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve`) no longer accept IDNA options.
 - `Rules::getICANNDomain`, `Rules::getPrivateDomain` will throw even if a `PublicSuffix` is found but does not belong to the correct PSL section.
+- `Pdp\TopLevelDomains::resolve` acts like `Pdp\Rules::resolve` and only throw on `TypeError`
 
 ### Deprecated
 
@@ -43,6 +46,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\Domain::isTransitionalDifferent` without replacement
 - `Pdp\PublicSuffix::createFromDomain` without replacement
 - Directly accessing public suffix information from the domain object
+- `Pdp\TopLevelDomains::contains` without replacement
 
 ## 5.7.2 - 2020-10-25
 

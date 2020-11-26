@@ -28,7 +28,7 @@ final class RootZoneDatabaseConverterTest extends TestCase
         $res = $this->converter->convert($string);
 
         self::assertArrayHasKey('version', $res);
-        self::assertArrayHasKey('modifiedDate', $res);
+        self::assertArrayHasKey('lastUpdated', $res);
         self::assertArrayHasKey('records', $res);
         self::assertIsArray($res['records']);
     }
@@ -48,7 +48,7 @@ final class RootZoneDatabaseConverterTest extends TestCase
         $res = $this->converter->convert($stringObject);
 
         self::assertArrayHasKey('version', $res);
-        self::assertArrayHasKey('modifiedDate', $res);
+        self::assertArrayHasKey('lastUpdated', $res);
         self::assertArrayHasKey('records', $res);
         self::assertIsArray($res['records']);
     }

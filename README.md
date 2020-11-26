@@ -51,9 +51,9 @@ resolve a domain against:
 - The [Public Suffix List](http://publicsuffix.org/)
 - The [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)
 
-#### Resolving the Domain against the Public Suffix List
+In both cases this is done using the generic `resolve` method.
 
-Using the `Pdp\Rules` class you can resolve a domain as a `Pdp\ResolvedDomain` 
+Using the `Pdp\Rules` class you resolve your domain as a `Pdp\ResolvedDomain` 
 object against the [Public Suffix List](http://publicsuffix.org/) as shown below:
 
 ~~~php
@@ -71,8 +71,87 @@ echo $result->publicSuffix()->toString();      //display 'okinawa.jp';
 $result->publicSuffix()->isICANN();            //returns true;
 ~~~
 
-In case of an error an exception which implements the `Pdp\CannotProcessHost` 
-is thrown.
+Using the `Pdp\TopLevelDomains` class you resolve your domain as a 
+`Pdp\ResolvedDomain` object against 
+[IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt).
+
+~~~php
+use Pdp\TopLevelDomains;
+
+$iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
+
+$result = $iana->resolve('www.PreF.OkiNawA.jP');
+echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
+echo $result->publicSuffix()->toString();      //display 'jp';
+echo $result->secondLevelDomain();             //display 'okinawa';
+echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
+echo $result->subDomain()->toString();         //display 'www.pref';
+~~~
+
+In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
+
+`:resolve` will always return a `ResolvedDomain` even if the domain
+syntax is invalid or no entry is found in the resource. To work around
+this limitation, this library exposes more strict methods:
+
+- `Rules::getCookieDomain`
+- `Rules::getICANNDomain`
+- `Rules::getPrivateDomain`
+and
+- `TopLevelDomains::getTopLevelDomain`
+
+These methods act and resolve the domain against the PSL just like 
+the `resolve` method but will throw an exception if no valid effective 
+TLD is found in the respective PSL section or if the submitted domain 
+is invalid.
+
+~~~php
+<?php 
+use Pdp\Rules;
+use Pdp\TopLevelDomains;
+
+$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+
+$rules->getICANNDomain('qfdsf.unknownTLD');
+// will throw because `.unknownTLD` is not part of the ICANN section
+
+$result = $rules->getCookieDomain('qfdsf.unknownTLD');
+$result->publicSuffix()->value();   // returns 'unknownTLD'
+$result->publicSuffix()->isKnown(); // returns false
+// will not throw because the domain syntax is correct.
+
+$rules->getCookieDomain('com');
+// will not throw because the domain syntax is invalid (ie: does not support public suffix)
+
+$result = $rules->resolve('com');
+$result->publicSuffix()->value();   // returns null
+$result->publicSuffix()->isKnown(); // returns false
+// will not throw but its public suffix value equal to NULL
+
+$topLevelDomains = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
+$topLevelDomains->getTopLevelDomain('com');
+// will not throw because the domain syntax is invalid (ie: does not support public suffix)
+
+~~~
+
+**WARNING:**
+
+**You should never use resolve domain name this way in production, without, at 
+least, a caching mechanism to reduce PSL downloads.**
+
+**Using the Public Suffix List to determine what is a valid domain name and what 
+isn't is dangerous, particularly in these days when new gTLDs are arriving at a 
+rapid pace.**
+
+**If you are looking to know the validity of a Top Level Domain, the 
+IANA Root Zone Database is the proper source for this information or alternatively
+consider using directly the DNS.** 
+
+**If you must use this library for any of the above purposes, please consider 
+integrating an updating mechanism into your software.**
+
+
+#### Dealing with the resolution result.
 
 You can modify the returned `Pdp\ResolvedDomain` instance using the following methods:
 
@@ -95,11 +174,11 @@ echo $altResult->domain()->toString(); //display 'foo.bar.test.example';
 $altResult->publicSuffix()->isKnown(); //returns false;
 ~~~
 
-The public suffix method `isKnown` will always return `false` if 
-your input is not a `PublicSuffix` object in which case the method may return 
-`true`. For more information, see the following section.
+The value returned by `Pdp\PublicSuffix::isKnown` will depends if you use
+a proper `Pdp\PublicSuffix` instance or not 
+with `ResolvedDomain::withPublicSuffix`, more information in the next section.
 
-#### Public Suffix List Sections
+#### Public Suffix statuses
 
 The [Public Suffix List](http://publicsuffix.org/) is organized in sections.
 This library can give you access to this information via its public suffix 
@@ -116,51 +195,18 @@ $publicSuffix = $rules->resolve('example.github.io')->publicSuffix();
 echo $publicSuffix->domain()->toString(); //display 'github.io';
 $publicSuffix->isICANN();                 //will return false
 $publicSuffix->isPrivate();               //will return true
+$publicSuffix->isIANA();                  //will return false
 $publicSuffix->isKnown();                 //will return true
 ~~~
 
 The public suffix state depends on its value:
  
-- `isKnown` returns `true` if the value is present in the PSL.
 - `isICANN` returns `true` if the value is present in the PSL ICANN section.
 - `isPrivate` returns `true` if the value is present in the PSL private section.
-
-If the value is not present in the PSL all the methods above will return `false`.
-
-`Rules::resolve` will always return a `ResolvedDomain` even if the domain
-syntax is invalid or no entry was found in the desired section. To work around
-the limitation of the official algorithm, this library exposes more strict 
-methods:
-
-- `Rules::getCookieDomain`
-- `Rules::getICANNDomain`
-- `Rules::getPrivateDomain`
-
-These methods act and resolve the domain against the PSL just like 
-the `resolve` method but will throw an exception if no valid effective 
-TLD is found in the respective PSL section or if the submitted domain 
-is invalid.
-
-~~~php
-<?php 
-use Pdp\Rules;
-
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
-
-$rules->getICANNDomain('qfdsf.unknownTLD');
-// will throw because `.unknownTLD` is not part of the ICANN section
-
-$rules->getCookieDomain('qfdsf.unknownTLD');
-// will not throw because the domain syntax is correct.
-
-$rules->getCookieDomain('com');
-// will throw because no public suffix can be determined
-
-$rules->resolve('com');
-// will return a Nullable Resolved domain
-~~~
+- `isKnown` returns `true` if the value was successfully resolved against an external resource.
+- `isIANA` returns `true` if the value was successfully resolved against the Root Zone Database.
  
- Last but not least it is possible to instantiate a PublicSuffix object 
+Last but not least it is possible to instantiate a PublicSuffix object 
  using one of it's named constructor:
  
  ~~~php
@@ -176,44 +222,6 @@ Using a `PublicSuffix` object instead of a string or `null` with
 `ResolvedDomain::withPublicSuffix` will ensure that the returned value will
 always contain the correct information regarding the public suffix resolution.
  
-#### Resolving the Domain against the IANA Root Zone Database
-
-While the [Public Suffix List](http://publicsuffix.org/) is a community based 
-list, the package provides access to the Top Level domain information given by 
-the [IANA website](https://data.iana.org/TLD/tlds-alpha-by-domain.txt) to always 
-resolve top domain against all registered TLD even the new ones.
-
-~~~php
-use Pdp\TopLevelDomains;
-
-$iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
-
-$result = $iana->resolve('www.PreF.OkiNawA.jP');
-echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
-echo $result->publicSuffix()->toString();      //display 'jp';
-echo $result->secondLevelDomain();             //display 'okinawa';
-echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
-echo $result->subDomain()->toString();         //display 'www.pref';
-~~~
-
-In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
-
-**WARNING:**
-
-**You should never use resolve domain name this way in production, without, at 
-least, a caching mechanism to reduce PSL downloads.**
-
-**Using the Public Suffix List to determine what is a valid domain name and what 
-isn't is dangerous, particularly in these days when new gTLDs are arriving at a 
-rapid pace.**
-
-**If you are looking to know the validity of a Top Level Domain, the 
-IANA Root Zone Database is the proper source for this information or alternatively
-consider using directly the DNS.** 
-
-**If you must use this library for any of the above purposes, please consider 
-integrating an updating mechanism into your software.**
-
 ### Accessing and processing Domain labels
 
 If you are interested into manipulating the domain labels without taking into 

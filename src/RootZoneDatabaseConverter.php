@@ -58,7 +58,7 @@ final class RootZoneDatabaseConverter
             throw UnableToLoadRootZoneDatabase::dueToInvalidLine($line);
         }
 
-        if (isset($data['version'], $data['modifiedDate'], $data['records'])) {
+        if (isset($data['version'], $data['lastUpdated'], $data['records'])) {
             return $data;
         }
 
@@ -81,7 +81,7 @@ final class RootZoneDatabaseConverter
 
         return [
             'version' => $matches['version'],
-            'modifiedDate' => $date->format(DateTimeInterface::ATOM),
+            'lastUpdated' => $date->format(DateTimeInterface::ATOM),
         ];
     }
 

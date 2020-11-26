@@ -104,10 +104,10 @@ final class TopLevelDomainsTest extends TestCase
         $topLevelDomains = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
 
         self::assertCount(15, $topLevelDomains);
-        self::assertSame('2018082200', $topLevelDomains->getVersion());
+        self::assertSame('2018082200', $topLevelDomains->version());
         self::assertEquals(
             new DateTimeImmutable('2018-08-22 07:07:01', new DateTimeZone('UTC')),
-            $topLevelDomains->getModifiedDate()
+            $topLevelDomains->lastUpdated()
         );
         self::assertFalse($topLevelDomains->isEmpty());
 
@@ -161,25 +161,41 @@ final class TopLevelDomainsTest extends TestCase
         ];
     }
 
-    public function testResolveThrowsTypeError(): void
+    public function testTopLevelDomainThrowsTypeError(): void
     {
         self::expectException(TypeError::class);
 
-        $this->topLevelDomains->resolve(new DateTimeImmutable());
+        $this->topLevelDomains->getTopLevelDomain(new DateTimeImmutable());
+    }
+
+    public function testTopLevelDomainWithInvalidDomain(): void
+    {
+        self::expectException(SyntaxError::class);
+
+        $this->topLevelDomains->getTopLevelDomain('###');
     }
 
     public function testResolveWithInvalidDomain(): void
     {
-        self::expectException(SyntaxError::class);
+        $result = $this->topLevelDomains->resolve('###');
+        self::assertFalse($result->publicSuffix()->isIANA());
+        self::assertNull($result->value());
+    }
 
-        $this->topLevelDomains->resolve('###');
+    public function testTopLevelDomainWithUnResolvableDomain(): void
+    {
+        self::expectException(UnableToResolveDomain::class);
+
+        $this->topLevelDomains->getTopLevelDomain('localhost');
     }
 
     public function testResolveWithUnResolvableDomain(): void
     {
-        self::expectException(UnableToResolveDomain::class);
+        $result = $this->topLevelDomains->resolve('localhost');
 
-        $this->topLevelDomains->resolve('localhost');
+        self::assertSame($result->toString(), 'localhost');
+        self::assertNull($result->publicSuffix()->value());
+        self::assertFalse($result->publicSuffix()->isIANA());
     }
 
     public function testResolveWithUnregisteredTLD(): void
@@ -206,16 +222,6 @@ final class TopLevelDomainsTest extends TestCase
         self::assertFalse($resolved->domain()->isIdna2008());
     }
 
-    /**
-     * @dataProvider validTldProvider
-     *
-     * @param mixed $tld the tld
-     */
-    public function testContainsReturnsTrue($tld): void
-    {
-        self::assertTrue($this->topLevelDomains->contains($tld));
-    }
-
     public function validTldProvider(): iterable
     {
         return [
@@ -237,16 +243,6 @@ final class TopLevelDomainsTest extends TestCase
             }],
             'externalDomain' => [PublicSuffix::fromICANN('com')],
         ];
-    }
-
-    /**
-     * @dataProvider invalidTldProvider
-     *
-     * @param mixed $tld the tld
-     */
-    public function testContainsReturnsFalse($tld): void
-    {
-        self::assertFalse($this->topLevelDomains->contains($tld));
     }
 
     public function invalidTldProvider(): iterable

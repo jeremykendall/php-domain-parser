@@ -14,12 +14,12 @@ interface RootZoneDatabase extends Countable, DomainResolver, IteratorAggregate,
     /**
      * Returns the Version ID.
      */
-    public function getVersion(): string;
+    public function version(): string;
 
     /**
      * Returns the List Last Modified Date.
      */
-    public function getModifiedDate(): DateTimeImmutable;
+    public function lastUpdated(): DateTimeImmutable;
 
     /**
      * {@inheritdoc}
@@ -42,7 +42,10 @@ interface RootZoneDatabase extends Countable, DomainResolver, IteratorAggregate,
     public function jsonSerialize(): array;
 
     /**
-     * Tells whether the submitted host is a valid Top Level Domain.
+     * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
+     *
+     * @throws SyntaxError           if the domain is invalid
+     * @throws UnableToResolveDomain if the domain does not contain a IANA Effective TLD
      */
-    public function contains(Host $tld): bool;
+    public function getTopLevelDomain(Host $host): ResolvedDomainName;
 }

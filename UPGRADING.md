@@ -105,6 +105,8 @@ echo $domain->toString(); // display 'faß.de'
 - `TopLevelDomains::createFromPath` method is renamed `TopLevelDomains::fromPath`.
 - `Rules::createFromString` method is renamed `Rules::fromString`.
 - `TopLevelDomains::createFromString` method is renamed `TopLevelDomains::fromString`.
+- `TopLevelDomains::getVersion` method is renamed `TopLevelDomains::version`.
+- `TopLevelDomains::getModifiedDate` method is renamed `TopLevelDomains::lastUpdated`.
 
 #### Classes removed
 

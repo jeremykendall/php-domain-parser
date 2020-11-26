@@ -11,7 +11,7 @@ final class UnableToLoadRootZoneDatabase extends InvalidArgumentException implem
 {
     public static function dueToInvalidHashMap(): self
     {
-        return new self('The decoded hashmap structure is missing at least one of the required properties: `records`, `version` and/or `modifiedDate`.');
+        return new self('The decoded hashmap structure is missing at least one of the required properties: `records`, `version` and/or `lastUpdated`.');
     }
 
     public static function dueToInvalidRootZoneDomain(string $content, Throwable $exception = null): self

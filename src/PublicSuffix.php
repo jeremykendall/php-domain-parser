@@ -61,6 +61,14 @@ final class PublicSuffix implements EffectiveTLD
     /**
      * @param mixed $domain the public suffix domain information
      */
+    public static function fromIANA($domain): self
+    {
+        return new self($domain, self::IANA_DOMAINS);
+    }
+
+    /**
+     * @param mixed $domain the public suffix domain information
+     */
     public static function fromUnknown($domain): self
     {
         return new self($domain, '');
@@ -104,6 +112,11 @@ final class PublicSuffix implements EffectiveTLD
     public function isPrivate(): bool
     {
         return self::PRIVATE_DOMAINS === $this->section;
+    }
+
+    public function isIANA(): bool
+    {
+        return self::IANA_DOMAINS === $this->section;
     }
 
     public function toAscii(): self

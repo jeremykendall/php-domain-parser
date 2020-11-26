@@ -10,6 +10,8 @@ interface EffectiveTLD extends Host, ExternalDomainName
 
     public const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 
+    public const IANA_DOMAINS = 'IANA_DOMAINS';
+
     /**
      * Tells whether the effective TLD has a matching rule in a Public Suffix List.
      */
@@ -24,4 +26,9 @@ interface EffectiveTLD extends Host, ExternalDomainName
      * Tells whether the effective TLD has a matching rule in a Public Suffix List Private Section.
      */
     public function isPrivate(): bool;
+
+    /**
+     * Tells whether the effective TLD has a matching rule in the IANA Root Zone Database.
+     */
+    public function isIANA(): bool;
 }

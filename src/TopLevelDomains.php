@@ -17,17 +17,17 @@ use const JSON_THROW_ON_ERROR;
 
 final class TopLevelDomains implements RootZoneDatabase
 {
-    private DateTimeImmutable $modifiedDate;
+    private DateTimeImmutable $lastUpdated;
 
     private string $version;
 
     private array $records;
 
-    private function __construct(array $records, string $version, DateTimeImmutable $modifiedDate)
+    private function __construct(array $records, string $version, DateTimeImmutable $lastUpdated)
     {
         $this->records = $records;
         $this->version = $version;
-        $this->modifiedDate = $modifiedDate;
+        $this->lastUpdated = $lastUpdated;
     }
 
     /**
@@ -68,10 +68,10 @@ final class TopLevelDomains implements RootZoneDatabase
         $converter = $converter ?? new RootZoneDatabaseConverter();
 
         $data = $converter->convert($content);
-        /** @var DateTimeImmutable $modifiedDate */
-        $modifiedDate = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['modifiedDate']);
+        /** @var DateTimeImmutable $lastUpdated */
+        $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
 
-        return new self($data['records'], $data['version'], $modifiedDate);
+        return new self($data['records'], $data['version'], $lastUpdated);
     }
 
     public static function fromJsonString(string $jsonString): self
@@ -82,29 +82,29 @@ final class TopLevelDomains implements RootZoneDatabase
             throw UnableToLoadRootZoneDatabase::dueToInvalidJson($exception);
         }
 
-        if (!isset($data['records'], $data['version'], $data['modifiedDate'])) {
+        if (!isset($data['records'], $data['version'], $data['lastUpdated'])) {
             throw UnableToLoadRootZoneDatabase::dueToInvalidHashMap();
         }
 
-        /** @var DateTimeImmutable $modifiedDate */
-        $modifiedDate = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['modifiedDate']);
+        /** @var DateTimeImmutable $lastUpdated */
+        $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
 
-        return new self($data['records'], $data['version'], $modifiedDate);
+        return new self($data['records'], $data['version'], $lastUpdated);
     }
 
     public static function __set_state(array $properties): RootZoneDatabase
     {
-        return new self($properties['records'], $properties['version'], $properties['modifiedDate']);
+        return new self($properties['records'], $properties['version'], $properties['lastUpdated']);
     }
 
-    public function getVersion(): string
+    public function version(): string
     {
         return $this->version;
     }
 
-    public function getModifiedDate(): DateTimeImmutable
+    public function lastUpdated(): DateTimeImmutable
     {
-        return $this->modifiedDate;
+        return $this->lastUpdated;
     }
 
     public function count(): int
@@ -129,47 +129,33 @@ final class TopLevelDomains implements RootZoneDatabase
         return [
             'version' => $this->version,
             'records' => $this->records,
-            'modifiedDate' => $this->modifiedDate->format(DateTimeInterface::ATOM),
+            'lastUpdated' => $this->lastUpdated->format(DateTimeInterface::ATOM),
         ];
     }
 
     /**
-     * @param mixed $tld a TLD in a type that can be converted into a DomainInterface instance
+     * @param mixed $host a type that supports instantiating a Domain from.
      */
-    public function contains($tld): bool
+    public function resolve($host): ResolvedDomainName
     {
-        if ($tld instanceof ExternalDomainName) {
-            $tld = $tld->domain();
-        }
-
-        if (!$tld instanceof DomainName) {
-            try {
-                $tld = Domain::fromIDNA2008($tld);
-            } catch (CannotProcessHost $exception) {
-                return false;
+        try {
+            return $this->getTopLevelDomain($host);
+        } catch (UnableToResolveDomain $exception) {
+            $domain = $exception->fetchDomain();
+            if (null !== $domain) {
+                return new ResolvedDomain($domain);
             }
-        }
 
-        if (1 !== count($tld)) {
-            return false;
+            return new ResolvedDomain(Domain::fromIDNA2008($host));
+        } catch (SyntaxError $exception) {
+            return new ResolvedDomain(Domain::fromIDNA2008(null));
         }
-
-        /** @var DomainName $asciiDomain */
-        $asciiDomain = $tld->toAscii();
-        $label = $asciiDomain->label(0);
-        foreach ($this as $knownTld) {
-            if ($knownTld->value() === $label) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function resolve($domain): ResolvedDomainName
+    public function getTopLevelDomain($domain): ResolvedDomainName
     {
         if ($domain instanceof ExternalDomainName) {
             $domain = $domain->domain();
@@ -188,7 +174,7 @@ final class TopLevelDomains implements RootZoneDatabase
             if ($tld->value() === $label) {
                 $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($tld) : Domain::fromIDNA2003($tld);
 
-                return new ResolvedDomain($domain, PublicSuffix::fromUnknown($publicSuffix));
+                return new ResolvedDomain($domain, PublicSuffix::fromIANA($publicSuffix));
             }
         }
 
