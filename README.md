@@ -61,9 +61,9 @@ For the [Public Suffix List](http://publicsuffix.org/) you need to use the
 <?php 
 use Pdp\Rules;
 
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+$publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
-$result = $rules->resolve('www.PreF.OkiNawA.jP');
+$result = $publicSuffixList->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www';
 echo $result->secondLevelDomain();             //display 'pref';
@@ -78,9 +78,9 @@ the `Pdp\TopLevelDomains` class is use instead:
 ~~~php
 use Pdp\TopLevelDomains;
 
-$iana = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
+$rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
 
-$result = $iana->resolve('www.PreF.OkiNawA.jP');
+$result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->publicSuffix()->toString();      //display 'jp';
 echo $result->secondLevelDomain();             //display 'okinawa';
@@ -112,26 +112,26 @@ is invalid.
 use Pdp\Rules;
 use Pdp\TopLevelDomains;
 
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+$publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
-$rules->getICANNDomain('qfdsf.unknownTLD');
+$publicSuffixList->getICANNDomain('qfdsf.unknownTLD');
 // will throw because `.unknownTLD` is not part of the ICANN section
 
-$result = $rules->getCookieDomain('qfdsf.unknownTLD');
+$result = $publicSuffixList->getCookieDomain('qfdsf.unknownTLD');
 $result->publicSuffix()->value();   // returns 'unknownTLD'
 $result->publicSuffix()->isKnown(); // returns false
 // will not throw because the domain syntax is correct.
 
-$rules->getCookieDomain('com');
+$publicSuffixList->getCookieDomain('com');
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
 
-$result = $rules->resolve('com');
+$result = $publicSuffixList->resolve('com');
 $result->publicSuffix()->value();   // returns null
 $result->publicSuffix()->isKnown(); // returns false
 // will not throw but its public suffix value equal to NULL
 
-$topLevelDomains = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
-$topLevelDomains->getTopLevelDomain('com');
+$rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
+$rootZoneDatabase->getTopLevelDomain('com');
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
 ~~~
 
@@ -160,9 +160,9 @@ You can modify the returned `Pdp\ResolvedDomain` instance using the following me
 <?php 
 use Pdp\Rules;
 
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+$publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
-$result = $rules->resolve('shop.example.com');
+$result = $publicSuffixList->resolve('shop.example.com');
 $altResult = $result
     ->withSubDomain('foo.bar')
     ->withSecondLevelDomain('test')
@@ -189,9 +189,9 @@ object.
 <?php 
 use Pdp\Rules;
 
-$rules = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+$publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 
-$publicSuffix = $rules->resolve('example.github.io')->publicSuffix();
+$publicSuffix = $publicSuffixList->resolve('example.github.io')->publicSuffix();
 
 echo $publicSuffix->domain()->toString(); //display 'github.io';
 $publicSuffix->isICANN();                 //will return false
@@ -238,9 +238,9 @@ manipulating domain labels. You can access the object using the following method
 
 ~~~php
 <?php 
-/** @var  Rules $rules */
-$result = $rules->resolve('www.bbc.co.uk');
-$domain = $rules->resolve('www.bbc.co.uk')->domain();
+/** @var  Rules $publicSuffixList */
+$result = $publicSuffixList->resolve('www.bbc.co.uk');
+$domain = $result->domain();
 echo $domain->toString(); // display 'www.bbc.co.uk'
 count($domain);           // returns 4
 $domain->labels();        // returns ['uk', 'co', 'bbc', 'www'];
@@ -265,8 +265,8 @@ following methods:
 ~~~php
 <?php 
 
-/** @var  Rules $rules */
-$domain = $rules->resolve('www.ExAmpLE.cOM')->domain();
+/** @var  Rules $publicSuffixList */
+$domain = $publicSuffixList->resolve('www.ExAmpLE.cOM')->domain();
 
 $newDomain = $domain
     ->withLabel(1, 'com')  //replace 'example' by 'com'
@@ -306,11 +306,11 @@ IDNA Compatibility Processing. Domain objects expose a `toAscii` and a
 `toUnicode` methods which returns a new instance in the converted format.
 
 ~~~php
-/** @var  Rules $rules */
-$unicodeDomain = $rules->resolve('bébé.be')->domain();
+/** @var  Rules $publicSuffixList */
+$unicodeDomain = $publicSuffixList->resolve('bébé.be')->domain();
 echo $unicodeDomain->toString(); // returns 'bébé.be'
 
-$asciiDomain = $rules->resolve('xn--bb-bjab.be')->domain();
+$asciiDomain = $publicSuffixList->resolve('xn--bb-bjab.be')->domain();
 echo $asciiDomain->toString();  // returns 'xn--bb-bjab.be'
 
 $asciiDomain->toUnicode()->toString() === $unicodeDomain->toString(); //returns true
@@ -409,19 +409,22 @@ find robust and battle tested implementations on packagist.
 
 For the purpose of this example we will use our PSR powered solution with:
  
-- *Symfony HTTP Client* as our PSR-18 HTTP client;
-- *nyholm/psr7* which provide factories to create a PSR-7 objects;
-- *Symfony Cache Component* as our PSR-16 cache implementation;
+- *Guzzle HTTP Client* as our PSR-18 HTTP client;
+- *Guzzle PSR-7 package* which provide factories to create a PSR-7 objects using PSR-17 interfaces;
+- *Symfony Cache Component* as our PSR-16 cache implementation provider;
 
 We will cache both external sources for 24 hours in a PostgreSQL database.
 
-You are free to use other libraries/solutions as long as they implement the required PSR interfaces. 
+You are free to use other libraries/solutions/settings as long as they 
+implement the required PSR interfaces. 
 
 ~~~php
 <?php 
 
+use GuzzleHttp\Psr7\Request;
 use Pdp\Storage\PsrStorageFactory;
-use Symfony\Component\HttpClient\Psr18Client;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
 use Symfony\Component\Cache\Adapter\PdoAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
@@ -432,22 +435,31 @@ $pdo = new PDO(
     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
 );
 $cache = new Psr16Cache(new PdoAdapter($pdo, 'pdp', 43200));
-$client = new Psr18Client();
+$client = new GuzzleHttp\Client();
+$requestFactory = new class implements RequestFactoryInterface {
+    public function createRequest(string $method, $uri): RequestInterface
+    {
+        return new Request($method, $uri);
+    }
+};
+
 $cachePrefix = 'pdp_';
 $cacheTtl = new DateInterval('P1D');
-$factory = new PsrStorageFactory($cache, $client, $client);
+$factory = new PsrStorageFactory($cache, $client, $requestFactory);
 $pslStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
 $rzdStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
 
 // if you need to force refreshing the rules 
 // before calling them (to use in a refresh script)
-// $pslStorage->delete(PsrStorageFactory::URL_PSL);
-$rules = $pslStorage->get(PsrStorageFactory::URL_PSL);
+// uncomment this part or adapt it to you script logic
+// $pslStorage->delete(PsrStorageFactory::PUBLIC_SUFFIX_LIST_URI);
+$publicSuffixList = $pslStorage->get(PsrStorageFactory::PUBLIC_SUFFIX_LIST_URI);
 
 // if you need to force refreshing the rules 
 // before calling them (to use in a refresh script)
-// $rzdStorage->delete(PsrStorageFactory::URL_RZD);
-$tldDomains = $rzdStorage->get(PsrStorageFactory::URL_RZD);
+// uncomment this part or adapt it to you script logic
+// $rzdStorage->delete(PsrStorageFactory::ROOT_ZONE_DATABASE_URI);
+$rootZoneDatabase = $rzdStorage->get(PsrStorageFactory::ROOT_ZONE_DATABASE_URI);
 ~~~
 
 **Be sure to adapt the following code to your own application.

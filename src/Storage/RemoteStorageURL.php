@@ -6,7 +6,7 @@ namespace Pdp\Storage;
 
 interface RemoteStorageURL
 {
-    public const URL_PSL = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    public const PUBLIC_SUFFIX_LIST_URI = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
-    public const URL_RZD = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
+    public const ROOT_ZONE_DATABASE_URI = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
 }
