@@ -145,8 +145,8 @@ To instantiate each domain resolver you can use the following named constructor:
 
 **If the instantiation does not work an exception will be thrown.**
 
-Once instantiated, you can always convert the data source in a Json Encoded friendly schema
-if needed.
+Once instantiated, you can always convert the data source in a json encoded string as both
+resolver exposes the `JsonSerialize` method.
 
 **WARNING:**
 
