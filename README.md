@@ -69,7 +69,7 @@ echo $result->subDomain()->toString();         //display 'www';
 echo $result->secondLevelDomain();             //display 'pref';
 echo $result->registrableDomain()->toString(); //display 'pref.okinawa.jp';
 echo $result->publicSuffix()->toString();      //display 'okinawa.jp';
-$result->publicSuffix()->isICANN();            //returns true;
+$result->publicSuffix()->isICANN();            //return true;
 ~~~
 
 For the [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt),
@@ -86,26 +86,28 @@ echo $result->publicSuffix()->toString();      //display 'jp';
 echo $result->secondLevelDomain();             //display 'okinawa';
 echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www.pref';
+echo $result->publicSuffix()->isIANA();        //return true
 ~~~
 
 In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
 
 The `resolve` method will always return a `ResolvedDomain` even if the domain
-syntax is invalid or no match is found in the resource data. 
-To work around this limitation, the library exposes more strict methods:
+syntax is invalid or if there is no match found in the resource data. 
+To work around this limitation, the library exposes more strict methods,
+namely:
 
 - `Rules::getCookieDomain`
 - `Rules::getICANNDomain`
 - `Rules::getPrivateDomain`
 
-and
+for the Public Suffix List and the following method for the Root Zone
+Database:
 
 - `TopLevelDomains::getTopLevelDomain`
 
-These methods act and resolve the domain against the PSL just like 
-the `resolve` method but will throw an exception if no valid effective 
-TLD is found in the specified resource data or if the submitted domain 
-is invalid.
+These methods resolve the domain against their respective data source using
+the same rules as the `resolve` method but will instead throw an exception 
+if no valid effective TLD is found or if the submitted domain is invalid.
 
 ~~~php
 <?php 
@@ -151,9 +153,30 @@ consider using directly the DNS.**
 **If you must use this library for any of the above purposes, please consider 
 integrating an updating mechanism into your software.**
 
+**For more information go to the [Managing external data source section](#managing-the-package-external-resources)** 
 
-### Dealing with the resolution result.
 
+### Resolved domain information.
+
+Whichever methods chosen to resolve the domain on success, the package will
+return a `Pdp\ResolvedDomain` instance.
+
+The `Pdp\ResolvedDomain` decorates the `Pdp\Domain` class resolved  but also 
+gives access as separate methods to the domain different components. 
+
+~~~php
+use Pdp\RootZoneDatabase;
+
+/** @var RootZoneDatabase $rootZoneDatabase */
+$result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
+echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
+echo $result->publicSuffix()->toString();      //display 'jp';
+echo $result->secondLevelDomain();             //display 'okinawa';
+echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
+echo $result->subDomain()->toString();         //display 'www.pref';
+echo $result->publicSuffix()->isIANA();        //return true
+~~~
+ 
 You can modify the returned `Pdp\ResolvedDomain` instance using the following methods:
 
 ~~~php
@@ -175,22 +198,22 @@ echo $altResult->domain()->toString(); //display 'foo.bar.test.example';
 $altResult->publicSuffix()->isKnown(); //returns false;
 ~~~
 
-The value returned by `Pdp\PublicSuffix::isKnown` will depends if you use
-a proper `Pdp\PublicSuffix` instance or not 
-with `ResolvedDomain::withPublicSuffix`, more information in the next section.
+**TIP: Always favor submitting a `Pdp\PublicSuffix` object rather that any other
+supported type to avoid unexpected results. By default, if the input is not a
+`Pdp\PublicSuffix` instance, the resulting public suffix will be labelled as
+being unknown. For more information go to the [Public Suffix section](#public-suffix)**
 
 ### Public Suffix
 
-The [Public Suffix List](http://publicsuffix.org/) is organized in sections.
-This library can give you access to this information via its public suffix 
-object.
+The domain effective TLD is represented using the `Pdp\PublicSuffix`. Depending
+ on the data source the object exposes different information regarding its
+origin.
 
 ~~~php
 <?php 
-use Pdp\Rules;
+use Pdp\PublicSuffixList;
 
-$publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
-
+/** @var PublicSuffixList $publicSuffixList */
 $publicSuffix = $publicSuffixList->resolve('example.github.io')->publicSuffix();
 
 echo $publicSuffix->domain()->toString(); //display 'github.io';
@@ -200,20 +223,21 @@ $publicSuffix->isIANA();                  //will return false
 $publicSuffix->isKnown();                 //will return true
 ~~~
 
-The public suffix state depends on its value:
+The public suffix state depends on its origin:
  
+- `isKnown` returns `true` if the value is present in the data resource.
+- `isIANA` returns `true` if the value is present in the Root Zone Database.
 - `isICANN` returns `true` if the value is present in the PSL ICANN section.
 - `isPrivate` returns `true` if the value is present in the PSL private section.
-- `isKnown` returns `true` if the value was successfully resolved against an external resource.
-- `isIANA` returns `true` if the value was successfully resolved against the Root Zone Database.
  
-Last but not least it is possible to instantiate a PublicSuffix object 
- using one of it's named constructor:
+The same information is used when `Pdp\PublicSuffix` object is 
+instantiate via its named constructors:
  
  ~~~php
  <?php 
  use Pdp\PublicSuffix;
 
+$iana = PublicSuffix::fromIANA('ac.be');
 $icann = PublicSuffix::fromICANN('ac.be');
 $private = PublicSuffix::fromPrivate('ac.be');
 $unknown = PublicSuffix::fromUnknown('ac.be');
@@ -222,6 +246,10 @@ $unknown = PublicSuffix::fromUnknown('ac.be');
 Using a `PublicSuffix` object instead of a string or `null` with 
 `ResolvedDomain::withPublicSuffix` will ensure that the returned value will
 always contain the correct information regarding the public suffix resolution.
+ 
+Using a `Domain` object instead of a string or `null` with the named 
+constructor ensure a better instantiation of the Public Suffix object for
+more information go to the [ASCII and Unicode format section](#ascii-and-unicode-formats) 
  
 ### Accessing and processing Domain labels
 
