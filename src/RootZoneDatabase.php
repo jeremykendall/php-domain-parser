@@ -6,6 +6,7 @@ namespace Pdp;
 
 use Countable;
 use DateTimeImmutable;
+use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
 
@@ -34,7 +35,7 @@ interface RootZoneDatabase extends Countable, DomainResolver, IteratorAggregate,
     /**
      * {@inheritdoc}
      */
-    public function getIterator();
+    public function getIterator(): Iterator;
 
     /**
      * Returns an array representation of the list.

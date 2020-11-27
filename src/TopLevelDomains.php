@@ -6,6 +6,7 @@ namespace Pdp;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use Iterator;
 use JsonException;
 use function count;
 use function fclose;
@@ -117,7 +118,10 @@ final class TopLevelDomains implements RootZoneDatabase
         return [] === $this->records;
     }
 
-    public function getIterator()
+    /**
+     * @return Iterator<EffectiveTLD>
+     */
+    public function getIterator(): Iterator
     {
         foreach ($this->records as $tld) {
             yield PublicSuffix::fromUnknown(Domain::fromIDNA2008($tld)->toAscii());
