@@ -47,5 +47,5 @@ interface RootZoneDatabase extends Countable, DomainResolver, IteratorAggregate,
      * @throws SyntaxError           if the domain is invalid
      * @throws UnableToResolveDomain if the domain does not contain a IANA Effective TLD
      */
-    public function getTopLevelDomain(Host $host): ResolvedDomainName;
+    public function getIANADomain(Host $host): ResolvedDomainName;
 }

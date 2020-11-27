@@ -7,7 +7,7 @@ namespace Pdp;
 interface DomainResolver
 {
     /**
-     * Returns PSL info for a given domain.
+     * Returns the effective TLD info for a given domain against an external data source.
      *
      * If the effective TLD can not be resolved it returns a ResolvedDomainName with a null public suffix
      * If the host is not a valid domain it returns a ResolvedDomainName with a null Domain name

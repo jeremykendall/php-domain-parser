@@ -191,7 +191,7 @@ final class TopLevelDomains implements RootZoneDatabase
     /**
      * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function getTopLevelDomain($domain): ResolvedDomainName
+    public function getIANADomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
         $publicSuffix = $this->fetchEffectiveTLD($domain);

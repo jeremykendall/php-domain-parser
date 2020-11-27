@@ -144,7 +144,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
-            $this->topLevelDomains->getTopLevelDomain($tld)->publicSuffix()->value()
+            $this->topLevelDomains->getIANADomain($tld)->publicSuffix()->value()
         );
     }
 
@@ -178,14 +178,14 @@ final class TopLevelDomainsTest extends TestCase
     {
         self::expectException(TypeError::class);
 
-        $this->topLevelDomains->getTopLevelDomain(new DateTimeImmutable());
+        $this->topLevelDomains->getIANADomain(new DateTimeImmutable());
     }
 
     public function testTopLevelDomainWithInvalidDomain(): void
     {
         self::expectException(SyntaxError::class);
 
-        $this->topLevelDomains->getTopLevelDomain('###');
+        $this->topLevelDomains->getIANADomain('###');
     }
 
     public function testResolveWithInvalidDomain(): void
@@ -199,7 +199,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        $this->topLevelDomains->getTopLevelDomain('localhost');
+        $this->topLevelDomains->getIANADomain('localhost');
     }
 
     public function testResolveWithUnResolvableDomain(): void
@@ -215,7 +215,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        $this->topLevelDomains->getTopLevelDomain('localhost');
+        $this->topLevelDomains->getIANADomain('localhost');
     }
 
     public function testResolveWithUnregisteredTLD(): void
@@ -230,7 +230,7 @@ final class TopLevelDomainsTest extends TestCase
         self::expectException(UnableToResolveDomain::class);
 
         $collection = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
-        $collection->getTopLevelDomain('localhost.locale');
+        $collection->getIANADomain('localhost.locale');
     }
 
     public function testResolveWithIDNAOptions(): void

@@ -103,7 +103,7 @@ namely:
 for the Public Suffix List and the following method for the Root Zone
 Database:
 
-- `TopLevelDomains::getTopLevelDomain`
+- `TopLevelDomains::getIANADomain`
 
 These methods resolve the domain against their respective data source using
 the same rules as the `resolve` method but will instead throw an exception 
@@ -133,7 +133,7 @@ $result->publicSuffix()->isKnown(); // returns false
 // will not throw but its public suffix value equal to NULL
 
 $rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
-$rootZoneDatabase->getTopLevelDomain('com');
+$rootZoneDatabase->getIANADomain('com');
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
 ~~~
 
