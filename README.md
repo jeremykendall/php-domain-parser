@@ -137,6 +137,17 @@ $rootZoneDatabase->getTopLevelDomain('com');
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
 ~~~
 
+To instantiate each domain resolver you can use the following named constructor:
+
+- `fromString`: instantiate the resolver from a inline string representing the data source;
+- `fromJsonString`: instantiate the resolver from a json string representing the data source;
+- `fromPath`: instantiate the resolver from a local path or online URL by relying on `fopen`;
+
+**If the instantiation does not work an exception will be thrown.**
+
+Once instantiated, you can always convert the data source in a Json Encoded friendly schema
+if needed.
+
 **WARNING:**
 
 **You should never use resolve domain name this way in production, without, at 
@@ -154,7 +165,6 @@ consider using directly the DNS.**
 integrating an updating mechanism into your software.**
 
 **For more information go to the [Managing external data source section](#managing-the-package-external-resources)** 
-
 
 ### Resolved domain information.
 
@@ -181,10 +191,10 @@ You can modify the returned `Pdp\ResolvedDomain` instance using the following me
 
 ~~~php
 <?php 
-use Pdp\Rules;
 
-$publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+use Pdp\PublicSuffixList;
 
+/** @var PublicSuffixList $publicSuffixList */
 $result = $publicSuffixList->resolve('shop.example.com');
 $altResult = $result
     ->withSubDomain('foo.bar')
@@ -266,7 +276,9 @@ manipulating domain labels. You can access the object using the following method
 
 ~~~php
 <?php 
-/** @var  Rules $publicSuffixList */
+use Pdp\PublicSuffixList;
+
+/** @var PublicSuffixList $publicSuffixList */
 $result = $publicSuffixList->resolve('www.bbc.co.uk');
 $domain = $result->domain();
 echo $domain->toString(); // display 'www.bbc.co.uk'
@@ -292,8 +304,9 @@ following methods:
 
 ~~~php
 <?php 
+use Pdp\PublicSuffixList;
 
-/** @var  Rules $publicSuffixList */
+/** @var PublicSuffixList $publicSuffixList */
 $domain = $publicSuffixList->resolve('www.ExAmpLE.cOM')->domain();
 
 $newDomain = $domain
@@ -334,7 +347,10 @@ IDNA Compatibility Processing. Domain objects expose a `toAscii` and a
 `toUnicode` methods which returns a new instance in the converted format.
 
 ~~~php
-/** @var  Rules $publicSuffixList */
+<?php 
+use Pdp\PublicSuffixList;
+
+/** @var PublicSuffixList $publicSuffixList */
 $unicodeDomain = $publicSuffixList->resolve('bébé.be')->domain();
 echo $unicodeDomain->toString(); // returns 'bébé.be'
 
