@@ -155,14 +155,14 @@ representation in other languages.
 - json_encode($result);           // returns {"domain":"www.example.com","registrableDomain":"example.com","subDomain":"www","publicSuffix":"com","isKnown":true,"isICANN":true,"isPrivate":false}
 + json_encode($result);           // returns '"www.example.com"'
 + echo json_encode([
-    'domain' => $result->value(),
-    'registrableDomain' => $result->registrableDomain()->value(),
-    'subDomain' => $result->subDomain()->value(),
-    'publicSuffix' => $result->suffix()->value(),
-    'isKnown' => $result->suffix()->isKnown(),
-    'isICANN' => $result->suffix()->isICANN(),
-    'isPrivate' => $result->suffix()->isPrivate(),
-]);
++    'domain' => $result->value(),
++    'registrableDomain' => $result->registrableDomain()->value(),
++    'subDomain' => $result->subDomain()->value(),
++    'publicSuffix' => $result->suffix()->value(),
++    'isKnown' => $result->suffix()->isKnown(),
++    'isICANN' => $result->suffix()->isICANN(),
++    'isPrivate' => $result->suffix()->isPrivate(),
++ ]);
 // to get the v5 result
 ```
 
