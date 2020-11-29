@@ -131,7 +131,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
-            $this->topLevelDomains->resolve($tld)->publicSuffix()->value()
+            $this->topLevelDomains->resolve($tld)->suffix()->value()
         );
     }
 
@@ -144,7 +144,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
-            $this->topLevelDomains->getIANADomain($tld)->publicSuffix()->value()
+            $this->topLevelDomains->getIANADomain($tld)->suffix()->value()
         );
     }
 
@@ -191,7 +191,7 @@ final class TopLevelDomainsTest extends TestCase
     public function testResolveWithInvalidDomain(): void
     {
         $result = $this->topLevelDomains->resolve('###');
-        self::assertFalse($result->publicSuffix()->isIANA());
+        self::assertFalse($result->suffix()->isIANA());
         self::assertNull($result->value());
     }
 
@@ -207,8 +207,8 @@ final class TopLevelDomainsTest extends TestCase
         $result = $this->topLevelDomains->resolve('localhost');
 
         self::assertSame($result->toString(), 'localhost');
-        self::assertNull($result->publicSuffix()->value());
-        self::assertFalse($result->publicSuffix()->isIANA());
+        self::assertNull($result->suffix()->value());
+        self::assertFalse($result->suffix()->isIANA());
     }
 
     public function testGetTopLevelDomainWithUnResolvableDomain(): void
@@ -222,7 +222,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         $collection = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
 
-        self::assertNull($collection->resolve('localhost.locale')->publicSuffix()->value());
+        self::assertNull($collection->resolve('localhost.locale')->suffix()->value());
     }
 
     public function testGetTopLevelDomainWithUnregisteredTLD(): void

@@ -177,9 +177,9 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->domain->toString();
     }
 
-    public function registrableDomain(): ResolvedDomain
+    public function registrableDomain(): DomainName
     {
-        return new self($this->registrableDomain, $this->publicSuffix);
+        return $this->registrableDomain;
     }
 
     public function secondLevelDomain(): ?string
@@ -192,7 +192,7 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->subDomain;
     }
 
-    public function publicSuffix(): EffectiveTLD
+    public function suffix(): EffectiveTLD
     {
         return $this->publicSuffix;
     }
@@ -210,7 +210,7 @@ final class ResolvedDomain implements ResolvedDomainName
     /**
      * @param mixed $publicSuffix a public suffix
      */
-    public function withPublicSuffix($publicSuffix): self
+    public function withSuffix($publicSuffix): self
     {
         if (!$publicSuffix instanceof EffectiveTLD) {
             $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);

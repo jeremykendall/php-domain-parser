@@ -1,5 +1,9 @@
 # PHP Domain Parser Upgrade Guide
 
+This guide will help you migrate from a 5.x version to 6.0.0. It will only 
+explain backward compatibility breaks, it will not present the new features
+([read the documentation](README.md) for that).
+
 ## 5.0 to 6.0
 
 In order to take advantage of PHP new features, the library dropped the 
@@ -10,7 +14,7 @@ PHP version is now **PHP 7.4**.
 
 ### Backward Incompatibility Changes
 
-Domains resolution is done using the `IDNA2008` algorithm by default, in v5, 
+Domains resolution uses the `IDNA2008` algorithm by default, in v5, 
 by default, it is done `IDNA2003` instead.
 
 ```diff
@@ -40,8 +44,8 @@ returned object.
 ```diff
 <?php
 /** @var Rules $rules */
-- $rules->resolve('faß.de')->isICANN();                 //returns true
-+ $rules->resolve('faß.de')->publicSuffix()->isICANN(); //returns true
+- $rules->resolve('faß.de')->isICANN();           //returns true
++ $rules->resolve('faß.de')->suffix()->isICANN(); //returns true
 ```
 
 ```diff
@@ -70,7 +74,6 @@ a syntax error.
 + $result = $rules->resolve('####'); //returns a ResolvedDomain object 
 ```
 
-
 #### Strict domain resolution
 
 **version 5**
@@ -80,8 +83,8 @@ a syntax error.
 
 **version 6**
 - `Rules::getCookieDomain` will throw on invalid domain value.
-- `Rules::getICANNDomain` will throw on public suffix not find in the ICANN Section.
-- `Rules::getPrivateDomain` will throw on public suffix not find in the Private Section.
+- `Rules::getICANNDomain` will throw on invalid domain value **and** on public suffix not find in the ICANN Section.
+- `Rules::getPrivateDomain` will throw on invalid domain value **and** on public suffix not find in the Private Section.
 
 #### Domain format
 
@@ -151,7 +154,16 @@ representation in other languages.
 - $result = $rules->resolve('www.example.com'); 
 - json_encode($result);           // returns {"domain":"www.example.com","registrableDomain":"example.com","subDomain":"www","publicSuffix":"com","isKnown":true,"isICANN":true,"isPrivate":false}
 + json_encode($result);           // returns '"www.example.com"'
-+ json_encode($result->domain()); // returns '"www.example.com"'
++ echo json_encode([
+    'domain' => $result->value(),
+    'registrableDomain' => $result->registrableDomain()->value(),
+    'subDomain' => $result->subDomain()->value(),
+    'publicSuffix' => $result->suffix()->value(),
+    'isKnown' => $result->suffix()->isKnown(),
+    'isICANN' => $result->suffix()->isICANN(),
+    'isPrivate' => $result->suffix()->isPrivate(),
+]);
+// to get the v5 result
 ```
 
 #### Objects instantiation

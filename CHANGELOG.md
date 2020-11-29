@@ -39,7 +39,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\Rules::ALL_DOMAINS` constant deprecated in version 5.3
 - `Pdp\Domain::getDomain` deprecated in version 5.3
 - `Pdp\Domain::resolve`
-- `Pdp\Domain::getPublicSuffix` replaced by `Pdp\ResolvedDomain::publicSuffix`
+- `Pdp\Domain::getPublicSuffix` replaced by `Pdp\ResolvedDomain::suffix`
 - `Pdp\Domain::getRegistrableDomain` replaced by `Pdp\ResolvedDomain::registrableDomain`
 - `Pdp\Domain::getSubDomain` replaced by `Pdp\ResolvedDomain::subDomain`
 - `Pdp\Domain::getLabel` replaced by `Pdp\Domain::label`

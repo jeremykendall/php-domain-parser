@@ -94,7 +94,7 @@ final class RulesTest extends TestCase
     {
         $domain = $this->rules->resolve('COM');
 
-        self::assertFalse($domain->publicSuffix()->isKnown());
+        self::assertFalse($domain->suffix()->isKnown());
     }
 
     public function testThrowsTypeErrorOnWrongInput(): void
@@ -108,34 +108,34 @@ final class RulesTest extends TestCase
     {
         $domain = $this->rules->resolve('www.example.faketld');
 
-        self::assertFalse($domain->publicSuffix()->isKnown());
+        self::assertFalse($domain->suffix()->isKnown());
     }
 
     public function testIsSuffixValidTrue(): void
     {
         $domain = $this->rules->resolve('www.example.com');
 
-        self::assertTrue($domain->publicSuffix()->isKnown());
-        self::assertTrue($domain->publicSuffix()->isICANN());
-        self::assertFalse($domain->publicSuffix()->isPrivate());
+        self::assertTrue($domain->suffix()->isKnown());
+        self::assertTrue($domain->suffix()->isICANN());
+        self::assertFalse($domain->suffix()->isPrivate());
     }
 
     public function testIsSuffixValidFalseWithPunycoded(): void
     {
         $domain = $this->rules->resolve('www.example.xn--85x722f');
 
-        self::assertFalse($domain->publicSuffix()->isKnown());
-        self::assertFalse($domain->publicSuffix()->isICANN());
-        self::assertFalse($domain->publicSuffix()->isPrivate());
+        self::assertFalse($domain->suffix()->isKnown());
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertFalse($domain->suffix()->isPrivate());
     }
 
     public function testSubDomainIsNull(): void
     {
         $domain = $this->rules->resolve('ulb.ac.be');
 
-        self::assertTrue($domain->publicSuffix()->isKnown());
-        self::assertTrue($domain->publicSuffix()->isICANN());
-        self::assertFalse($domain->publicSuffix()->isPrivate());
+        self::assertTrue($domain->suffix()->isKnown());
+        self::assertTrue($domain->suffix()->isICANN());
+        self::assertFalse($domain->suffix()->isPrivate());
     }
 
     public function testWithExceptionName(): void
@@ -149,10 +149,10 @@ final class RulesTest extends TestCase
     {
         $domain = $this->rules->resolve('thephpleague.github.io');
 
-        self::assertTrue($domain->publicSuffix()->isKnown());
-        self::assertFalse($domain->publicSuffix()->isICANN());
-        self::assertTrue($domain->publicSuffix()->isPrivate());
-        self::assertSame('github.io', $domain->publicSuffix()->value());
+        self::assertTrue($domain->suffix()->isKnown());
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertTrue($domain->suffix()->isPrivate());
+        self::assertSame('github.io', $domain->suffix()->value());
     }
 
     public function testWithAbsoluteHostInvalid(): void
@@ -160,10 +160,10 @@ final class RulesTest extends TestCase
         $domain = $this->rules->resolve('private.ulb.ac.be.');
 
         self::assertSame('private.ulb.ac.be.', $domain->value());
-        self::assertFalse($domain->publicSuffix()->isKnown());
-        self::assertFalse($domain->publicSuffix()->isICANN());
-        self::assertFalse($domain->publicSuffix()->isPrivate());
-        self::assertNull($domain->publicSuffix()->value());
+        self::assertFalse($domain->suffix()->isKnown());
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertFalse($domain->suffix()->isPrivate());
+        self::assertNull($domain->suffix()->value());
     }
 
     public function testWithICANNDomainInvalid(): void
@@ -191,10 +191,10 @@ final class RulesTest extends TestCase
         $domain = $this->rules->getPrivateDomain('thephpleague.github.io');
 
         self::assertSame('thephpleague.github.io', $domain->value());
-        self::assertTrue($domain->publicSuffix()->isKnown());
-        self::assertFalse($domain->publicSuffix()->isICANN());
-        self::assertTrue($domain->publicSuffix()->isPrivate());
-        self::assertSame('github.io', $domain->publicSuffix()->value());
+        self::assertTrue($domain->suffix()->isKnown());
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertTrue($domain->suffix()->isPrivate());
+        self::assertSame('github.io', $domain->suffix()->value());
     }
 
     public function testResolvingICANNDomainInvalid(): void
@@ -202,10 +202,10 @@ final class RulesTest extends TestCase
         $domain = $this->rules->resolve('private.ulb.ac.be');
 
         self::assertSame('private.ulb.ac.be', $domain->value());
-        self::assertTrue($domain->publicSuffix()->isKnown());
-        self::assertTrue($domain->publicSuffix()->isICANN());
-        self::assertFalse($domain->publicSuffix()->isPrivate());
-        self::assertSame('ac.be', $domain->publicSuffix()->value());
+        self::assertTrue($domain->suffix()->isKnown());
+        self::assertTrue($domain->suffix()->isICANN());
+        self::assertFalse($domain->suffix()->isPrivate());
+        self::assertSame('ac.be', $domain->suffix()->value());
     }
 
     public function testWithDomainObject(): void
@@ -218,10 +218,10 @@ final class RulesTest extends TestCase
         $newDomain = $this->rules->resolve($domain);
 
         self::assertSame('private.ulb.ac.be', $domain->value());
-        self::assertTrue($domain->publicSuffix()->isKnown());
-        self::assertTrue($domain->publicSuffix()->isICANN());
-        self::assertFalse($domain->publicSuffix()->isPrivate());
-        self::assertSame('ac.be', $domain->publicSuffix()->value());
+        self::assertTrue($domain->suffix()->isKnown());
+        self::assertTrue($domain->suffix()->isICANN());
+        self::assertFalse($domain->suffix()->isPrivate());
+        self::assertSame('ac.be', $domain->suffix()->value());
         self::assertEquals($domain, $newDomain);
     }
 
@@ -231,7 +231,7 @@ final class RulesTest extends TestCase
 
         self::assertSame(
             'ac.be',
-            $this->rules->getCookieDomain($domain)->publicSuffix()->value()
+            $this->rules->getCookieDomain($domain)->suffix()->value()
         );
     }
 
@@ -256,7 +256,7 @@ final class RulesTest extends TestCase
      */
     public function testGetPublicSuffix(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
-        $effectiveTLD = $this->rules->resolve($domain)->publicSuffix();
+        $effectiveTLD = $this->rules->resolve($domain)->suffix();
 
         self::assertSame($publicSuffix, $effectiveTLD->value());
     }
@@ -438,7 +438,7 @@ final class RulesTest extends TestCase
      */
     public function testPublicSuffixSection(?string $domain, ?string $expected): void
     {
-        $publicSuffix = $this->rules->getCookieDomain($domain)->publicSuffix();
+        $publicSuffix = $this->rules->getCookieDomain($domain)->suffix();
         self::assertSame($expected, $publicSuffix->value());
     }
 
@@ -606,9 +606,9 @@ final class RulesTest extends TestCase
      */
     public function testEffectiveTLDResolution(string $host, string $cookieETLD, string $icannETLD, string $privateETLD): void
     {
-        self::assertSame($cookieETLD, $this->rules->getCookieDomain($host)->publicSuffix()->toString());
-        self::assertSame($icannETLD, $this->rules->getICANNDomain($host)->publicSuffix()->toString());
-        self::assertSame($privateETLD, $this->rules->getPrivateDomain($host)->publicSuffix()->toString());
+        self::assertSame($cookieETLD, $this->rules->getCookieDomain($host)->suffix()->toString());
+        self::assertSame($icannETLD, $this->rules->getICANNDomain($host)->suffix()->toString());
+        self::assertSame($privateETLD, $this->rules->getPrivateDomain($host)->suffix()->toString());
     }
 
     public function effectiveTLDProvider(): iterable

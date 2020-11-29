@@ -68,8 +68,8 @@ echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www';
 echo $result->secondLevelDomain();             //display 'pref';
 echo $result->registrableDomain()->toString(); //display 'pref.okinawa.jp';
-echo $result->publicSuffix()->toString();      //display 'okinawa.jp';
-$result->publicSuffix()->isICANN();            //return true;
+echo $result->suffix()->toString();      //display 'okinawa.jp';
+$result->suffix()->isICANN();            //return true;
 ~~~
 
 For the [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt),
@@ -82,11 +82,11 @@ $rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-doma
 
 $result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
-echo $result->publicSuffix()->toString();      //display 'jp';
+echo $result->suffix()->toString();      //display 'jp';
 echo $result->secondLevelDomain();             //display 'okinawa';
 echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www.pref';
-echo $result->publicSuffix()->isIANA();        //return true
+echo $result->suffix()->isIANA();        //return true
 ~~~
 
 In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
@@ -120,16 +120,16 @@ $publicSuffixList->getICANNDomain('qfdsf.unknownTLD');
 // will throw because `.unknownTLD` is not part of the ICANN section
 
 $result = $publicSuffixList->getCookieDomain('qfdsf.unknownTLD');
-$result->publicSuffix()->value();   // returns 'unknownTLD'
-$result->publicSuffix()->isKnown(); // returns false
+$result->suffix()->value();   // returns 'unknownTLD'
+$result->suffix()->isKnown(); // returns false
 // will not throw because the domain syntax is correct.
 
 $publicSuffixList->getCookieDomain('com');
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
 
 $result = $publicSuffixList->resolve('com');
-$result->publicSuffix()->value();   // returns null
-$result->publicSuffix()->isKnown(); // returns false
+$result->suffix()->value();   // returns null
+$result->suffix()->isKnown(); // returns false
 // will not throw but its public suffix value equal to NULL
 
 $rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
@@ -180,11 +180,11 @@ use Pdp\RootZoneDatabase;
 /** @var RootZoneDatabase $rootZoneDatabase */
 $result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
-echo $result->publicSuffix()->toString();      //display 'jp';
+echo $result->suffix()->toString();      //display 'jp';
 echo $result->secondLevelDomain();             //display 'okinawa';
 echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www.pref';
-echo $result->publicSuffix()->isIANA();        //return true
+echo $result->suffix()->isIANA();        //return true
 ~~~
  
 You can modify the returned `Pdp\ResolvedDomain` instance using the following methods:
@@ -199,13 +199,13 @@ $result = $publicSuffixList->resolve('shop.example.com');
 $altResult = $result
     ->withSubDomain('foo.bar')
     ->withSecondLevelDomain('test')
-    ->withPublicSuffix('example');
+    ->withSuffix('example');
 
 echo $result->domain()->toString(); //display 'shop.example.com';
-$result->publicSuffix()->isKnown(); //returns true;
+$result->suffix()->isKnown(); //returns true;
 
 echo $altResult->domain()->toString(); //display 'foo.bar.test.example';
-$altResult->publicSuffix()->isKnown(); //returns false;
+$altResult->suffix()->isKnown(); //returns false;
 ~~~
 
 **TIP: Always favor submitting a `Pdp\PublicSuffix` object rather that any other
@@ -224,7 +224,7 @@ origin.
 use Pdp\PublicSuffixList;
 
 /** @var PublicSuffixList $publicSuffixList */
-$publicSuffix = $publicSuffixList->resolve('example.github.io')->publicSuffix();
+$publicSuffix = $publicSuffixList->resolve('example.github.io')->suffix();
 
 echo $publicSuffix->domain()->toString(); //display 'github.io';
 $publicSuffix->isICANN();                 //will return false
@@ -295,7 +295,7 @@ foreach ($domain as $label) {
 // bbc
 // www
 
-$publicSuffixDomain = $result->publicSuffix()->domain();
+$publicSuffixDomain = $result->suffix()->domain();
 $publicSuffixDomain->labels(); // returns ['uk', 'co']
 ~~~ 
 
