@@ -48,6 +48,8 @@ returned object.
 + $rules->resolve('faß.de')->suffix()->isICANN(); //returns true
 ```
 
+Domain components are objects and no longer nullable scalar type.
+
 ```diff
 <?php
 /** @var Rules $rules */
@@ -55,21 +57,19 @@ returned object.
 + $rules->resolve('www.example.org')->registrableDomain()->toString(); //returns 'example.org'
 ```
 
-Domain components are converted to objects.
-
 The `Domain` **no longer has access** to component information.
 
 #### Normalizing domain resolution
 
 The `Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve` domain resolution
-rules are identical. They will alway returns a return even if the domain contains
-a syntax error. 
+rules are identical. They will always return a result even if the domain 
+contains a syntax error. 
 
 ```diff
 <?php
-/** @var TopLevelDomains $rules */
-- $result = $rules->resolve('####'); //throws an Exception
-+ $result = $rules->resolve('####'); //returns a ResolvedDomain object 
+/** @var TopLevelDomains $rootZoneDatabase */
+- $result = $rootZoneDatabase->resolve('####'); //throws an Exception
++ $result = $rootZoneDatabase->resolve('####'); //returns a ResolvedDomain object 
 ```
 
 #### Strict domain resolution
@@ -84,8 +84,8 @@ of returning a response object.
 /** @var PublicSuffixList $rules */
 - $rules->getICANNDomain('toto.foobar')->isICANN(); //returns false
 + $rules->getICANNDomain('toto.foobar');            //will throw an exception 
-- $rules->getPrivateDomain('ulb.ac.be')->isICANN(); //returns false
-+ $rules->getPrivateDomain('ulb.ac.be');            //will throw an exception 
+- $rules->getPrivateDomain('ulb.ac.be')->isPrivate(); //returns false
++ $rules->getPrivateDomain('ulb.ac.be');              //will throw an exception 
 ```
 
 #### Domain format
@@ -172,7 +172,7 @@ representation in other languages.
 -     "isICANN":true,
 -     "isPrivate":false
 -     }
-+ json_encode($result);           // returns '"www.example.com"'
++ json_encode($result); // returns '"www.example.com"'
 + echo json_encode([
 +    'domain' => $result->value(),
 +    'registrableDomain' => $result->registrableDomain()->value(),
