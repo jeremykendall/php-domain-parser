@@ -68,8 +68,8 @@ echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www';
 echo $result->secondLevelDomain();             //display 'pref';
 echo $result->registrableDomain()->toString(); //display 'pref.okinawa.jp';
-echo $result->suffix()->toString();      //display 'okinawa.jp';
-$result->suffix()->isICANN();            //return true;
+echo $result->suffix()->toString();            //display 'okinawa.jp';
+$result->suffix()->isICANN();                  //return true;
 ~~~
 
 For the [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt),
@@ -82,11 +82,11 @@ $rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-doma
 
 $result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
-echo $result->suffix()->toString();      //display 'jp';
+echo $result->suffix()->toString();            //display 'jp';
 echo $result->secondLevelDomain();             //display 'okinawa';
 echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www.pref';
-echo $result->suffix()->isIANA();        //return true
+echo $result->suffix()->isIANA();              //return true
 ~~~
 
 In case of an error an exception which extends `Pdp\CannotProcessHost` is thrown.
@@ -180,11 +180,11 @@ use Pdp\RootZoneDatabase;
 /** @var RootZoneDatabase $rootZoneDatabase */
 $result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
-echo $result->suffix()->toString();      //display 'jp';
+echo $result->suffix()->toString();            //display 'jp';
 echo $result->secondLevelDomain();             //display 'okinawa';
 echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www.pref';
-echo $result->suffix()->isIANA();        //return true
+echo $result->suffix()->isIANA();              //return true
 ~~~
  
 You can modify the returned `Pdp\ResolvedDomain` instance using the following methods:
@@ -202,10 +202,10 @@ $altResult = $result
     ->withSuffix('example');
 
 echo $result->domain()->toString(); //display 'shop.example.com';
-$result->suffix()->isKnown(); //returns true;
+$result->suffix()->isKnown();       //return true;
 
 echo $altResult->domain()->toString(); //display 'foo.bar.test.example';
-$altResult->suffix()->isKnown(); //returns false;
+$altResult->suffix()->isKnown();       //return false;
 ~~~
 
 **TIP: Always favor submitting a `Pdp\PublicSuffix` object rather that any other
@@ -254,7 +254,7 @@ $unknown = PublicSuffix::fromUnknown('ac.be');
 ~~~
 
 Using a `PublicSuffix` object instead of a string or `null` with 
-`ResolvedDomain::withPublicSuffix` will ensure that the returned value will
+`ResolvedDomain::withSuffix` will ensure that the returned value will
 always contain the correct information regarding the public suffix resolution.
  
 Using a `Domain` object instead of a string or `null` with the named 
@@ -269,8 +269,8 @@ manipulating domain labels. You can access the object using the following method
  
 - the `ResolvedDomain::domain` method 
 - the `PublicSuffix::domain` method
-- from `ResolvedDomain::subDomain` method
-- the `ResolvedDomain::registrableDomain` returns a `ResolvedDomain`
+- the `ResolvedDomain::subDomain` method
+- the `ResolvedDomain::registrableDomain` method
 
 `Domain` objects usage are explain in the next section.
 
@@ -418,11 +418,11 @@ The interfaces defined under the `Pdp\Storage` namespace enable
 integrating a database managing system and provide an implementation example 
 using PHP-FIG PSR interfaces.
 
+#### Using PHP-FIG interfaces
+
 The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that
 retrieve, convert and cache the Public Suffix List and the IANA Root 
 Zone Database using standard interfaces published by the PHP-FIG.
-
-#### Instantiate `Pdp\Storage\PsrStorageFactory`
 
 To work as intended, the `Pdp\Storage\PsrStorageFactory` constructor requires:
 
@@ -445,9 +445,12 @@ The `$ttl` argument can be:
 will expire;
 
 The package does not provide any implementation of such interfaces as you can
-find robust and battle tested implementations on packagist.
+find [robust](https://packagist.org/providers/psr/simple-cache-implementation) 
+and [battle tested](https://packagist.org/providers/psr/http-client-implementation) 
+[implementations](https://packagist.org/providers/psr/http-factory-implementation) 
+on packagist.
 
-#### Refreshing the cached PSL and RZD data
+#### Refreshing the resource using the provided factories
 
 **THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY**
 

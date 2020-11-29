@@ -2,7 +2,7 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
-## 6.x.x - TBD
+## 6.0.0 - TBD
 
 ### Added
 
@@ -42,10 +42,11 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\Domain::getPublicSuffix` replaced by `Pdp\ResolvedDomain::suffix`
 - `Pdp\Domain::getRegistrableDomain` replaced by `Pdp\ResolvedDomain::registrableDomain`
 - `Pdp\Domain::getSubDomain` replaced by `Pdp\ResolvedDomain::subDomain`
+- `Pdp\Domain::withPublicSuffix` replaced by `Pdp\ResolvedDomain::withSuffix`
 - `Pdp\Domain::getLabel` replaced by `Pdp\Domain::label`
 - `Pdp\Domain::isTransitionalDifferent` without replacement
 - `Pdp\PublicSuffix::createFromDomain` without replacement
-- Directly accessing public suffix information from the domain object
+- Directly accessing suffix information from the `Pdp\Domain` object
 - `Pdp\TopLevelDomains::contains` without replacement
 
 ## 5.7.2 - 2020-10-25

@@ -57,7 +57,16 @@ Domain components are objects and no longer nullable scalar type.
 + $rules->resolve('www.example.org')->registrableDomain()->toString(); //returns 'example.org'
 ```
 
-The `Domain` **no longer has access** to component information.
+The `Domain` **no longer has access** to component information. Updating
+the resolved component is done on the `ResolvedDomain` and no longer on the
+`Domain` object.
+
+```diff
+<?php
+/** @var Rules $rules */
+- echo $rules->resolve('www.example.org')->withPublicSuffix('com');       //returns 'example.com'
++ echo $rules->resolve('www.example.org')->withSuffix('com')->toString(); //returns 'example.com'
+```
 
 #### Normalizing domain resolution
 
@@ -131,16 +140,16 @@ use Pdp\TopLevelDomains;
 
 #### Resource manager system
 
-The resource manager system is removed.
+The resource manager system (containing caching and refreshing resource) is removed.
 
 - `HttpClient` is removed without replacement.
 - `Cache` is removed without replacement.
-- `Manager` is removed without replacement.
 - `Installer` is removed without replacement.
 - `Logger` is removed without replacement.
 - The CLI script to update the cache is removed without replacement. 
+- `Manager` is removed and may be replace by the use of `Pdp\Storage\PsrStorageFactory`.
 
-*Please check the [README](README.md) documentation for alternatives*
+*Please check the [README](README.md) documentation for more details*
 
 #### Methods removed
 
