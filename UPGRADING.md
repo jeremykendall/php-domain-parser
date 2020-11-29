@@ -13,19 +13,12 @@ PHP version is now **PHP 7.4**.
 Domains resolution is done using the `IDNA2008` algorithm by default, in v5, 
 by default, it is done `IDNA2003` instead.
 
-**version 5**
-
-~~~php
+```diff
+<?php
 /** @var Rules $rules */
-echo $rules->resolve('faß.de'); // returns 'fass.de'
-~~~ 
-
-**version 6**
-
-~~~php
-/** @var Rules $rules */
-echo $rules->resolve('faß.de')->toString(); // returns 'faß.de'
-~~~ 
+- echo $rules->resolve('faß.de')->__toString(); //returns 'fass.de'
++ echo $rules->resolve('faß.de')->toString();   //returns 'faß.de'
+```
 
 #### Domain resolution
 
@@ -34,33 +27,31 @@ The `Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve` returns a
 object no longer exposes the components from resolution, this is done by the 
 new `ResolvedDomain` object instead.
 
-**version 5**
-
-~~~php
+```diff
+<?php
 /** @var Rules $rules */
-$domain = $rules->resolve('www.example.com');
-$domain->getDomain();            //returns a string or null and was deprecated
-$domain->getPublicSuffix();      //returns a string or null
-$domain->getSubDomain();         //returns a string or null
-$domain->getRegistrableDomain(); //returns a string or null
-$domain->isICANN();              //returns a boolean
-$domain->isPrivate();            //returns a boolean
-$domain->isKnown();              //returns a boolean
-~~~ 
+- $rules->resolve('faß.de')->labels();           //returns ['de', 'fass']
++ $rules->resolve('faß.de')->domain()->labels(); //returns [ 'de', 'faß']
+```
 
-**version 6**
+Public suffix properties are not longer **directly** accessible on the
+returned object.
 
-~~~php
+```diff
+<?php
 /** @var Rules $rules */
-$result = $rules->resolve('www.example.com');
-$result->domain();                    //returns a Domain object similar to v5 Domain object
-$result->publicSuffix();              //returns a Public Suffix object
-$result->publicSuffix()->isICANN();   //returns a boolean
-$result->publicSuffix()->isPrivate(); //returns a boolean
-$result->publicSuffix()->isKnown();   //returns a boolean
-$result->subDomain();                 //returns a Domain object
-$result->registrableDomain();         //returns a ResolvedDomain object
-~~~ 
+- $rules->resolve('faß.de')->isICANN();                 //returns true
++ $rules->resolve('faß.de')->publicSuffix()->isICANN(); //returns true
+```
+
+```diff
+<?php
+/** @var Rules $rules */
+- $rules->resolve('www.example.org')->registrableDomain();             //returns 'example.org'
++ $rules->resolve('www.example.org')->registrableDomain()->toString(); //returns 'example.org'
+```
+
+Domain components are converted to objects.
 
 The `Domain` **no longer has access** to component information.
 
@@ -72,19 +63,12 @@ a syntax error.
 
 **version 5**
 
-~~~php
+```diff
+<?php
 /** @var TopLevelDomains $rules */
-$result = $rules->resolve('####');
-//throws an Exception
-~~~ 
-
-**version 6**
-
-~~~php
-/** @var TopLevelDomains $rules */
-$result = $rules->resolve('####');
-//returns a ResolvedDomain object 
-~~~ 
+- $result = $rules->resolve('####'); //throws an Exception
++ $result = $rules->resolve('####'); //returns a ResolvedDomain object 
+```
 
 
 #### Strict domain resolution
@@ -101,25 +85,21 @@ $result = $rules->resolve('####');
 
 #### Domain format
 
-- `Domain::__toString` is removed use `Domain::toString`.
-- `Domain::getContent` is renamed `Domain::value`.
+- The `Domain::__toString` is removed use `Domain::toString` instead.
+- The `Domain::getContent` is removed use `Domain::value` instead.
 - The `Domain` constructor is private. To instantiate a domain object you
 need to use on of the two (2) named constructor `Domain::fromIDNA2008` or 
 `Domain::fromIDNA2008`.
 
-**version 5**
-~~~php
-$domain = new Domain('faß.de', null, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-$domain->getContent();  // can be a string or null
-echo $domain;           // display 'faß.de'
-~~~ 
-
-**version 6**
-~~~php
-$domain = Domain::fromIDNA2008('faß.de');
-$domain->value();         // can be a string or null
-echo $domain->toString(); // display 'faß.de'
-~~~ 
+```diff
+<?php
+- $domain = new Domain('faß.de', null, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
++ $domain = Domain::fromIDNA2008('faß.de');
+- $domain->getContent();  // can be a string or null
++ $domain->value();         // can be a string or null
+- echo $domain;           // display 'faß.de'
++ echo $domain->toString(); // display 'faß.de'
+```
 
 #### Methods renamed
 
@@ -131,7 +111,9 @@ echo $domain->toString(); // display 'faß.de'
 - `TopLevelDomains::getVersion` method is renamed `TopLevelDomains::version`.
 - `TopLevelDomains::getModifiedDate` method is renamed `TopLevelDomains::lastUpdated`.
 
-#### Classes removed
+#### Resource manager system
+
+The resource manager system is removed.
 
 - `HttpClient` is removed without replacement.
 - `Cache` is removed without replacement.
@@ -140,7 +122,7 @@ echo $domain->toString(); // display 'faß.de'
 - `Logger` is removed without replacement.
 - The CLI script to update the cache is removed without replacement. 
 
-*Please check the [README](README.md) doc for the alternative*
+*Please check the [README](README.md) documentation for alternatives*
 
 #### Methods removed
 
@@ -158,6 +140,13 @@ echo $domain->toString(); // display 'faß.de'
 - `Domain::jsonSerialize` no longer returns an array but returns the string
 representation or `null` to allow better compatibility with URL components
 representation in other languages.
+
+```diff
+<?php
+- $domain = new Domain('www.example.com');
++ json_encode($domain); // returns {"domain":"www.example.com","registrableDomain":"example.com","subDomain":"www","publicSuffix":"com","isKnown":true,"isICANN":true,"isPrivate":false}
+- json_encode($domain); // returns '"www.example.com"'
+```
 
 #### Objects instantiation
 
