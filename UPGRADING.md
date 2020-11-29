@@ -35,7 +35,7 @@ new `ResolvedDomain` object instead.
 <?php
 /** @var Rules $rules */
 - $rules->resolve('faß.de')->labels();           //returns ['de', 'fass']
-+ $rules->resolve('faß.de')->domain()->labels(); //returns [ 'de', 'faß']
++ $rules->resolve('faß.de')->domain()->labels(); //returns ['de', 'faß']
 ```
 
 Public suffix properties are not longer **directly** accessible on the
@@ -65,8 +65,6 @@ The `Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve` domain resolution
 rules are identical. They will alway returns a return even if the domain contains
 a syntax error. 
 
-**version 5**
-
 ```diff
 <?php
 /** @var TopLevelDomains $rules */
@@ -76,15 +74,19 @@ a syntax error.
 
 #### Strict domain resolution
 
-**version 5**
-- `Rules::getCookieDomain` will throw on invalid domain value.
-- `Rules::getICANNDomain` will throw on invalid domain value.
-- `Rules::getPrivateDomain` will throw on invalid domain value.
+Domain resolution is stricter with getter methods in version 6. If no
+valid resolution is possible, because of the domain syntax or because
+it is not possible in the given section. The method will throw instead 
+of returning a response object.
 
-**version 6**
-- `Rules::getCookieDomain` will throw on invalid domain value.
-- `Rules::getICANNDomain` will throw on invalid domain value **and** on public suffix not find in the ICANN Section.
-- `Rules::getPrivateDomain` will throw on invalid domain value **and** on public suffix not find in the Private Section.
+```diff
+<?php
+/** @var PublicSuffixList $rules */
+- $rules->getICANNDomain('toto.foobar')->isICANN(); //returns false
++ $rules->getICANNDomain('toto.foobar');            //will throw an exception 
+- $rules->getPrivateDomain('ulb.ac.be')->isICANN(); //returns false
++ $rules->getPrivateDomain('ulb.ac.be');            //will throw an exception 
+```
 
 #### Domain format
 
@@ -109,14 +111,23 @@ need to use on of the two (2) named constructor `Domain::fromIDNA2008` or
 
 #### Methods renamed
 
-The `create` prefix is removed from all named constructors.
+- The `create` prefix is removed from all named constructors.
+- The `get` prefix is removed from `RootZoneDatabase` methods.
 
-- `Rules::createFromPath` method is renamed `Rules::fromPath`.
-- `TopLevelDomains::createFromPath` method is renamed `TopLevelDomains::fromPath`.
-- `Rules::createFromString` method is renamed `Rules::fromString`.
-- `TopLevelDomains::createFromString` method is renamed `TopLevelDomains::fromString`.
-- `TopLevelDomains::getVersion` method is renamed `TopLevelDomains::version`.
-- `TopLevelDomains::getModifiedDate` method is renamed `TopLevelDomains::lastUpdated`.
+```diff
+<?php
+use Pdp\Rules;
+use Pdp\TopLevelDomains;
+
+- $publicSuffixList = Rules::createFromPath('path/to/public-suffix-data.dat');
++ $publicSuffixList = Rules::fromPath('path/to/public-suffix-data.dat');
+- $rootZoneDatabase = TopLevelDomains::createFromString($rootZoneInlineContent);
++ $rootZoneDatabase = TopLevelDomains::fromString($rootZoneInlineContent);
+- $rootZoneDatabase->getVersion(); //returns 2018082200
++ $rootZoneDatabase->version();    //returns 2018082200
+- $rootZoneDatabase->getModifiedDate(); //returns \DateTimeImmutable object
++ $rootZoneDatabase->lastUpdated();     //returns \DateTimeImmutable object
+```
 
 #### Resource manager system
 
@@ -152,7 +163,15 @@ representation in other languages.
 <?php
 /** @var Rules $rules */
 - $result = $rules->resolve('www.example.com'); 
-- json_encode($result);           // returns {"domain":"www.example.com","registrableDomain":"example.com","subDomain":"www","publicSuffix":"com","isKnown":true,"isICANN":true,"isPrivate":false}
+- json_encode($result); // returns {
+-     "domain":"www.example.com",
+-     "registrableDomain":"example.com",
+-     "subDomain":"www",
+-     "publicSuffix":"com",
+-     "isKnown":true,
+-     "isICANN":true,
+-     "isPrivate":false
+-     }
 + json_encode($result);           // returns '"www.example.com"'
 + echo json_encode([
 +    'domain' => $result->value(),
@@ -162,8 +181,7 @@ representation in other languages.
 +    'isKnown' => $result->suffix()->isKnown(),
 +    'isICANN' => $result->suffix()->isICANN(),
 +    'isPrivate' => $result->suffix()->isPrivate(),
-+ ]);
-// to get the v5 result
++ ]); // to get the v5 result
 ```
 
 #### Objects instantiation
