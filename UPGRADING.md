@@ -87,6 +87,7 @@ a syntax error.
 
 - The `Domain::__toString` is removed use `Domain::toString` instead.
 - The `Domain::getContent` is removed use `Domain::value` instead.
+- The `Domain::getLabel` is removed use `Domain::label` instead.
 - The `Domain` constructor is private. To instantiate a domain object you
 need to use on of the two (2) named constructor `Domain::fromIDNA2008` or 
 `Domain::fromIDNA2008`.
@@ -95,15 +96,18 @@ need to use on of the two (2) named constructor `Domain::fromIDNA2008` or
 <?php
 - $domain = new Domain('faß.de', null, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
 + $domain = Domain::fromIDNA2008('faß.de');
-- $domain->getContent();  // can be a string or null
+- $domain->getContent();    // can be a string or null
 + $domain->value();         // can be a string or null
-- echo $domain;           // display 'faß.de'
+- echo $domain;             // display 'faß.de'
 + echo $domain->toString(); // display 'faß.de'
+- $domain->getLabel(-1);    // returns 'faß'
++ $domain->label(-1);       // returns 'faß'
 ```
 
 #### Methods renamed
 
-- `Domain::getLabel` method is renamed `Domain::label`.
+The `create` prefix is removed from all named constructors.
+
 - `Rules::createFromPath` method is renamed `Rules::fromPath`.
 - `TopLevelDomains::createFromPath` method is renamed `TopLevelDomains::fromPath`.
 - `Rules::createFromString` method is renamed `Rules::fromString`.
@@ -143,9 +147,11 @@ representation in other languages.
 
 ```diff
 <?php
-- $domain = new Domain('www.example.com');
-+ json_encode($domain); // returns {"domain":"www.example.com","registrableDomain":"example.com","subDomain":"www","publicSuffix":"com","isKnown":true,"isICANN":true,"isPrivate":false}
-- json_encode($domain); // returns '"www.example.com"'
+/** @var Rules $rules */
+- $result = $rules->resolve('www.example.com'); 
+- json_encode($result);           // returns {"domain":"www.example.com","registrableDomain":"example.com","subDomain":"www","publicSuffix":"com","isKnown":true,"isICANN":true,"isPrivate":false}
++ json_encode($result);           // returns '"www.example.com"'
++ json_encode($result->domain()); // returns '"www.example.com"'
 ```
 
 #### Objects instantiation
