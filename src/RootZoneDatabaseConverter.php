@@ -18,7 +18,7 @@ use function trim;
 
 final class RootZoneDatabaseConverter
 {
-    private const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
+    private const REGEXP_HEADER_LINE = '/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/';
 
     /**
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
@@ -27,7 +27,7 @@ final class RootZoneDatabaseConverter
      *
      * @throws UnableToLoadRootZoneDatabase if the content is invalid or can not be correctly parsed and converted
      */
-    public function convert($content): array
+    public static function toArray($content): array
     {
         if (is_object($content) && method_exists($content, '__toString')) {
             $content = (string) $content;
@@ -45,13 +45,13 @@ final class RootZoneDatabaseConverter
         foreach ($file as $line) {
             $line = trim($line);
             if ([] === $data) {
-                $data = $this->extractHeader($line);
+                $data = self::extractHeader($line);
                 continue;
             }
 
             if (false === strpos($line, '#')) {
                 $data['records'] = $data['records'] ?? [];
-                $data['records'][] = $this->extractRootZone($line);
+                $data['records'][] = self::extractRootZone($line);
                 continue;
             }
 
@@ -70,14 +70,14 @@ final class RootZoneDatabaseConverter
      *
      * @throws UnableToLoadRootZoneDatabase if the Header line is invalid
      */
-    private function extractHeader(string $content): array
+    private static function extractHeader(string $content): array
     {
-        if (1 !== preg_match('/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/', $content, $matches)) {
+        if (1 !== preg_match(self::REGEXP_HEADER_LINE, $content, $matches)) {
             throw UnableToLoadRootZoneDatabase::dueToInvalidVersionLine($content);
         }
 
         /** @var DateTimeImmutable $date */
-        $date = DateTimeImmutable::createFromFormat(self::IANA_DATE_FORMAT, $matches['date']);
+        $date = DateTimeImmutable::createFromFormat(RootZoneDatabase::IANA_DATE_FORMAT, $matches['date']);
 
         return [
             'version' => $matches['version'],
@@ -90,10 +90,10 @@ final class RootZoneDatabaseConverter
      *
      * @throws UnableToLoadRootZoneDatabase If the Root Zone is invalid
      */
-    private function extractRootZone(string $content): string
+    private static function extractRootZone(string $content): string
     {
         try {
-            $tld = PublicSuffix::fromUnknown(Domain::fromIDNA2008($content))->toAscii();
+            $tld = Suffix::fromUnknown(Domain::fromIDNA2008($content))->toAscii();
         } catch (CannotProcessHost $exception) {
             throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
         }

@@ -13,6 +13,7 @@ use function fclose;
 use function fopen;
 use function json_decode;
 use function stream_get_contents;
+use function strtoupper;
 use function substr;
 use const JSON_THROW_ON_ERROR;
 
@@ -64,11 +65,7 @@ final class TopLevelDomains implements RootZoneDatabase
      */
     public static function fromString($content): self
     {
-        static $converter;
-
-        $converter = $converter ?? new RootZoneDatabaseConverter();
-
-        $data = $converter->convert($content);
+        $data = RootZoneDatabaseConverter::toArray($content);
         /** @var DateTimeImmutable $lastUpdated */
         $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
 
@@ -124,7 +121,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function getIterator(): Iterator
     {
         foreach ($this->records as $tld) {
-            yield PublicSuffix::fromUnknown(Domain::fromIDNA2008($tld)->toAscii());
+            yield Suffix::fromUnknown(Domain::fromIDNA2008($tld)->toAscii());
         }
     }
 
@@ -135,6 +132,18 @@ final class TopLevelDomains implements RootZoneDatabase
             'records' => $this->records,
             'lastUpdated' => $this->lastUpdated->format(DateTimeInterface::ATOM),
         ];
+    }
+
+    public function toString(): string
+    {
+        $output = '# Version '.$this->version
+            .', Last Updated '.$this->lastUpdated->format(self::IANA_DATE_FORMAT)."\n";
+
+        foreach ($this->records as $suffix) {
+            $output .= strtoupper($suffix)."\n";
+        }
+
+        return $output;
     }
 
     /**
@@ -163,7 +172,7 @@ final class TopLevelDomains implements RootZoneDatabase
      */
     private function validateDomain($domain): DomainName
     {
-        if ($domain instanceof ExternalDomainName) {
+        if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
         }
 
@@ -185,7 +194,7 @@ final class TopLevelDomains implements RootZoneDatabase
             if ($tld->value() === $label) {
                 $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($domain->label(0)) : Domain::fromIDNA2003($domain->label(0));
 
-                return PublicSuffix::fromIANA($publicSuffix);
+                return Suffix::fromIANA($publicSuffix);
             }
         }
 
@@ -200,9 +209,9 @@ final class TopLevelDomains implements RootZoneDatabase
         $domain = $this->validateDomain($domain);
         $publicSuffix = $this->fetchEffectiveTLD($domain);
         if (null === $publicSuffix) {
-            throw UnableToResolveDomain::dueToMissingPublicSuffix($domain, EffectiveTLD::IANA_DOMAINS);
+            throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }
 
-        return new ResolvedDomain($domain, PublicSuffix::fromIANA($publicSuffix));
+        return new ResolvedDomain($domain, Suffix::fromIANA($publicSuffix));
     }
 }

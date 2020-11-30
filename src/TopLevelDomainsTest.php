@@ -77,6 +77,13 @@ final class TopLevelDomainsTest extends TestCase
         self::assertEquals($this->topLevelDomains, TopLevelDomains::fromJsonString($data));
     }
 
+    public function testToStringMethod(): void
+    {
+        $data = $this->topLevelDomains->toString();
+
+        self::assertEquals($this->topLevelDomains, TopLevelDomains::fromString($data));
+    }
+
     /**
      * @covers ::fromJsonString
      * @covers \Pdp\UnableToLoadRootZoneDatabase
@@ -111,14 +118,13 @@ final class TopLevelDomainsTest extends TestCase
         );
         self::assertFalse($topLevelDomains->isEmpty());
 
-        $converter = new RootZoneDatabaseConverter();
         /** @var string $content */
         $content = file_get_contents(dirname(__DIR__).'/test_data/root_zones.dat');
-        $data = $converter->convert($content);
+        $data = RootZoneDatabaseConverter::toArray($content);
         self::assertEquals($data, $topLevelDomains->jsonSerialize());
 
         foreach ($topLevelDomains as $tld) {
-            self::assertInstanceOf(PublicSuffix::class, $tld);
+            self::assertInstanceOf(Suffix::class, $tld);
         }
     }
 
@@ -152,7 +158,7 @@ final class TopLevelDomainsTest extends TestCase
     {
         $resolvedDomain = new ResolvedDomain(
             Domain::fromIDNA2008('www.example.com'),
-            PublicSuffix::fromICANN('com')
+            Suffix::fromICANN('com')
         );
 
         return [
@@ -269,7 +275,7 @@ final class TopLevelDomainsTest extends TestCase
                     return 'COM';
                 }
             }],
-            'externalDomain' => [PublicSuffix::fromICANN('com')],
+            'externalDomain' => [Suffix::fromICANN('com')],
         ];
     }
 

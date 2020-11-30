@@ -10,8 +10,10 @@ use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
 
-interface RootZoneDatabase extends Countable, DomainResolver, IteratorAggregate, JsonSerializable
+interface RootZoneDatabase extends Countable, DomainNameResolver, IteratorAggregate, JsonSerializable
 {
+    public const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
+
     /**
      * Returns the Version ID.
      */
@@ -41,6 +43,12 @@ interface RootZoneDatabase extends Countable, DomainResolver, IteratorAggregate,
      * Returns an array representation of the list.
      */
     public function jsonSerialize(): array;
+
+    /**
+     * Returns the string representation of the list.
+     * Stripped of its optional comments.
+     */
+    public function toString(): string;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.

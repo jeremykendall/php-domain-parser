@@ -14,18 +14,11 @@ use function file_get_contents;
  */
 final class RootZoneDatabaseConverterTest extends TestCase
 {
-    private RootZoneDatabaseConverter $converter;
-
-    public function setUp(): void
-    {
-        $this->converter = new RootZoneDatabaseConverter();
-    }
-
     public function testConverter(): void
     {
         /** @var string $string */
         $string = file_get_contents(dirname(__DIR__).'/test_data/root_zones.dat');
-        $res = $this->converter->convert($string);
+        $res = RootZoneDatabaseConverter::toArray($string);
 
         self::assertArrayHasKey('version', $res);
         self::assertArrayHasKey('lastUpdated', $res);
@@ -45,7 +38,7 @@ final class RootZoneDatabaseConverterTest extends TestCase
             }
         };
 
-        $res = $this->converter->convert($stringObject);
+        $res = RootZoneDatabaseConverter::toArray($stringObject);
 
         self::assertArrayHasKey('version', $res);
         self::assertArrayHasKey('lastUpdated', $res);
@@ -60,7 +53,7 @@ final class RootZoneDatabaseConverterTest extends TestCase
     {
         self::expectException(UnableToLoadRootZoneDatabase::class);
 
-        $this->converter->convert($content);
+        RootZoneDatabaseConverter::toArray($content);
     }
 
     public function testConvertThrowsExceptionIfTheInputIsNotSupported(): void
@@ -69,7 +62,7 @@ final class RootZoneDatabaseConverterTest extends TestCase
 
         self::expectException(TypeError::class);
 
-        $this->converter->convert($content);
+        RootZoneDatabaseConverter::toArray($content);
     }
 
     public function invalidContentProvider(): iterable
