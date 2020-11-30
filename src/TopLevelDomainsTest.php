@@ -9,7 +9,6 @@ use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function dirname;
-use function file_get_contents;
 use function json_encode;
 
 /**
@@ -17,7 +16,7 @@ use function json_encode;
  */
 final class TopLevelDomainsTest extends TestCase
 {
-    protected TopLevelDomains $topLevelDomains;
+    private TopLevelDomains $topLevelDomains;
 
     public function setUp(): void
     {
@@ -55,6 +54,77 @@ final class TopLevelDomainsTest extends TestCase
     }
 
     /**
+     * @dataProvider invalidContentProvider
+     */
+    public function testConverterThrowsException(string $content): void
+    {
+        self::expectException(UnableToLoadRootZoneDatabase::class);
+
+        TopLevelDomains::fromString($content);
+    }
+
+    public function invalidContentProvider(): iterable
+    {
+        $doubleHeader = <<<EOF
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+FOO
+BAR
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+ABARTH
+ABB
+ABBOTT
+ABBVIE
+EOF;
+
+        $invalidHeader = <<<EOF
+# Version 2018082200
+FOO
+BAR
+EOF;
+
+        $headerNoFirstLine = <<<EOF
+FOO
+BAR
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+ABARTH
+ABB
+ABBOTT
+ABBVIE
+EOF;
+
+        $invalidTldContent = <<<EOF
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+FOO
+BAR
+%ef%bc%85%ef%bc%94%ef%bc%91
+EOF;
+
+        $invalidTldContentNotRootZone = <<<EOF
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+FOO
+BAR
+GITHUB.COM
+EOF;
+
+        $invalidTldContentEmptyTld = <<<EOF
+# Version 2018082200, Last Updated Wed Aug 22 07:07:01 2018 UTC
+FOO
+
+GITHUB.COM
+EOF;
+
+        return [
+            'double header' => [$doubleHeader],
+            'invalid header' => [$invalidHeader],
+            'empty content' => [''],
+            'header not on the first line' => [$headerNoFirstLine],
+            'invalid tld content' => [$invalidTldContent],
+            'invalid root zone' => [$invalidTldContentNotRootZone],
+            'empty tld' => [$invalidTldContentEmptyTld],
+        ];
+    }
+
+    /**
      * @covers ::__set_state
      * @covers ::__construct
      */
@@ -75,13 +145,6 @@ final class TopLevelDomainsTest extends TestCase
         $data = json_encode($this->topLevelDomains);
 
         self::assertEquals($this->topLevelDomains, TopLevelDomains::fromJsonString($data));
-    }
-
-    public function testToStringMethod(): void
-    {
-        $data = $this->topLevelDomains->toString();
-
-        self::assertEquals($this->topLevelDomains, TopLevelDomains::fromString($data));
     }
 
     /**
@@ -117,12 +180,7 @@ final class TopLevelDomainsTest extends TestCase
             $topLevelDomains->lastUpdated()
         );
         self::assertFalse($topLevelDomains->isEmpty());
-
-        /** @var string $content */
-        $content = file_get_contents(dirname(__DIR__).'/test_data/root_zones.dat');
-        $data = RootZoneDatabaseConverter::toArray($content);
-        self::assertEquals($data, $topLevelDomains->jsonSerialize());
-
+        self::assertArrayHasKey('lastUpdated', $topLevelDomains->jsonSerialize());
         foreach ($topLevelDomains as $tld) {
             self::assertInstanceOf(Suffix::class, $tld);
         }

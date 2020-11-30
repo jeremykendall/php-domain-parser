@@ -8,17 +8,29 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Iterator;
 use JsonException;
+use SplTempFileObject;
+use TypeError;
 use function count;
 use function fclose;
 use function fopen;
+use function gettype;
+use function is_object;
+use function is_string;
 use function json_decode;
+use function method_exists;
+use function preg_match;
 use function stream_get_contents;
-use function strtoupper;
+use function strpos;
 use function substr;
+use function trim;
 use const JSON_THROW_ON_ERROR;
 
 final class TopLevelDomains implements RootZoneDatabase
 {
+    private const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
+
+    private const REGEXP_HEADER_LINE = '/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/';
+
     private DateTimeImmutable $lastUpdated;
 
     private string $version;
@@ -65,11 +77,95 @@ final class TopLevelDomains implements RootZoneDatabase
      */
     public static function fromString($content): self
     {
-        $data = RootZoneDatabaseConverter::toArray($content);
+        if (is_object($content) && method_exists($content, '__toString')) {
+            $content = (string) $content;
+        }
+
+        if (!is_string($content)) {
+            throw new TypeError('The content to be converted should be a string or a Stringable object, `'.gettype($content).'` given.');
+        }
+
+        $data = self::parse($content);
+
         /** @var DateTimeImmutable $lastUpdated */
         $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
 
         return new self($data['records'], $data['version'], $lastUpdated);
+    }
+
+    /**
+     * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
+     *
+     * @throws UnableToLoadRootZoneDatabase if the content is invalid or can not be correctly parsed and converted
+     */
+    public static function parse(string $content): array
+    {
+        $data = [];
+        $file = new SplTempFileObject();
+        $file->fwrite($content);
+        $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        /** @var string $line */
+        foreach ($file as $line) {
+            $line = trim($line);
+            if ([] === $data) {
+                $data = self::extractHeader($line);
+                continue;
+            }
+
+            if (false === strpos($line, '#')) {
+                $data['records'] = $data['records'] ?? [];
+                $data['records'][] = self::extractRootZone($line);
+                continue;
+            }
+
+            throw UnableToLoadRootZoneDatabase::dueToInvalidLine($line);
+        }
+
+        if (isset($data['version'], $data['lastUpdated'], $data['records'])) {
+            return $data;
+        }
+
+        throw UnableToLoadRootZoneDatabase::dueToFailedConversion();
+    }
+
+    /**
+     * Extract IANA Root Zone Database header info.
+     *
+     * @throws UnableToLoadRootZoneDatabase if the Header line is invalid
+     */
+    private static function extractHeader(string $content): array
+    {
+        if (1 !== preg_match(self::REGEXP_HEADER_LINE, $content, $matches)) {
+            throw UnableToLoadRootZoneDatabase::dueToInvalidVersionLine($content);
+        }
+
+        /** @var DateTimeImmutable $date */
+        $date = DateTimeImmutable::createFromFormat(self::IANA_DATE_FORMAT, $matches['date']);
+
+        return [
+            'version' => $matches['version'],
+            'lastUpdated' => $date->format(DateTimeInterface::ATOM),
+        ];
+    }
+
+    /**
+     * Extract IANA Root Zone.
+     *
+     * @throws UnableToLoadRootZoneDatabase If the Root Zone is invalid
+     */
+    private static function extractRootZone(string $content): string
+    {
+        try {
+            $tld = Suffix::fromUnknown(Domain::fromIDNA2008($content))->toAscii();
+        } catch (CannotProcessHost $exception) {
+            throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
+        }
+
+        if (1 !== $tld->count() || '' === $tld->value()) {
+            throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content);
+        }
+
+        return $tld->toString();
     }
 
     public static function fromJsonString(string $jsonString): self
@@ -132,18 +228,6 @@ final class TopLevelDomains implements RootZoneDatabase
             'records' => $this->records,
             'lastUpdated' => $this->lastUpdated->format(DateTimeInterface::ATOM),
         ];
-    }
-
-    public function toString(): string
-    {
-        $output = '# Version '.$this->version
-            .', Last Updated '.$this->lastUpdated->format(self::IANA_DATE_FORMAT)."\n";
-
-        foreach ($this->records as $suffix) {
-            $output .= strtoupper($suffix)."\n";
-        }
-
-        return $output;
     }
 
     /**

@@ -16,10 +16,7 @@ use function implode;
  */
 final class RulesTest extends TestCase
 {
-    /**
-     * @var Rules
-     */
-    private $rules;
+    private Rules $rules;
 
     public function setUp(): void
     {
@@ -47,6 +44,13 @@ final class RulesTest extends TestCase
         self::expectException(UnableToLoadPublicSuffixList::class);
 
         Rules::fromPath('/foo/bar.dat');
+    }
+
+    public function testCreateFromPathThrowsExceptionIfTheContentIsInvalid(): void
+    {
+        self::expectException(UnableToLoadPublicSuffixList::class);
+
+        Rules::fromPath(dirname(__DIR__).'/test_data/invalid_suffix_list_content.dat');
     }
 
     /**

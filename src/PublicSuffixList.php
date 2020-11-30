@@ -8,10 +8,6 @@ use JsonSerializable;
 
 interface PublicSuffixList extends DomainNameResolver, JsonSerializable
 {
-    public const ICANN_DOMAINS = 'ICANN_DOMAINS';
-
-    public const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
-
     /**
      * Returns an array representation of the Public Suffix List Rules JSON serializable.
      */
