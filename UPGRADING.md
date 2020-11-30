@@ -68,6 +68,25 @@ the resolved component is done on the `ResolvedDomain` and no longer on the
 + echo $rules->resolve('www.example.org')->withSuffix('com')->toString(); //returns 'example.com'
 ```
 
+The `Pdp\PublicSuffix` object is replaced by the more generic `Pdp\Suffix` object
+
+```diff
+<?php
+/** @var Rules $rules */
+- echo $rules->getPublicSuffix('www.example.org'); //returns 'Pdp\PublicSuffix' instance
++ echo $rules->resolve('www.example.org')->suffix(); //returns 'Pdp\Suffix' instance
+```
+
+The `Pdp\Suffix` class **no longer has direct access** to the underlying domain properties.
+
+```diff
+<?php
+- $suffix = new PublicSuffix('co.uk', self::ICANN_DOMAINS);
++ $suffix = PublicSuffix::fromICANN(Domain::fromIDNA2008('co.uk'));
+- $suffix->getLabel(-1); //returns 'co';
++ $suffix->domain()->label(-1); //returns 'co';
+```
+
 #### Normalizing domain resolution
 
 The `Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve` domain resolution
@@ -158,7 +177,6 @@ The resource manager system (containing caching and refreshing resource) is remo
 - `DomainInterface` is removed use `DomainName` or `ResolvedDomainName` instead. 
 - `Domain::isResolvable` is removed without replacement.
 - `Domain::resolve` is removed without replacement.
-- `PublicSuffix::createFromDomain` is removed without replacement. 
 - `Rules::getPublicSuffix` is removed use `ResolvedDomain::publicSuffix` instead. 
 - All v5 IDNA related methods are removed, IDNA is fully handle within the `Domain` object.
 

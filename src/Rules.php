@@ -25,10 +25,10 @@ final class Rules implements PublicSuffixList
 
     private function __construct(array $rules)
     {
-        $rules[EffectiveTLD::ICANN_DOMAINS] = $rules[EffectiveTLD::ICANN_DOMAINS] ?? [];
-        $rules[EffectiveTLD::PRIVATE_DOMAINS] = $rules[EffectiveTLD::PRIVATE_DOMAINS] ?? [];
+        $rules[self::ICANN_DOMAINS] = $rules[self::ICANN_DOMAINS] ?? [];
+        $rules[self::PRIVATE_DOMAINS] = $rules[self::PRIVATE_DOMAINS] ?? [];
 
-        if (!is_array($rules[EffectiveTLD::ICANN_DOMAINS]) || !is_array($rules[EffectiveTLD::PRIVATE_DOMAINS])) {
+        if (!is_array($rules[self::ICANN_DOMAINS]) || !is_array($rules[self::PRIVATE_DOMAINS])) {
             throw UnableToLoadPublicSuffixList::dueToCorruptedSection();
         }
 
@@ -68,11 +68,7 @@ final class Rules implements PublicSuffixList
      */
     public static function fromString($content): self
     {
-        static $converter;
-
-        $converter = $converter ?? new PublicSuffixListConverter();
-
-        return new self($converter->convert($content));
+        return new self(PublicSuffixListConverter::toArray($content));
     }
 
     public static function fromJsonString(string $jsonString): self
@@ -126,9 +122,9 @@ final class Rules implements PublicSuffixList
     public function getICANNDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $publicSuffix = $this->getEffectiveTLD($domain, EffectiveTLD::ICANN_DOMAINS);
+        $publicSuffix = $this->getEffectiveTLD($domain, self::ICANN_DOMAINS);
         if (!$publicSuffix->isICANN()) {
-            throw UnableToResolveDomain::dueToMissingPublicSuffix($domain, EffectiveTLD::ICANN_DOMAINS);
+            throw UnableToResolveDomain::dueToMissingSuffix($domain, 'ICANN');
         }
 
         return new ResolvedDomain($domain, $publicSuffix);
@@ -140,9 +136,9 @@ final class Rules implements PublicSuffixList
     public function getPrivateDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $publicSuffix = $this->getEffectiveTLD($domain, EffectiveTLD::PRIVATE_DOMAINS);
+        $publicSuffix = $this->getEffectiveTLD($domain, self::PRIVATE_DOMAINS);
         if (!$publicSuffix->isPrivate()) {
-            throw UnableToResolveDomain::dueToMissingPublicSuffix($domain, EffectiveTLD::PRIVATE_DOMAINS);
+            throw UnableToResolveDomain::dueToMissingSuffix($domain, 'private');
         }
 
         return new ResolvedDomain($domain, $publicSuffix);
@@ -158,7 +154,7 @@ final class Rules implements PublicSuffixList
      */
     private function validateDomain($domain): DomainName
     {
-        if ($domain instanceof ExternalDomainName) {
+        if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
         }
 
@@ -178,12 +174,12 @@ final class Rules implements PublicSuffixList
      */
     private function getEffectiveTLD(DomainName $domain, string $section): EffectiveTLD
     {
-        $icann = $this->getEffectiveTLDFromSection($domain, EffectiveTLD::ICANN_DOMAINS);
-        if (EffectiveTLD::ICANN_DOMAINS === $section) {
+        $icann = $this->getEffectiveTLDFromSection($domain, self::ICANN_DOMAINS);
+        if (self::ICANN_DOMAINS === $section) {
             return $icann;
         }
 
-        $private = $this->getEffectiveTLDFromSection($domain, EffectiveTLD::PRIVATE_DOMAINS);
+        $private = $this->getEffectiveTLDFromSection($domain, self::PRIVATE_DOMAINS);
         if (count($private) > count($icann)) {
             return $private;
         }
@@ -195,7 +191,7 @@ final class Rules implements PublicSuffixList
         $topLabel = $domain->toAscii()->label(0);
         $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($topLabel) : Domain::fromIDNA2003($topLabel);
 
-        return PublicSuffix::fromUnknown($publicSuffix);
+        return Suffix::fromUnknown($publicSuffix);
     }
 
     /**
@@ -230,16 +226,16 @@ final class Rules implements PublicSuffixList
             $topLabel = $domain->toAscii()->label(0);
             $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($topLabel) : Domain::fromIDNA2003($topLabel);
 
-            return PublicSuffix::fromUnknown($publicSuffix);
+            return Suffix::fromUnknown($publicSuffix);
         }
 
         $publicSuffixLabels = implode('.', array_reverse($matches));
         $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($publicSuffixLabels) : Domain::fromIDNA2003($publicSuffixLabels);
 
-        if (PublicSuffix::PRIVATE_DOMAINS === $section) {
-            return PublicSuffix::fromPrivate($publicSuffix);
+        if (self::PRIVATE_DOMAINS === $section) {
+            return Suffix::fromPrivate($publicSuffix);
         }
 
-        return PublicSuffix::fromICANN($publicSuffix);
+        return Suffix::fromICANN($publicSuffix);
     }
 }

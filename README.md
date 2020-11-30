@@ -208,15 +208,15 @@ echo $altResult->domain()->toString(); //display 'foo.bar.test.example';
 $altResult->suffix()->isKnown();       //return false;
 ~~~
 
-**TIP: Always favor submitting a `Pdp\PublicSuffix` object rather that any other
+**TIP: Always favor submitting a `Pdp\Suffix` object rather that any other
 supported type to avoid unexpected results. By default, if the input is not a
-`Pdp\PublicSuffix` instance, the resulting public suffix will be labelled as
+`Pdp\Suffix` instance, the resulting public suffix will be labelled as
 being unknown. For more information go to the [Public Suffix section](#public-suffix)**
 
-### Public Suffix
+### Domain Suffix
 
-The domain effective TLD is represented using the `Pdp\PublicSuffix`. Depending
- on the data source the object exposes different information regarding its
+The domain effective TLD is represented using the `Pdp\Suffix`. Depending on
+the data source the object exposes different information regarding its
 origin.
 
 ~~~php
@@ -224,36 +224,38 @@ origin.
 use Pdp\PublicSuffixList;
 
 /** @var PublicSuffixList $publicSuffixList */
-$publicSuffix = $publicSuffixList->resolve('example.github.io')->suffix();
+$suffix = $publicSuffixList->resolve('example.github.io')->suffix();
 
-echo $publicSuffix->domain()->toString(); //display 'github.io';
-$publicSuffix->isICANN();                 //will return false
-$publicSuffix->isPrivate();               //will return true
-$publicSuffix->isIANA();                  //will return false
-$publicSuffix->isKnown();                 //will return true
+echo $suffix->domain()->toString(); //display 'github.io';
+$suffix->isICANN();                 //will return false
+$suffix->isPrivate();               //will return true
+$suffix->isPublicSuffix();          //will return true
+$suffix->isIANA();                  //will return false
+$suffix->isKnown();                 //will return true
 ~~~
 
 The public suffix state depends on its origin:
  
 - `isKnown` returns `true` if the value is present in the data resource.
 - `isIANA` returns `true` if the value is present in the Root Zone Database.
-- `isICANN` returns `true` if the value is present in the PSL ICANN section.
-- `isPrivate` returns `true` if the value is present in the PSL private section.
+- `isPublicSuffix` returns `true` if the value is present in the Public Suffix List.
+- `isICANN` returns `true` if the value is present in the Public Suffix List ICANN section.
+- `isPrivate` returns `true` if the value is present in the Public Suffix List private section.
  
-The same information is used when `Pdp\PublicSuffix` object is 
+The same information is used when `Pdp\Suffix` object is 
 instantiate via its named constructors:
  
  ~~~php
  <?php 
- use Pdp\PublicSuffix;
+ use Pdp\Suffix;
 
-$iana = PublicSuffix::fromIANA('ac.be');
-$icann = PublicSuffix::fromICANN('ac.be');
-$private = PublicSuffix::fromPrivate('ac.be');
-$unknown = PublicSuffix::fromUnknown('ac.be');
+$iana = Suffix::fromIANA('ac.be');
+$icann = Suffix::fromICANN('ac.be');
+$private = Suffix::fromPrivate('ac.be');
+$unknown = Suffix::fromUnknown('ac.be');
 ~~~
 
-Using a `PublicSuffix` object instead of a string or `null` with 
+Using a `Suffix` object instead of a string or `null` with 
 `ResolvedDomain::withSuffix` will ensure that the returned value will
 always contain the correct information regarding the public suffix resolution.
  
@@ -268,7 +270,7 @@ account the Effective TLD, the library provides a `Domain` object tailored for
 manipulating domain labels. You can access the object using the following methods:
  
 - the `ResolvedDomain::domain` method 
-- the `PublicSuffix::domain` method
+- the `Suffix::domain` method
 - the `ResolvedDomain::subDomain` method
 - the `ResolvedDomain::registrableDomain` method
 

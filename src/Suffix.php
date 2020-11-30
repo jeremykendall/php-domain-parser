@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace Pdp;
 
 use function count;
+use function in_array;
 
-final class PublicSuffix implements EffectiveTLD
+final class Suffix implements EffectiveTLD
 {
+    private const ICANN = 'ICANN';
+    private const PRIVATE = 'PRIVATE';
+    private const IANA = 'IANA';
+
     private DomainName $domain;
 
     private string $section;
@@ -17,7 +22,7 @@ final class PublicSuffix implements EffectiveTLD
      */
     private function __construct($domain, string $section)
     {
-        if ($domain instanceof ExternalDomainName) {
+        if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
         }
 
@@ -47,7 +52,7 @@ final class PublicSuffix implements EffectiveTLD
      */
     public static function fromICANN($domain): self
     {
-        return new self($domain, self::ICANN_DOMAINS);
+        return new self($domain, self::ICANN);
     }
 
     /**
@@ -55,7 +60,7 @@ final class PublicSuffix implements EffectiveTLD
      */
     public static function fromPrivate($domain): self
     {
-        return new self($domain, self::PRIVATE_DOMAINS);
+        return new self($domain, self::PRIVATE);
     }
 
     /**
@@ -63,7 +68,7 @@ final class PublicSuffix implements EffectiveTLD
      */
     public static function fromIANA($domain): self
     {
-        return new self($domain, self::IANA_DOMAINS);
+        return new self($domain, self::IANA);
     }
 
     /**
@@ -72,6 +77,31 @@ final class PublicSuffix implements EffectiveTLD
     public static function fromUnknown($domain): self
     {
         return new self($domain, '');
+    }
+
+    public function isKnown(): bool
+    {
+        return '' !== $this->section;
+    }
+
+    public function isIANA(): bool
+    {
+        return self::IANA === $this->section;
+    }
+
+    public function isPublicSuffix(): bool
+    {
+        return in_array($this->section, [self::ICANN, self::PRIVATE], true);
+    }
+
+    public function isICANN(): bool
+    {
+        return self::ICANN === $this->section;
+    }
+
+    public function isPrivate(): bool
+    {
+        return self::PRIVATE === $this->section;
     }
 
     public function domain(): DomainName
@@ -97,26 +127,6 @@ final class PublicSuffix implements EffectiveTLD
     public function toString(): string
     {
         return $this->domain->toString();
-    }
-
-    public function isKnown(): bool
-    {
-        return '' !== $this->section;
-    }
-
-    public function isICANN(): bool
-    {
-        return self::ICANN_DOMAINS === $this->section;
-    }
-
-    public function isPrivate(): bool
-    {
-        return self::PRIVATE_DOMAINS === $this->section;
-    }
-
-    public function isIANA(): bool
-    {
-        return self::IANA_DOMAINS === $this->section;
     }
 
     public function toAscii(): self

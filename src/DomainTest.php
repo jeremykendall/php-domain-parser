@@ -10,7 +10,7 @@ use TypeError;
 /**
  * @coversDefaultClass \Pdp\Domain
  */
-class DomainTest extends TestCase
+final class DomainTest extends TestCase
 {
     /**
      * @covers \Pdp\SyntaxError

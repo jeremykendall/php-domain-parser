@@ -212,7 +212,7 @@ final class RulesTest extends TestCase
     {
         $domain = new ResolvedDomain(
             Domain::fromIDNA2008('private.ulb.ac.be'),
-            PublicSuffix::fromICANN('ac.be')
+            Suffix::fromICANN('ac.be')
         );
 
         $newDomain = $this->rules->resolve($domain);
@@ -227,7 +227,7 @@ final class RulesTest extends TestCase
 
     public function testWithDomainInterfaceObject(): void
     {
-        $domain = PublicSuffix::fromICANN('ulb.ac.be');
+        $domain = Suffix::fromICANN('ulb.ac.be');
 
         self::assertSame(
             'ac.be',

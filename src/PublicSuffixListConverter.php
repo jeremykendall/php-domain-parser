@@ -19,11 +19,11 @@ final class PublicSuffixListConverter
 {
     private const PSL_SECTION = [
         'ICANN' => [
-            'BEGIN' => EffectiveTLD::ICANN_DOMAINS,
+            'BEGIN' => PublicSuffixList::ICANN_DOMAINS,
             'END' => '',
         ],
         'PRIVATE' => [
-            'BEGIN' => EffectiveTLD::PRIVATE_DOMAINS,
+            'BEGIN' => PublicSuffixList::PRIVATE_DOMAINS,
             'END' => '',
         ],
     ];
@@ -35,7 +35,7 @@ final class PublicSuffixListConverter
      *
      * @param object|string $content The object should expose the __toString method
      */
-    public function convert($content): array
+    public static function toArray($content): array
     {
         if (is_object($content) && method_exists($content, '__toString')) {
             $content = (string) $content;
@@ -52,10 +52,10 @@ final class PublicSuffixListConverter
         $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
         /** @var string $line */
         foreach ($file as $line) {
-            $section = $this->getSection($section, $line);
+            $section = self::getSection($section, $line);
             if ('' !== $section && false === strpos($line, '//')) {
                 $rules[$section] = $rules[$section] ?? [];
-                $rules[$section] = $this->addRule($rules[$section], explode('.', $line));
+                $rules[$section] = self::addRule($rules[$section], explode('.', $line));
             }
         }
 
@@ -65,7 +65,7 @@ final class PublicSuffixListConverter
     /**
      * Returns the section type for a given line.
      */
-    private function getSection(string $section, string $line): string
+    private static function getSection(string $section, string $line): string
     {
         if (1 === preg_match(self::REGEX_PSL_SECTION, $line, $matches)) {
             return self::PSL_SECTION[$matches['type']][$matches['point']];
@@ -90,7 +90,7 @@ final class PublicSuffixListConverter
      *
      * @throws UnableToLoadPublicSuffixList if the domain name can not be converted using IDN to ASCII algorithm
      */
-    private function addRule(array $list, array $ruleParts): array
+    private static function addRule(array $list, array $ruleParts): array
     {
         // Adheres to canonicalization rule from the "Formal Algorithm" section
         // of https://publicsuffix.org/list/
@@ -112,7 +112,7 @@ final class PublicSuffixListConverter
 
         $list[$rule] = $list[$rule] ?? ($isDomain ? [] : ['!' => '']);
         if ($isDomain && [] !== $ruleParts) {
-            $list[$rule] = $this->addRule($list[$rule], $ruleParts);
+            $list[$rule] = self::addRule($list[$rule], $ruleParts);
         }
 
         return $list;

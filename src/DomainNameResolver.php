@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface DomainResolver
+interface DomainNameResolver
 {
     /**
      * Returns the effective TLD info for a given domain against an external data source.

@@ -12,20 +12,13 @@ use function file_get_contents;
 /**
  * @coversDefaultClass \Pdp\PublicSuffixListConverter
  */
-class PublicSuffixListConverterTest extends TestCase
+final class PublicSuffixListConverterTest extends TestCase
 {
-    private PublicSuffixListConverter $converter;
-
-    public function setUp(): void
-    {
-        $this->converter = new PublicSuffixListConverter();
-    }
-
     public function testConverter(): void
     {
         /** @var string $string */
         $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
-        $retval = $this->converter->convert($string);
+        $retval = PublicSuffixListConverter::toArray($string);
 
         self::assertNotEmpty($retval['ICANN_DOMAINS']);
         self::assertNotEmpty($retval['PRIVATE_DOMAINS']);
@@ -38,19 +31,19 @@ class PublicSuffixListConverterTest extends TestCase
 
         self::expectException(UnableToLoadPublicSuffixList::class);
 
-        $this->converter->convert($content);
+        PublicSuffixListConverter::toArray($content);
     }
 
     public function testConvertWithEmptyString(): void
     {
-        $retVal = $this->converter->convert('');
+        $retVal = PublicSuffixListConverter::toArray('');
 
         self::assertEquals([], $retVal);
     }
 
     public function testConvertWithInvalidString(): void
     {
-        $retVal = $this->converter->convert('foobar');
+        $retVal = PublicSuffixListConverter::toArray('foobar');
 
         self::assertEquals([], $retVal);
     }
@@ -64,7 +57,7 @@ class PublicSuffixListConverterTest extends TestCase
             }
         };
 
-        $retVal = $this->converter->convert($stringObject);
+        $retVal = PublicSuffixListConverter::toArray($stringObject);
 
         self::assertEquals([], $retVal);
     }
@@ -75,6 +68,6 @@ class PublicSuffixListConverterTest extends TestCase
 
         self::expectException(TypeError::class);
 
-        $this->converter->convert($content);
+        PublicSuffixListConverter::toArray($content);
     }
 }

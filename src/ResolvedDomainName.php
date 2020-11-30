@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface ResolvedDomainName extends Host, ExternalDomainName
+interface ResolvedDomainName extends Host, DomainNameProvider
 {
     /**
      * Returns the domain effective tld component.
@@ -56,5 +56,5 @@ interface ResolvedDomainName extends Host, ExternalDomainName
      * If the domain already has a public suffix it will be replaced by the new value
      * otherwise the public suffix content is added to or remove from the current domain.
      */
-    public function withSuffix(EffectiveTLD $publicSuffix): self;
+    public function withSuffix(EffectiveTLD $suffix): self;
 }

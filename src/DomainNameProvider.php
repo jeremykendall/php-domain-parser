@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface ExternalDomainName
+interface DomainNameProvider
 {
     public function domain(): DomainName;
 }

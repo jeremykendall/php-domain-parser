@@ -8,12 +8,13 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - Adding proper Interfaces
 - Added `ResolvedDomain` object to normalize Resolver results.
+- Added `Suffix` object to replace the `PublicSuffix` object from v5.
 - Public Suffix List and IANA Root Zone Database are fully decoupled
 - Added `IntlIdna`, IDN support has been completely revamped
 - Resolver uses by default UTS#46 IDNA2008 algorithm to convert domain names
 - Storage capability is optional and can be based on PHP-FIG related interfaces to improve interoperability
 - `Pdp\TopLevelDomains::getIANADomain` which throws on syntax error and if no effective TLD is found (behave like `Pdp\TopLevelDomains::resolve` in v5).
-- `Pdp\PublicSuffix::isIANA` tells whether the TLD was successfully resolved against IANA RZD
+- `Pdp\TopLevelDomains::toString` to returns the Root Zone Database file without optional comments
 
 ### Fixed
 
@@ -45,7 +46,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\Domain::withPublicSuffix` replaced by `Pdp\ResolvedDomain::withSuffix`
 - `Pdp\Domain::getLabel` replaced by `Pdp\Domain::label`
 - `Pdp\Domain::isTransitionalDifferent` without replacement
-- `Pdp\PublicSuffix::createFromDomain` without replacement
+- `Pdp\PublicSuffix` replaced by `Pdp\Suffix`
 - Directly accessing suffix information from the `Pdp\Domain` object
 - `Pdp\TopLevelDomains::contains` without replacement
 

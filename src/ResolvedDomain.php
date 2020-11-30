@@ -16,28 +16,28 @@ final class ResolvedDomain implements ResolvedDomainName
 {
     private DomainName $domain;
 
-    private EffectiveTLD $publicSuffix;
+    private EffectiveTLD $suffix;
 
     private DomainName $registrableDomain;
 
     private DomainName $subDomain;
 
-    public function __construct(Host $domain, EffectiveTLD $publicSuffix = null)
+    public function __construct(Host $domain, EffectiveTLD $suffix = null)
     {
         $this->domain = $this->setDomainName($domain);
-        $this->publicSuffix = $this->setPublicSuffix($publicSuffix);
+        $this->suffix = $this->setSuffix($suffix);
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->subDomain = $this->setSubDomain();
     }
 
     public static function __set_state(array $properties): self
     {
-        return new self($properties['domain'], $properties['publicSuffix']);
+        return new self($properties['domain'], $properties['suffix']);
     }
 
     private function setDomainName(Host $domain): DomainName
     {
-        if ($domain instanceof ExternalDomainName) {
+        if ($domain instanceof DomainNameProvider) {
             return $domain->domain();
         }
 
@@ -53,12 +53,12 @@ final class ResolvedDomain implements ResolvedDomainName
      *
      * @throws UnableToResolveDomain If the public suffic can not be attached to the domain
      */
-    private function setPublicSuffix(EffectiveTLD $publicSuffix = null): EffectiveTLD
+    private function setSuffix(EffectiveTLD $suffix = null): EffectiveTLD
     {
-        if (null === $publicSuffix || null === $publicSuffix->value()) {
+        if (null === $suffix || null === $suffix->value()) {
             $domain = $this->domain->isIdna2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
 
-            return PublicSuffix::fromUnknown($domain);
+            return Suffix::fromUnknown($domain);
         }
 
         if (2 > count($this->domain)) {
@@ -69,17 +69,17 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
-        $publicSuffix = $this->normalize($publicSuffix);
-        if ($this->domain->value() === $publicSuffix->value()) {
+        $suffix = $this->normalize($suffix);
+        if ($this->domain->value() === $suffix->value()) {
             throw UnableToResolveDomain::dueToIdenticalValue($this->domain);
         }
 
-        $psContent = $publicSuffix->toString();
+        $psContent = $suffix->toString();
         if ('.'.$psContent !== substr($this->domain->toString(), - strlen($psContent) - 1)) {
-            throw UnableToResolveDomain::dueToMismatchedPublicSuffix($this->domain, $publicSuffix);
+            throw UnableToResolveDomain::dueToMismatchedSuffix($this->domain, $suffix);
         }
 
-        return $publicSuffix;
+        return $suffix;
     }
 
     /**
@@ -97,14 +97,14 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         if ($subject->isPrivate()) {
-            return PublicSuffix::fromPrivate($newDomain);
+            return Suffix::fromPrivate($newDomain);
         }
 
         if ($subject->isICANN()) {
-            return  PublicSuffix::fromICANN($newDomain);
+            return  Suffix::fromICANN($newDomain);
         }
 
-        return PublicSuffix::fromUnknown($newDomain);
+        return Suffix::fromUnknown($newDomain);
     }
 
     /**
@@ -112,13 +112,13 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function setRegistrableDomain(): DomainName
     {
-        if (null === $this->publicSuffix->value()) {
+        if (null === $this->suffix->value()) {
             return $this->domain->isIdna2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
         }
 
         $domain = implode('.', array_slice(
             explode('.', $this->domain->toString()),
-            count($this->domain) - count($this->publicSuffix) - 1
+            count($this->domain) - count($this->suffix) - 1
         ));
 
         $registrableDomain = $this->domain->isIdna2008() ? Domain::fromIDNA2008($domain) : Domain::fromIDNA2003($domain);
@@ -136,7 +136,7 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $nbLabels = count($this->domain);
-        $nbRegistrableLabels = count($this->publicSuffix) + 1;
+        $nbRegistrableLabels = count($this->suffix) + 1;
         if ($nbLabels === $nbRegistrableLabels) {
             return $this->domain->isIdna2008() ? Domain::fromIDNA2008(null) : Domain::fromIDNA2003(null);
         }
@@ -194,45 +194,45 @@ final class ResolvedDomain implements ResolvedDomainName
 
     public function suffix(): EffectiveTLD
     {
-        return $this->publicSuffix;
+        return $this->suffix;
     }
 
     public function toAscii(): self
     {
-        return new self($this->domain->toAscii(), $this->publicSuffix->toAscii());
+        return new self($this->domain->toAscii(), $this->suffix->toAscii());
     }
 
     public function toUnicode(): self
     {
-        return new self($this->domain->toUnicode(), $this->publicSuffix->toUnicode());
+        return new self($this->domain->toUnicode(), $this->suffix->toUnicode());
     }
 
     /**
-     * @param mixed $publicSuffix a public suffix
+     * @param mixed $suffix a public suffix
      */
-    public function withSuffix($publicSuffix): self
+    public function withSuffix($suffix): self
     {
-        if (!$publicSuffix instanceof EffectiveTLD) {
-            $publicSuffix = PublicSuffix::fromUnknown($publicSuffix);
+        if (!$suffix instanceof EffectiveTLD) {
+            $suffix = Suffix::fromUnknown($suffix);
         }
 
-        $publicSuffix = $this->normalize($publicSuffix);
-        if ($this->publicSuffix == $publicSuffix) {
+        $suffix = $this->normalize($suffix);
+        if ($this->suffix == $suffix) {
             return $this;
         }
 
-        $host = implode('.', array_reverse(array_slice($this->domain->labels(), count($this->publicSuffix))));
+        $host = implode('.', array_reverse(array_slice($this->domain->labels(), count($this->suffix))));
 
-        if (null === $publicSuffix->value()) {
+        if (null === $suffix->value()) {
             $domain = $this->domain->isIdna2008() ? Domain::fromIDNA2008($host) : Domain::fromIDNA2003($host);
 
             return new self($domain, null);
         }
 
-        $host .= '.'.$publicSuffix->value();
+        $host .= '.'.$suffix->value();
         $domain = $this->domain->isIdna2008() ? Domain::fromIDNA2008($host) : Domain::fromIDNA2003($host);
 
-        return new self($domain, $publicSuffix);
+        return new self($domain, $suffix);
     }
 
     /**
@@ -244,7 +244,7 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
-        if ($subDomain instanceof ExternalDomainName) {
+        if ($subDomain instanceof DomainNameProvider) {
             $subDomain = $subDomain->domain();
         }
 
@@ -267,7 +267,7 @@ final class ResolvedDomain implements ResolvedDomainName
         $newDomainValue = $subDomain->toString().'.'.$this->registrableDomain->toString();
         $newDomain = $this->domain->isIdna2008() ? Domain::fromIDNA2008($newDomainValue) : Domain::fromIDNA2003($newDomainValue);
 
-        return new self($newDomain, $this->publicSuffix);
+        return new self($newDomain, $this->suffix);
     }
 
     public function withSecondLevelDomain($label): self
@@ -282,12 +282,12 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         if (null === $this->subDomain->value()) {
-            return new self($newRegistrableDomain, $this->publicSuffix);
+            return new self($newRegistrableDomain, $this->suffix);
         }
 
         $newDomainValue = $this->subDomain->value().'.'.$newRegistrableDomain->value();
         $newDomain = $this->domain->isIdna2008() ? Domain::fromIDNA2008($newDomainValue) : Domain::fromIDNA2003($newDomainValue);
 
-        return new self($newDomain, $this->publicSuffix);
+        return new self($newDomain, $this->suffix);
     }
 }

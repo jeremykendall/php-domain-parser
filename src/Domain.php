@@ -78,7 +78,7 @@ final class Domain implements DomainName
      */
     private function parseDomain($domain): array
     {
-        if ($domain instanceof ExternalDomainName) {
+        if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
         }
 
@@ -298,7 +298,7 @@ final class Domain implements DomainName
      */
     private function normalize($domain): string
     {
-        if ($domain instanceof ExternalDomainName) {
+        if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
         }
 
