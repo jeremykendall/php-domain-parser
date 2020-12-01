@@ -7,6 +7,7 @@ namespace Pdp\Storage;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 use InvalidArgumentException;
 use Pdp\RootZoneDatabase;
 use Psr\SimpleCache\CacheException;
@@ -41,7 +42,8 @@ final class RootZoneDatabasePsr16Cache implements RootZoneDatabaseCache
      *
      * @param mixed $ttl the cache TTL
      *
-     * @throws TypeError if the value type is not recognized
+     * @throws InvalidArgumentException if the value can not be computed
+     * @throws TypeError                if the value type is not recognized
      */
     private function setTtl($ttl): ?DateInterval
     {
@@ -50,7 +52,14 @@ final class RootZoneDatabasePsr16Cache implements RootZoneDatabaseCache
         }
 
         if ($ttl instanceof DateTimeInterface) {
-            return (new DateTimeImmutable('NOW', $ttl->getTimezone()))->diff($ttl);
+            /** @var DateTimeZone $timezone */
+            $timezone = $ttl->getTimezone();
+
+            $now = new DateTimeImmutable('NOW', $timezone);
+            /** @var DateInterval $ttl */
+            $ttl = $now->diff($ttl, false);
+
+            return $ttl;
         }
 
         if (false !== ($res = filter_var($ttl, FILTER_VALIDATE_INT))) {
