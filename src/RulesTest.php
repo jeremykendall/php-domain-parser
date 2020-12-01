@@ -591,20 +591,6 @@ final class RulesTest extends TestCase
         $this->checkPublicSuffix('xn--fiqs8s', null);
     }
 
-    public function testResolveWithIDNAOptions(): void
-    {
-        $resolvedByDefault = $this->rules->resolve('foo.de');
-        self::assertTrue($resolvedByDefault->domain()->isIdna2008());
-
-        /** @var string $string */
-        $string = file_get_contents(dirname(__DIR__).'/test_data/public_suffix_list.dat');
-        $rules = Rules::fromString($string);
-        $domain = Domain::fromIDNA2008('foo.de');
-        $resolved = $rules->resolve($domain);
-
-        self::assertTrue($resolved->domain()->isIdna2008());
-    }
-
     /**
      * @dataProvider effectiveTLDProvider
      */

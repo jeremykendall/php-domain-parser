@@ -301,8 +301,7 @@ final class Rules implements PublicSuffixList
             return $icann;
         }
 
-        $topLabel = $domain->toAscii()->label(0);
-        $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($topLabel) : Domain::fromIDNA2003($topLabel);
+        $publicSuffix = $domain->clear()->withLabel(0, $domain->label(0));
 
         return Suffix::fromUnknown($publicSuffix);
     }
@@ -336,15 +335,12 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            $topLabel = $domain->toAscii()->label(0);
-            $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($topLabel) : Domain::fromIDNA2003($topLabel);
+            $publicSuffix = $domain->clear()->withLabel(0, $domain->label(0));
 
             return Suffix::fromUnknown($publicSuffix);
         }
 
-        $publicSuffixLabels = implode('.', array_reverse($matches));
-        $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($publicSuffixLabels) : Domain::fromIDNA2003($publicSuffixLabels);
-
+        $publicSuffix = $domain->clear()->append(implode('.', array_reverse($matches)));
         if (self::PRIVATE_DOMAINS === $section) {
             return Suffix::fromPrivate($publicSuffix);
         }

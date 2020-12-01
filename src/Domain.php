@@ -84,25 +84,13 @@ final class Domain implements DomainName
 
         if (!$domain instanceof DomainName) {
             if ($domain instanceof Host) {
-                $domain = $domain->value();
+                $domain = $domain->toUnicode()->value();
             }
 
             return $this->parseValue($domain);
         }
 
-        if ($domain->isIdna2008()) {
-            if (self::IDNA_2008 === $this->type) {
-                return [$domain->value(), $domain->labels()];
-            }
-
-            return $this->parseValue($domain->value());
-        }
-
-        if (self::IDNA_2003 === $this->type) {
-            return [$domain->value(), $domain->labels()];
-        }
-
-        return $this->parseValue($domain->value());
+        return $this->parseValue($domain->toUnicode()->value());
     }
 
     /**
@@ -204,11 +192,6 @@ final class Domain implements DomainName
         }
     }
 
-    public function isIdna2008(): bool
-    {
-        return self::IDNA_2008 === $this->type;
-    }
-
     public function isAscii(): bool
     {
         return null === $this->domain || 1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain);
@@ -296,7 +279,7 @@ final class Domain implements DomainName
      *
      * @throws TypeError if the domain can not be converted
      */
-    private function normalize($domain): string
+    private function normalize($domain): ?string
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
@@ -306,7 +289,11 @@ final class Domain implements DomainName
             $domain = $domain->value();
         }
 
-        if (null === $domain || (!is_string($domain) && !method_exists($domain, '__toString'))) {
+        if (null === $domain) {
+            return $domain;
+        }
+
+        if ((!is_string($domain) && !method_exists($domain, '__toString'))) {
             throw new TypeError('The label must be a '.Host::class.', a stringable object or a string, `'.gettype($domain).'` given.');
         }
 
@@ -386,5 +373,14 @@ final class Domain implements DomainName
         $domain = implode('.', array_reverse($labels));
 
         return new self($domain, $this->type);
+    }
+
+    public function clear(): self
+    {
+        if (null === $this->domain) {
+            return $this;
+        }
+
+        return new self(null, $this->type);
     }
 }

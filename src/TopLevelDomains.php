@@ -217,7 +217,7 @@ final class TopLevelDomains implements RootZoneDatabase
     public function getIterator(): Iterator
     {
         foreach ($this->records as $tld) {
-            yield Suffix::fromUnknown(Domain::fromIDNA2008($tld)->toAscii());
+            yield Suffix::fromIANA(Domain::fromIDNA2008($tld)->toAscii());
         }
     }
 
@@ -276,7 +276,7 @@ final class TopLevelDomains implements RootZoneDatabase
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
             if ($tld->value() === $label) {
-                $publicSuffix = $domain->isIdna2008() ? Domain::fromIDNA2008($domain->label(0)) : Domain::fromIDNA2003($domain->label(0));
+                $publicSuffix = $domain->clear()->withLabel(0, $domain->label(0));
 
                 return Suffix::fromIANA($publicSuffix);
             }

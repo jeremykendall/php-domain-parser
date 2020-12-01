@@ -297,23 +297,6 @@ EOF;
         $collection->getIANADomain('localhost.locale');
     }
 
-    public function testResolveWithIDNAOptions(): void
-    {
-        $resolved = $this->topLevelDomains->resolve('foo.de');
-
-        self::assertTrue($resolved->domain()->isIdna2008());
-
-        $collection = TopLevelDomains::fromPath(
-            dirname(__DIR__).'/test_data/root_zones.dat',
-            null
-        );
-
-        $domain = Domain::fromIDNA2003('foo.de');
-        $resolved = $collection->resolve($domain);
-
-        self::assertFalse($resolved->domain()->isIdna2008());
-    }
-
     public function validTldProvider(): iterable
     {
         return [

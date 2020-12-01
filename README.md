@@ -319,6 +319,7 @@ $newDomain = $domain
 
 echo $domain->toString();    // display 'www.example.com'
 echo $newDomain->toString(); // display 'docs.example.com.www'
+$newDomain->clear()->labels(); //returns []
 ~~~ 
 
 **WARNING: Because of its definition, a domain name can be `null` or a string.**
@@ -375,32 +376,29 @@ is done via two (2) named constructors:
 - `Pdp\Domain::fromIDNA2008`
 - `Pdp\Domain::fromIDNA2003`
 
-At any given moment the `Pdp\Domain` instance can tell you whether:
+At any given moment the `Pdp\Domain` instance can tell you whether it is in 
+`ASCII` mode or not.
 
-- the algorithm used for converting the domain is `IDNA2008`;
-- if the domain value is in `ASCII` mode or not;
+**Once instantiated there's no way to tell which algorithm is used to convert
+the object from ascii to unicode and vice-versa**
 
 ~~~php
 use Pdp\Domain;
 
 $domain = Domain::fromIDNA2008('faß.de');
 echo $domain->value(); // display 'faß.de'
-$domain->isIdna2008(); // returns true
 $domain->isAscii();    // return false
 
 $asciiDomain = $domain->toAscii(); 
 echo $asciiDomain->value(); // display 'xn--fa-hia.de'
-$asciiDomain->isIdna2008(); // returns true
 $asciiDomain->isAscii();    // returns true
 
 $domain = Domain::fromIDNA2003('faß.de');
 echo $domain->value(); // display 'fass.de'
-$domain->isIdna2008(); // returns false
 $domain->isAscii();    // returns true
 
 $asciiDomain = $domain->toAscii();
 echo $asciiDomain->value(); // display 'fass.de'
-$asciiDomain->isIdna2008(); // returns false
 $asciiDomain->isAscii();    // returns true
 ~~~
 

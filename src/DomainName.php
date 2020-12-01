@@ -15,11 +15,6 @@ use IteratorAggregate;
 interface DomainName extends Host, IteratorAggregate
 {
     /**
-     * Tells whether IDNA Conversion is done using IDNA2008 algorithm.
-     */
-    public function isIdna2008(): bool;
-
-    /**
      * Tells whether the current domain is in its ascii form.
      */
     public function isAscii(): bool;
@@ -78,6 +73,8 @@ interface DomainName extends Host, IteratorAggregate
      * @param mixed $label a domain label
      */
     public function append($label): self;
+
+    public function clear(): self;
 
     /**
      * Returns an instance with the specified label added at the specified key.

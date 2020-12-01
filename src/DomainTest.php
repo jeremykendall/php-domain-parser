@@ -296,7 +296,7 @@ final class DomainTest extends TestCase
     public function testWithLabelFailsWithTypeError(): void
     {
         self::expectException(TypeError::class);
-        Domain::fromIDNA2008('example.com')->withLabel(1, null);
+        Domain::fromIDNA2008('example.com')->withLabel(1, new \stdClass());
     }
 
     public function testWithLabelFailsWithInvalidKey(): void
@@ -394,13 +394,6 @@ final class DomainTest extends TestCase
     public function testwithoutLabelWorksWithMultipleKeys(): void
     {
         self::assertNull(Domain::fromIDNA2008('www.example.com')->withoutLabel(0, 1, 2)->value());
-    }
-
-    public function testConstructWithCustomIDNAOptions(): void
-    {
-        $domain = Domain::fromIDNA2008('example.com');
-
-        self::assertTrue($domain->isIdna2008());
     }
 
     /**
