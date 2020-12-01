@@ -74,8 +74,6 @@ interface DomainName extends Host, IteratorAggregate
      */
     public function append($label): self;
 
-    public function clear(): self;
-
     /**
      * Returns an instance with the specified label added at the specified key.
      *
@@ -106,4 +104,12 @@ interface DomainName extends Host, IteratorAggregate
      * @throws CannotProcessHost If the key is out of bounds
      */
     public function withoutLabel(int $key, int ...$keys): self;
+
+    /**
+     * Returns an instance with all labels removed.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains no label
+     */
+    public function clear(): self;
 }
