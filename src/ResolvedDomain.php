@@ -176,9 +176,9 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->registrableDomain;
     }
 
-    public function secondLevelDomain(): ?string
+    public function secondLevelDomain(): DomainName
     {
-        return $this->registrableDomain->label(-1);
+        return $this->registrableDomain->clear()->append($this->registrableDomain->label(-1));
     }
 
     public function subDomain(): DomainName
@@ -260,8 +260,19 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($this->domain->clear()->append($newDomainValue), $this->suffix);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function withSecondLevelDomain($label): self
     {
+        if ($label instanceof DomainNameProvider) {
+            $label = $label->domain();
+        }
+
+        if ($label instanceof Host) {
+            $label = $label->value();
+        }
+
         if (null === $this->registrableDomain->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }

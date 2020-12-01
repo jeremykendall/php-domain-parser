@@ -19,7 +19,7 @@ final class ResolvedDomainTest extends TestCase
         self::assertNull($domain->suffix()->value());
         self::assertNull($domain->registrableDomain()->value());
         self::assertNull($domain->subDomain()->value());
-        self::assertNull($domain->secondLevelDomain());
+        self::assertNull($domain->secondLevelDomain()->value());
     }
 
     /**
@@ -537,7 +537,7 @@ final class ResolvedDomainTest extends TestCase
         $domain = new ResolvedDomain(Domain::fromIDNA2008($host), Suffix::fromICANN(Domain::fromIDNA2008($publicSuffix)));
         $newDomain = $domain->withSecondLevelDomain($sld);
 
-        self::assertSame($expectedSld, $newDomain->secondLevelDomain());
+        self::assertSame($expectedSld, $newDomain->secondLevelDomain()->value());
         self::assertEquals($expectedHost, $newDomain->value());
         self::assertEquals($domain->suffix(), $newDomain->suffix());
         self::assertEquals($domain->subDomain(), $newDomain->subDomain());

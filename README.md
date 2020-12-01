@@ -66,7 +66,7 @@ $publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
 $result = $publicSuffixList->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www';
-echo $result->secondLevelDomain();             //display 'pref';
+echo $result->secondLevelDomain()->toString(); //display 'pref';
 echo $result->registrableDomain()->toString(); //display 'pref.okinawa.jp';
 echo $result->suffix()->toString();            //display 'okinawa.jp';
 $result->suffix()->isICANN();                  //return true;
@@ -83,7 +83,7 @@ $rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-doma
 $result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->suffix()->toString();            //display 'jp';
-echo $result->secondLevelDomain();             //display 'okinawa';
+echo $result->secondLevelDomain()->toString(); //display 'okinawa';
 echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www.pref';
 echo $result->suffix()->isIANA();              //return true
@@ -181,7 +181,7 @@ use Pdp\RootZoneDatabase;
 $result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->suffix()->toString();            //display 'jp';
-echo $result->secondLevelDomain();             //display 'okinawa';
+echo $result->secondLevelDomain()->toString(); //display 'okinawa';
 echo $result->registrableDomain()->toString(); //display 'okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www.pref';
 echo $result->suffix()->isIANA();              //return true
@@ -270,9 +270,10 @@ account the Effective TLD, the library provides a `Domain` object tailored for
 manipulating domain labels. You can access the object using the following methods:
  
 - the `ResolvedDomain::domain` method 
-- the `Suffix::domain` method
 - the `ResolvedDomain::subDomain` method
 - the `ResolvedDomain::registrableDomain` method
+- the `ResolvedDomain::secondLevelDomain` method
+- the `Suffix::domain` method
 
 `Domain` objects usage are explain in the next section.
 

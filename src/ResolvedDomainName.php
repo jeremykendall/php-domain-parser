@@ -14,7 +14,7 @@ interface ResolvedDomainName extends Host, DomainNameProvider
     /**
      * Returns the second level domain component.
      */
-    public function secondLevelDomain(): ?string;
+    public function secondLevelDomain(): ?DomainName;
 
     /**
      * Returns the registrable domain component.
@@ -34,7 +34,7 @@ interface ResolvedDomainName extends Host, DomainNameProvider
      *
      * @throws CannotProcessHost If the Sub domain can not be added to the current Domain
      */
-    public function withSubDomain(Host $subDomain): self;
+    public function withSubDomain(DomainName $subDomain): self;
 
     /**
      * Returns an instance with the specified second level domain label added.
@@ -42,10 +42,9 @@ interface ResolvedDomainName extends Host, DomainNameProvider
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the second level domain label
      *
-     * @param  ?string           $label
      * @throws CannotProcessHost If the second level domain label can not be added
      */
-    public function withSecondLevelDomain(?string $label): self;
+    public function withSecondLevelDomain(DomainName $label): self;
 
     /**
      * Returns an instance with the specified public suffix added.
