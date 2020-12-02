@@ -16,7 +16,7 @@ final class ResolvedDomain implements ResolvedDomainName
 {
     private DomainName $domain;
 
-    private EffectiveTLD $suffix;
+    private EffectiveTopLevelDomain $suffix;
 
     private DomainName $secondLevelDomain;
 
@@ -27,14 +27,14 @@ final class ResolvedDomain implements ResolvedDomainName
     /**
      * @param mixed $domain the domain to be resolved
      */
-    public static function fromHost($domain, EffectiveTLD $suffix = null): self
+    public static function fromHost($domain, EffectiveTopLevelDomain $suffix = null): self
     {
         $domain = self::setDomainName($domain);
 
         return new self($domain, $suffix ?? Suffix::fromUnknown($domain->clear()));
     }
 
-    private function __construct(DomainName $domain, EffectiveTLD $suffix)
+    private function __construct(DomainName $domain, EffectiveTopLevelDomain $suffix)
     {
         $this->domain = $domain;
         $this->suffix = $this->setSuffix($suffix);
@@ -69,7 +69,7 @@ final class ResolvedDomain implements ResolvedDomainName
      *
      * @throws UnableToResolveDomain If the public suffic can not be attached to the domain
      */
-    private function setSuffix(EffectiveTLD $suffix): EffectiveTLD
+    private function setSuffix(EffectiveTopLevelDomain $suffix): EffectiveTopLevelDomain
     {
         if (null === $suffix->value()) {
             return Suffix::fromUnknown($this->domain->clear());
@@ -99,7 +99,7 @@ final class ResolvedDomain implements ResolvedDomainName
     /**
      * Normalize the domain name encoding content.
      */
-    private function normalize(EffectiveTLD $subject): EffectiveTLD
+    private function normalize(EffectiveTopLevelDomain $subject): EffectiveTopLevelDomain
     {
         $newSuffix = $this->domain->clear()->append($subject->toUnicode()->value());
         if ($this->domain->isAscii()) {
@@ -207,7 +207,7 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->subDomain;
     }
 
-    public function suffix(): EffectiveTLD
+    public function suffix(): EffectiveTopLevelDomain
     {
         return $this->suffix;
     }
@@ -227,7 +227,7 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     public function withSuffix($suffix): self
     {
-        if (!$suffix instanceof EffectiveTLD) {
+        if (!$suffix instanceof EffectiveTopLevelDomain) {
             $suffix = Suffix::fromUnknown($suffix);
         }
 
@@ -241,7 +241,7 @@ final class ResolvedDomain implements ResolvedDomainName
             return new self($this->domain->clear()->append($host), Suffix::fromUnknown($this->domain->clear()));
         }
 
-        return new self($this->domain->clear()->append($host. '.'.$suffix->value()), $suffix);
+        return new self($this->domain->clear()->append($host.'.'.$suffix->value()), $suffix);
     }
 
     /**

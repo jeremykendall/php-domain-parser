@@ -7,7 +7,7 @@ namespace Pdp;
 use function count;
 use function in_array;
 
-final class Suffix implements EffectiveTLD
+final class Suffix implements EffectiveTopLevelDomain
 {
     private const ICANN = 'ICANN';
     private const PRIVATE = 'PRIVATE';

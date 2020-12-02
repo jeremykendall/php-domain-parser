@@ -9,7 +9,7 @@ interface ResolvedDomainName extends Host, DomainNameProvider
     /**
      * Returns the domain effective tld component.
      */
-    public function suffix(): EffectiveTLD;
+    public function suffix(): EffectiveTopLevelDomain;
 
     /**
      * Returns the second level domain component.
@@ -55,5 +55,5 @@ interface ResolvedDomainName extends Host, DomainNameProvider
      * If the domain already has a public suffix it will be replaced by the new value
      * otherwise the public suffix content is added to or remove from the current domain.
      */
-    public function withSuffix(EffectiveTLD $suffix): self;
+    public function withSuffix(EffectiveTopLevelDomain $suffix): self;
 }

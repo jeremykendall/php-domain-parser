@@ -281,7 +281,7 @@ final class Rules implements PublicSuffixList
     /**
      * Returns the matched public suffix.
      */
-    private function getEffectiveTLD(DomainName $domain, string $section): EffectiveTLD
+    private function getEffectiveTLD(DomainName $domain, string $section): EffectiveTopLevelDomain
     {
         $icann = $this->getEffectiveTLDFromSection($domain, self::ICANN_DOMAINS);
         if (self::ICANN_DOMAINS === $section) {
@@ -305,7 +305,7 @@ final class Rules implements PublicSuffixList
     /**
      * Returns the public suffix matched against a given PSL section.
      */
-    private function getEffectiveTLDFromSection(DomainName $domain, string $section): EffectiveTLD
+    private function getEffectiveTLDFromSection(DomainName $domain, string $section): EffectiveTopLevelDomain
     {
         $rules = $this->rules[$section];
         $matches = [];

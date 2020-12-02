@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-interface EffectiveTLD extends Host, DomainNameProvider
+interface EffectiveTopLevelDomain extends Host, DomainNameProvider
 {
     /**
      * Tells whether the effective TLD has a matching rule in a Public Suffix List.

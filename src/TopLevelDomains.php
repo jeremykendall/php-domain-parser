@@ -211,7 +211,7 @@ final class TopLevelDomains implements RootZoneDatabase
     }
 
     /**
-     * @return Iterator<EffectiveTLD>
+     * @return Iterator<EffectiveTopLevelDomain>
      */
     public function getIterator(): Iterator
     {
@@ -266,7 +266,7 @@ final class TopLevelDomains implements RootZoneDatabase
         return $domain;
     }
 
-    private function fetchEffectiveTLD(DomainName $domain): ?EffectiveTLD
+    private function fetchEffectiveTLD(DomainName $domain): ?EffectiveTopLevelDomain
     {
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
