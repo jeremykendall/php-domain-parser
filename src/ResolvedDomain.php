@@ -24,9 +24,19 @@ final class ResolvedDomain implements ResolvedDomainName
 
     private DomainName $subDomain;
 
-    public function __construct(Host $domain, EffectiveTLD $suffix = null)
+    /**
+     * @param mixed $domain the domain to be resolved
+     */
+    public static function fromHost($domain, EffectiveTLD $suffix = null): self
     {
-        $this->domain = $this->setDomainName($domain);
+        $domain = self::setDomainName($domain);
+
+        return new self($domain, $suffix ?? Suffix::fromUnknown($domain->clear()));
+    }
+
+    private function __construct(DomainName $domain, EffectiveTLD $suffix)
+    {
+        $this->domain = $domain;
         $this->suffix = $this->setSuffix($suffix);
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->secondLevelDomain = $this->setSecondLevelDomain();
@@ -38,7 +48,10 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($properties['domain'], $properties['suffix']);
     }
 
-    private function setDomainName(Host $domain): DomainName
+    /**
+     * @param mixed $domain The domain to be resolved
+     */
+    private static function setDomainName($domain): DomainName
     {
         if ($domain instanceof DomainNameProvider) {
             return $domain->domain();
@@ -48,7 +61,7 @@ final class ResolvedDomain implements ResolvedDomainName
             return $domain;
         }
 
-        return Domain::fromIDNA2008($domain->value());
+        return Domain::fromIDNA2008($domain);
     }
 
     /**
@@ -56,9 +69,9 @@ final class ResolvedDomain implements ResolvedDomainName
      *
      * @throws UnableToResolveDomain If the public suffic can not be attached to the domain
      */
-    private function setSuffix(EffectiveTLD $suffix = null): EffectiveTLD
+    private function setSuffix(EffectiveTLD $suffix): EffectiveTLD
     {
-        if (null === $suffix || null === $suffix->value()) {
+        if (null === $suffix->value()) {
             return Suffix::fromUnknown($this->domain->clear());
         }
 
@@ -224,9 +237,8 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $host = implode('.', array_reverse(array_slice($this->domain->labels(), count($this->suffix))));
-
         if (null === $suffix->value()) {
-            return new self($this->domain->clear()->append($host), null);
+            return new self($this->domain->clear()->append($host), Suffix::fromUnknown($this->domain->clear()));
         }
 
         $host .= '.'.$suffix->value();

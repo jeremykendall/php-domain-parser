@@ -214,7 +214,7 @@ EOF;
 
     public function validDomainProvider(): iterable
     {
-        $resolvedDomain = new ResolvedDomain(
+        $resolvedDomain = ResolvedDomain::fromHost(
             Domain::fromIDNA2008('www.example.com'),
             Suffix::fromICANN('com')
         );

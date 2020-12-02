@@ -214,7 +214,7 @@ final class RulesTest extends TestCase
 
     public function testWithDomainObject(): void
     {
-        $domain = new ResolvedDomain(
+        $domain = ResolvedDomain::fromHost(
             Domain::fromIDNA2008('private.ulb.ac.be'),
             Suffix::fromICANN('ac.be')
         );

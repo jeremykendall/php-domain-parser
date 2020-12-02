@@ -213,9 +213,9 @@ final class Rules implements PublicSuffixList
         try {
             return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
-            return new ResolvedDomain($exception->getDomain());
+            return ResolvedDomain::fromHost($exception->getDomain());
         } catch (SyntaxError $exception) {
-            return new ResolvedDomain(Domain::fromIDNA2008(null));
+            return ResolvedDomain::fromHost(Domain::fromIDNA2008(null));
         }
     }
 
@@ -226,7 +226,7 @@ final class Rules implements PublicSuffixList
     {
         $domain = $this->validateDomain($host);
 
-        return new ResolvedDomain($domain, $this->getEffectiveTLD($domain, ''));
+        return ResolvedDomain::fromHost($domain, $this->getEffectiveTLD($domain, ''));
     }
 
     /**
@@ -240,7 +240,7 @@ final class Rules implements PublicSuffixList
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'ICANN');
         }
 
-        return new ResolvedDomain($domain, $publicSuffix);
+        return ResolvedDomain::fromHost($domain, $publicSuffix);
     }
 
     /**
@@ -254,7 +254,7 @@ final class Rules implements PublicSuffixList
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'private');
         }
 
-        return new ResolvedDomain($domain, $publicSuffix);
+        return ResolvedDomain::fromHost($domain, $publicSuffix);
     }
 
     /**
