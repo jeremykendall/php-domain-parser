@@ -101,20 +101,20 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function normalize(EffectiveTLD $subject): EffectiveTLD
     {
-        $newDomain = $this->domain->clear()->append($subject->toUnicode()->value());
+        $newSuffix = $this->domain->clear()->append($subject->toUnicode()->value());
         if ($this->domain->isAscii()) {
-            $newDomain = $newDomain->toAscii();
+            $newSuffix = $newSuffix->toAscii();
         }
 
         if ($subject->isPrivate()) {
-            return Suffix::fromPrivate($newDomain);
+            return Suffix::fromPrivate($newSuffix);
         }
 
         if ($subject->isICANN()) {
-            return  Suffix::fromICANN($newDomain);
+            return  Suffix::fromICANN($newSuffix);
         }
 
-        return Suffix::fromUnknown($newDomain);
+        return Suffix::fromUnknown($newSuffix);
     }
 
     /**
@@ -241,9 +241,7 @@ final class ResolvedDomain implements ResolvedDomainName
             return new self($this->domain->clear()->append($host), Suffix::fromUnknown($this->domain->clear()));
         }
 
-        $host .= '.'.$suffix->value();
-
-        return new self($this->domain->clear()->append($host), $suffix);
+        return new self($this->domain->clear()->append($host. '.'.$suffix->value()), $suffix);
     }
 
     /**
@@ -255,23 +253,13 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
-        if ($subDomain instanceof DomainNameProvider) {
-            $subDomain = $subDomain->domain();
-        }
-
-        if (!$subDomain instanceof DomainName) {
-            $subDomain = $this->domain->clear()->append($subDomain);
-        }
-
-        $subDomain = $this->domain->clear()->append($subDomain);
+        $subDomain = $this->domain->clear()->append(self::setDomainName($subDomain));
         if ($this->subDomain == $subDomain) {
             return $this;
         }
 
-        /** @var DomainName $subDomain */
         $subDomain = $subDomain->toAscii();
         if (!$this->domain->isAscii()) {
-            /** @var DomainName $subDomain */
             $subDomain = $subDomain->toUnicode();
         }
 
@@ -289,14 +277,7 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
-        if ($label instanceof DomainNameProvider) {
-            $label = $label->domain();
-        }
-
-        if (!$label instanceof DomainName) {
-            $label = Domain::fromIDNA2008($label);
-        }
-
+        $label = self::setDomainName($label);
         $newRegistrableDomain = $this->registrableDomain->withoutLabel(-1)->prepend($label->value());
         if ($newRegistrableDomain == $this->registrableDomain) {
             return $this;
