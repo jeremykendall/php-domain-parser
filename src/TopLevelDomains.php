@@ -21,7 +21,6 @@ use function method_exists;
 use function preg_match;
 use function stream_get_contents;
 use function strpos;
-use function substr;
 use function trim;
 use const JSON_THROW_ON_ERROR;
 
@@ -262,10 +261,6 @@ final class TopLevelDomains implements RootZoneDatabase
 
         if (!($domain instanceof DomainName)) {
             $domain = Domain::fromIDNA2008($domain);
-        }
-
-        if ((2 > count($domain)) || ('.' === substr($domain->toString(), -1, 1))) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
         return $domain;

@@ -275,10 +275,6 @@ final class Rules implements PublicSuffixList
             $domain = Domain::fromIDNA2008($domain);
         }
 
-        if ((2 > count($domain)) || ('.' === substr($domain->toString(), -1, 1))) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
-        }
-
         return $domain;
     }
 
@@ -335,9 +331,13 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            $publicSuffix = $domain->clear()->withLabel(0, $domain->label(0));
+            $label = $domain->label(0);
+            $publicSuffix = $domain->clear();
+            if ('' === $label) {
+                return Suffix::fromUnknown($publicSuffix);
+            }
 
-            return Suffix::fromUnknown($publicSuffix);
+            return Suffix::fromUnknown($publicSuffix->append($label));
         }
 
         $publicSuffix = $domain->clear()->append(implode('.', array_reverse($matches)));
