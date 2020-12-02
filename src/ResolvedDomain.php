@@ -265,19 +265,19 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     public function withSecondLevelDomain($label): self
     {
-        if ($label instanceof DomainNameProvider) {
-            $label = $label->domain();
-        }
-
-        if ($label instanceof Host) {
-            $label = $label->value();
-        }
-
         if (null === $this->registrableDomain->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
-        $newRegistrableDomain = $this->registrableDomain->withLabel(-1, $label);
+        if ($label instanceof DomainNameProvider) {
+            $label = $label->domain();
+        }
+
+        if (!$label instanceof DomainName) {
+            $label = Domain::fromIDNA2008($label);
+        }
+
+        $newRegistrableDomain = $this->registrableDomain->withoutLabel(-1)->prepend($label->value());
         if ($newRegistrableDomain == $this->registrableDomain) {
             return $this;
         }
