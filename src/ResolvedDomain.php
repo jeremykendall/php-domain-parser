@@ -18,6 +18,8 @@ final class ResolvedDomain implements ResolvedDomainName
 
     private EffectiveTLD $suffix;
 
+    private DomainName $secondLevelDomain;
+
     private DomainName $registrableDomain;
 
     private DomainName $subDomain;
@@ -27,6 +29,7 @@ final class ResolvedDomain implements ResolvedDomainName
         $this->domain = $this->setDomainName($domain);
         $this->suffix = $this->setSuffix($suffix);
         $this->registrableDomain = $this->setRegistrableDomain();
+        $this->secondLevelDomain = $this->setSecondLevelDomain();
         $this->subDomain = $this->setSubDomain();
     }
 
@@ -120,6 +123,11 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->domain->isAscii() ? $registrableDomain->toAscii() : $registrableDomain->toUnicode();
     }
 
+    private function setSecondLevelDomain(): DomainName
+    {
+        return $this->registrableDomain->clear()->append($this->registrableDomain->label(-1));
+    }
+
     /**
      * Computes the sub domain part.
      */
@@ -178,7 +186,7 @@ final class ResolvedDomain implements ResolvedDomainName
 
     public function secondLevelDomain(): DomainName
     {
-        return $this->registrableDomain->clear()->append($this->registrableDomain->label(-1));
+        return $this->secondLevelDomain;
     }
 
     public function subDomain(): DomainName
