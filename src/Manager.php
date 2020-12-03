@@ -106,7 +106,7 @@ final class Manager
             throw new CouldNotLoadRules(sprintf('Unable to load the public suffix list rules for %s', $url));
         }
 
-        $data = json_decode($data ?? $this->cache->get($key), true);
+        $data = json_decode((string) ($data ?? $this->cache->get($key)), true);
         if (JSON_ERROR_NONE === json_last_error()) {
             return new Rules($data, $asciiIDNAOption, $unicodeIDNAOption);
         }
@@ -163,7 +163,7 @@ final class Manager
             throw new CouldNotLoadTLDs(sprintf('Unable to load the root zone database from %s', $url));
         }
 
-        $data = json_decode($data ?? $this->cache->get($key), true);
+        $data = json_decode((string) ($data ?? $this->cache->get($key)), true);
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new CouldNotLoadTLDs(
                 sprintf('The root zone database cache is corrupted: %s', json_last_error_msg()),
