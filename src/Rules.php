@@ -226,7 +226,7 @@ final class Rules implements PublicSuffixList
     {
         $domain = $this->validateDomain($host);
 
-        return ResolvedDomain::fromHost($domain, $this->getEffectiveTLD($domain, ''));
+        return ResolvedDomain::fromHost($domain, $this->getEffectiveTopLevelDomain($domain, ''));
     }
 
     /**
@@ -235,7 +235,7 @@ final class Rules implements PublicSuffixList
     public function getICANNDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $publicSuffix = $this->getEffectiveTLD($domain, self::ICANN_DOMAINS);
+        $publicSuffix = $this->getEffectiveTopLevelDomain($domain, self::ICANN_DOMAINS);
         if (!$publicSuffix->isICANN()) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'ICANN');
         }
@@ -249,7 +249,7 @@ final class Rules implements PublicSuffixList
     public function getPrivateDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $publicSuffix = $this->getEffectiveTLD($domain, self::PRIVATE_DOMAINS);
+        $publicSuffix = $this->getEffectiveTopLevelDomain($domain, self::PRIVATE_DOMAINS);
         if (!$publicSuffix->isPrivate()) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'private');
         }
@@ -281,14 +281,14 @@ final class Rules implements PublicSuffixList
     /**
      * Returns the matched public suffix.
      */
-    private function getEffectiveTLD(DomainName $domain, string $section): EffectiveTopLevelDomain
+    private function getEffectiveTopLevelDomain(DomainName $domain, string $section): EffectiveTopLevelDomain
     {
-        $icann = $this->getEffectiveTLDFromSection($domain, self::ICANN_DOMAINS);
+        $icann = $this->getEffectiveTopLevelDomainFromSection($domain, self::ICANN_DOMAINS);
         if (self::ICANN_DOMAINS === $section) {
             return $icann;
         }
 
-        $private = $this->getEffectiveTLDFromSection($domain, self::PRIVATE_DOMAINS);
+        $private = $this->getEffectiveTopLevelDomainFromSection($domain, self::PRIVATE_DOMAINS);
         if (count($private) > count($icann)) {
             return $private;
         }
@@ -305,7 +305,7 @@ final class Rules implements PublicSuffixList
     /**
      * Returns the public suffix matched against a given PSL section.
      */
-    private function getEffectiveTLDFromSection(DomainName $domain, string $section): EffectiveTopLevelDomain
+    private function getEffectiveTopLevelDomainFromSection(DomainName $domain, string $section): EffectiveTopLevelDomain
     {
         $rules = $this->rules[$section];
         $matches = [];

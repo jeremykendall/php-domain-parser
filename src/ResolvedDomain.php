@@ -26,12 +26,20 @@ final class ResolvedDomain implements ResolvedDomainName
 
     /**
      * @param mixed $domain the domain to be resolved
+     * @param mixed $suffix the domain suffix
      */
-    public static function fromHost($domain, EffectiveTopLevelDomain $suffix = null): self
+    public static function fromHost($domain, $suffix = null): self
     {
         $domain = self::setDomainName($domain);
+        if (null === $suffix) {
+            $suffix = Suffix::fromUnknown($domain->clear());
+        }
 
-        return new self($domain, $suffix ?? Suffix::fromUnknown($domain->clear()));
+        if (!$suffix instanceof EffectiveTopLevelDomain) {
+            $suffix = Suffix::fromUnknown($suffix);
+        }
+
+        return new self($domain, $suffix);
     }
 
     private function __construct(DomainName $domain, EffectiveTopLevelDomain $suffix)
