@@ -39,6 +39,6 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 
     public static function dueToInvalidLabelKey(Host $domain, int $key): self
     {
-        return new self('the given key `'.$key.'` is invalid for the domain `"'.$domain->value() ?? 'NULL'.'"`.');
+        return new self('the given key `'.$key.'` is invalid for the domain `'.($domain->value() ?? 'NULL').'`.');
     }
 }

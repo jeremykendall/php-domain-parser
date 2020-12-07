@@ -112,4 +112,14 @@ interface DomainName extends Host, IteratorAggregate
      * an instance that contains no label
      */
     public function clear(): self;
+
+    /**
+     * Extracts a slice of $length elements starting at position $offset from the Collection.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the selected slice.
+     *
+     * If $length is null it returns all elements from $offset to the end of the Domain.
+     */
+    public function slice(int $offset, int $length = null): self;
 }

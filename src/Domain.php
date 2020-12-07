@@ -9,6 +9,7 @@ use TypeError;
 use function array_count_values;
 use function array_keys;
 use function array_reverse;
+use function array_slice;
 use function array_unshift;
 use function count;
 use function explode;
@@ -382,5 +383,24 @@ final class Domain implements DomainName
         }
 
         return new self(null, $this->type);
+    }
+
+    public function slice(int $offset, int $length = null): self
+    {
+        $nb_labels = count($this->labels);
+        if ($offset < - $nb_labels || $offset > $nb_labels) {
+            throw SyntaxError::dueToInvalidLabelKey($this, $offset);
+        }
+
+        $labels = array_slice($this->labels, $offset, $length, true);
+        if ($labels === $this->labels) {
+            return $this;
+        }
+
+        if ([] === $labels) {
+            return new self(null, $this->type);
+        }
+
+        return new self(implode('.', array_reverse($labels)), $this->type);
     }
 }

@@ -460,4 +460,23 @@ final class DomainTest extends TestCase
     {
         self::assertNotEquals(Domain::fromIDNA2003('example.com'), Domain::fromIDNA2008('example.com'));
     }
+
+    public function testSlice(): void
+    {
+        $domain = Domain::fromIDNA2008('ulb.ac.be');
+
+        self::assertSame($domain->toString(), $domain->slice(-3)->toString());
+        self::assertSame($domain->toString(), $domain->slice(0)->toString());
+
+        self::assertSame('ulb.ac', $domain->slice(1)->toString());
+        self::assertSame('ulb', $domain->slice(-1)->toString());
+        self::assertSame('be', $domain->slice(-3, 1)->toString());
+    }
+
+    public function testSliceThrowsOnOverFlow(): void
+    {
+        self::expectException(SyntaxError::class);
+
+        Domain::fromIDNA2008('ulb.ac.be')->slice(5);
+    }
 }
