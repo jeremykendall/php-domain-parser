@@ -14,6 +14,7 @@ use function count;
 use function fclose;
 use function fopen;
 use function gettype;
+use function in_array;
 use function is_object;
 use function is_string;
 use function json_decode;
@@ -237,7 +238,7 @@ final class TopLevelDomains implements RootZoneDatabase
         try {
             $domain = $this->validateDomain($host);
 
-            return ResolvedDomain::fromHost($domain, $this->fetchEffectiveTLD($domain));
+            return ResolvedDomain::fromHost($domain, $this->fetchEffectiveTopLevelDomain($domain));
         } catch (UnableToResolveDomain $exception) {
             return ResolvedDomain::fromHost($exception->getDomain());
         } catch (SyntaxError $exception) {
@@ -266,14 +267,16 @@ final class TopLevelDomains implements RootZoneDatabase
         return $domain;
     }
 
-    private function fetchEffectiveTLD(DomainName $domain): ?EffectiveTopLevelDomain
+    private function fetchEffectiveTopLevelDomain(DomainName $domain): ?EffectiveTopLevelDomain
     {
         $label = $domain->toAscii()->label(0);
+        if (in_array($label, [null, ''], true)) {
+            return null;
+        }
+
         foreach ($this as $tld) {
             if ($tld->value() === $label) {
-                $publicSuffix = $domain->clear()->withLabel(0, $domain->label(0));
-
-                return Suffix::fromIANA($publicSuffix);
+                return Suffix::fromIANA($domain->slice(0, 1));
             }
         }
 
@@ -286,11 +289,11 @@ final class TopLevelDomains implements RootZoneDatabase
     public function getIANADomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
-        $publicSuffix = $this->fetchEffectiveTLD($domain);
+        $publicSuffix = $this->fetchEffectiveTopLevelDomain($domain);
         if (null === $publicSuffix) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }
 
-        return ResolvedDomain::fromHost($domain, Suffix::fromIANA($publicSuffix));
+        return ResolvedDomain::fromHost($domain, $publicSuffix);
     }
 }

@@ -367,13 +367,11 @@ final class Domain implements DomainName
             }
         }
 
-        if ([] === $labels) {
-            return new self(null, $this->type);
-        }
+        $clone = clone $this;
+        $clone->labels = $labels;
+        $clone->domain = [] === $labels ? null : implode('.', array_reverse($labels));
 
-        $domain = implode('.', array_reverse($labels));
-
-        return new self($domain, $this->type);
+        return $clone;
     }
 
     public function clear(): self
@@ -397,10 +395,10 @@ final class Domain implements DomainName
             return $this;
         }
 
-        if ([] === $labels) {
-            return new self(null, $this->type);
-        }
+        $clone = clone $this;
+        $clone->labels = $labels;
+        $clone->domain = [] === $labels ? null : implode('.', array_reverse($labels));
 
-        return new self(implode('.', array_reverse($labels)), $this->type);
+        return $clone;
     }
 }

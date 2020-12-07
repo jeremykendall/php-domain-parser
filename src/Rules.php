@@ -8,13 +8,11 @@ use JsonException;
 use SplTempFileObject;
 use TypeError;
 use function array_pop;
-use function array_reverse;
 use function count;
 use function explode;
 use function fclose;
 use function fopen;
 use function gettype;
-use function implode;
 use function is_array;
 use function is_object;
 use function is_string;
@@ -297,9 +295,7 @@ final class Rules implements PublicSuffixList
             return $icann;
         }
 
-        $publicSuffix = $domain->clear()->withLabel(0, $domain->label(0));
-
-        return Suffix::fromUnknown($publicSuffix);
+        return Suffix::fromUnknown($domain->slice(0, 1));
     }
 
     /**
@@ -331,16 +327,15 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            $label = $domain->label(0);
-            $publicSuffix = $domain->clear();
-            if ('' === $label) {
-                return Suffix::fromUnknown($publicSuffix);
+            $publicSuffix = $domain->slice(0, 1);
+            if ('' === $publicSuffix->value()) {
+                return Suffix::fromUnknown($publicSuffix->clear());
             }
 
-            return Suffix::fromUnknown($publicSuffix->append($label));
+            return Suffix::fromUnknown($publicSuffix);
         }
 
-        $publicSuffix = $domain->clear()->append(implode('.', array_reverse($matches)));
+        $publicSuffix = $domain->slice(0, count($matches));
         if (self::PRIVATE_DOMAINS === $section) {
             return Suffix::fromPrivate($publicSuffix);
         }

@@ -445,7 +445,7 @@ final class ResolvedDomainTest extends TestCase
 
     public function testWithPublicSuffixFailsWithNullDomain(): void
     {
-        self::expectException(SyntaxError::class);
+        self::expectException(UnableToResolveDomain::class);
 
         ResolvedDomain::fromHost(Domain::fromIDNA2008(null))->withSuffix('www');
     }

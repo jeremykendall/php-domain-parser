@@ -7,6 +7,8 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 ### Added
 
 - Adding proper Interfaces
+- Added `Domain::clear` to easily initialize an empty domain object
+- Added `Domain::slice` to easily slice a domain object
 - Added `ResolvedDomain` object to normalize Resolver results.
 - Added `Suffix` object to replace the `PublicSuffix` object from v5.
 - Public Suffix List and IANA Root Zone Database are fully decoupled

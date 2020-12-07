@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use function count;
-use function strlen;
 use function substr;
 
 final class ResolvedDomain implements ResolvedDomainName
@@ -92,8 +91,7 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToIdenticalValue($this->domain);
         }
 
-        $psContent = $suffix->toString();
-        if ('.'.$psContent !== substr($this->domain->toString(), - strlen($psContent) - 1)) {
+        if ($this->domain->slice(0, count($suffix))->value() !== $suffix->value()) {
             throw UnableToResolveDomain::dueToMismatchedSuffix($this->domain, $suffix);
         }
 
@@ -105,7 +103,7 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function normalize(EffectiveTopLevelDomain $subject): EffectiveTopLevelDomain
     {
-        $newSuffix = $this->domain->clear()->append($subject->toUnicode()->value());
+        $newSuffix = $this->domain->clear()->append($subject->toUnicode());
         if ($this->domain->isAscii()) {
             $newSuffix = $newSuffix->toAscii();
         }
@@ -219,13 +217,12 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $suffix = $this->normalize($suffix);
+        $domainValue = $this->domain->slice(count($this->suffix));
         if (null === $suffix->value()) {
-            return new self($this->domain->slice(count($this->suffix)), Suffix::fromUnknown($this->domain->clear()));
+            return new self($domainValue, Suffix::fromUnknown($this->domain->clear()));
         }
 
-        $host = $this->domain->slice(count($this->suffix))->toString();
-
-        return new self($this->domain->clear()->append($host.'.'.$suffix->value()), $suffix);
+        return self::fromHost($domainValue->append($suffix), $suffix);
     }
 
     /**
@@ -247,9 +244,7 @@ final class ResolvedDomain implements ResolvedDomainName
             $subDomain = $subDomain->toUnicode();
         }
 
-        $newDomainValue = $subDomain->toString().'.'.$this->registrableDomain->toString();
-
-        return new self($this->domain->clear()->append($newDomainValue), $this->suffix);
+        return new self($this->registrableDomain->prepend($subDomain), $this->suffix);
     }
 
     /**
@@ -262,7 +257,7 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $label = self::setDomainName($label);
-        $newRegistrableDomain = $this->registrableDomain->withoutLabel(-1)->prepend($label->value());
+        $newRegistrableDomain = $this->registrableDomain->withoutLabel(-1)->prepend($label);
         if ($newRegistrableDomain->value() === $this->registrableDomain->value()) {
             return $this;
         }
@@ -271,8 +266,6 @@ final class ResolvedDomain implements ResolvedDomainName
             return new self($newRegistrableDomain, $this->suffix);
         }
 
-        $newDomainValue = $this->subDomain->value().'.'.$newRegistrableDomain->value();
-
-        return new self($this->domain->clear()->append($newDomainValue), $this->suffix);
+        return new self($newRegistrableDomain->prepend($this->subDomain), $this->suffix);
     }
 }
