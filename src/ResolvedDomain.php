@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use function array_reverse;
-use function array_slice;
 use function count;
-use function explode;
-use function implode;
 use function strlen;
 use function substr;
 
@@ -134,19 +130,16 @@ final class ResolvedDomain implements ResolvedDomainName
             return $this->domain->clear();
         }
 
-        $domain = implode('.', array_slice(
-            explode('.', $this->domain->toString()),
-            count($this->domain) - count($this->suffix) - 1
-        ));
-
-        $registrableDomain = $this->domain->clear()->append($domain);
-
-        return $this->domain->isAscii() ? $registrableDomain->toAscii() : $registrableDomain->toUnicode();
+        return $this->domain->slice(0, count($this->suffix) + 1);
     }
 
     private function setSecondLevelDomain(): DomainName
     {
-        return $this->registrableDomain->clear()->append($this->registrableDomain->label(-1));
+        if (null === $this->suffix->value()) {
+            return $this->domain->clear();
+        }
+
+        return $this->domain->slice(count($this->suffix), 1);
     }
 
     /**
@@ -154,25 +147,11 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function setSubDomain(): DomainName
     {
-        if (null === $this->registrableDomain->value()) {
+        if (null === $this->suffix->value()) {
             return $this->domain->clear();
         }
 
-        $nbLabels = count($this->domain);
-        $nbRegistrableLabels = count($this->suffix) + 1;
-        if ($nbLabels === $nbRegistrableLabels) {
-            return $this->domain->clear();
-        }
-
-        $domain = implode('.', array_slice(
-            explode('.', $this->domain->toString()),
-            0,
-            $nbLabels - $nbRegistrableLabels
-        ));
-
-        $subDomain = $this->domain->clear()->append($domain);
-
-        return $this->domain->isAscii() ? $subDomain->toAscii() : $subDomain->toUnicode();
+        return $this->domain->slice(count($this->suffix) + 1);
     }
 
     public function count(): int
@@ -187,7 +166,7 @@ final class ResolvedDomain implements ResolvedDomainName
 
     public function jsonSerialize(): ?string
     {
-        return $this->domain->value();
+        return $this->domain->jsonSerialize();
     }
 
     public function value(): ?string
@@ -240,14 +219,11 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $suffix = $this->normalize($suffix);
-        if ($this->suffix == $suffix) {
-            return $this;
+        if (null === $suffix->value()) {
+            return new self($this->domain->slice(count($this->suffix)), Suffix::fromUnknown($this->domain->clear()));
         }
 
-        $host = implode('.', array_reverse(array_slice($this->domain->labels(), count($this->suffix))));
-        if (null === $suffix->value()) {
-            return new self($this->domain->clear()->append($host), Suffix::fromUnknown($this->domain->clear()));
-        }
+        $host = $this->domain->slice(count($this->suffix))->toString();
 
         return new self($this->domain->clear()->append($host.'.'.$suffix->value()), $suffix);
     }
@@ -257,12 +233,12 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     public function withSubDomain($subDomain): self
     {
-        if (null === $this->registrableDomain->value()) {
+        if (null === $this->suffix->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
         $subDomain = $this->domain->clear()->append(self::setDomainName($subDomain));
-        if ($this->subDomain == $subDomain) {
+        if ($this->subDomain->value() === $subDomain->value()) {
             return $this;
         }
 
@@ -281,13 +257,13 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     public function withSecondLevelDomain($label): self
     {
-        if (null === $this->registrableDomain->value()) {
+        if (null === $this->suffix->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
         $label = self::setDomainName($label);
         $newRegistrableDomain = $this->registrableDomain->withoutLabel(-1)->prepend($label->value());
-        if ($newRegistrableDomain == $this->registrableDomain) {
+        if ($newRegistrableDomain->value() === $this->registrableDomain->value()) {
             return $this;
         }
 
