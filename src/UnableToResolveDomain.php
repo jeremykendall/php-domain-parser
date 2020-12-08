@@ -10,6 +10,19 @@ final class UnableToResolveDomain extends InvalidArgumentException implements Ca
 {
     private DomainName $domain;
 
+    public static function dueToInvalidSecondLevelDomain(DomainName $domain): self
+    {
+        $value = $domain->value();
+        if (null === $value) {
+            $value = 'NULL';
+        }
+
+        $exception = new self('The submitted Second Level Domain is invalid `'.$value.'`; it should contains only one label.');
+        $exception->domain = $domain;
+
+        return $exception;
+    }
+
     public static function dueToIdenticalValue(DomainName $domain): self
     {
         $exception = new self('The public suffix and the domain name are is identical `'.$domain->toString().'`.');

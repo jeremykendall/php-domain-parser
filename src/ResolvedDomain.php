@@ -275,13 +275,13 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $label = self::setDomainName($label);
+        if (1 !== count($label)) {
+            throw UnableToResolveDomain::dueToInvalidSecondLevelDomain($label);
+        }
+
         $newRegistrableDomain = $this->registrableDomain->withoutLabel(-1)->prepend($label);
         if ($newRegistrableDomain->value() === $this->registrableDomain->value()) {
             return $this;
-        }
-
-        if (null === $this->subDomain->value()) {
-            return new self($newRegistrableDomain, $this->suffix);
         }
 
         return new self($newRegistrableDomain->prepend($this->subDomain), $this->suffix);
