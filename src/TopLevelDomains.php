@@ -238,13 +238,13 @@ final class TopLevelDomains implements RootZoneDatabase
         try {
             $domain = $this->validateDomain($host);
             if ($this->containsTopLevelDomain($domain)) {
-                return ResolvedDomain::fromIANA($domain, 1);
+                return ResolvedDomain::fromIANA($domain);
             }
-            return ResolvedDomain::fromUnknown($domain, 0);
+            return ResolvedDomain::fromNull($domain);
         } catch (UnableToResolveDomain $exception) {
-            return ResolvedDomain::fromUnknown($exception->getDomain(), 0);
+            return ResolvedDomain::fromNull($exception->getDomain());
         } catch (SyntaxError $exception) {
-            return ResolvedDomain::fromUnknown(Domain::fromIDNA2008(null), 0);
+            return ResolvedDomain::fromNull(Domain::fromIDNA2008(null));
         }
     }
 
@@ -295,6 +295,6 @@ final class TopLevelDomains implements RootZoneDatabase
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }
 
-        return ResolvedDomain::fromIANA($domain, 1);
+        return ResolvedDomain::fromIANA($domain);
     }
 }

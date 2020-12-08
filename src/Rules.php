@@ -211,9 +211,9 @@ final class Rules implements PublicSuffixList
         try {
             return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
-            return ResolvedDomain::fromUnknown($exception->getDomain());
+            return ResolvedDomain::fromNull($exception->getDomain());
         } catch (SyntaxError $exception) {
-            return ResolvedDomain::fromUnknown(Domain::fromIDNA2008(null));
+            return ResolvedDomain::fromNull(Domain::fromIDNA2008(null));
         }
     }
 
@@ -233,7 +233,11 @@ final class Rules implements PublicSuffixList
             return ResolvedDomain::fromPrivate($domain, $length);
         }
 
-        return ResolvedDomain::fromUnknown($domain, $length);
+        if (1 === $length) {
+            return ResolvedDomain::fromUnknown($domain);
+        }
+
+        return ResolvedDomain::fromNull($domain);
     }
 
     /**
