@@ -97,7 +97,7 @@ final class ResolvedDomain implements ResolvedDomainName
     private function setSuffix(EffectiveTopLevelDomain $suffix): EffectiveTopLevelDomain
     {
         if (null === $suffix->value()) {
-            return Suffix::fromUnknown($this->domain->clear());
+            return $suffix;
         }
 
         if (2 > count($this->domain)) {
@@ -108,7 +108,6 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
-        $suffix = $this->normalize($suffix);
         if ($this->domain->value() === $suffix->value()) {
             throw UnableToResolveDomain::dueToIdenticalValue($this->domain);
         }
@@ -135,7 +134,7 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         if ($subject->isICANN()) {
-            return  Suffix::fromICANN($newSuffix);
+            return Suffix::fromICANN($newSuffix);
         }
 
         return Suffix::fromUnknown($newSuffix);
@@ -238,13 +237,10 @@ final class ResolvedDomain implements ResolvedDomainName
             $suffix = Suffix::fromUnknown($suffix);
         }
 
-        $suffix = $this->normalize($suffix);
-        $domainValue = $this->domain->slice(count($this->suffix));
-        if (null === $suffix->value()) {
-            return new self($domainValue, Suffix::fromUnknown($this->domain->clear()));
-        }
-
-        return new self($domainValue->append($suffix), $suffix);
+        return new self(
+            $this->domain->slice(count($this->suffix))->append($suffix),
+            $this->normalize($suffix)
+        );
     }
 
     /**
