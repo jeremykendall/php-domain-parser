@@ -19,24 +19,6 @@ final class ResolvedDomain implements ResolvedDomainName
 
     private DomainName $subDomain;
 
-    /**
-     * @param mixed $domain the domain to be resolved
-     * @param mixed $suffix the domain suffix
-     */
-    public static function fromHost($domain, $suffix = null): self
-    {
-        $domain = self::setDomainName($domain);
-        if (null === $suffix) {
-            $suffix = Suffix::fromUnknown($domain->clear());
-        }
-
-        if (!$suffix instanceof EffectiveTopLevelDomain) {
-            $suffix = Suffix::fromUnknown($suffix);
-        }
-
-        return new self($domain, $suffix);
-    }
-
     private function __construct(DomainName $domain, EffectiveTopLevelDomain $suffix)
     {
         $this->domain = $domain;
@@ -44,6 +26,46 @@ final class ResolvedDomain implements ResolvedDomainName
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->secondLevelDomain = $this->setSecondLevelDomain();
         $this->subDomain = $this->setSubDomain();
+    }
+
+    /**
+     * @param mixed $domain the domain to be resolved
+     */
+    public static function fromICANN($domain, int $suffixLength): self
+    {
+        $domain = self::setDomainName($domain);
+
+        return new self($domain, Suffix::fromICANN($domain->slice(0, $suffixLength)));
+    }
+
+    /**
+     * @param mixed $domain the domain to be resolved
+     */
+    public static function fromPrivate($domain, int $suffixLength): self
+    {
+        $domain = self::setDomainName($domain);
+
+        return new self($domain, Suffix::fromPrivate($domain->slice(0, $suffixLength)));
+    }
+
+    /**
+     * @param mixed $domain the domain to be resolved
+     */
+    public static function fromIANA($domain, int $suffixLength): self
+    {
+        $domain = self::setDomainName($domain);
+
+        return new self($domain, Suffix::fromIANA($domain->slice(0, $suffixLength)));
+    }
+
+    /**
+     * @param mixed $domain the domain to be resolved
+     */
+    public static function fromUnknown($domain, int $suffixLength = 0): self
+    {
+        $domain = self::setDomainName($domain);
+
+        return new self($domain, Suffix::fromUnknown($domain->slice(0, $suffixLength)));
     }
 
     public static function __set_state(array $properties): self
@@ -222,7 +244,7 @@ final class ResolvedDomain implements ResolvedDomainName
             return new self($domainValue, Suffix::fromUnknown($this->domain->clear()));
         }
 
-        return self::fromHost($domainValue->append($suffix), $suffix);
+        return new self($domainValue->append($suffix), $suffix);
     }
 
     /**

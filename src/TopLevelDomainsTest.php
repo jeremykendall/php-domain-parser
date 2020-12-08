@@ -214,10 +214,7 @@ EOF;
 
     public function validDomainProvider(): iterable
     {
-        $resolvedDomain = ResolvedDomain::fromHost(
-            Domain::fromIDNA2008('www.example.com'),
-            Suffix::fromICANN('com')
-        );
+        $resolvedDomain = ResolvedDomain::fromICANN(Domain::fromIDNA2008('www.example.com'), 1);
 
         return [
             'simple domain' => ['GOOGLE.COM'],

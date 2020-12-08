@@ -211,9 +211,9 @@ final class Rules implements PublicSuffixList
         try {
             return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
-            return ResolvedDomain::fromHost($exception->getDomain());
+            return ResolvedDomain::fromUnknown($exception->getDomain());
         } catch (SyntaxError $exception) {
-            return ResolvedDomain::fromHost(Domain::fromIDNA2008(null));
+            return ResolvedDomain::fromUnknown(Domain::fromIDNA2008(null));
         }
     }
 
@@ -223,8 +223,17 @@ final class Rules implements PublicSuffixList
     public function getCookieDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
+        $suffix = $this->getEffectiveTopLevelDomain($domain, '');
+        $length = count($suffix);
+        if ($suffix->isICANN()) {
+            return ResolvedDomain::fromICANN($domain, $length);
+        }
 
-        return ResolvedDomain::fromHost($domain, $this->getEffectiveTopLevelDomain($domain, ''));
+        if ($suffix->isPrivate()) {
+            return ResolvedDomain::fromPrivate($domain, $length);
+        }
+
+        return ResolvedDomain::fromUnknown($domain, $length);
     }
 
     /**
@@ -233,12 +242,12 @@ final class Rules implements PublicSuffixList
     public function getICANNDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $publicSuffix = $this->getEffectiveTopLevelDomain($domain, self::ICANN_DOMAINS);
-        if (!$publicSuffix->isICANN()) {
+        $suffix = $this->getEffectiveTopLevelDomain($domain, self::ICANN_DOMAINS);
+        if (!$suffix->isICANN()) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'ICANN');
         }
 
-        return ResolvedDomain::fromHost($domain, $publicSuffix);
+        return ResolvedDomain::fromICANN($domain, count($suffix));
     }
 
     /**
@@ -247,12 +256,12 @@ final class Rules implements PublicSuffixList
     public function getPrivateDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $publicSuffix = $this->getEffectiveTopLevelDomain($domain, self::PRIVATE_DOMAINS);
-        if (!$publicSuffix->isPrivate()) {
+        $suffix = $this->getEffectiveTopLevelDomain($domain, self::PRIVATE_DOMAINS);
+        if (!$suffix->isPrivate()) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'private');
         }
 
-        return ResolvedDomain::fromHost($domain, $publicSuffix);
+        return ResolvedDomain::fromPrivate($domain, count($suffix));
     }
 
     /**
@@ -327,19 +336,19 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            $publicSuffix = $domain->slice(0, 1);
-            if ('' === $publicSuffix->value()) {
-                return Suffix::fromUnknown($publicSuffix->clear());
+            $suffix = $domain->slice(0, 1);
+            if ('' === $suffix->value()) {
+                return Suffix::fromUnknown($suffix->clear());
             }
 
-            return Suffix::fromUnknown($publicSuffix);
+            return Suffix::fromUnknown($suffix);
         }
 
-        $publicSuffix = $domain->slice(0, count($matches));
+        $suffix = $domain->slice(0, count($matches));
         if (self::PRIVATE_DOMAINS === $section) {
-            return Suffix::fromPrivate($publicSuffix);
+            return Suffix::fromPrivate($suffix);
         }
 
-        return Suffix::fromICANN($publicSuffix);
+        return Suffix::fromICANN($suffix);
     }
 }

@@ -237,12 +237,14 @@ final class TopLevelDomains implements RootZoneDatabase
     {
         try {
             $domain = $this->validateDomain($host);
-
-            return ResolvedDomain::fromHost($domain, $this->fetchEffectiveTopLevelDomain($domain));
+            if ($this->containsTopLevelDomain($domain)) {
+                return ResolvedDomain::fromIANA($domain, 1);
+            }
+            return ResolvedDomain::fromUnknown($domain, 0);
         } catch (UnableToResolveDomain $exception) {
-            return ResolvedDomain::fromHost($exception->getDomain());
+            return ResolvedDomain::fromUnknown($exception->getDomain(), 0);
         } catch (SyntaxError $exception) {
-            return ResolvedDomain::fromHost(Domain::fromIDNA2008(null));
+            return ResolvedDomain::fromUnknown(Domain::fromIDNA2008(null), 0);
         }
     }
 
@@ -267,20 +269,20 @@ final class TopLevelDomains implements RootZoneDatabase
         return $domain;
     }
 
-    private function fetchEffectiveTopLevelDomain(DomainName $domain): ?EffectiveTopLevelDomain
+    private function containsTopLevelDomain(DomainName $domain): bool
     {
         $label = $domain->toAscii()->label(0);
         if (in_array($label, [null, ''], true)) {
-            return null;
+            return false;
         }
 
         foreach ($this as $tld) {
             if ($tld->value() === $label) {
-                return Suffix::fromIANA($domain->slice(0, 1));
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -289,11 +291,10 @@ final class TopLevelDomains implements RootZoneDatabase
     public function getIANADomain($domain): ResolvedDomainName
     {
         $domain = $this->validateDomain($domain);
-        $publicSuffix = $this->fetchEffectiveTopLevelDomain($domain);
-        if (null === $publicSuffix) {
+        if (!$this->containsTopLevelDomain($domain)) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }
 
-        return ResolvedDomain::fromHost($domain, $publicSuffix);
+        return ResolvedDomain::fromIANA($domain, 1);
     }
 }
