@@ -144,4 +144,17 @@ final class Suffix implements EffectiveTopLevelDomain
 
         return $clone;
     }
+
+    public function normalize(DomainName $domain): self
+    {
+        $newSuffix = $domain->clear()->append($this->toUnicode());
+        if ($domain->isAscii()) {
+            $newSuffix = $newSuffix->toAscii();
+        }
+
+        $clone = clone $this;
+        $clone->domain = $newSuffix;
+
+        return $clone;
+    }
 }

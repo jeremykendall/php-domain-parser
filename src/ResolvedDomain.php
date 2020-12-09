@@ -130,27 +130,6 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * Normalize the domain name encoding content.
-     */
-    private function normalize(EffectiveTopLevelDomain $subject): EffectiveTopLevelDomain
-    {
-        $newSuffix = $this->domain->clear()->append($subject->toUnicode());
-        if ($this->domain->isAscii()) {
-            $newSuffix = $newSuffix->toAscii();
-        }
-
-        if ($subject->isPrivate()) {
-            return Suffix::fromPrivate($newSuffix);
-        }
-
-        if ($subject->isICANN()) {
-            return Suffix::fromICANN($newSuffix);
-        }
-
-        return Suffix::fromUnknown($newSuffix);
-    }
-
-    /**
      * Computes the registrable domain part.
      */
     private function setRegistrableDomain(): DomainName
@@ -249,7 +228,7 @@ final class ResolvedDomain implements ResolvedDomainName
 
         return new self(
             $this->domain->slice(count($this->suffix))->append($suffix),
-            $this->normalize($suffix)
+            $suffix->normalize($this->domain)
         );
     }
 
