@@ -353,8 +353,8 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            $suffix = $domain->slice(0, 1);
-            if ('' === $suffix->value()) {
+            $suffix = $domain->label(0);
+            if ('' === $suffix) {
                 throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
             }
 
