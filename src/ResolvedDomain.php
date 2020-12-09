@@ -22,7 +22,10 @@ final class ResolvedDomain implements ResolvedDomainName
     private function __construct(DomainName $domain, EffectiveTopLevelDomain $suffix)
     {
         $this->domain = $domain;
-        $this->suffix = $this->setSuffix($suffix);
+        $this->suffix = $suffix;
+
+        $this->validateSuffix();
+
         $this->registrableDomain = $this->setRegistrableDomain();
         $this->secondLevelDomain = $this->setSecondLevelDomain();
         $this->subDomain = $this->setSubDomain();
@@ -102,12 +105,12 @@ final class ResolvedDomain implements ResolvedDomainName
     /**
      * Sets the public suffix domain part.
      *
-     * @throws UnableToResolveDomain If the public suffic can not be attached to the domain
+     * @throws UnableToResolveDomain If the suffix can not be attached to the domain
      */
-    private function setSuffix(EffectiveTopLevelDomain $suffix): EffectiveTopLevelDomain
+    private function validateSuffix(): void
     {
-        if (null === $suffix->value()) {
-            return $suffix;
+        if (null === $this->suffix->value()) {
+            return;
         }
 
         if (2 > count($this->domain)) {
@@ -118,15 +121,13 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
-        if ($this->domain->value() === $suffix->value()) {
+        if ($this->domain->value() === $this->suffix->value()) {
             throw UnableToResolveDomain::dueToIdenticalValue($this->domain);
         }
 
-        if ($this->domain->slice(0, count($suffix))->value() !== $suffix->value()) {
-            throw UnableToResolveDomain::dueToMismatchedSuffix($this->domain, $suffix);
+        if ($this->domain->slice(0, count($this->suffix))->value() !== $this->suffix->value()) {
+            throw UnableToResolveDomain::dueToMismatchedSuffix($this->domain, $this->suffix);
         }
-
-        return $suffix;
     }
 
     /**
@@ -244,11 +245,6 @@ final class ResolvedDomain implements ResolvedDomainName
         $subDomain = $this->domain->clear()->append(self::setDomainName($subDomain));
         if ($this->subDomain->value() === $subDomain->value()) {
             return $this;
-        }
-
-        $subDomain = $subDomain->toAscii();
-        if (!$this->domain->isAscii()) {
-            $subDomain = $subDomain->toUnicode();
         }
 
         return new self($this->registrableDomain->prepend($subDomain), $this->suffix);
