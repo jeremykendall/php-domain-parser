@@ -232,9 +232,11 @@ final class Domain implements DomainName
      */
     public function keys(string $label = null): array
     {
-        $args = (null !== $label) ? [$label, true] : [];
+        if (null === $label) {
+            return array_keys($this->labels);
+        }
 
-        return array_keys($this->labels, ...$args);
+        return array_keys($this->labels, $label, true);
     }
 
     /**

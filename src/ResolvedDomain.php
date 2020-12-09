@@ -24,11 +24,8 @@ final class ResolvedDomain implements ResolvedDomainName
         $this->domain = $domain;
         $this->suffix = $suffix;
 
-        $this->validateSuffix();
-
-        $this->registrableDomain = $this->setRegistrableDomain();
-        $this->secondLevelDomain = $this->setSecondLevelDomain();
-        $this->subDomain = $this->setSubDomain();
+        $this->validateState();
+        $this->setComponents();
     }
 
     /**
@@ -103,11 +100,11 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * Sets the public suffix domain part.
+     * Make sure the Value Object is always in a valid state.
      *
      * @throws UnableToResolveDomain If the suffix can not be attached to the domain
      */
-    private function validateSuffix(): void
+    private function validateState(): void
     {
         if (null === $this->suffix->value()) {
             return;
@@ -131,36 +128,23 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * Computes the registrable domain part.
+     * Compute Resolved domain components
      */
-    private function setRegistrableDomain(): DomainName
+    private function setComponents(): void
     {
-        if (null === $this->suffix->value()) {
-            return $this->domain->clear();
+        $length = count($this->suffix);
+        if (0 === $length) {
+            $nullDomain = $this->domain->clear();
+            $this->registrableDomain = $nullDomain;
+            $this->secondLevelDomain = $nullDomain;
+            $this->subDomain = $nullDomain;
+
+            return;
         }
 
-        return $this->domain->slice(0, count($this->suffix) + 1);
-    }
-
-    private function setSecondLevelDomain(): DomainName
-    {
-        if (null === $this->suffix->value()) {
-            return $this->domain->clear();
-        }
-
-        return $this->domain->slice(count($this->suffix), 1);
-    }
-
-    /**
-     * Computes the sub domain part.
-     */
-    private function setSubDomain(): DomainName
-    {
-        if (null === $this->suffix->value()) {
-            return $this->domain->clear();
-        }
-
-        return $this->domain->slice(count($this->suffix) + 1);
+        $this->registrableDomain = $this->domain->slice(0, $length + 1);
+        $this->secondLevelDomain = $this->domain->slice($length, 1);
+        $this->subDomain = $this->domain->slice($length + 1);
     }
 
     public function count(): int
@@ -219,7 +203,7 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * @param mixed $suffix a public suffix
+     * @param mixed $suffix the suffix
      */
     public function withSuffix($suffix): self
     {
@@ -234,7 +218,7 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * {@inheritDoc}
+     * @param mixed $subDomain the sub domain
      */
     public function withSubDomain($subDomain): self
     {
@@ -251,7 +235,7 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * {@inheritDoc}
+     * @param mixed $label the second level domain
      */
     public function withSecondLevelDomain($label): self
     {

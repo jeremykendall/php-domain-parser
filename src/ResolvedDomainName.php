@@ -14,7 +14,7 @@ interface ResolvedDomainName extends Host, DomainNameProvider
     /**
      * Returns the second level domain component.
      */
-    public function secondLevelDomain(): ?DomainName;
+    public function secondLevelDomain(): DomainName;
 
     /**
      * Returns the registrable domain component.
