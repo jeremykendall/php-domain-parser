@@ -35,8 +35,14 @@ final class TopLevelDomains implements RootZoneDatabase
 
     private string $version;
 
+    /**
+     * @var array<string>
+     */
     private array $records;
 
+    /**
+     * @param array<string> $records
+     */
     private function __construct(array $records, string $version, DateTimeImmutable $lastUpdated)
     {
         $this->records = $records;
@@ -97,6 +103,8 @@ final class TopLevelDomains implements RootZoneDatabase
      * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
      *
      * @throws UnableToLoadRootZoneDatabase if the content is invalid or can not be correctly parsed and converted
+     *
+     * @return array{version:string, lastUpdated:string, records:array<string>}
      */
     public static function parse(string $content): array
     {
@@ -132,6 +140,8 @@ final class TopLevelDomains implements RootZoneDatabase
      * Extract IANA Root Zone Database header info.
      *
      * @throws UnableToLoadRootZoneDatabase if the Header line is invalid
+     *
+     * @return array{version:string, lastUpdated:string}
      */
     private static function extractHeader(string $content): array
     {
@@ -186,7 +196,10 @@ final class TopLevelDomains implements RootZoneDatabase
         return new self($data['records'], $data['version'], $lastUpdated);
     }
 
-    public static function __set_state(array $properties): RootZoneDatabase
+    /**
+     * @param array{records:array<string>, version:string, lastUpdated:DateTimeImmutable} $properties
+     */
+    public static function __set_state(array $properties): self
     {
         return new self($properties['records'], $properties['version'], $properties['lastUpdated']);
     }
@@ -221,6 +234,9 @@ final class TopLevelDomains implements RootZoneDatabase
         }
     }
 
+    /**
+     * @return array{version:string, records:array<string>, lastUpdated:string}
+     */
     public function jsonSerialize(): array
     {
         return [

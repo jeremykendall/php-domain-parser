@@ -33,6 +33,9 @@ final class ResolvedDomainTest extends TestCase
         ResolvedDomain::fromICANN($domain, $length);
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function provideWrongConstructor(): iterable
     {
         return [
@@ -66,6 +69,9 @@ final class ResolvedDomainTest extends TestCase
         self::assertCount($nbLabels, $domain);
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function countableProvider(): iterable
     {
         return [
@@ -105,6 +111,9 @@ final class ResolvedDomainTest extends TestCase
         self::assertSame($expectedIDNSuffix, $domainIDN->suffix()->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function toUnicodeProvider(): iterable
     {
         return [
@@ -196,6 +205,9 @@ final class ResolvedDomainTest extends TestCase
         self::assertSame($expectedAsciiSuffix, $domainIDN->suffix()->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function toAsciiProvider(): iterable
     {
         return [
@@ -257,6 +269,9 @@ final class ResolvedDomainTest extends TestCase
         self::assertEquals($domain->registrableDomain(), $result->registrableDomain());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function withSubDomainWorksProvider(): iterable
     {
         return [
@@ -349,6 +364,9 @@ final class ResolvedDomainTest extends TestCase
         self::assertSame($isPrivate, $newPublicSuffix->isPrivate());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function withPublicSuffixWorksProvider(): iterable
     {
         $base_domain = ResolvedDomain::fromICANN(Domain::fromIDNA2003('example.com'), 1);
@@ -463,6 +481,9 @@ final class ResolvedDomainTest extends TestCase
         self::assertSame($expectedSubDomain, $resolvedDomain->subDomain()->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function resolveCustomIDNAOptionsProvider(): iterable
     {
         return [
@@ -529,6 +550,9 @@ final class ResolvedDomainTest extends TestCase
         self::assertEquals($domain->subDomain(), $newDomain->subDomain());
     }
 
+    /**
+     * @return iterable<array>
+     */
     public function withSldWorksProvider(): iterable
     {
         return [

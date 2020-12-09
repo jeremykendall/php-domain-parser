@@ -63,6 +63,9 @@ final class TopLevelDomainsTest extends TestCase
         TopLevelDomains::fromString($content);
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function invalidContentProvider(): iterable
     {
         $doubleHeader = <<<EOF
@@ -212,6 +215,9 @@ EOF;
         );
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function validDomainProvider(): iterable
     {
         $resolvedDomain = ResolvedDomain::fromICANN(Domain::fromIDNA2008('www.example.com'), 1);
@@ -294,6 +300,9 @@ EOF;
         $collection->getIANADomain('localhost.locale');
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function validTldProvider(): iterable
     {
         return [
@@ -317,6 +326,9 @@ EOF;
         ];
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function invalidTldProvider(): iterable
     {
         return [

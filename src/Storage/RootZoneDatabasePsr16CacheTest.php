@@ -18,344 +18,77 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
-        $cache = new class() implements CacheInterface {
-            public function get($key, $default = null)
-            {
-                return null;
-            }
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('get')->willReturn(null);
 
-            public function set($key, $value, $ttl = null)
-            {
-                return false;
-            }
+        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', '1 DAY');
 
-            public function delete($key)
-            {
-                return true;
-            }
-
-            public function clear()
-            {
-                return true;
-            }
-
-            public function getMultiple($keys, $default = null)
-            {
-                return [];
-            }
-
-            public function setMultiple($values, $ttl = null)
-            {
-                return true;
-            }
-            public function deleteMultiple($keys)
-            {
-                return true;
-            }
-
-            public function has($key)
-            {
-                return true;
-            }
-        };
-
-        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', '1 DAY');
-
-        self::assertNull($cache->fetch('http://www.example.com'));
+        self::assertNull($instance->fetch('http://www.example.com'));
     }
 
     public function testItReturnsAnInstanceIfTheCorrectCacheExists(): void
     {
-        $cache = new class() implements CacheInterface {
-            public function get($key, $default = null)
-            {
-                return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-            }
+        $rootZoneDB = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('get')->willReturn($rootZoneDB);
 
-            public function set($key, $value, $ttl = null)
-            {
-                return false;
-            }
+        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
 
-            public function delete($key)
-            {
-                return true;
-            }
-
-            public function clear()
-            {
-                return true;
-            }
-
-            public function getMultiple($keys, $default = null)
-            {
-                return [];
-            }
-
-            public function setMultiple($values, $ttl = null)
-            {
-                return true;
-            }
-            public function deleteMultiple($keys)
-            {
-                return true;
-            }
-
-            public function has($key)
-            {
-                return true;
-            }
-        };
-
-        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
-
-        self::assertEquals(
-            TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt'),
-            $cache->fetch('http://www.example.com')
-        );
+        self::assertEquals($rootZoneDB, $instance->fetch('http://www.example.com'));
     }
 
     public function testItReturnsNullIfTheCacheContentContainsInvalidJsonData(): void
     {
-        $cache = new class() implements CacheInterface {
-            public function get($key, $default = null)
-            {
-                return 'foobar';
-            }
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('get')->willReturn('foobar');
 
-            public function set($key, $value, $ttl = null)
-            {
-                return false;
-            }
+        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
 
-            public function delete($key)
-            {
-                return true;
-            }
-
-            public function clear()
-            {
-                return true;
-            }
-
-            public function getMultiple($keys, $default = null)
-            {
-                return [];
-            }
-
-            public function setMultiple($values, $ttl = null)
-            {
-                return true;
-            }
-            public function deleteMultiple($keys)
-            {
-                return true;
-            }
-
-            public function has($key)
-            {
-                return true;
-            }
-        };
-
-        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
-
-        self::assertNull($cache->fetch('http://www.example.com'));
+        self::assertNull($instance->fetch('http://www.example.com'));
     }
 
     public function testItReturnsNullIfTheCacheContentCannotBeConvertedToTheCorrectInstance(): void
     {
-        $cache = new class() implements CacheInterface {
-            public function get($key, $default = null)
-            {
-                return '{"foo":"bar"}';
-            }
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('get')->willReturn('{"foo":"bar"}');
 
-            public function set($key, $value, $ttl = null)
-            {
-                return false;
-            }
+        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
 
-            public function delete($key)
-            {
-                return true;
-            }
-
-            public function clear()
-            {
-                return true;
-            }
-
-            public function getMultiple($keys, $default = null)
-            {
-                return [];
-            }
-
-            public function setMultiple($values, $ttl = null)
-            {
-                return true;
-            }
-            public function deleteMultiple($keys)
-            {
-                return true;
-            }
-
-            public function has($key)
-            {
-                return true;
-            }
-        };
-
-        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
-        self::assertNull($cache->fetch('http://www.example.com'));
+        self::assertNull($instance->fetch('http://www.example.com'));
     }
 
     public function testItCanStoreAPublicSuffixListInstance(): void
     {
-        $cache = new class() implements CacheInterface {
-            public function get($key, $default = null)
-            {
-                return null;
-            }
-
-            public function set($key, $value, $ttl = null)
-            {
-                return true;
-            }
-
-            public function delete($key)
-            {
-                return true;
-            }
-
-            public function clear()
-            {
-                return true;
-            }
-
-            public function getMultiple($keys, $default = null)
-            {
-                return [];
-            }
-
-            public function setMultiple($values, $ttl = null)
-            {
-                return true;
-            }
-            public function deleteMultiple($keys)
-            {
-                return true;
-            }
-
-            public function has($key)
-            {
-                return true;
-            }
-        };
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('set')->willReturn(true);
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertTrue($cache->remember('http://www.example.com', $rzd));
+        self::assertTrue($instance->remember('http://www.example.com', $rzd));
     }
 
     public function testItReturnsFalseIfItCantStoreAPublicSuffixListInstance(): void
     {
-        $cache = new class() implements CacheInterface {
-            public function get($key, $default = null)
-            {
-                return null;
-            }
-
-            public function set($key, $value, $ttl = null)
-            {
-                return false;
-            }
-
-            public function delete($key)
-            {
-                return true;
-            }
-
-            public function clear()
-            {
-                return true;
-            }
-
-            public function getMultiple($keys, $default = null)
-            {
-                return [];
-            }
-
-            public function setMultiple($values, $ttl = null)
-            {
-                return true;
-            }
-            public function deleteMultiple($keys)
-            {
-                return true;
-            }
-
-            public function has($key)
-            {
-                return true;
-            }
-        };
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('set')->willReturn(false);
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertFalse($cache->remember('http://www.example.com', $rzd));
+        self::assertFalse($instance->remember('http://www.example.com', $rzd));
     }
-
 
     public function testItReturnsFalseIfItCantCacheAPublicSuffixListInstance(): void
     {
-        $cache = new class() implements CacheInterface {
-            public function get($key, $default = null)
-            {
-                return null;
-            }
-
-            public function set($key, $value, $ttl = null)
-            {
-                throw new class('Something went wrong.', 0) extends RuntimeException implements CacheException {
-                };
-            }
-
-            public function delete($key)
-            {
-                return true;
-            }
-
-            public function clear()
-            {
-                return true;
-            }
-
-            public function getMultiple($keys, $default = null)
-            {
-                return [];
-            }
-
-            public function setMultiple($values, $ttl = null)
-            {
-                return true;
-            }
-            public function deleteMultiple($keys)
-            {
-                return true;
-            }
-
-            public function has($key)
-            {
-                return true;
-            }
+        $exception = new class('Something went wrong.', 0) extends RuntimeException implements CacheException {
         };
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('set')->will(self::throwException($exception));
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $cache = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
-        self::assertFalse($cache->remember('http://www.example.com', $rzd));
+        self::assertFalse($instance->remember('http://www.example.com', $rzd));
     }
 }

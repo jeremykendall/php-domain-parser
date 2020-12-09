@@ -10,6 +10,8 @@ interface PublicSuffixList extends DomainNameResolver, JsonSerializable
 {
     /**
      * Returns an array representation of the Public Suffix List Rules JSON serializable.
+     *
+     * @return array<string, array<array>>
      */
     public function jsonSerialize(): array;
 

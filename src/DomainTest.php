@@ -23,6 +23,9 @@ final class DomainTest extends TestCase
         Domain::fromIDNA2008($domain);
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function invalidDomainProvider(): iterable
     {
         return [
@@ -62,6 +65,9 @@ final class DomainTest extends TestCase
         self::assertSame($labels, iterator_to_array($domain));
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function countableProvider(): iterable
     {
         return [
@@ -123,6 +129,9 @@ final class DomainTest extends TestCase
         self::assertSame($expectedIDNDomain, $domainIDN->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function toUnicodeProvider(): iterable
     {
         return [
@@ -183,6 +192,9 @@ final class DomainTest extends TestCase
         self::assertSame($expectedAsciiDomain, $domainIDN->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function toAsciiProvider(): iterable
     {
         return [
@@ -225,6 +237,9 @@ final class DomainTest extends TestCase
         self::assertSame($expected, $result->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function withLabelWorksProvider(): iterable
     {
         $base_domain = Domain::fromIDNA2008('www.example.com');
@@ -320,6 +335,9 @@ final class DomainTest extends TestCase
         self::assertSame($expected, Domain::fromIDNA2008($raw)->append($append)->toString());
     }
 
+    /**
+     * @return iterable<array>
+     */
     public function validAppend(): iterable
     {
         return [
@@ -338,6 +356,9 @@ final class DomainTest extends TestCase
         self::assertSame($expected, Domain::fromIDNA2008($raw)->prepend($prepend)->toString());
     }
 
+    /**
+     * @return iterable<array>
+     */
     public function validPrepend(): iterable
     {
         return [
@@ -357,6 +378,9 @@ final class DomainTest extends TestCase
         self::assertSame($expected, $result->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function withoutLabelWorksProvider(): iterable
     {
         $base_domain = Domain::fromIDNA2008('www.example.com');
@@ -418,6 +442,9 @@ final class DomainTest extends TestCase
         self::assertSame($expectedWithLabel, $domain->withLabel(-1, $withLabel)->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function resolveCustomIDNAOptionsProvider(): iterable
     {
         return [

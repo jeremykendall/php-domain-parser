@@ -273,6 +273,9 @@ final class RulesTest extends TestCase
         self::assertSame($expectedDomain, $this->rules->resolve($domain)->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function parseDataProvider(): iterable
     {
         return [
@@ -393,6 +396,9 @@ final class RulesTest extends TestCase
         $this->rules->getICANNDomain($domain);
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function invalidDomainParseProvider(): iterable
     {
         return [
@@ -416,6 +422,9 @@ final class RulesTest extends TestCase
         $this->rules->getICANNDomain($domain);
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function invalidHostParseProvider(): iterable
     {
         $long_label = implode('.', array_fill(0, 62, 'a'));
@@ -443,6 +452,9 @@ final class RulesTest extends TestCase
         self::assertSame($expected, $publicSuffix->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function validPublicSectionProvider(): iterable
     {
         return [
@@ -598,6 +610,9 @@ final class RulesTest extends TestCase
         self::assertSame($privateETLD, $this->rules->getPrivateDomain($host)->suffix()->toString());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function effectiveTLDProvider(): iterable
     {
         return [

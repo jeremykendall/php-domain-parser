@@ -10,6 +10,9 @@ use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
 
+/**
+ * @extends IteratorAggregate<EffectiveTopLevelDomain>
+ */
 interface RootZoneDatabase extends Countable, DomainNameResolver, IteratorAggregate, JsonSerializable
 {
     /**
@@ -33,12 +36,14 @@ interface RootZoneDatabase extends Countable, DomainNameResolver, IteratorAggreg
     public function isEmpty(): bool;
 
     /**
-     * {@inheritdoc}
+     * @return Iterator<EffectiveTopLevelDomain>
      */
     public function getIterator(): Iterator;
 
     /**
      * Returns an array representation of the list.
+     *
+     * @return array{version:string, records:array<string>, lastUpdated:string}
      */
     public function jsonSerialize(): array;
 

@@ -45,18 +45,16 @@ final class Rules implements PublicSuffixList
 
     /**
      * PSL rules as a multidimentional associative array.
+     *
+     * @var array<string, array<array>>
      */
     private array $rules;
 
+    /**
+     * @param array<string, array<array>> $rules
+     */
     private function __construct(array $rules)
     {
-        $rules[self::ICANN_DOMAINS] = $rules[self::ICANN_DOMAINS] ?? [];
-        $rules[self::PRIVATE_DOMAINS] = $rules[self::PRIVATE_DOMAINS] ?? [];
-
-        if (!is_array($rules[self::ICANN_DOMAINS]) || !is_array($rules[self::PRIVATE_DOMAINS])) {
-            throw UnableToLoadPublicSuffixList::dueToCorruptedSection();
-        }
-
         $this->rules = $rules;
     }
 
@@ -106,10 +104,12 @@ final class Rules implements PublicSuffixList
 
     /**
      * Convert the Public Suffix List into an associative, multidimensional array.
+     *
+     * @return array<string, array<array>>
      */
     private static function parse(string $content): array
     {
-        $rules = [];
+        $rules = [self::ICANN_DOMAINS => [], self::PRIVATE_DOMAINS => []];
         $section = '';
         $file = new SplTempFileObject();
         $file->fwrite($content);
@@ -117,8 +117,7 @@ final class Rules implements PublicSuffixList
         /** @var string $line */
         foreach ($file as $line) {
             $section = self::getSection($section, $line);
-            if ('' !== $section && false === strpos($line, '//')) {
-                $rules[$section] = $rules[$section] ?? [];
+            if (in_array($section, [self::PRIVATE_DOMAINS, self::ICANN_DOMAINS], true) && false === strpos($line, '//')) {
                 $rules[$section] = self::addRule($rules[$section], explode('.', $line));
             }
         }
@@ -147,12 +146,14 @@ final class Rules implements PublicSuffixList
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
-     * @param array $list      Initially an empty array, this eventually
-     *                         becomes the array representation of a Public Suffix List section
-     * @param array $ruleParts One line (rule) from the Public Suffix List
-     *                         exploded on '.', or the remaining portion of that array during recursion
+     * @param array<array>  $list      Initially an empty array, this eventually becomes the array representation of a
+     *                                 Public Suffix List section
+     * @param array<string> $ruleParts One line (rule) from the Public Suffix List exploded on '.', or the remaining
+     *                                 portion of that array during recursion
      *
      * @throws UnableToLoadPublicSuffixList if the domain name can not be converted using IDN to ASCII algorithm
+     *
+     * @return array<array>
      */
     private static function addRule(array $list, array $ruleParts): array
     {
@@ -190,14 +191,24 @@ final class Rules implements PublicSuffixList
             throw UnableToLoadPublicSuffixList::dueToInvalidJson($exception);
         }
 
+        if (!is_array($data[self::ICANN_DOMAINS]) || !is_array($data[self::PRIVATE_DOMAINS])) {
+            throw UnableToLoadPublicSuffixList::dueToCorruptedSection();
+        }
+
         return new self($data);
     }
 
+    /**
+     * @param array{rules:array{ICANN_DOMAINS:array,PRIVATE_DOMAINS:array}} $properties
+     */
     public static function __set_state(array $properties): self
     {
         return new self($properties['rules']);
     }
 
+    /**
+     * @return array<string, array<array>>
+     */
     public function jsonSerialize(): array
     {
         return $this->rules;

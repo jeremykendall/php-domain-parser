@@ -11,6 +11,8 @@ use IteratorAggregate;
  * @see https://tools.ietf.org/html/rfc1034#section-3.5
  * @see https://tools.ietf.org/html/rfc1123#section-2.1
  * @see https://tools.ietf.org/html/rfc5890
+ *
+ * @extends IteratorAggregate<string>
  */
 interface DomainName extends Host, IteratorAggregate
 {
@@ -49,10 +51,10 @@ interface DomainName extends Host, IteratorAggregate
     public function keys(string $label = null): array;
 
     /**
-     * {@inheritdoc}
-     *
      * The external iterator iterates over the DomainInterface labels
      * from the right-most label to the left-most label.
+     *
+     * @return Iterator<string>
      */
     public function getIterator(): Iterator;
 

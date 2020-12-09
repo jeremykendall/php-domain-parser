@@ -78,6 +78,9 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($domain, Suffix::fromUnknown($domain->clear()));
     }
 
+    /**
+     * @param array{domain:DomainName, suffix:EffectiveTopLevelDomain} $properties
+     */
     public static function __set_state(array $properties): self
     {
         return new self($properties['domain'], $properties['suffix']);
@@ -128,7 +131,7 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * Compute Resolved domain components
+     * Compute resolved domain components.
      */
     private function setComponents(): void
     {

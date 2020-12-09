@@ -51,6 +51,9 @@ final class Domain implements DomainName
         [$this->domain, $this->labels] = $this->parseDomain($domain);
     }
 
+    /**
+     * @param array{domain:string|null, type:string} $properties
+     */
     public static function __set_state(array $properties): self
     {
         return new self($properties['domain'], $properties['type']);
@@ -186,6 +189,9 @@ final class Domain implements DomainName
         return IntlIdna::toUnicode($domain, $option);
     }
 
+    /**
+     * @return Iterator<string>
+     */
     public function getIterator(): Iterator
     {
         foreach ($this->labels as $offset => $label) {

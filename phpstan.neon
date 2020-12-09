@@ -3,9 +3,6 @@ includes:
   - vendor/phpstan/phpstan-phpunit/extension.neon
   - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
-  checkMissingIterableValueType: false
-  checkGenericClassInNonGenericObjectType: false
-  treatPhpDocTypesAsCertain: false
   ignoreErrors:
     - '#should be covariant with return type#'
   reportUnmatchedIgnoredErrors: true

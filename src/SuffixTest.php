@@ -54,6 +54,9 @@ final class SuffixTest extends TestCase
         self::assertSame($isPrivate, $ps->isPrivate());
     }
 
+    /**
+     * @return iterable<array>
+     */
     public function PSProvider(): iterable
     {
         return [
@@ -88,6 +91,9 @@ final class SuffixTest extends TestCase
         Suffix::fromUnknown(Domain::fromIDNA2008($publicSuffix));
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function invalidPublicSuffixProvider(): iterable
     {
         return [
@@ -122,6 +128,9 @@ final class SuffixTest extends TestCase
         self::assertEquals($instance->toAscii(), $instance);
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function conversionReturnsTheSameInstanceProvider(): iterable
     {
         return [
@@ -141,13 +150,16 @@ final class SuffixTest extends TestCase
      * @dataProvider countableProvider
      * @param ?string $domain
      */
-    public function testCountable(?string $domain, int $nbLabels, array $labels): void
+    public function testCountable(?string $domain, int $nbLabels): void
     {
         $domain = Suffix::fromUnknown(Domain::fromIDNA2008($domain));
 
         self::assertCount($nbLabels, $domain);
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function countableProvider(): iterable
     {
         return [
@@ -174,6 +186,9 @@ final class SuffixTest extends TestCase
         self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->value());
     }
 
+    /**
+     * @return iterable<string,array>
+     */
     public function customIDNAProvider(): iterable
     {
         return [
