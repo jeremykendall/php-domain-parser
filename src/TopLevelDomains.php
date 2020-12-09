@@ -256,11 +256,11 @@ final class TopLevelDomains implements RootZoneDatabase
             if ($this->containsTopLevelDomain($domain)) {
                 return ResolvedDomain::fromIANA($domain);
             }
-            return ResolvedDomain::fromNull($domain);
+            return ResolvedDomain::fromNone($domain);
         } catch (UnableToResolveDomain $exception) {
-            return ResolvedDomain::fromNull($exception->getDomain());
+            return ResolvedDomain::fromNone($exception->getDomain());
         } catch (SyntaxError $exception) {
-            return ResolvedDomain::fromNull(Domain::fromIDNA2008(null));
+            return ResolvedDomain::fromNone(Domain::fromIDNA2008(null));
         }
     }
 

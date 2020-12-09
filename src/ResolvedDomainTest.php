@@ -15,7 +15,7 @@ final class ResolvedDomainTest extends TestCase
 {
     public function testRegistrableDomainIsNullWithFoundDomain(): void
     {
-        $domain = ResolvedDomain::fromNull(Domain::fromIDNA2003('faketld'));
+        $domain = ResolvedDomain::fromNone(Domain::fromIDNA2003('faketld'));
         self::assertNull($domain->suffix()->value());
         self::assertNull($domain->registrableDomain()->value());
         self::assertNull($domain->subDomain()->value());
@@ -307,14 +307,14 @@ final class ResolvedDomainTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        ResolvedDomain::fromNull(Domain::fromIDNA2008(null))->withSubDomain('www');
+        ResolvedDomain::fromNone(Domain::fromIDNA2008(null))->withSubDomain('www');
     }
 
     public function testWithSubDomainFailsWithOneLabelDomain(): void
     {
         self::expectException(UnableToResolveDomain::class);
 
-        ResolvedDomain::fromNull(Domain::fromIDNA2003('localhost'))->withSubDomain('www');
+        ResolvedDomain::fromNone(Domain::fromIDNA2003('localhost'))->withSubDomain('www');
     }
 
     public function testWithEmptySubdomain(): void
@@ -338,7 +338,7 @@ final class ResolvedDomainTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        ResolvedDomain::fromNull(Domain::fromIDNA2003('www.example.com'))->withSubDomain('www');
+        ResolvedDomain::fromNone(Domain::fromIDNA2003('www.example.com'))->withSubDomain('www');
     }
 
     /**
@@ -421,7 +421,7 @@ final class ResolvedDomainTest extends TestCase
                 'isPrivate' => false,
             ],
             'adding the public suffix to a single label domain' => [
-                'domain' => ResolvedDomain::fromNull(Domain::fromIDNA2003('localhost')),
+                'domain' => ResolvedDomain::fromNone(Domain::fromIDNA2003('localhost')),
                 'publicSuffix' => 'www',
                 'expected' => 'www',
                 'isKnown' => false,
@@ -451,7 +451,7 @@ final class ResolvedDomainTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        ResolvedDomain::fromNull(Domain::fromIDNA2008(null))->withSuffix('www');
+        ResolvedDomain::fromNone(Domain::fromIDNA2008(null))->withSuffix('www');
     }
 
     /**

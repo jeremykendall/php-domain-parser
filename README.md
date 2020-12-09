@@ -171,7 +171,7 @@ integrating an updating mechanism into your software.**
 Whichever methods chosen to resolve the domain on success, the package will
 return a `Pdp\ResolvedDomain` instance.
 
-The `Pdp\ResolvedDomain` decorates the `Pdp\Domain` class resolved  but also 
+The `Pdp\ResolvedDomain` decorates the `Pdp\Domain` class resolved but also 
 gives access as separate methods to the domain different components. 
 
 ~~~php
@@ -318,10 +318,13 @@ $newDomain = $domain
     ->append('www')
     ->prepend('docs.example');
 
-echo $domain->toString();    // display 'www.example.com'
-echo $newDomain->toString(); // display 'docs.example.com.www'
-$newDomain->clear()->labels(); //returns []
-~~~ 
+
+
+echo $domain->toString();           //display 'www.example.com'
+echo $newDomain->toString();        //display 'docs.example.com.www'
+$newDomain->clear()->labels();      //return []
+echo $domain->slice(2)->toString(); //display 'www'
+~~~
 
 **WARNING: Because of its definition, a domain name can be `null` or a string.**
 

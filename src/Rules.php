@@ -222,9 +222,9 @@ final class Rules implements PublicSuffixList
         try {
             return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
-            return ResolvedDomain::fromNull($exception->getDomain());
+            return ResolvedDomain::fromNone($exception->getDomain());
         } catch (SyntaxError $exception) {
-            return ResolvedDomain::fromNull(Domain::fromIDNA2008(null));
+            return ResolvedDomain::fromNone(Domain::fromIDNA2008(null));
         }
     }
 
@@ -248,7 +248,7 @@ final class Rules implements PublicSuffixList
             return ResolvedDomain::fromUnknown($domain);
         }
 
-        return ResolvedDomain::fromNull($domain);
+        return ResolvedDomain::fromNone($domain);
     }
 
     /**
@@ -324,6 +324,8 @@ final class Rules implements PublicSuffixList
 
     /**
      * Returns the public suffix matched against a given PSL section.
+     *
+     * @throws UnableToResolveDomain if the domain can not be resolved
      */
     private function getEffectiveTopLevelDomainFromSection(DomainName $domain, string $section): EffectiveTopLevelDomain
     {
@@ -353,7 +355,7 @@ final class Rules implements PublicSuffixList
         if ([] === $matches) {
             $suffix = $domain->slice(0, 1);
             if ('' === $suffix->value()) {
-                return Suffix::fromUnknown($suffix->clear());
+                throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
             }
 
             return Suffix::fromUnknown($suffix);

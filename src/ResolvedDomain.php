@@ -71,7 +71,7 @@ final class ResolvedDomain implements ResolvedDomainName
     /**
      * @param mixed $domain the domain to be resolved
      */
-    public static function fromNull($domain): self
+    public static function fromNone($domain): self
     {
         $domain = self::setDomainName($domain);
 
