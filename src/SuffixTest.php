@@ -60,7 +60,7 @@ final class SuffixTest extends TestCase
     public function PSProvider(): iterable
     {
         return [
-            [null, 'ICANN_DOMAINS', false, false, false],
+            [null, 'ICANN_DOMAINS', true, true, false],
             ['foo', 'ICANN_DOMAINS', true, true, false],
             ['foo', 'PRIVATE_DOMAINS', true, false, true],
         ];

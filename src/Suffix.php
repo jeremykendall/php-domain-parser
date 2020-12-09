@@ -17,27 +17,8 @@ final class Suffix implements EffectiveTopLevelDomain
 
     private string $section;
 
-    /**
-     * @param mixed $domain the public suffix domain information
-     */
-    private function __construct($domain, string $section)
+    private function __construct(DomainName $domain, string $section)
     {
-        if ($domain instanceof DomainNameProvider) {
-            $domain = $domain->domain();
-        }
-
-        if (!$domain instanceof DomainName) {
-            $domain = Domain::fromIDNA2008($domain);
-        }
-
-        if ('' === $domain->label(0)) {
-            throw SyntaxError::dueToInvalidPublicSuffix($domain);
-        }
-
-        if (null === $domain->value()) {
-            $section = '';
-        }
-
         $this->domain = $domain;
         $this->section = $section;
     }
@@ -55,7 +36,7 @@ final class Suffix implements EffectiveTopLevelDomain
      */
     public static function fromICANN($domain): self
     {
-        return new self($domain, self::ICANN);
+        return new self(self::setDomainName($domain), self::ICANN);
     }
 
     /**
@@ -63,7 +44,7 @@ final class Suffix implements EffectiveTopLevelDomain
      */
     public static function fromPrivate($domain): self
     {
-        return new self($domain, self::PRIVATE);
+        return new self(self::setDomainName($domain), self::PRIVATE);
     }
 
     /**
@@ -71,7 +52,7 @@ final class Suffix implements EffectiveTopLevelDomain
      */
     public static function fromIANA($domain): self
     {
-        return new self($domain, self::IANA);
+        return new self(self::setDomainName($domain), self::IANA);
     }
 
     /**
@@ -79,7 +60,27 @@ final class Suffix implements EffectiveTopLevelDomain
      */
     public static function fromUnknown($domain): self
     {
-        return new self($domain, '');
+        return new self(self::setDomainName($domain), '');
+    }
+
+    /**
+     * @param mixed $domain The domain to be resolved
+     */
+    private static function setDomainName($domain): DomainName
+    {
+        if ($domain instanceof DomainNameProvider) {
+            $domain = $domain->domain();
+        }
+
+        if (!$domain instanceof DomainName) {
+            $domain = Domain::fromIDNA2008($domain);
+        }
+
+        if ('' === $domain->label(0)) {
+            throw SyntaxError::dueToInvalidPublicSuffix($domain);
+        }
+
+        return $domain;
     }
 
     public function isKnown(): bool
@@ -119,7 +120,7 @@ final class Suffix implements EffectiveTopLevelDomain
 
     public function jsonSerialize(): ?string
     {
-        return $this->domain->value();
+        return $this->domain->jsonSerialize();
     }
 
     public function value(): ?string

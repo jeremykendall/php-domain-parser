@@ -10,7 +10,7 @@ In order to take advantage of PHP new features, the library dropped the
 support of **all versions before and including PHP 7.3**. The minimum supported
 PHP version is now **PHP 7.4**. 
 
-**Version 6.0 no longer provides an out of the box resource manager system.**
+**Version 6.0 no longer provides an out-of-the-box resource manager system.**
 
 ### Backward Incompatibility Changes
 
@@ -82,8 +82,8 @@ The `Pdp\Suffix` class **no longer has direct access** to the underlying domain 
 ```diff
 <?php
 - $suffix = new PublicSuffix('co.uk', self::ICANN_DOMAINS);
-+ $suffix = PublicSuffix::fromICANN(Domain::fromIDNA2008('co.uk'));
 - $suffix->getLabel(-1); //returns 'co';
++ $suffix = Suffix::fromICANN('co.uk');
 + $suffix->domain()->label(-1); //returns 'co';
 ```
 
@@ -110,10 +110,10 @@ of returning a response object.
 ```diff
 <?php
 /** @var PublicSuffixList $rules */
-- $rules->getICANNDomain('toto.foobar')->isICANN(); //returns false
-+ $rules->getICANNDomain('toto.foobar');            //will throw an exception 
+- $rules->getICANNDomain('toto.foobar')->isICANN();   //returns false
 - $rules->getPrivateDomain('ulb.ac.be')->isPrivate(); //returns false
-+ $rules->getPrivateDomain('ulb.ac.be');              //will throw an exception 
++ $rules->getICANNDomain('toto.foobar'); //will throw an exception 
++ $rules->getPrivateDomain('ulb.ac.be'); //will throw an exception 
 ```
 
 #### Domain format
@@ -128,12 +128,12 @@ need to use on of the two (2) named constructor `Domain::fromIDNA2008` or
 ```diff
 <?php
 - $domain = new Domain('faß.de', null, IDNA_NONTRANSITIONAL_TO_ASCII, IDNA_NONTRANSITIONAL_TO_UNICODE);
-+ $domain = Domain::fromIDNA2008('faß.de');
 - $domain->getContent();    // can be a string or null
-+ $domain->value();         // can be a string or null
 - echo $domain;             // display 'faß.de'
-+ echo $domain->toString(); // display 'faß.de'
 - $domain->getLabel(-1);    // returns 'faß'
++ $domain = Domain::fromIDNA2008('faß.de');
++ $domain->value();         // can be a string or null
++ echo $domain->toString(); // display 'faß.de'
 + $domain->label(-1);       // returns 'faß'
 ```
 
@@ -148,12 +148,12 @@ use Pdp\Rules;
 use Pdp\TopLevelDomains;
 
 - $publicSuffixList = Rules::createFromPath('path/to/public-suffix-data.dat');
-+ $publicSuffixList = Rules::fromPath('path/to/public-suffix-data.dat');
 - $rootZoneDatabase = TopLevelDomains::createFromString($rootZoneInlineContent);
-+ $rootZoneDatabase = TopLevelDomains::fromString($rootZoneInlineContent);
 - $rootZoneDatabase->getVersion(); //returns 2018082200
-+ $rootZoneDatabase->version();    //returns 2018082200
 - $rootZoneDatabase->getModifiedDate(); //returns \DateTimeImmutable object
++ $publicSuffixList = Rules::fromPath('path/to/public-suffix-data.dat');
++ $rootZoneDatabase = TopLevelDomains::fromString($rootZoneInlineContent);
++ $rootZoneDatabase->version();    //returns 2018082200
 + $rootZoneDatabase->lastUpdated();     //returns \DateTimeImmutable object
 ```
 
@@ -216,6 +216,5 @@ representation in other languages.
 - `Rules::__construct` 
 - `TopLevelDomains::__construct` 
 - `Domain::__construct` 
-- `PublicSuffix::__construct`
 
 methods are now all private please use the provided named constructors instead.

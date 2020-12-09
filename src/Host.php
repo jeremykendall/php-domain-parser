@@ -30,8 +30,6 @@ interface Host extends Countable, JsonSerializable
     public function jsonSerialize(): ?string;
 
     /**
-     * {@inheritdoc}
-     *
      * The labels total number.
      */
     public function count(): int;
@@ -43,6 +41,7 @@ interface Host extends Countable, JsonSerializable
      * an instance with its content converted to its IDNA ASCII form
      *
      * @throws CannotProcessHost if the domain can not be converted to ASCII using IDN UTS46 algorithm
+     *
      * @return static
      */
     public function toAscii(): self;
@@ -54,6 +53,7 @@ interface Host extends Countable, JsonSerializable
      * an instance with its content converted to its IDNA UTF8 form
      *
      * @throws CannotProcessHost if the domain can not be converted to Unicode using IDN UTS46 algorithm
+     *
      * @return static
      */
     public function toUnicode(): self;

@@ -235,16 +235,15 @@ final class Rules implements PublicSuffixList
     {
         $domain = $this->validateDomain($host);
         $suffix = $this->getEffectiveTopLevelDomain($domain, '');
-        $length = count($suffix);
-        if ($suffix->isICANN()) {
-            return ResolvedDomain::fromICANN($domain, $length);
+        if (self::ICANN_DOMAINS === $suffix[1]) {
+            return ResolvedDomain::fromICANN($domain, $suffix[0]);
         }
 
-        if ($suffix->isPrivate()) {
-            return ResolvedDomain::fromPrivate($domain, $length);
+        if (self::PRIVATE_DOMAINS === $suffix[1]) {
+            return ResolvedDomain::fromPrivate($domain, $suffix[0]);
         }
 
-        if (1 === $length) {
+        if (1 === $suffix[0]) {
             return ResolvedDomain::fromUnknown($domain);
         }
 
@@ -258,11 +257,11 @@ final class Rules implements PublicSuffixList
     {
         $domain = $this->validateDomain($host);
         $suffix = $this->getEffectiveTopLevelDomain($domain, self::ICANN_DOMAINS);
-        if (!$suffix->isICANN()) {
+        if (self::ICANN_DOMAINS !== $suffix[1]) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'ICANN');
         }
 
-        return ResolvedDomain::fromICANN($domain, count($suffix));
+        return ResolvedDomain::fromICANN($domain, $suffix[0]);
     }
 
     /**
@@ -272,11 +271,11 @@ final class Rules implements PublicSuffixList
     {
         $domain = $this->validateDomain($host);
         $suffix = $this->getEffectiveTopLevelDomain($domain, self::PRIVATE_DOMAINS);
-        if (!$suffix->isPrivate()) {
+        if (self::PRIVATE_DOMAINS !== $suffix[1]) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'private');
         }
 
-        return ResolvedDomain::fromPrivate($domain, count($suffix));
+        return ResolvedDomain::fromPrivate($domain, $suffix[0]);
     }
 
     /**
@@ -302,8 +301,10 @@ final class Rules implements PublicSuffixList
 
     /**
      * Returns the matched public suffix.
+     *
+     * @return array{0:int, 1:string}
      */
-    private function getEffectiveTopLevelDomain(DomainName $domain, string $section): EffectiveTopLevelDomain
+    private function getEffectiveTopLevelDomain(DomainName $domain, string $section): array
     {
         $icann = $this->getEffectiveTopLevelDomainFromSection($domain, self::ICANN_DOMAINS);
         if (self::ICANN_DOMAINS === $section) {
@@ -311,7 +312,7 @@ final class Rules implements PublicSuffixList
         }
 
         $private = $this->getEffectiveTopLevelDomainFromSection($domain, self::PRIVATE_DOMAINS);
-        if (count($private) > count($icann)) {
+        if ($private[0] > $icann[0]) {
             return $private;
         }
 
@@ -319,15 +320,17 @@ final class Rules implements PublicSuffixList
             return $icann;
         }
 
-        return Suffix::fromUnknown($domain->slice(0, 1));
+        return [1, ''];
     }
 
     /**
      * Returns the public suffix matched against a given PSL section.
      *
      * @throws UnableToResolveDomain if the domain can not be resolved
+     *
+     * @return array{0:int, 1:string}
      */
-    private function getEffectiveTopLevelDomainFromSection(DomainName $domain, string $section): EffectiveTopLevelDomain
+    private function getEffectiveTopLevelDomainFromSection(DomainName $domain, string $section): array
     {
         $rules = $this->rules[$section];
         $matches = [];
@@ -358,14 +361,9 @@ final class Rules implements PublicSuffixList
                 throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
             }
 
-            return Suffix::fromUnknown($suffix);
+            return [1, ''];
         }
 
-        $suffix = $domain->slice(0, count($matches));
-        if (self::PRIVATE_DOMAINS === $section) {
-            return Suffix::fromPrivate($suffix);
-        }
-
-        return Suffix::fromICANN($suffix);
+        return [count($matches), $section];
     }
 }
