@@ -55,27 +55,17 @@ final class ResolvedDomain implements ResolvedDomainName
     {
         $domain = self::setDomainName($domain);
 
-        return new self($domain, Suffix::fromIANA($domain->slice(0, 1)));
+        return new self($domain, Suffix::fromIANA($domain->label(0)));
     }
 
     /**
      * @param mixed $domain the domain to be resolved
      */
-    public static function fromUnknown($domain): self
+    public static function fromUnknown($domain, int $suffixLength = 0): self
     {
         $domain = self::setDomainName($domain);
 
-        return new self($domain, Suffix::fromUnknown($domain->slice(0, 1)));
-    }
-
-    /**
-     * @param mixed $domain the domain to be resolved
-     */
-    public static function fromNone($domain): self
-    {
-        $domain = self::setDomainName($domain);
-
-        return new self($domain, Suffix::fromUnknown($domain->clear()));
+        return new self($domain, Suffix::fromUnknown($domain->slice(0, $suffixLength)));
     }
 
     /**

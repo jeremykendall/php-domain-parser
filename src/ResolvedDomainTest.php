@@ -15,7 +15,7 @@ final class ResolvedDomainTest extends TestCase
 {
     public function testRegistrableDomainIsNullWithFoundDomain(): void
     {
-        $domain = ResolvedDomain::fromNone(Domain::fromIDNA2003('faketld'));
+        $domain = ResolvedDomain::fromUnknown(Domain::fromIDNA2003('faketld'));
         self::assertNull($domain->suffix()->value());
         self::assertNull($domain->registrableDomain()->value());
         self::assertNull($domain->subDomain()->value());
@@ -101,7 +101,7 @@ final class ResolvedDomainTest extends TestCase
     ): void {
         $objPublicSuffix = (null === $publicSuffix) ? Suffix::fromUnknown(Domain::fromIDNA2003(null)) : Suffix::fromICANN(Domain::fromIDNA2003($publicSuffix));
 
-        $domain = ResolvedDomain::fromPrivate(Domain::fromIDNA2003($domain), count($objPublicSuffix));
+        $domain = ResolvedDomain::fromUnknown(Domain::fromIDNA2003($domain), count($objPublicSuffix));
         self::assertSame($expectedDomain, $domain->value());
         self::assertSame($expectedSuffix, $domain->suffix()->value());
 
@@ -195,7 +195,7 @@ final class ResolvedDomainTest extends TestCase
     ): void {
         $objPublicSuffix = (null === $publicSuffix) ? Suffix::fromUnknown(Domain::fromIDNA2003(null)) : Suffix::fromICANN(Domain::fromIDNA2003($publicSuffix));
 
-        $domain = ResolvedDomain::fromICANN(Domain::fromIDNA2003($domain), count($objPublicSuffix));
+        $domain = ResolvedDomain::fromUnknown(Domain::fromIDNA2003($domain), count($objPublicSuffix));
         self::assertSame($expectedDomain, $domain->value());
         self::assertSame($expectedSuffix, $domain->suffix()->value());
 
@@ -307,14 +307,14 @@ final class ResolvedDomainTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        ResolvedDomain::fromNone(Domain::fromIDNA2008(null))->withSubDomain('www');
+        ResolvedDomain::fromUnknown(Domain::fromIDNA2008(null))->withSubDomain('www');
     }
 
     public function testWithSubDomainFailsWithOneLabelDomain(): void
     {
         self::expectException(UnableToResolveDomain::class);
 
-        ResolvedDomain::fromNone(Domain::fromIDNA2003('localhost'))->withSubDomain('www');
+        ResolvedDomain::fromUnknown(Domain::fromIDNA2003('localhost'))->withSubDomain('www');
     }
 
     public function testWithEmptySubdomain(): void
@@ -338,7 +338,7 @@ final class ResolvedDomainTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        ResolvedDomain::fromNone(Domain::fromIDNA2003('www.example.com'))->withSubDomain('www');
+        ResolvedDomain::fromUnknown(Domain::fromIDNA2003('www.example.com'))->withSubDomain('www');
     }
 
     /**
@@ -421,7 +421,7 @@ final class ResolvedDomainTest extends TestCase
                 'isPrivate' => false,
             ],
             'adding the public suffix to a single label domain' => [
-                'domain' => ResolvedDomain::fromNone(Domain::fromIDNA2003('localhost')),
+                'domain' => ResolvedDomain::fromUnknown(Domain::fromIDNA2003('localhost')),
                 'publicSuffix' => 'www',
                 'expected' => 'www',
                 'isKnown' => false,
@@ -451,7 +451,7 @@ final class ResolvedDomainTest extends TestCase
     {
         self::expectException(UnableToResolveDomain::class);
 
-        ResolvedDomain::fromNone(Domain::fromIDNA2008(null))->withSuffix('www');
+        ResolvedDomain::fromUnknown(Domain::fromIDNA2008(null))->withSuffix('www');
     }
 
     /**

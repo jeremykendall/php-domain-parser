@@ -27,9 +27,13 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
         return new self('The host `'.$domain.'` is invalid : '.$message);
     }
 
-    public static function dueToInvalidPublicSuffix(Host $publicSuffix): self
+    public static function dueToInvalidSuffix(Host $publicSuffix, string $type = ''): self
     {
-        return new self('The public suffix `"'.$publicSuffix->value() ?? 'NULL'.'"` is invalid.');
+        if ('' === $type) {
+            return new self('The suffix `"'.$publicSuffix->value() ?? 'NULL'.'"` is invalid.');
+        }
+
+        return new self('The suffix `"'.$publicSuffix->value() ?? 'NULL'.'"` is an invalid `'.$type.'` suffix.');
     }
 
     public static function dueToUnsupportedType(string $domain): self

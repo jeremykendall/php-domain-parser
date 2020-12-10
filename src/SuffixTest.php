@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use function json_encode;
 
@@ -15,8 +14,7 @@ final class SuffixTest extends TestCase
 {
     public function testInternalPhpMethod(): void
     {
-        $domain = Domain::fromIDNA2008('ac.be');
-        $publicSuffix = Suffix::fromICANN($domain);
+        $publicSuffix = Suffix::fromICANN('ac.be');
         $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
         self::assertEquals($publicSuffix, $generatePublicSuffix);
         self::assertEquals('"ac.be"', json_encode($publicSuffix));
@@ -25,61 +23,9 @@ final class SuffixTest extends TestCase
 
     public function testPSToUnicodeWithUrlEncode(): void
     {
-        $domain = Domain::fromIDNA2008('b%C3%A9be');
-        self::assertSame('bébe', Suffix::fromUnknown($domain)->toUnicode()->value());
+        self::assertSame('bébe', Suffix::fromUnknown('b%C3%A9be')->toUnicode()->value());
     }
 
-    /**
-     * @dataProvider PSProvider
-     * @param ?string $publicSuffix
-     */
-    public function testSetSection(?string $publicSuffix, string $section, bool $isKnown, bool $isIcann, bool $isPrivate): void
-    {
-        $domain = Domain::fromIDNA2008($publicSuffix);
-
-        if ('' === $section) {
-            $ps = Suffix::fromUnknown($domain);
-        } elseif ('ICANN_DOMAINS' === $section) {
-            $ps = Suffix::fromICANN($domain);
-        } elseif ('PRIVATE_DOMAINS' === $section) {
-            $ps = Suffix::fromPrivate($domain);
-        }
-
-        if (!isset($ps)) {
-            throw new InvalidArgumentException('Missing PublicSuffix instance.');
-        }
-
-        self::assertSame($isKnown, $ps->isKnown());
-        self::assertSame($isIcann, $ps->isICANN());
-        self::assertSame($isPrivate, $ps->isPrivate());
-    }
-
-    /**
-     * @return iterable<array>
-     */
-    public function PSProvider(): iterable
-    {
-        return [
-            [null, 'ICANN_DOMAINS', true, true, false],
-            ['foo', 'ICANN_DOMAINS', true, true, false],
-            ['foo', 'PRIVATE_DOMAINS', true, false, true],
-        ];
-    }
-
-    public function testIsPublicSuffix(): void
-    {
-        self::assertFalse(Suffix::fromIANA('be')->isPublicSuffix());
-        self::assertFalse(Suffix::fromUnknown('be')->isPublicSuffix());
-        self::assertTrue(Suffix::fromICANN('be')->isPublicSuffix());
-        self::assertTrue(Suffix::fromPrivate('be')->isPublicSuffix());
-    }
-
-    public function testConstructorWithHostInstance(): void
-    {
-        $domain = Suffix::fromICANN(Domain::fromIDNA2003('ac.be'));
-
-        self::assertEquals($domain, Suffix::fromICANN($domain));
-    }
 
     /**
      * @dataProvider invalidPublicSuffixProvider
@@ -88,7 +34,7 @@ final class SuffixTest extends TestCase
     {
         self::expectException(SyntaxError::class);
 
-        Suffix::fromUnknown(Domain::fromIDNA2008($publicSuffix));
+        Suffix::fromUnknown($publicSuffix);
     }
 
     /**
@@ -102,18 +48,51 @@ final class SuffixTest extends TestCase
         ];
     }
 
-    public function testPSToAsciiThrowsException(): void
+    public function testFromICANN(): void
     {
+        $suffix = Suffix::fromICANN('be');
+
+        self::assertTrue($suffix->isKnown());
+        self::assertTrue($suffix->isPublicSuffix());
+        self::assertTrue($suffix->isICANN());
+        self::assertFalse($suffix->isPrivate());
+        self::assertFalse($suffix->isIANA());
+        self::assertSame('be', $suffix->domain()->toString());
         self::expectException(SyntaxError::class);
 
-        Suffix::fromUnknown(Domain::fromIDNA2008('a⒈com'));
+        Suffix::fromICANN(null);
     }
 
-    public function testToUnicodeThrowsException(): void
+    public function testFromPrivate(): void
     {
+        $suffix = Suffix::fromPrivate('be');
+
+        self::assertTrue($suffix->isKnown());
+        self::assertTrue($suffix->isPublicSuffix());
+        self::assertFalse($suffix->isICANN());
+        self::assertTrue($suffix->isPrivate());
+        self::assertFalse($suffix->isIANA());
+        self::assertSame('be', $suffix->domain()->toString());
+
         self::expectException(SyntaxError::class);
 
-        Suffix::fromUnknown(Domain::fromIDNA2008('xn--a-ecp.ru'))->toUnicode();
+        Suffix::fromPrivate(null);
+    }
+
+    public function testFromIANA(): void
+    {
+        $suffix = Suffix::fromIANA('be');
+
+        self::assertTrue($suffix->isKnown());
+        self::assertFalse($suffix->isPublicSuffix());
+        self::assertFalse($suffix->isICANN());
+        self::assertFalse($suffix->isPrivate());
+        self::assertTrue($suffix->isIANA());
+        self::assertSame('be', $suffix->domain()->toString());
+
+        self::expectException(SyntaxError::class);
+
+        Suffix::fromIANA('ac.be');
     }
 
     /**
@@ -122,7 +101,7 @@ final class SuffixTest extends TestCase
      */
     public function testConversionReturnsTheSameInstance(?string $publicSuffix): void
     {
-        $instance = Suffix::fromUnknown(Domain::fromIDNA2008($publicSuffix));
+        $instance = Suffix::fromUnknown($publicSuffix);
 
         self::assertEquals($instance->toUnicode(), $instance);
         self::assertEquals($instance->toAscii(), $instance);
@@ -141,7 +120,7 @@ final class SuffixTest extends TestCase
 
     public function testToUnicodeReturnsSameInstance(): void
     {
-        $instance = Suffix::fromUnknown(Domain::fromIDNA2008('食狮.公司.cn'));
+        $instance = Suffix::fromUnknown('食狮.公司.cn');
 
         self::assertEquals($instance->toUnicode(), $instance);
     }
@@ -152,7 +131,7 @@ final class SuffixTest extends TestCase
      */
     public function testCountable(?string $domain, int $nbLabels): void
     {
-        $domain = Suffix::fromUnknown(Domain::fromIDNA2008($domain));
+        $domain = Suffix::fromUnknown($domain);
 
         self::assertCount($nbLabels, $domain);
     }
@@ -167,63 +146,5 @@ final class SuffixTest extends TestCase
             'simple' => ['foo.bar.baz', 3, ['baz', 'bar', 'foo']],
             'unicode' => ['www.食狮.公司.cn', 4, ['cn', '公司', '食狮', 'www']],
         ];
-    }
-
-    /**
-     * @dataProvider customIDNAProvider
-     */
-    public function testResolveWithCustomIDNAOptions(
-        string $name,
-        string $expectedContent,
-        string $expectedAscii,
-        string $expectedUnicode
-    ): void {
-        $domain = Domain::fromIDNA2008($name);
-        $publicSuffix = Suffix::fromUnknown($domain);
-
-        self::assertSame($expectedContent, $publicSuffix->value());
-        self::assertSame($expectedAscii, $publicSuffix->toAscii()->value());
-        self::assertSame($expectedUnicode, $publicSuffix->toUnicode()->value());
-    }
-
-    /**
-     * @return iterable<string,array>
-     */
-    public function customIDNAProvider(): iterable
-    {
-        return [
-            'without deviation characters' => [
-                'example.com',
-                'example.com',
-                'example.com',
-                'example.com',
-            ],
-            'without deviation characters with label' => [
-                'www.example.com',
-                'www.example.com',
-                'www.example.com',
-                'www.example.com',
-            ],
-            'with deviation in domain' => [
-                'www.faß.de',
-                'www.faß.de',
-                'www.xn--fa-hia.de',
-                'www.faß.de',
-            ],
-            'with deviation in label' => [
-                'faß.test.de',
-                'faß.test.de',
-                'xn--fa-hia.test.de',
-                'faß.test.de',
-            ],
-        ];
-    }
-
-    public function testWithIDNAOptions(): void
-    {
-        self::assertNotEquals(
-            Suffix::fromUnknown(Domain::fromIDNA2008('com')),
-            Suffix::fromUnknown(Domain::fromIDNA2003('com'))
-        );
     }
 }

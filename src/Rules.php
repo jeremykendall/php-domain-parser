@@ -222,9 +222,9 @@ final class Rules implements PublicSuffixList
         try {
             return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
-            return ResolvedDomain::fromNone($exception->getDomain());
+            return ResolvedDomain::fromUnknown($exception->getDomain());
         } catch (SyntaxError $exception) {
-            return ResolvedDomain::fromNone(Domain::fromIDNA2008(null));
+            return ResolvedDomain::fromUnknown(Domain::fromIDNA2008(null));
         }
     }
 
@@ -234,20 +234,16 @@ final class Rules implements PublicSuffixList
     public function getCookieDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $suffix = $this->getEffectiveTopLevelDomain($domain, '');
-        if (self::ICANN_DOMAINS === $suffix[1]) {
-            return ResolvedDomain::fromICANN($domain, $suffix[0]);
+        [$length, $section] = $this->getEffectiveTopLevelDomain($domain, '');
+        if (self::ICANN_DOMAINS === $section) {
+            return ResolvedDomain::fromICANN($domain, $length);
         }
 
-        if (self::PRIVATE_DOMAINS === $suffix[1]) {
-            return ResolvedDomain::fromPrivate($domain, $suffix[0]);
+        if (self::PRIVATE_DOMAINS === $section) {
+            return ResolvedDomain::fromPrivate($domain, $length);
         }
 
-        if (1 === $suffix[0]) {
-            return ResolvedDomain::fromUnknown($domain);
-        }
-
-        return ResolvedDomain::fromNone($domain);
+        return ResolvedDomain::fromUnknown($domain, $length);
     }
 
     /**
@@ -256,12 +252,12 @@ final class Rules implements PublicSuffixList
     public function getICANNDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $suffix = $this->getEffectiveTopLevelDomain($domain, self::ICANN_DOMAINS);
-        if (self::ICANN_DOMAINS !== $suffix[1]) {
+        [$length, $section] = $this->getEffectiveTopLevelDomain($domain, self::ICANN_DOMAINS);
+        if (self::ICANN_DOMAINS !== $section) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'ICANN');
         }
 
-        return ResolvedDomain::fromICANN($domain, $suffix[0]);
+        return ResolvedDomain::fromICANN($domain, $length);
     }
 
     /**
@@ -270,12 +266,12 @@ final class Rules implements PublicSuffixList
     public function getPrivateDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        $suffix = $this->getEffectiveTopLevelDomain($domain, self::PRIVATE_DOMAINS);
-        if (self::PRIVATE_DOMAINS !== $suffix[1]) {
+        [$length, $section] = $this->getEffectiveTopLevelDomain($domain, self::PRIVATE_DOMAINS);
+        if (self::PRIVATE_DOMAINS !== $section) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'private');
         }
 
-        return ResolvedDomain::fromPrivate($domain, $suffix[0]);
+        return ResolvedDomain::fromPrivate($domain, $length);
     }
 
     /**
@@ -292,8 +288,12 @@ final class Rules implements PublicSuffixList
             $domain = $domain->domain();
         }
 
-        if (!($domain instanceof DomainName)) {
+        if (!$domain instanceof DomainName) {
             $domain = Domain::fromIDNA2008($domain);
+        }
+
+        if ('' === $domain->label(0)) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
         return $domain;
@@ -326,8 +326,6 @@ final class Rules implements PublicSuffixList
     /**
      * Returns the public suffix matched against a given PSL section.
      *
-     * @throws UnableToResolveDomain if the domain can not be resolved
-     *
      * @return array{0:int, 1:string}
      */
     private function getEffectiveTopLevelDomainFromSection(DomainName $domain, string $section): array
@@ -356,11 +354,6 @@ final class Rules implements PublicSuffixList
         }
 
         if ([] === $matches) {
-            $suffix = $domain->label(0);
-            if ('' === $suffix) {
-                throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
-            }
-
             return [1, ''];
         }
 

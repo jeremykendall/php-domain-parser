@@ -36,7 +36,12 @@ final class Suffix implements EffectiveTopLevelDomain
      */
     public static function fromICANN($domain): self
     {
-        return new self(self::setDomainName($domain), self::ICANN);
+        $domain = self::setDomainName($domain);
+        if (1 > count($domain)) {
+            throw SyntaxError::dueToInvalidSuffix($domain, 'ICANN');
+        }
+
+        return new self($domain, self::ICANN);
     }
 
     /**
@@ -44,7 +49,12 @@ final class Suffix implements EffectiveTopLevelDomain
      */
     public static function fromPrivate($domain): self
     {
-        return new self(self::setDomainName($domain), self::PRIVATE);
+        $domain = self::setDomainName($domain);
+        if (1 > count($domain)) {
+            throw SyntaxError::dueToInvalidSuffix($domain, 'Private');
+        }
+
+        return new self($domain, self::PRIVATE);
     }
 
     /**
@@ -52,7 +62,12 @@ final class Suffix implements EffectiveTopLevelDomain
      */
     public static function fromIANA($domain): self
     {
-        return new self(self::setDomainName($domain), self::IANA);
+        $domain = self::setDomainName($domain);
+        if (1 !== count($domain)) {
+            throw SyntaxError::dueToInvalidSuffix($domain, 'IANA');
+        }
+
+        return new self($domain, self::IANA);
     }
 
     /**
@@ -77,7 +92,7 @@ final class Suffix implements EffectiveTopLevelDomain
         }
 
         if ('' === $domain->label(0)) {
-            throw SyntaxError::dueToInvalidPublicSuffix($domain);
+            throw SyntaxError::dueToInvalidSuffix($domain);
         }
 
         return $domain;
