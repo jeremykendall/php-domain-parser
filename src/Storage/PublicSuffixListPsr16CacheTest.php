@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
+use InvalidArgumentException;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
+use stdClass;
+use TypeError;
 use function dirname;
 
 /**
@@ -89,5 +92,32 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
         $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
 
         self::assertFalse($pslCache->remember('http://www.example.com', $psl));
+    }
+
+    public function testItCanDeleteTheCachedDatabase(): void
+    {
+        $uri = 'http://www.example.com';
+
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('delete')->willReturn(true);
+
+        $instance = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        self::assertTrue($instance->forget($uri));
+    }
+
+    public function testItWillThrowIfTheTTLIsNotParsable(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $cache = $this->createStub(CacheInterface::class);
+        new PublicSuffixListPsr16Cache($cache, 'pdp_', 'foobar');
+    }
+
+    public function testItWillThrowIfTheTTLIsInvalid(): void
+    {
+        $this->expectException(TypeError::class);
+
+        $cache = $this->createStub(CacheInterface::class);
+        new PublicSuffixListPsr16Cache($cache, 'pdp_', new stdClass());
     }
 }

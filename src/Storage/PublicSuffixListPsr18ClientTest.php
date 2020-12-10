@@ -62,8 +62,8 @@ final class PublicSuffixListPsr18ClientTest extends TestCase
             }
         };
 
-        self::expectException(UnableToLoadPublicSuffixList::class);
-        self::expectExceptionMessage('Could not access the Public Suffix List URI: `http://www.example.com`.');
+        $this->expectException(UnableToLoadPublicSuffixList::class);
+        $this->expectExceptionMessage('Could not access the Public Suffix List URI: `http://www.example.com`.');
 
         $storage = new PublicSuffixListPsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');
@@ -85,9 +85,9 @@ final class PublicSuffixListPsr18ClientTest extends TestCase
             }
         };
 
-        self::expectException(UnableToLoadPublicSuffixList::class);
-        self::expectExceptionMessage('Invalid response from Public Suffix List URI: `http://www.example.com`.');
-        self::expectExceptionCode(404);
+        $this->expectException(UnableToLoadPublicSuffixList::class);
+        $this->expectExceptionMessage('Invalid response from Public Suffix List URI: `http://www.example.com`.');
+        $this->expectExceptionCode(404);
 
         $storage = new PublicSuffixListPsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');

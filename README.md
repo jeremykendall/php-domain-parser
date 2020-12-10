@@ -29,7 +29,7 @@ PHP Domain Parser is compliant around:
 ### Composer
 
 ~~~
-$ composer require jeremykendall/php-domain-parser:^6.0
+$ composer require jeremykendall/php-domain-parser
 ~~~
 
 ### System Requirements

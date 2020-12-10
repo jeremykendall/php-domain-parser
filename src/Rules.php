@@ -27,9 +27,9 @@ use const JSON_THROW_ON_ERROR;
 final class Rules implements PublicSuffixList
 {
     private const ICANN_DOMAINS = 'ICANN_DOMAINS';
-
     private const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
 
+    private const REGEX_PSL_SECTION = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
     private const PSL_SECTION = [
         'ICANN' => [
             'BEGIN' => self::ICANN_DOMAINS,
@@ -41,10 +41,8 @@ final class Rules implements PublicSuffixList
         ],
     ];
 
-    private const REGEX_PSL_SECTION = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
-
     /**
-     * PSL rules as a multidimentional associative array.
+     * PSL rules as a multidimensional associative array.
      *
      * @var array<string, array<array>>
      */

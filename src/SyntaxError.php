@@ -20,11 +20,9 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 
     public static function dueToIDNAError(string $domain, string $message = ''): self
     {
-        if ('' === $message) {
-            return new self('The host `'.$domain.'` is invalid.');
-        }
+        $str = '' === $message ? 'The host `'.$domain.'` is invalid.' : 'The host `'.$domain.'` is invalid : '.$message;
 
-        return new self('The host `'.$domain.'` is invalid : '.$message);
+        return new self($str);
     }
 
     public static function dueToInvalidSuffix(Host $publicSuffix, string $type = ''): self

@@ -16,11 +16,11 @@ use function json_encode;
  */
 final class TopLevelDomainsTest extends TestCase
 {
-    private TopLevelDomains $topLevelDomains;
+    private static TopLevelDomains $topLevelDomains;
 
-    public function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        $this->topLevelDomains = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/tlds-alpha-by-domain.txt');
+        self::$topLevelDomains = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/tlds-alpha-by-domain.txt');
     }
 
     /**
@@ -39,7 +39,7 @@ final class TopLevelDomainsTest extends TestCase
 
         $topLevelDomains = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/tlds-alpha-by-domain.txt', $context);
 
-        self::assertEquals($this->topLevelDomains, $topLevelDomains);
+        self::assertEquals(self::$topLevelDomains, $topLevelDomains);
     }
 
     /**
@@ -48,9 +48,16 @@ final class TopLevelDomainsTest extends TestCase
      */
     public function testCreateFromPathThrowsException(): void
     {
-        self::expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectException(UnableToLoadRootZoneDatabase::class);
 
         TopLevelDomains::fromPath('/foo/bar.dat');
+    }
+
+    public function testFromStringThrowsOnTypeError(): void
+    {
+        $this->expectException(TypeError::class);
+
+        TopLevelDomains::fromString(new DateTimeImmutable());
     }
 
     /**
@@ -58,7 +65,7 @@ final class TopLevelDomainsTest extends TestCase
      */
     public function testConverterThrowsException(string $content): void
     {
-        self::expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectException(UnableToLoadRootZoneDatabase::class);
 
         TopLevelDomains::fromString($content);
     }
@@ -133,9 +140,9 @@ EOF;
      */
     public function testSetState(): void
     {
-        $topLevelDomains = eval('return '.var_export($this->topLevelDomains, true).';');
+        $topLevelDomains = eval('return '.var_export(self::$topLevelDomains, true).';');
 
-        self::assertEquals($this->topLevelDomains, $topLevelDomains);
+        self::assertEquals(self::$topLevelDomains, $topLevelDomains);
     }
 
     /**
@@ -145,9 +152,9 @@ EOF;
     public function testJsonMethods(): void
     {
         /** @var string $data */
-        $data = json_encode($this->topLevelDomains);
+        $data = json_encode(self::$topLevelDomains);
 
-        self::assertEquals($this->topLevelDomains, TopLevelDomains::fromJsonString($data));
+        self::assertEquals(self::$topLevelDomains, TopLevelDomains::fromJsonString($data));
     }
 
     /**
@@ -156,7 +163,7 @@ EOF;
      */
     public function testJsonStringFailsWithInvalidJson(): void
     {
-        self::expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectException(UnableToLoadRootZoneDatabase::class);
 
         TopLevelDomains::fromJsonString('');
     }
@@ -167,7 +174,7 @@ EOF;
      */
     public function testJsonStringFailsWithMissingIndexes(): void
     {
-        self::expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectException(UnableToLoadRootZoneDatabase::class);
 
         TopLevelDomains::fromJsonString('{"foo":"bar"}');
     }
@@ -198,7 +205,7 @@ EOF;
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
-            $this->topLevelDomains->resolve($tld)->suffix()->value()
+            self::$topLevelDomains->resolve($tld)->suffix()->value()
         );
     }
 
@@ -211,7 +218,7 @@ EOF;
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
-            $this->topLevelDomains->getIANADomain($tld)->suffix()->value()
+            self::$topLevelDomains->getIANADomain($tld)->suffix()->value()
         );
     }
 
@@ -243,35 +250,43 @@ EOF;
 
     public function testTopLevelDomainThrowsTypeError(): void
     {
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
 
-        $this->topLevelDomains->getIANADomain(new DateTimeImmutable());
+        self::$topLevelDomains->getIANADomain(new DateTimeImmutable());
     }
 
     public function testTopLevelDomainWithInvalidDomain(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
-        $this->topLevelDomains->getIANADomain('###');
+        self::$topLevelDomains->getIANADomain('###');
     }
 
     public function testResolveWithInvalidDomain(): void
     {
-        $result = $this->topLevelDomains->resolve('###');
+        $result = self::$topLevelDomains->resolve('###');
         self::assertFalse($result->suffix()->isIANA());
         self::assertNull($result->value());
     }
 
+    public function testResolveWithAbsoluteDomainName(): void
+    {
+        $result = self::$topLevelDomains->resolve('example.com.');
+        self::assertSame('example.com.', $result->value());
+        self::assertFalse($result->suffix()->isIANA());
+        self::assertNull($result->suffix()->value());
+    }
+
     public function testTopLevelDomainWithUnResolvableDomain(): void
     {
-        self::expectException(UnableToResolveDomain::class);
+        $this->expectException(UnableToResolveDomain::class);
 
-        $this->topLevelDomains->getIANADomain('localhost');
+        self::$topLevelDomains->getIANADomain('localhost');
     }
 
     public function testResolveWithUnResolvableDomain(): void
     {
-        $result = $this->topLevelDomains->resolve('localhost');
+        $result = self::$topLevelDomains->resolve('localhost');
 
         self::assertSame($result->toString(), 'localhost');
         self::assertNull($result->suffix()->value());
@@ -280,9 +295,9 @@ EOF;
 
     public function testGetTopLevelDomainWithUnResolvableDomain(): void
     {
-        self::expectException(UnableToResolveDomain::class);
+        $this->expectException(UnableToResolveDomain::class);
 
-        $this->topLevelDomains->getIANADomain('localhost');
+        self::$topLevelDomains->getIANADomain('localhost');
     }
 
     public function testResolveWithUnregisteredTLD(): void
@@ -294,7 +309,7 @@ EOF;
 
     public function testGetTopLevelDomainWithUnregisteredTLD(): void
     {
-        self::expectException(UnableToResolveDomain::class);
+        $this->expectException(UnableToResolveDomain::class);
 
         $collection = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
         $collection->getIANADomain('localhost.locale');

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use function count;
-use function substr;
 
 final class ResolvedDomain implements ResolvedDomainName
 {
@@ -25,7 +24,6 @@ final class ResolvedDomain implements ResolvedDomainName
         $this->suffix = $suffix;
 
         $this->validateState();
-        $this->setComponents();
     }
 
     /**
@@ -99,7 +97,12 @@ final class ResolvedDomain implements ResolvedDomainName
      */
     private function validateState(): void
     {
-        if (null === $this->suffix->value()) {
+        $suffixValue = $this->suffix->value();
+        if (null === $suffixValue) {
+            $nullDomain = $this->domain->clear();
+            $this->registrableDomain = $nullDomain;
+            $this->secondLevelDomain = $nullDomain;
+            $this->subDomain = $nullDomain;
             return;
         }
 
@@ -107,34 +110,11 @@ final class ResolvedDomain implements ResolvedDomainName
             throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
         }
 
-        if ('.' === substr($this->domain->toString(), -1, 1)) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($this->domain);
-        }
-
-        if ($this->domain->value() === $this->suffix->value()) {
+        if ($this->domain->value() === $suffixValue) {
             throw UnableToResolveDomain::dueToIdenticalValue($this->domain);
         }
 
-        if ($this->domain->slice(0, count($this->suffix))->value() !== $this->suffix->value()) {
-            throw UnableToResolveDomain::dueToMismatchedSuffix($this->domain, $this->suffix);
-        }
-    }
-
-    /**
-     * Compute resolved domain components.
-     */
-    private function setComponents(): void
-    {
         $length = count($this->suffix);
-        if (0 === $length) {
-            $nullDomain = $this->domain->clear();
-            $this->registrableDomain = $nullDomain;
-            $this->secondLevelDomain = $nullDomain;
-            $this->subDomain = $nullDomain;
-
-            return;
-        }
-
         $this->registrableDomain = $this->domain->slice(0, $length + 1);
         $this->secondLevelDomain = $this->domain->slice($length, 1);
         $this->subDomain = $this->domain->slice($length + 1);

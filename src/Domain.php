@@ -29,9 +29,20 @@ use const FILTER_VALIDATE_IP;
 
 final class Domain implements DomainName
 {
-    private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
     private const IDNA_2003 = 'IDNA_2003';
     private const IDNA_2008 = 'IDNA_2008';
+    private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
+
+    // Note that unreserved is purposely missing . as it is used to separate labels.
+    private const REGEXP_REGISTERED_NAME = '/(?(DEFINE)
+        (?<unreserved>[a-z0-9_~\-])
+        (?<sub_delims>[!$&\'()*+,;=])
+        (?<encoded>%[A-F0-9]{2})
+        (?<reg_name>(?:(?&unreserved)|(?&sub_delims)|(?&encoded)){1,63})
+    )
+    ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
+
+    private const REGEXP_URI_DELIMITERS = '/[:\/?#\[\]@ ]/';
 
     /**
      * @var array<string>
@@ -45,10 +56,11 @@ final class Domain implements DomainName
     /**
      * @param null|mixed $domain
      */
-    private function __construct($domain, string $type)
+    private function __construct(string $type, $domain)
     {
         $this->type = $type;
-        [$this->domain, $this->labels] = $this->parseDomain($domain);
+        $this->domain = $this->parseDomain($domain);
+        $this->labels = null === $this->domain ? [] : array_reverse(explode('.', $this->domain));
     }
 
     /**
@@ -56,7 +68,7 @@ final class Domain implements DomainName
      */
     public static function __set_state(array $properties): self
     {
-        return new self($properties['domain'], $properties['type']);
+        return new self($properties['type'], $properties['domain']);
     }
 
     /**
@@ -64,7 +76,7 @@ final class Domain implements DomainName
      */
     public static function fromIDNA2003($domain): self
     {
-        return new self($domain, self::IDNA_2003);
+        return new self(self::IDNA_2003, $domain);
     }
 
     /**
@@ -72,29 +84,23 @@ final class Domain implements DomainName
      */
     public static function fromIDNA2008($domain): self
     {
-        return new self($domain, self::IDNA_2008);
+        return new self(self::IDNA_2008, $domain);
     }
 
     /**
      * @param mixed $domain a domain
-     *
-     * @return array{0:string|null, 1:array<string>}
      */
-    private function parseDomain($domain): array
+    private function parseDomain($domain): ?string
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
         }
 
-        if (!$domain instanceof DomainName) {
-            if ($domain instanceof Host) {
-                $domain = $domain->toUnicode()->value();
-            }
-
-            return $this->parseValue($domain);
+        if ($domain instanceof Host) {
+            return $this->parseValue($domain->toUnicode()->value());
         }
 
-        return $this->parseValue($domain->toUnicode()->value());
+        return $this->parseValue($domain);
     }
 
     /**
@@ -108,13 +114,11 @@ final class Domain implements DomainName
      *
      * @throws SyntaxError If the host is not a domain
      * @throws SyntaxError If the domain is not a host
-     *
-     * @return array{0:string|null, 1:array<string>}
      */
-    private function parseValue($domain): array
+    private function parseValue($domain): ?string
     {
         if (null === $domain) {
-            return [null, []];
+            return null;
         }
 
         if (is_object($domain) && method_exists($domain, '__toString')) {
@@ -127,7 +131,7 @@ final class Domain implements DomainName
 
         $domain = (string) $domain;
         if ('' === $domain) {
-            return ['', ['']];
+            return '';
         }
 
         $res = filter_var($domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
@@ -136,24 +140,12 @@ final class Domain implements DomainName
         }
 
         $formattedDomain = rawurldecode($domain);
-
-        // Note that unreserved is purposely missing . as it is used to separate labels.
-        static $domainName = '/(?(DEFINE)
-                (?<unreserved>[a-z0-9_~\-])
-                (?<sub_delims>[!$&\'()*+,;=])
-                (?<encoded>%[A-F0-9]{2})
-                (?<reg_name>(?:(?&unreserved)|(?&sub_delims)|(?&encoded)){1,63})
-            )
-            ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
-        if (1 === preg_match($domainName, $formattedDomain)) {
-            $formattedDomain = strtolower($formattedDomain);
-
-            return [$formattedDomain, array_reverse(explode('.', $formattedDomain))];
+        if (1 === preg_match(self::REGEXP_REGISTERED_NAME, $formattedDomain)) {
+            return strtolower($formattedDomain);
         }
 
         // a domain name can not contains URI delimiters or space
-        static $genDelimiters = '/[:\/?#\[\]@ ]/';
-        if (1 === preg_match($genDelimiters, $formattedDomain)) {
+        if (1 === preg_match(self::REGEXP_URI_DELIMITERS, $formattedDomain)) {
             throw SyntaxError::dueToInvalidCharacters($domain);
         }
 
@@ -162,11 +154,7 @@ final class Domain implements DomainName
             throw SyntaxError::dueToInvalidLength($domain);
         }
 
-        $formattedDomain = $this->domainToUnicode($this->domainToAscii($formattedDomain));
-
-        $labels = array_reverse(explode('.', $formattedDomain));
-
-        return [$formattedDomain, $labels];
+        return $this->domainToUnicode($this->domainToAscii($formattedDomain));
     }
 
     private function domainToAscii(string $domain): string
@@ -206,7 +194,7 @@ final class Domain implements DomainName
 
     public function jsonSerialize(): ?string
     {
-        return $this->value();
+        return $this->domain;
     }
 
     public function count(): int
@@ -221,7 +209,7 @@ final class Domain implements DomainName
 
     public function toString(): string
     {
-        return (string) $this->value();
+        return (string) $this->domain;
     }
 
     public function label(int $key): ?string
@@ -264,7 +252,7 @@ final class Domain implements DomainName
             return $this;
         }
 
-        return new self($domain, $this->type);
+        return new self($this->type, $domain);
     }
 
     public function toUnicode(): self
@@ -278,7 +266,7 @@ final class Domain implements DomainName
             return $this;
         }
 
-        return new self($domain, $this->type);
+        return new self($this->type, $domain);
     }
 
     /**
@@ -330,13 +318,13 @@ final class Domain implements DomainName
 
     public function withLabel(int $key, $label): self
     {
-        $nb_labels = count($this->labels);
-        if ($key < - $nb_labels - 1 || $key > $nb_labels) {
+        $nbLabels = count($this->labels);
+        if ($key < - $nbLabels - 1 || $key > $nbLabels) {
             throw SyntaxError::dueToInvalidLabelKey($this, $key);
         }
 
         if (0 > $key) {
-            $key = $nb_labels + $key;
+            $key = $nbLabels + $key;
         }
 
         $label = $this->normalize($label);
@@ -349,28 +337,28 @@ final class Domain implements DomainName
         $labels[$key] = $label;
         ksort($labels);
 
-        return new self(implode('.', array_reverse($labels)), $this->type);
+        return new self($this->type, implode('.', array_reverse($labels)));
     }
 
     public function withoutLabel(int $key, int ...$keys): self
     {
         array_unshift($keys, $key);
-        $nb_labels = count($this->labels);
+        $nbLabels = count($this->labels);
         foreach ($keys as &$offset) {
-            if (- $nb_labels > $offset || $nb_labels - 1 < $offset) {
+            if (- $nbLabels > $offset || $nbLabels - 1 < $offset) {
                 throw SyntaxError::dueToInvalidLabelKey($this, $key);
             }
 
             if (0 > $offset) {
-                $offset += $nb_labels;
+                $offset += $nbLabels;
             }
         }
         unset($offset);
 
-        $deleted_keys = array_keys(array_count_values($keys));
+        $deletedKeys = array_keys(array_count_values($keys));
         $labels = [];
         foreach ($this->labels as $offset => $label) {
-            if (!in_array($offset, $deleted_keys, true)) {
+            if (!in_array($offset, $deletedKeys, true)) {
                 $labels[] = $label;
             }
         }
@@ -388,13 +376,13 @@ final class Domain implements DomainName
             return $this;
         }
 
-        return new self(null, $this->type);
+        return new self($this->type, null);
     }
 
     public function slice(int $offset, int $length = null): self
     {
-        $nb_labels = count($this->labels);
-        if ($offset < - $nb_labels || $offset > $nb_labels) {
+        $nbLabels = count($this->labels);
+        if ($offset < - $nbLabels || $offset > $nbLabels) {
             throw SyntaxError::dueToInvalidLabelKey($this, $offset);
         }
 

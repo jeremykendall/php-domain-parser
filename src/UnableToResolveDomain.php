@@ -31,14 +31,6 @@ final class UnableToResolveDomain extends InvalidArgumentException implements Ca
         return $exception;
     }
 
-    public static function dueToMismatchedSuffix(DomainName $domain, EffectiveTopLevelDomain $effectiveTLD): self
-    {
-        $exception = new self('The public suffix `'.$effectiveTLD->value().'` can not be assign to the domain name `'.$domain->toString().'`');
-        $exception->domain = $domain;
-
-        return $exception;
-    }
-
     public static function dueToMissingSuffix(DomainName $domain, string $type): self
     {
         $exception = new self('The domain "'.$domain->value().'" does not contain a "'.$type.'" TLD.');

@@ -38,7 +38,7 @@ final class Suffix implements EffectiveTopLevelDomain
     {
         $domain = self::setDomainName($domain);
         if (1 > count($domain)) {
-            throw SyntaxError::dueToInvalidSuffix($domain, 'ICANN');
+            throw SyntaxError::dueToInvalidSuffix($domain, self::ICANN);
         }
 
         return new self($domain, self::ICANN);
@@ -51,7 +51,7 @@ final class Suffix implements EffectiveTopLevelDomain
     {
         $domain = self::setDomainName($domain);
         if (1 > count($domain)) {
-            throw SyntaxError::dueToInvalidSuffix($domain, 'Private');
+            throw SyntaxError::dueToInvalidSuffix($domain, self::PRIVATE);
         }
 
         return new self($domain, self::PRIVATE);
@@ -64,7 +64,7 @@ final class Suffix implements EffectiveTopLevelDomain
     {
         $domain = self::setDomainName($domain);
         if (1 !== count($domain)) {
-            throw SyntaxError::dueToInvalidSuffix($domain, 'IANA');
+            throw SyntaxError::dueToInvalidSuffix($domain, self::IANA);
         }
 
         return new self($domain, self::IANA);
@@ -166,13 +166,13 @@ final class Suffix implements EffectiveTopLevelDomain
 
     public function normalize(DomainName $domain): self
     {
-        $newSuffix = $domain->clear()->append($this->toUnicode());
+        $newDomain = $domain->clear()->append($this->toUnicode());
         if ($domain->isAscii()) {
-            $newSuffix = $newSuffix->toAscii();
+            $newDomain = $newDomain->toAscii();
         }
 
         $clone = clone $this;
-        $clone->domain = $newSuffix;
+        $clone->domain = $newDomain;
 
         return $clone;
     }

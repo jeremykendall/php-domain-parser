@@ -63,8 +63,8 @@ final class RootZoneDatabasePsr18ClientTest extends TestCase
             }
         };
 
-        self::expectException(UnableToLoadRootZoneDatabase::class);
-        self::expectExceptionMessage('Could not access the Root Zone Database URI: `http://www.example.com`.');
+        $this->expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectExceptionMessage('Could not access the Root Zone Database URI: `http://www.example.com`.');
 
         $storage = new RootZoneDatabasePsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');
@@ -86,9 +86,9 @@ final class RootZoneDatabasePsr18ClientTest extends TestCase
             }
         };
 
-        self::expectException(UnableToLoadRootZoneDatabase::class);
-        self::expectExceptionMessage('Invalid response from Root Zone Database URI: `http://www.example.com`.');
-        self::expectExceptionCode(404);
+        $this->expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectExceptionMessage('Invalid response from Root Zone Database URI: `http://www.example.com`.');
+        $this->expectExceptionCode(404);
 
         $storage = new RootZoneDatabasePsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');

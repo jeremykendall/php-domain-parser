@@ -18,7 +18,7 @@ final class DomainTest extends TestCase
      */
     public function testToAsciiThrowsException(string $domain): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         Domain::fromIDNA2008($domain);
     }
@@ -37,7 +37,7 @@ final class DomainTest extends TestCase
 
     public function testToUnicodeThrowsException(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         Domain::fromIDNA2008('xn--a-ecp.ru')->toUnicode();
     }
@@ -95,6 +95,7 @@ final class DomainTest extends TestCase
 
         self::assertSame([0, 2], $domain->keys('com'));
         self::assertSame([], $domain->keys('toto'));
+        self::assertSame([0, 1, 2, 3], $domain->keys());
     }
 
     public function testLabels(): void
@@ -310,19 +311,19 @@ final class DomainTest extends TestCase
 
     public function testWithLabelFailsWithTypeError(): void
     {
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
         Domain::fromIDNA2008('example.com')->withLabel(1, new \stdClass());
     }
 
     public function testWithLabelFailsWithInvalidKey(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
         Domain::fromIDNA2008('example.com')->withLabel(-4, 'www');
     }
 
     public function testWithLabelFailsWithInvalidLabel2(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         Domain::fromIDNA2008('example.com')->withLabel(-1, '');
     }
@@ -411,7 +412,7 @@ final class DomainTest extends TestCase
 
     public function testwithoutLabelFailsWithInvalidKey(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
         Domain::fromIDNA2008('example.com')->withoutLabel(-3);
     }
 
@@ -502,7 +503,7 @@ final class DomainTest extends TestCase
 
     public function testSliceThrowsOnOverFlow(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         Domain::fromIDNA2008('ulb.ac.be')->slice(5);
     }

@@ -171,10 +171,6 @@ final class TopLevelDomains implements RootZoneDatabase
             throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
         }
 
-        if (1 !== $tld->count() || '' === $tld->value()) {
-            throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content);
-        }
-
         return $tld->toString();
     }
 
@@ -278,8 +274,13 @@ final class TopLevelDomains implements RootZoneDatabase
             $domain = $domain->domain();
         }
 
-        if (!($domain instanceof DomainName)) {
+        if (!$domain instanceof DomainName) {
             $domain = Domain::fromIDNA2008($domain);
+        }
+
+        $label = $domain->label(0);
+        if (in_array($label, [null, ''], true)) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
         return $domain;
@@ -288,10 +289,6 @@ final class TopLevelDomains implements RootZoneDatabase
     private function containsTopLevelDomain(DomainName $domain): bool
     {
         $label = $domain->toAscii()->label(0);
-        if (in_array($label, [null, ''], true)) {
-            return false;
-        }
-
         foreach ($this as $tld) {
             if ($tld->value() === $label) {
                 return true;

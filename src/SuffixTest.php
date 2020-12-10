@@ -12,6 +12,15 @@ use function json_encode;
  */
 final class SuffixTest extends TestCase
 {
+    public function testItCanBeCreatedWithAnotherResolvedDomain(): void
+    {
+        $domain = Suffix::fromICANN('ac.be');
+        $newDomain = Suffix::fromPrivate($domain);
+
+        self::assertEquals($domain->domain(), $newDomain->domain());
+        self::assertNotEquals($domain->isICANN(), $newDomain->isICANN());
+    }
+
     public function testInternalPhpMethod(): void
     {
         $publicSuffix = Suffix::fromICANN('ac.be');
@@ -32,7 +41,7 @@ final class SuffixTest extends TestCase
      */
     public function testConstructorThrowsException(string $publicSuffix): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         Suffix::fromUnknown($publicSuffix);
     }
@@ -58,7 +67,7 @@ final class SuffixTest extends TestCase
         self::assertFalse($suffix->isPrivate());
         self::assertFalse($suffix->isIANA());
         self::assertSame('be', $suffix->domain()->toString());
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         Suffix::fromICANN(null);
     }
@@ -74,7 +83,7 @@ final class SuffixTest extends TestCase
         self::assertFalse($suffix->isIANA());
         self::assertSame('be', $suffix->domain()->toString());
 
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         Suffix::fromPrivate(null);
     }
@@ -90,7 +99,7 @@ final class SuffixTest extends TestCase
         self::assertTrue($suffix->isIANA());
         self::assertSame('be', $suffix->domain()->toString());
 
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         Suffix::fromIANA('ac.be');
     }
