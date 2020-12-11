@@ -42,11 +42,11 @@ final class IntlIdna
      *
      * @throws SyntaxError if the string can not be converted to ASCII using IDN UTS46 algorithm
      */
-    public static function toAscii(string $domain, int $option): IdnaResult
+    public static function toAscii(string $domain, int $option): IdnaInfo
     {
         $domain = rawurldecode($domain);
         if (1 !== preg_match(self::REGEXP_IDNA_PATTERN, $domain)) {
-            return IdnaResult::fromIntl([
+            return IdnaInfo::fromIntl([
                 'result' => strtolower($domain),
                 'isTransitionalDifferent' => false,
                 'errors' => 0,
@@ -65,10 +65,10 @@ final class IntlIdna
      *
      * @throws SyntaxError if the string can not be converted to UNICODE using IDN UTS46 algorithm
      */
-    public static function toUnicode(string $domain, int $option): IdnaResult
+    public static function toUnicode(string $domain, int $option): IdnaInfo
     {
         if (false === strpos($domain, 'xn--')) {
-            return IdnaResult::fromIntl([
+            return IdnaInfo::fromIntl([
                 'result' => $domain,
                 'isTransitionalDifferent' => false,
                 'errors' => 0,
@@ -83,10 +83,10 @@ final class IntlIdna
     /**
      * @param array{result:string, isTransitionalDifferent:bool, errors:int} $infos
      */
-    private static function createIdnaResult(string $domain, array $infos): IdnaResult
+    private static function createIdnaResult(string $domain, array $infos): IdnaInfo
     {
-        $result = IdnaResult::fromIntl($infos);
-        if ([] !== $result->errors()) {
+        $result = IdnaInfo::fromIntl($infos);
+        if (0 !== $result->errors()) {
             throw SyntaxError::dueToIDNAError($domain, $result);
         }
 

@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace Pdp;
 
 use function array_filter;
-use function array_keys;
-use function array_reduce;
 use const ARRAY_FILTER_USE_KEY;
 
-final class IdnaResult
+/**
+ * @see https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/uidna_8h.html
+ */
+final class IdnaInfo
 {
     /**
      * IDNA errors.
-     *
-     * @see https://unicode-org.github.io/icu-docs/apidoc/dev/icu4j/
      */
     public const ERROR_EMPTY_LABEL            = 1;
     public const ERROR_LABEL_TOO_LONG         = 2;
@@ -54,18 +53,12 @@ final class IdnaResult
 
     private bool $isTransitionalDifferent;
 
-    /**
-     * @var array<int, string>
-     */
-    private array $errors;
+    private int $errors;
 
-    /**
-     * @param array<int, string> $error
-     */
-    private function __construct(string $result, bool $isTransitionalDifferent, array $error)
+    private function __construct(string $result, bool $isTransitionalDifferent, int $errors)
     {
         $this->result = $result;
-        $this->errors = $error;
+        $this->errors = $errors;
         $this->isTransitionalDifferent = $isTransitionalDifferent;
     }
 
@@ -74,23 +67,15 @@ final class IdnaResult
      */
     public static function fromIntl(array $infos): self
     {
-        return new self(
-            $infos['result'],
-            $infos['isTransitionalDifferent'],
-            array_filter(
-                self::ERRORS,
-                fn (int $errorByte): bool => 0 !== ($errorByte & $infos['errors']),
-                ARRAY_FILTER_USE_KEY
-            )
-        );
+        return new self($infos['result'], $infos['isTransitionalDifferent'], $infos['errors']);
     }
 
     /**
-     * @param array{result:string, isTransitionalDifferent:bool, errors:array<int, string>} $properties
+     * @param array{result:string, isTransitionalDifferent:bool, errors:int} $properties
      */
     public static function __set_state(array $properties): self
     {
-        return new self($properties['result'], $properties['isTransitionalDifferent'], $properties['errors']);
+        return self::fromIntl($properties);
     }
 
     public function result(): string
@@ -103,32 +88,25 @@ final class IdnaResult
         return $this->isTransitionalDifferent;
     }
 
-    /**
-     * @return array<int, string>
-     */
-    public function errors(): array
+    public function errors(): int
     {
         return $this->errors;
     }
 
     public function error(int $error): ?string
     {
-        return $this->errors[$error] ?? null;
+        return 0 === ($this->errors & $error) ? null : self::ERRORS[$error];
     }
 
     /**
-     * @return array{result:string, isTransitionalDifferent:bool, errors:int}
+     * @return array<int, string>
      */
-    public function toIntl(): array
+    public function errorList(): array
     {
-        return [
-            'result' => $this->result,
-            'isTransitionalDifferent' => $this->isTransitionalDifferent,
-            'errors' => array_reduce(
-                array_keys($this->errors),
-                fn (int $curry, int $errorByte): int => $curry | $errorByte,
-                0
-            ),
-        ];
+        return array_filter(
+            self::ERRORS,
+            fn (int $errorByte): bool => 0 !== ($errorByte & $this->errors),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 }

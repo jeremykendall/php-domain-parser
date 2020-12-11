@@ -8,9 +8,9 @@ use InvalidArgumentException;
 
 class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 {
-    private ?IdnaResult $idnaResult;
+    private ?IdnaInfo $idnaResult;
 
-    public function fetchIdnaResult(): ?IdnaResult
+    public function fetchIdnaResult(): ?IdnaInfo
     {
         return $this->idnaResult;
     }
@@ -25,7 +25,7 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
         return new self('The host `'.$domain.'` is invalid: its length is longer than 255 bytes in its storage form.');
     }
 
-    public static function dueToIDNAError(string $domain, IdnaResult $result): self
+    public static function dueToIDNAError(string $domain, IdnaInfo $result): self
     {
         $exception = new self('The host `'.$domain.'` is invalid for IDN conversion.');
         $exception->idnaResult = $result;
