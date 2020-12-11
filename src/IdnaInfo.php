@@ -36,11 +36,21 @@ final class IdnaInfo
 
     private int $errors;
 
+    /**
+     * @var array<int, string>
+     */
+    private array $errorList;
+
     private function __construct(string $result, bool $isTransitionalDifferent, int $errors)
     {
         $this->result = $result;
         $this->errors = $errors;
         $this->isTransitionalDifferent = $isTransitionalDifferent;
+        $this->errorList = array_filter(
+            self::ERRORS,
+            fn (int $error): bool => 0 !== ($error & $this->errors),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
     /**
@@ -76,7 +86,7 @@ final class IdnaInfo
 
     public function error(int $error): ?string
     {
-        return 0 === ($this->errors & $error) ? null : self::ERRORS[$error];
+        return $this->errorList[$error] ?? null;
     }
 
     /**
@@ -84,10 +94,6 @@ final class IdnaInfo
      */
     public function errorList(): array
     {
-        return array_filter(
-            self::ERRORS,
-            fn (int $errorByte): bool => 0 !== ($errorByte & $this->errors),
-            ARRAY_FILTER_USE_KEY
-        );
+        return $this->errorList;
     }
 }
