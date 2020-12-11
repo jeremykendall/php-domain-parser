@@ -164,7 +164,7 @@ final class Domain implements DomainName
             $option = IntlIdna::IDNA2003_ASCII_OPTIONS;
         }
 
-        return IntlIdna::toAscii($domain, $option);
+        return IntlIdna::toAscii($domain, $option)->result();
     }
 
     private function domainToUnicode(string $domain): string
@@ -174,7 +174,7 @@ final class Domain implements DomainName
             $option = IntlIdna::IDNA2003_UNICODE_OPTIONS;
         }
 
-        return IntlIdna::toUnicode($domain, $option);
+        return IntlIdna::toUnicode($domain, $option)->result();
     }
 
     /**

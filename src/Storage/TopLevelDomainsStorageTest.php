@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\PublicSuffixList;
 use Pdp\RootZoneDatabase;
-use Pdp\Rules;
 use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use function dirname;

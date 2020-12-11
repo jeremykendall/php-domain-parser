@@ -8,6 +8,13 @@ use InvalidArgumentException;
 
 class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 {
+    private ?IdnaResult $idnaResult;
+
+    public function fetchIdnaResult(): ?IdnaResult
+    {
+        return $this->idnaResult;
+    }
+
     public static function dueToInvalidCharacters(string $domain): self
     {
         return new self('The host `'.$domain.'` is invalid: it contains invalid characters.');
@@ -18,11 +25,12 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
         return new self('The host `'.$domain.'` is invalid: its length is longer than 255 bytes in its storage form.');
     }
 
-    public static function dueToIDNAError(string $domain, string $message = ''): self
+    public static function dueToIDNAError(string $domain, IdnaResult $result): self
     {
-        $str = '' === $message ? 'The host `'.$domain.'` is invalid.' : 'The host `'.$domain.'` is invalid : '.$message;
+        $exception = new self('The host `'.$domain.'` is invalid for IDN conversion.');
+        $exception->idnaResult = $result;
 
-        return new self($str);
+        return $exception;
     }
 
     public static function dueToInvalidSuffix(Host $publicSuffix, string $type = ''): self
