@@ -191,9 +191,6 @@ EOF;
         );
         self::assertFalse($topLevelDomains->isEmpty());
         self::assertArrayHasKey('lastUpdated', $topLevelDomains->jsonSerialize());
-        foreach ($topLevelDomains as $tld) {
-            self::assertInstanceOf(Suffix::class, $tld);
-        }
     }
 
     /**

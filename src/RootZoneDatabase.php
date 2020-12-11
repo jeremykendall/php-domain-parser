@@ -11,7 +11,7 @@ use IteratorAggregate;
 use JsonSerializable;
 
 /**
- * @extends IteratorAggregate<EffectiveTopLevelDomain>
+ * @extends IteratorAggregate<string>
  */
 interface RootZoneDatabase extends Countable, DomainNameResolver, IteratorAggregate, JsonSerializable
 {
@@ -36,7 +36,7 @@ interface RootZoneDatabase extends Countable, DomainNameResolver, IteratorAggreg
     public function isEmpty(): bool;
 
     /**
-     * @return Iterator<EffectiveTopLevelDomain>
+     * @return Iterator<string>
      */
     public function getIterator(): Iterator;
 

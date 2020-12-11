@@ -162,7 +162,7 @@ final class Rules implements PublicSuffixList
         try {
             /** @var string $line */
             $line = array_pop($ruleParts);
-            $rule = IntlIdna::toAscii($line, IntlIdna::IDNA2008_ASCII_OPTIONS)->result();
+            $rule = IntlIdna::toAscii($line, IntlIdna::IDNA2008_ASCII)->result();
         } catch (CannotProcessHost $exception) {
             throw UnableToLoadPublicSuffixList::dueToInvalidRule($line ?? null, $exception);
         }

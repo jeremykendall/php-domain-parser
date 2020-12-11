@@ -166,7 +166,7 @@ final class TopLevelDomains implements RootZoneDatabase
     private static function extractRootZone(string $content): string
     {
         try {
-            $tld = Suffix::fromIANA($content)->toAscii();
+            $tld = Suffix::fromIANA($content);
         } catch (CannotProcessHost $exception) {
             throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
         }
@@ -221,12 +221,12 @@ final class TopLevelDomains implements RootZoneDatabase
     }
 
     /**
-     * @return Iterator<EffectiveTopLevelDomain>
+     * @return Iterator<string>
      */
     public function getIterator(): Iterator
     {
         foreach ($this->records as $tld) {
-            yield Suffix::fromIANA($tld)->toAscii();
+            yield $tld;
         }
     }
 
@@ -290,7 +290,7 @@ final class TopLevelDomains implements RootZoneDatabase
     {
         $label = $domain->toAscii()->label(0);
         foreach ($this as $tld) {
-            if ($tld->value() === $label) {
+            if ($tld === $label) {
                 return true;
             }
         }

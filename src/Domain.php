@@ -159,20 +159,14 @@ final class Domain implements DomainName
 
     private function domainToAscii(string $domain): string
     {
-        $option = IntlIdna::IDNA2008_ASCII_OPTIONS;
-        if (self::IDNA_2003 === $this->type) {
-            $option = IntlIdna::IDNA2003_ASCII_OPTIONS;
-        }
+        $option = self::IDNA_2003 === $this->type ? IntlIdna::IDNA2003_ASCII : IntlIdna::IDNA2008_ASCII;
 
         return IntlIdna::toAscii($domain, $option)->result();
     }
 
     private function domainToUnicode(string $domain): string
     {
-        $option = IntlIdna::IDNA2008_UNICODE_OPTIONS;
-        if (self::IDNA_2003 === $this->type) {
-            $option = IntlIdna::IDNA2003_UNICODE_OPTIONS;
-        }
+        $option = self::IDNA_2003 === $this->type ? IntlIdna::IDNA2003_UNICODE : IntlIdna::IDNA2008_UNICODE;
 
         return IntlIdna::toUnicode($domain, $option)->result();
     }
