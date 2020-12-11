@@ -47,8 +47,8 @@ You need:
 
 This library can resolve a domain against:
  
-- The [Public Suffix List](http://publicsuffix.org/)
-- The [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)
+- The [Public Suffix List](https://publicsuffix.org/)
+- The [IANA Root Zone Database](https://www.iana.org/domains/root/files)
 
 In both cases this is done using the `resolve` method implemented on the resource 
 instance. The method returns a `Pdp\ResolvedDomain` object which represents the 
@@ -72,7 +72,7 @@ echo $result->suffix()->toString();            //display 'okinawa.jp';
 $result->suffix()->isICANN();                  //return true;
 ~~~
 
-For the [IANA Root Zone Database](https://data.iana.org/TLD/tlds-alpha-by-domain.txt),
+For the [IANA Root Zone Database](https://www.iana.org/domains/root/files),
 the `Pdp\TopLevelDomains` class is use instead:
 
 ~~~php
@@ -317,8 +317,6 @@ $newDomain = $domain
     ->withoutLabel(0, -1)  //remove the first and last labels
     ->append('www')
     ->prepend('docs.example');
-
-
 
 echo $domain->toString();           //display 'www.example.com'
 echo $newDomain->toString();        //display 'docs.example.com.www'
