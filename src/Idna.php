@@ -87,11 +87,7 @@ final class Idna
     {
         $domain = rawurldecode($domain);
         if (1 !== preg_match(self::REGEXP_IDNA_PATTERN, $domain)) {
-            return IdnaInfo::fromIntl([
-                'result' => strtolower($domain),
-                'isTransitionalDifferent' => false,
-                'errors' => 0,
-            ]);
+            return IdnaInfo::fromIntl(['result' => strtolower($domain), 'isTransitionalDifferent' => false, 'errors' => 0]);
         }
 
         self::supportIdna();
@@ -111,11 +107,7 @@ final class Idna
     public static function toUnicode(string $domain, int $options): IdnaInfo
     {
         if (false === strpos($domain, 'xn--')) {
-            return IdnaInfo::fromIntl([
-                'result' => $domain,
-                'isTransitionalDifferent' => false,
-                'errors' => 0,
-            ]);
+            return IdnaInfo::fromIntl(['result' => $domain, 'isTransitionalDifferent' => false, 'errors' => 0]);
         }
 
         self::supportIdna();

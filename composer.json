@@ -69,7 +69,7 @@
     },
     "scripts": {
         "phpcs": "php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi",
-        "phpstan": "phpstan analyse -l max -c phpstan.neon src --ansi --memory-limit 192M",
+        "phpstan": "phpstan analyse -l max -c phpstan.neon src --ansi",
         "phpunit": "phpunit --coverage-text",
         "test": [
             "@phpcs",
