@@ -6,13 +6,14 @@ namespace Pdp;
 
 use InvalidArgumentException;
 
-class SyntaxError extends InvalidArgumentException implements CannotProcessHost
+final class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 {
-    private ?IdnaInfo $idnaResult;
+    private ?IdnaInfo $idnaInfo;
 
-    public function fetchIdnaResult(): ?IdnaInfo
+    private function __construct(string $message, IdnaInfo $idnaInfo = null)
     {
-        return $this->idnaResult;
+        parent::__construct($message);
+        $this->idnaInfo = $idnaInfo;
     }
 
     public static function dueToInvalidCharacters(string $domain): self
@@ -25,21 +26,18 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
         return new self('The host `'.$domain.'` is invalid: its length is longer than 255 bytes in its storage form.');
     }
 
-    public static function dueToIDNAError(string $domain, IdnaInfo $result): self
+    public static function dueToIDNAError(string $domain, IdnaInfo $idnaInfo): self
     {
-        $exception = new self('The host `'.$domain.'` is invalid for IDN conversion.');
-        $exception->idnaResult = $result;
-
-        return $exception;
+        return new self('The host `'.$domain.'` is invalid for IDN conversion.', $idnaInfo);
     }
 
     public static function dueToInvalidSuffix(Host $publicSuffix, string $type = ''): self
     {
         if ('' === $type) {
-            return new self('The suffix `"'.$publicSuffix->value() ?? 'NULL'.'"` is invalid.');
+            return new self('The suffix `"'.($publicSuffix->value() ?? 'NULL').'"` is invalid.');
         }
 
-        return new self('The suffix `"'.$publicSuffix->value() ?? 'NULL'.'"` is an invalid `'.$type.'` suffix.');
+        return new self('The suffix `"'.($publicSuffix->value() ?? 'NULL').'"` is an invalid `'.$type.'` suffix.');
     }
 
     public static function dueToUnsupportedType(string $domain): self
@@ -50,5 +48,10 @@ class SyntaxError extends InvalidArgumentException implements CannotProcessHost
     public static function dueToInvalidLabelKey(Host $domain, int $key): self
     {
         return new self('the given key `'.$key.'` is invalid for the domain `'.($domain->value() ?? 'NULL').'`.');
+    }
+
+    public function idnaInfo(): ?IdnaInfo
+    {
+        return $this->idnaInfo;
     }
 }

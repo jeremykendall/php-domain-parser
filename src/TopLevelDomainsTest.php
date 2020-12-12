@@ -71,7 +71,7 @@ final class TopLevelDomainsTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{0:string}>
      */
     public function invalidContentProvider(): iterable
     {
@@ -191,6 +191,13 @@ EOF;
         );
         self::assertFalse($topLevelDomains->isEmpty());
         self::assertArrayHasKey('lastUpdated', $topLevelDomains->jsonSerialize());
+    }
+
+    public function testIterator(): void
+    {
+        foreach (self::$topLevelDomains as $tld) {
+            self::assertStringNotContainsString($tld, '.');
+        }
     }
 
     /**

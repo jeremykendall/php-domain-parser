@@ -53,7 +53,7 @@ final class TopLevelDomainsStorageTest extends TestCase
                 return null;
             }
 
-            public function remember(string $uri, TopLevelDomainList $publicSuffixList): bool
+            public function remember(string $uri, TopLevelDomainList $topLevelDomainList): bool
             {
                 return true;
             }
@@ -84,7 +84,7 @@ final class TopLevelDomainsStorageTest extends TestCase
                 return null;
             }
 
-            public function remember(string $uri, TopLevelDomainList $publicSuffixList): bool
+            public function remember(string $uri, TopLevelDomainList $topLevelDomainList): bool
             {
                 return true;
             }

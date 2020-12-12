@@ -24,7 +24,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{0:string}>
      */
     public function invalidDomainProvider(): iterable
     {
@@ -66,7 +66,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{0:string|null, 1:int, 2:array<string>}>
      */
     public function countableProvider(): iterable
     {
@@ -131,7 +131,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:string|null, expectedDomain:string|null, expectedIDNDomain:string|null}>
      */
     public function toUnicodeProvider(): iterable
     {
@@ -194,7 +194,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:string|null, expectedDomain:string|null, expectedIDNDomain:string|null}>
      */
     public function toAsciiProvider(): iterable
     {
@@ -232,14 +232,14 @@ final class DomainTest extends TestCase
      *
      * @param ?string $expected
      */
-    public function testWithLabelWorks(Domain $domain, int $key, string $label, ?string $expected): void
+    public function testWithLabelWorks(DomainName $domain, int $key, string $label, ?string $expected): void
     {
         $result = $domain->withLabel($key, $label);
         self::assertSame($expected, $result->value());
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:DomainName, key:int, label:string, expected:string}>
      */
     public function withLabelWorksProvider(): iterable
     {
@@ -337,7 +337,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<array>
+     * @return iterable<array{0:string, 1:string, 2:string}>
      */
     public function validAppend(): iterable
     {
@@ -358,7 +358,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<array>
+     * @return iterable<array{0:string, 1:string, 2:string}>
      */
     public function validPrepend(): iterable
     {
@@ -373,14 +373,14 @@ final class DomainTest extends TestCase
      * @dataProvider withoutLabelWorksProvider
      * @param ?string $expected
      */
-    public function testwithoutLabelWorks(Domain $domain, int $key, ?string $expected): void
+    public function testwithoutLabelWorks(DomainName $domain, int $key, ?string $expected): void
     {
         $result = $domain->withoutLabel($key);
         self::assertSame($expected, $result->value());
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:DomainName, key:int, expected:string}>
      */
     public function withoutLabelWorksProvider(): iterable
     {
@@ -444,7 +444,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array<string>>
      */
     public function resolveCustomIDNAOptionsProvider(): iterable
     {

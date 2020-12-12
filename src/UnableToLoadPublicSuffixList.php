@@ -21,7 +21,7 @@ final class UnableToLoadPublicSuffixList extends InvalidArgumentException implem
 
     public static function dueToInvalidRule(?string $line, Throwable $exception): self
     {
-        return new self('The following rule "'.$line ?? 'NULL'.'" could not be processed because it is invalid.', 0, $exception);
+        return new self('The following rule "'.($line ?? 'NULL').'" could not be processed because it is invalid.', 0, $exception);
     }
 
     public static function dueToCorruptedSection(): self

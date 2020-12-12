@@ -43,7 +43,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:string, length:int}>
      */
     public function provideWrongConstructor(): iterable
     {
@@ -78,7 +78,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{0:string|null, 1:int}>
      */
     public function countableProvider(): iterable
     {
@@ -118,7 +118,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:string|null, publicSuffix:string|null, expectedDomain:string|null, expectedSuffix:string|null, expectedIDNDomain:string|null, expectedIDNSuffix:string|null}>
      */
     public function toUnicodeProvider(): iterable
     {
@@ -210,7 +210,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:string|null, publicSuffix:string|null, expectedDomain:string|null, expectedSuffix:string|null, expectedIDNDomain:string|null, expectedIDNSuffix:string|null}>
      */
     public function toAsciiProvider(): iterable
     {
@@ -261,10 +261,9 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @dataProvider withSubDomainWorksProvider
      *
-     * @param mixed   $subdomain the subdomain to add
-     * @param ?string $expected
+     * @param DomainName|string|null $subdomain the subdomain to add
      */
-    public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, $subdomain, ?string $expected): void
+    public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, $subdomain, string $expected = null): void
     {
         $result = $domain->withSubDomain($subdomain);
 
@@ -274,7 +273,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:ResolvedDomain, subdomain:DomainName|string|null, expected:string|null}>
      */
     public function withSubDomainWorksProvider(): iterable
     {
@@ -359,7 +358,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string, array{domain:ResolvedDomain, publicSuffix:EffectiveTopLevelDomain|string|null, expected:string|null, isKnown:bool,isICANN:bool, isPrivate:bool}>
      */
     public function withPublicSuffixWorksProvider(): iterable
     {
@@ -450,19 +449,15 @@ final class ResolvedDomainTest extends TestCase
 
     /**
      * @dataProvider resolveCustomIDNAOptionsProvider
-     * @param ?string $expectedContent
-     * @param ?string $expectedAscii
-     * @param ?string $expectedUnicode
-     * @param ?string $expectedRegistrable
      * @param ?string $expectedSubDomain
      */
     public function testItCanWorksWithIDNAOptions(
         string $domainName,
         string $publicSuffix,
-        ?string $expectedContent,
-        ?string $expectedAscii,
-        ?string $expectedUnicode,
-        ?string $expectedRegistrable,
+        string $expectedContent,
+        string $expectedAscii,
+        string $expectedUnicode,
+        string $expectedRegistrable,
         ?string $expectedSubDomain
     ): void {
         $resolvedDomain = ResolvedDomain::fromICANN($domainName, count(Domain::fromIDNA2008($publicSuffix)));
@@ -475,7 +470,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{0:string, 1:string, 2:string, 3:string, 4:string, 5:string, 6:string|null}>
      */
     public function resolveCustomIDNAOptionsProvider(): iterable
     {
@@ -544,7 +539,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<array>
+     * @return iterable<array{host:string|null, publicSuffix:string|null, sld:string|null, expectedSld:string|null, expectedHost:string|null}>
      */
     public function withSldWorksProvider(): iterable
     {

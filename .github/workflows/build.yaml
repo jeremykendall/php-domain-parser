@@ -1,5 +1,5 @@
 ---
-name: Quality Assurance
+name: Build
 on:
     push: ~
     pull_request: ~
@@ -21,8 +21,10 @@ jobs:
                   coverage: pcov
                   tools: composer:v2
             - run: composer update --no-progress ${{ matrix.composer-flags }}
-            - run: vendor/bin/php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi
+            - run: composer phpunit
+            - run: composer phpstan
               if: ${{ matrix.php == '7.4' }}
-            - run: vendor/bin/phpstan analyse -l max -c phpstan.neon src --ansi
+            - run: composer psalm
               if: ${{ matrix.php == '7.4' }}
-            - run: vendor/bin/phpunit ${{ matrix.phpunit-flags }}
+            - run: composer phpcs
+              if: ${{ matrix.php == '7.4' }}

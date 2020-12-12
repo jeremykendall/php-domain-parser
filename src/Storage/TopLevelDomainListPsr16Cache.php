@@ -10,8 +10,8 @@ use DateTimeInterface;
 use DateTimeZone;
 use InvalidArgumentException;
 use Pdp\TopLevelDomainList;
-use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
+use Throwable;
 use TypeError;
 use function filter_var;
 use function is_string;
@@ -108,7 +108,7 @@ final class TopLevelDomainListPsr16Cache implements TopLevelDomainListCache
     {
         try {
             return $this->cache->set($this->cacheKey($uri), $topLevelDomainList, $this->cacheTtl);
-        } catch (CacheException $exception) {
+        } catch (Throwable $exception) {
             return false;
         }
     }

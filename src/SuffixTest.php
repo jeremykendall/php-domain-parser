@@ -35,7 +35,6 @@ final class SuffixTest extends TestCase
         self::assertSame('bébe', Suffix::fromUnknown('b%C3%A9be')->toUnicode()->value());
     }
 
-
     /**
      * @dataProvider invalidPublicSuffixProvider
      */
@@ -47,7 +46,7 @@ final class SuffixTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array<string>>
      */
     public function invalidPublicSuffixProvider(): iterable
     {
@@ -117,7 +116,7 @@ final class SuffixTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{0:null|string}>
      */
     public function conversionReturnsTheSameInstanceProvider(): iterable
     {
@@ -146,7 +145,7 @@ final class SuffixTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string, array{0:string|null, 1:int, 2:array<string>}>
      */
     public function countableProvider(): iterable
     {

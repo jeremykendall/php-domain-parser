@@ -278,7 +278,7 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{publicSuffix:string|null,registrableDomain:string|null,domain:string,expectedDomain:string|null}>
      */
     public function parseDataProvider(): iterable
     {
@@ -401,7 +401,7 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{0:string}>
      */
     public function invalidDomainParseProvider(): iterable
     {
@@ -427,7 +427,7 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{0:string}>
      */
     public function invalidHostParseProvider(): iterable
     {
@@ -456,7 +456,7 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{domain:string, expected:string}>
      */
     public function validPublicSectionProvider(): iterable
     {
@@ -613,7 +613,7 @@ final class RulesTest extends TestCase
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array{host:string, cookieETLD:string, icannETLD:string, privateETLD:string}>
      */
     public function effectiveTLDProvider(): iterable
     {

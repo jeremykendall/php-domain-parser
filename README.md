@@ -1,8 +1,8 @@
 # PHP Domain Parser
 
-**PHP Domain Parser** is domain parser implemented in PHP.
+**PHP Domain Parser** is a resource based domain parser implemented in PHP.
 
-![Quality Assurance](https://github.com/jeremykendall/php-domain-parser/workflows/Quality%20Assurance/badge.svg)
+[![Build Status][ico-github-actions-build]][link-github-actions-build]
 [![Total Downloads][ico-packagist]][link-packagist]
 [![Latest Stable Version][ico-release]][link-release]
 [![Software License][ico-license]][link-license]
@@ -579,10 +579,12 @@ Portions of the `Pdp\Converter` and `Pdp\Rules` are derivative works of the PHP
 Those parts of this codebase are heavily commented, and I've included a copy of
 the Apache Software Foundation License 2.0 in this project.
 
+[ico-github-actions-build]: https://img.shields.io/github/workflow/status/jeremykendall/php-domain-parser/Build?style=flat-square
 [ico-packagist]: https://img.shields.io/packagist/dt/jeremykendall/php-domain-parser.svg?style=flat-square
 [ico-release]: https://img.shields.io/github/release/jeremykendall/php-domain-parser.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 
+[link-github-actions-build]: https://github.com/jeremykendall/php-domain-parser/actions?query=workflow%3ABuild
 [link-packagist]: https://packagist.org/packages/jeremykendall/php-domain-parser
 [link-release]: https://github.com/jeremykendall/php-domain-parser/releases
 [link-license]: https://github.com/jeremykendall/php-domain-parser/blob/master/LICENSE

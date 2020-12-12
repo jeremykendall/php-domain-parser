@@ -10,8 +10,8 @@ use DateTimeInterface;
 use DateTimeZone;
 use InvalidArgumentException;
 use Pdp\PublicSuffixList;
-use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
+use Throwable;
 use TypeError;
 use function filter_var;
 use function is_string;
@@ -110,7 +110,7 @@ final class PublicSuffixListPsr16Cache implements PublicSuffixListCache
     {
         try {
             return $this->cache->set($this->cacheKey($uri), $publicSuffixList, $this->cacheTtl);
-        } catch (CacheException $exception) {
+        } catch (Throwable $exception) {
             return false;
         }
     }

@@ -35,7 +35,7 @@ final class IdnaInfoTest extends TestCase
         try {
             Idna::toAscii('％００.com', Idna::IDNA2008_ASCII);
         } catch (SyntaxError $exception) {
-            $result = $exception->fetchIdnaResult();
+            $result = $exception->idnaInfo();
             self::assertInstanceOf(IdnaInfo::class, $result);
             self::assertSame(Idna::ERROR_DISALLOWED, $result->errors());
             self::assertIsString($result->error(Idna::ERROR_DISALLOWED));

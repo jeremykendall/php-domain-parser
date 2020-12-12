@@ -65,12 +65,7 @@ final class Rules implements PublicSuffixList
      */
     public static function fromPath(string $path, $context = null): self
     {
-        $args = [$path, 'r', false];
-        if (null !== $context) {
-            $args[] = $context;
-        }
-
-        $resource = @fopen(...$args);
+        $resource = self::getResource($path, $context);
         if (false === $resource) {
             throw UnableToLoadPublicSuffixList::dueToInvalidPath($path);
         }
@@ -80,6 +75,20 @@ final class Rules implements PublicSuffixList
         fclose($resource);
 
         return self::fromString($content);
+    }
+
+    /**
+     * @param null|resource $context
+     *
+     * @return false|resource
+     */
+    private static function getResource(string $path, $context = null)
+    {
+        if (null === $context) {
+            return @fopen($path, 'r');
+        }
+
+        return @fopen($path, 'r', false, $context);
     }
 
     /**
@@ -220,7 +229,7 @@ final class Rules implements PublicSuffixList
         try {
             return $this->getCookieDomain($host);
         } catch (UnableToResolveDomain $exception) {
-            return ResolvedDomain::fromUnknown($exception->getDomain());
+            return ResolvedDomain::fromUnknown($exception->domain());
         } catch (SyntaxError $exception) {
             return ResolvedDomain::fromUnknown(Domain::fromIDNA2008(null));
         }
