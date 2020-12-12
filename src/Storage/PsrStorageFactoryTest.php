@@ -24,7 +24,7 @@ final class PsrStorageFactoryTest extends TestCase
 
     public function testItCanReturnARootZoneDatabaseStorageInstance(): void
     {
-        $instance = $this->factory->createRootZoneDatabaseStorage('foobar', '1 DAY');
+        $instance = $this->factory->createTopLevelDomainListStorage('foobar', '1 DAY');
 
         self::assertInstanceOf(TopLevelDomainsStorage::class, $instance);
     }

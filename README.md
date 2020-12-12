@@ -22,7 +22,7 @@ You can't regex that.
 PHP Domain Parser is compliant around:
 
 - accurate Public Suffix List based parsing.
-- accurate Root Zone Database parsing.
+- accurate IANA Top Level Domain List parsing.
 
 ## Installation
 
@@ -48,7 +48,7 @@ You need:
 This library can resolve a domain against:
  
 - The [Public Suffix List](https://publicsuffix.org/)
-- The [IANA Root Zone Database](https://www.iana.org/domains/root/files)
+- The [IANA Top Level Domain List](https://www.iana.org/domains/root/files)
 
 In both cases this is done using the `resolve` method implemented on the resource 
 instance. The method returns a `Pdp\ResolvedDomain` object which represents the 
@@ -72,15 +72,15 @@ echo $result->suffix()->toString();            //display 'okinawa.jp';
 $result->suffix()->isICANN();                  //return true;
 ~~~
 
-For the [IANA Root Zone Database](https://www.iana.org/domains/root/files),
+For the [IANA Top Level Domain List](https://www.iana.org/domains/root/files),
 the `Pdp\TopLevelDomains` class is use instead:
 
 ~~~php
 use Pdp\TopLevelDomains;
 
-$rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
+$topLevelDomains = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
 
-$result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
+$result = $topLevelDomains->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->suffix()->toString();            //display 'jp';
 echo $result->secondLevelDomain()->toString(); //display 'okinawa';
@@ -100,8 +100,8 @@ namely:
 - `Rules::getICANNDomain`
 - `Rules::getPrivateDomain`
 
-for the Public Suffix List and the following method for the Root Zone
-Database:
+for the Public Suffix List and the following method for the Top Level
+Domain List:
 
 - `TopLevelDomains::getIANADomain`
 
@@ -132,8 +132,8 @@ $result->suffix()->value();   // returns null
 $result->suffix()->isKnown(); // returns false
 // will not throw but its public suffix value equal to NULL
 
-$rootZoneDatabase = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
-$rootZoneDatabase->getIANADomain('com');
+$topLevelDomains = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
+$topLevelDomains->getIANADomain('com');
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
 ~~~
 
@@ -150,7 +150,7 @@ resolver exposes the `JsonSerialize` method.
 
 **WARNING:**
 
-**You should never use resolve domain name this way in production, without, at 
+**You should never resolve domain name this way in production, without, at 
 least, a caching mechanism to reduce PSL downloads.**
 
 **Using the Public Suffix List to determine what is a valid domain name and what 
@@ -158,8 +158,8 @@ isn't is dangerous, particularly in these days when new gTLDs are arriving at a
 rapid pace.**
 
 **If you are looking to know the validity of a Top Level Domain, the 
-IANA Root Zone Database is the proper source for this information or alternatively
-consider using directly the DNS.** 
+IANA Top Level Domain List is the proper source for this information or 
+alternatively consider using directly the DNS.** 
 
 **If you must use this library for any of the above purposes, please consider 
 integrating an updating mechanism into your software.**
@@ -172,13 +172,13 @@ Whichever methods chosen to resolve the domain on success, the package will
 return a `Pdp\ResolvedDomain` instance.
 
 The `Pdp\ResolvedDomain` decorates the `Pdp\Domain` class resolved but also 
-gives access as separate methods to the domain different components. 
+gives access as separate methods to the domain different components.
 
 ~~~php
-use Pdp\RootZoneDatabase;
+use Pdp\TopLevelDomains;
 
-/** @var RootZoneDatabase $rootZoneDatabase */
-$result = $rootZoneDatabase->resolve('www.PreF.OkiNawA.jP');
+/** @var TopLevelDomains $topLevelDomains */
+$result = $topLevelDomains->resolve('www.PreF.OkiNawA.jP');
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->suffix()->toString();            //display 'jp';
 echo $result->secondLevelDomain()->toString(); //display 'okinawa';
@@ -192,9 +192,9 @@ You can modify the returned `Pdp\ResolvedDomain` instance using the following me
 ~~~php
 <?php 
 
-use Pdp\PublicSuffixList;
+use Pdp\Rules;
 
-/** @var PublicSuffixList $publicSuffixList */
+/** @var Rules $publicSuffixList */
 $result = $publicSuffixList->resolve('shop.example.com');
 $altResult = $result
     ->withSubDomain('foo.bar')
@@ -221,9 +221,9 @@ origin.
 
 ~~~php
 <?php 
-use Pdp\PublicSuffixList;
+use Pdp\Rules;
 
-/** @var PublicSuffixList $publicSuffixList */
+/** @var Rules $publicSuffixList */
 $suffix = $publicSuffixList->resolve('example.github.io')->suffix();
 
 echo $suffix->domain()->toString(); //display 'github.io';
@@ -237,7 +237,7 @@ $suffix->isKnown();                 //will return true
 The public suffix state depends on its origin:
  
 - `isKnown` returns `true` if the value is present in the data resource.
-- `isIANA` returns `true` if the value is present in the Root Zone Database.
+- `isIANA` returns `true` if the value is present in the IANA Top Level Domain List.
 - `isPublicSuffix` returns `true` if the value is present in the Public Suffix List.
 - `isICANN` returns `true` if the value is present in the Public Suffix List ICANN section.
 - `isPrivate` returns `true` if the value is present in the Public Suffix List private section.
@@ -279,9 +279,9 @@ manipulating domain labels. You can access the object using the following method
 
 ~~~php
 <?php 
-use Pdp\PublicSuffixList;
+use Pdp\Rules;
 
-/** @var PublicSuffixList $publicSuffixList */
+/** @var Rules $publicSuffixList */
 $result = $publicSuffixList->resolve('www.bbc.co.uk');
 $domain = $result->domain();
 echo $domain->toString(); // display 'www.bbc.co.uk'
@@ -307,9 +307,9 @@ following methods:
 
 ~~~php
 <?php 
-use Pdp\PublicSuffixList;
+use Pdp\Rules;
 
-/** @var PublicSuffixList $publicSuffixList */
+/** @var Rules $publicSuffixList */
 $domain = $publicSuffixList->resolve('www.ExAmpLE.cOM')->domain();
 
 $newDomain = $domain
@@ -353,9 +353,9 @@ IDNA Compatibility Processing. Domain objects expose a `toAscii` and a
 
 ~~~php
 <?php 
-use Pdp\PublicSuffixList;
+use Pdp\Rules;
 
-/** @var PublicSuffixList $publicSuffixList */
+/** @var Rules $publicSuffixList */
 $unicodeDomain = $publicSuffixList->resolve('bébé.be')->domain();
 echo $unicodeDomain->toString(); // returns 'bébé.be'
 
@@ -416,15 +416,15 @@ nevertheless, the library comes bundle with a **optional service** which
 enables resolving domain name without the constant network overhead of 
 continuously downloading the remote databases.
 
-The interfaces defined under the `Pdp\Storage` namespace enable 
-integrating a database managing system and provide an implementation example 
+The interfaces and classes defined under the `Pdp\Storage` namespace enable 
+integrating a resource managing system and provide an implementation example 
 using PHP-FIG PSR interfaces.
 
 #### Using PHP-FIG interfaces
 
 The `Pdp\Storage\PsrStorageFactory` enables returning storage instances that
-retrieve, convert and cache the Public Suffix List and the IANA Root 
-Zone Database using standard interfaces published by the PHP-FIG.
+retrieve, convert and cache the Public Suffix List and the IANA Top Level 
+Domain List using standard interfaces published by the PHP-FIG.
 
 To work as intended, the `Pdp\Storage\PsrStorageFactory` constructor requires:
 
@@ -465,7 +465,7 @@ For the purpose of this example we will use our PSR powered solution with:
 We will cache both external sources for 24 hours in a PostgreSQL database.
 
 You are free to use other libraries/solutions/settings as long as they 
-implement the required PSR interfaces. 
+implement the required PSR interfaces.
 
 ~~~php
 <?php 
@@ -496,7 +496,7 @@ $cachePrefix = 'pdp_';
 $cacheTtl = new DateInterval('P1D');
 $factory = new PsrStorageFactory($cache, $client, $requestFactory);
 $pslStorage = $factory->createPublicSuffixListStorage($cachePrefix, $cacheTtl);
-$rzdStorage = $factory->createRootZoneDatabaseStorage($cachePrefix, $cacheTtl);
+$rzdStorage = $factory->createTopLevelDomainListStorage($cachePrefix, $cacheTtl);
 
 // if you need to force refreshing the rules 
 // before calling them (to use in a refresh script)
@@ -507,8 +507,8 @@ $publicSuffixList = $pslStorage->get(PsrStorageFactory::PUBLIC_SUFFIX_LIST_URI);
 // if you need to force refreshing the rules 
 // before calling them (to use in a refresh script)
 // uncomment this part or adapt it to you script logic
-// $rzdStorage->delete(PsrStorageFactory::ROOT_ZONE_DATABASE_URI);
-$rootZoneDatabase = $rzdStorage->get(PsrStorageFactory::ROOT_ZONE_DATABASE_URI);
+// $rzdStorage->delete(PsrStorageFactory::TOP_LEVEL_DOMAIN_LIST_URI);
+$topLevelDomains = $rzdStorage->get(PsrStorageFactory::TOP_LEVEL_DOMAIN_LIST_URI);
 ~~~
 
 **Be sure to adapt the following code to your own application.
@@ -520,8 +520,8 @@ code in your application.**
 
 ### Automatic Updates
 
-It is important to always have an up to date Public Suffix List and Root Zone
-Database.  
+It is important to always have an up to date Public Suffix List and Top Level
+Domain List.  
 This library no longer provide an out of the box script to do so as implementing
 such a job heavily depends on your application setup.
 You can use the above example script as a starting point to implement such a job.

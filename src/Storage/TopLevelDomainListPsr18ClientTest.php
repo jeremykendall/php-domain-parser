@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadRootZoneDatabase;
+use Pdp\UnableToLoadTopLevelDomainList;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -18,9 +18,9 @@ use function dirname;
 use function file_get_contents;
 
 /**
- * @coversDefaultClass \Pdp\Storage\RootZoneDatabasePsr18Client
+ * @coversDefaultClass \Pdp\Storage\TopLevelDomainListPsr18Client
  */
-final class RootZoneDatabasePsr18ClientTest extends TestCase
+final class TopLevelDomainListPsr18ClientTest extends TestCase
 {
     public function testIsCanReturnARootZoneDatabaseInstance(): void
     {
@@ -41,7 +41,7 @@ final class RootZoneDatabasePsr18ClientTest extends TestCase
             }
         };
 
-        $storage = new RootZoneDatabasePsr18Client($client, $requestFactory);
+        $storage = new TopLevelDomainListPsr18Client($client, $requestFactory);
         $rzd = $storage->get('http://www.example.com');
 
         self::assertInstanceOf(TopLevelDomains::class, $rzd);
@@ -63,10 +63,10 @@ final class RootZoneDatabasePsr18ClientTest extends TestCase
             }
         };
 
-        $this->expectException(UnableToLoadRootZoneDatabase::class);
-        $this->expectExceptionMessage('Could not access the Root Zone Database URI: `http://www.example.com`.');
+        $this->expectException(UnableToLoadTopLevelDomainList::class);
+        $this->expectExceptionMessage('Could not access the Top Level Domain List URI: `http://www.example.com`.');
 
-        $storage = new RootZoneDatabasePsr18Client($client, $requestFactory);
+        $storage = new TopLevelDomainListPsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');
     }
 
@@ -86,11 +86,11 @@ final class RootZoneDatabasePsr18ClientTest extends TestCase
             }
         };
 
-        $this->expectException(UnableToLoadRootZoneDatabase::class);
-        $this->expectExceptionMessage('Invalid response from Root Zone Database URI: `http://www.example.com`.');
+        $this->expectException(UnableToLoadTopLevelDomainList::class);
+        $this->expectExceptionMessage('Invalid response from Top Level Domain List URI: `http://www.example.com`.');
         $this->expectExceptionCode(404);
 
-        $storage = new RootZoneDatabasePsr18Client($client, $requestFactory);
+        $storage = new TopLevelDomainListPsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\RootZoneDatabase;
+use Pdp\TopLevelDomainList;
 use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use function dirname;
@@ -16,13 +16,13 @@ final class TopLevelDomainsStorageTest extends TestCase
 {
     public function testIsCanReturnARootZoneDatabaseInstanceFromCache(): void
     {
-        $cache = new class() implements RootZoneDatabaseCache {
-            public function fetch(string $uri): ?RootZoneDatabase
+        $cache = new class() implements TopLevelDomainListCache {
+            public function fetch(string $uri): ?TopLevelDomainList
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
 
-            public function remember(string $uri, RootZoneDatabase $rootZoneDatabase): bool
+            public function remember(string $uri, TopLevelDomainList $topLevelDomainList): bool
             {
                 return true;
             }
@@ -33,8 +33,8 @@ final class TopLevelDomainsStorageTest extends TestCase
             }
         };
 
-        $client = new class() implements RootZoneDatabaseClient {
-            public function get(string $uri): RootZoneDatabase
+        $client = new class() implements TopLevelDomainListClient {
+            public function get(string $uri): TopLevelDomainList
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
@@ -47,13 +47,13 @@ final class TopLevelDomainsStorageTest extends TestCase
 
     public function testIsCanReturnARootZoneDatabaseInstanceFromTheInnerStorage(): void
     {
-        $cache = new class() implements RootZoneDatabaseCache {
-            public function fetch(string $uri): ?RootZoneDatabase
+        $cache = new class() implements TopLevelDomainListCache {
+            public function fetch(string $uri): ?TopLevelDomainList
             {
                 return null;
             }
 
-            public function remember(string $uri, RootZoneDatabase $publicSuffixList): bool
+            public function remember(string $uri, TopLevelDomainList $publicSuffixList): bool
             {
                 return true;
             }
@@ -64,8 +64,8 @@ final class TopLevelDomainsStorageTest extends TestCase
             }
         };
 
-        $client = new class() implements RootZoneDatabaseClient {
-            public function get(string $uri): RootZoneDatabase
+        $client = new class() implements TopLevelDomainListClient {
+            public function get(string $uri): TopLevelDomainList
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
@@ -78,13 +78,13 @@ final class TopLevelDomainsStorageTest extends TestCase
 
     public function testIsCanDeleteARootZoneDatabaseInstanceFromTheInnerStorage(): void
     {
-        $cache = new class() implements RootZoneDatabaseCache {
-            public function fetch(string $uri): ?RootZoneDatabase
+        $cache = new class() implements TopLevelDomainListCache {
+            public function fetch(string $uri): ?TopLevelDomainList
             {
                 return null;
             }
 
-            public function remember(string $uri, RootZoneDatabase $publicSuffixList): bool
+            public function remember(string $uri, TopLevelDomainList $publicSuffixList): bool
             {
                 return true;
             }
@@ -95,8 +95,8 @@ final class TopLevelDomainsStorageTest extends TestCase
             }
         };
 
-        $client = new class() implements RootZoneDatabaseClient {
-            public function get(string $uri): RootZoneDatabase
+        $client = new class() implements TopLevelDomainListClient {
+            public function get(string $uri): TopLevelDomainList
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }

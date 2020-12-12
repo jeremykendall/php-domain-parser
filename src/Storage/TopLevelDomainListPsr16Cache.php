@@ -9,7 +9,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use InvalidArgumentException;
-use Pdp\RootZoneDatabase;
+use Pdp\TopLevelDomainList;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use TypeError;
@@ -19,7 +19,7 @@ use function md5;
 use function strtolower;
 use const FILTER_VALIDATE_INT;
 
-final class RootZoneDatabasePsr16Cache implements RootZoneDatabaseCache
+final class TopLevelDomainListPsr16Cache implements TopLevelDomainListCache
 {
     private CacheInterface $cache;
 
@@ -79,21 +79,21 @@ final class RootZoneDatabasePsr16Cache implements RootZoneDatabaseCache
         return $date;
     }
 
-    public function fetch(string $uri): ?RootZoneDatabase
+    public function fetch(string $uri): ?TopLevelDomainList
     {
         $cacheKey = $this->cacheKey($uri);
-        $rootZoneDatabase = $this->cache->get($cacheKey);
-        if (null === $rootZoneDatabase) {
+        $topLevelDomainList = $this->cache->get($cacheKey);
+        if (null === $topLevelDomainList) {
             return null;
         }
 
-        if (!$rootZoneDatabase instanceof RootZoneDatabase) {
+        if (!$topLevelDomainList instanceof TopLevelDomainList) {
             $this->cache->delete($cacheKey);
 
             return null;
         }
 
-        return $rootZoneDatabase;
+        return $topLevelDomainList;
     }
 
     /**
@@ -104,10 +104,10 @@ final class RootZoneDatabasePsr16Cache implements RootZoneDatabaseCache
         return $this->cachePrefix.md5(strtolower($str));
     }
 
-    public function remember(string $uri, RootZoneDatabase $rootZoneDatabase): bool
+    public function remember(string $uri, TopLevelDomainList $topLevelDomainList): bool
     {
         try {
-            return $this->cache->set($this->cacheKey($uri), $rootZoneDatabase, $this->cacheTtl);
+            return $this->cache->set($this->cacheKey($uri), $topLevelDomainList, $this->cacheTtl);
         } catch (CacheException $exception) {
             return false;
         }

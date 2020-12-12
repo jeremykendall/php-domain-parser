@@ -9,9 +9,9 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\SimpleCache\CacheInterface;
 
 final class PsrStorageFactory implements
-    RemoteStorageURL,
+    ResourceUri,
     PublicSuffixListStorageFactory,
-    RootZoneDatabaseStorageFactory
+    TopLevelDomainListStorageFactory
 {
     private CacheInterface $cache;
 
@@ -40,11 +40,11 @@ final class PsrStorageFactory implements
     /**
      * @param mixed $cacheTtl The cache TTL
      */
-    public function createRootZoneDatabaseStorage(string $cachePrefix = '', $cacheTtl = null): RootZoneDatabaseStorage
+    public function createTopLevelDomainListStorage(string $cachePrefix = '', $cacheTtl = null): TopLevelDomainListStorage
     {
         return new TopLevelDomainsStorage(
-            new RootZoneDatabasePsr16Cache($this->cache, $cachePrefix, $cacheTtl),
-            new RootZoneDatabasePsr18Client($this->client, $this->requestFactory)
+            new TopLevelDomainListPsr16Cache($this->cache, $cachePrefix, $cacheTtl),
+            new TopLevelDomainListPsr18Client($this->client, $this->requestFactory)
         );
     }
 }

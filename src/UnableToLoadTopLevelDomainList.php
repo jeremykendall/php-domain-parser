@@ -7,16 +7,16 @@ namespace Pdp;
 use InvalidArgumentException;
 use Throwable;
 
-final class UnableToLoadRootZoneDatabase extends InvalidArgumentException implements CannotProcessHost
+final class UnableToLoadTopLevelDomainList extends InvalidArgumentException implements CannotProcessHost
 {
     public static function dueToInvalidHashMap(): self
     {
         return new self('The decoded hashmap structure is missing at least one of the required properties: `records`, `version` and/or `lastUpdated`.');
     }
 
-    public static function dueToInvalidRootZoneDomain(string $content, Throwable $exception = null): self
+    public static function dueToInvalidTopLevelDomain(string $content, Throwable $exception = null): self
     {
-        return new self('Invalid Root zone: '.$content, 0, $exception);
+        return new self('Invalid Top Level Domain: '.$content, 0, $exception);
     }
 
     public static function dueToInvalidVersionLine(string $line): self
@@ -26,7 +26,7 @@ final class UnableToLoadRootZoneDatabase extends InvalidArgumentException implem
 
     public static function dueToFailedConversion(): self
     {
-        return new self('Invalid content: TLD conversion failed.');
+        return new self('Invalid content: Top Level Domain List conversion failed.');
     }
 
     public static function dueToInvalidLine(string $line): self
@@ -41,16 +41,16 @@ final class UnableToLoadRootZoneDatabase extends InvalidArgumentException implem
 
     public static function dueToInvalidJson(Throwable $exception): self
     {
-        return new self('Failed to JSON decode the Root Zone Database string.', 0, $exception);
+        return new self('Failed to JSON decode the Top Level Domain List string.', 0, $exception);
     }
 
     public static function dueToUnavailableService(string $uri, Throwable $exception): self
     {
-        return new self('Could not access the Root Zone Database URI: `'.$uri.'`.', 0, $exception);
+        return new self('Could not access the Top Level Domain List URI: `'.$uri.'`.', 0, $exception);
     }
 
     public static function dueToUnexpectedContent(string $uri, int $statusCode): self
     {
-        return new self('Invalid response from Root Zone Database URI: `'.$uri.'`.', $statusCode);
+        return new self('Invalid response from Top Level Domain List URI: `'.$uri.'`.', $statusCode);
     }
 }

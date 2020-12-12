@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\RootZoneDatabase;
+use Pdp\TopLevelDomainList;
 use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadRootZoneDatabase;
+use Pdp\UnableToLoadTopLevelDomainList;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 
-final class RootZoneDatabasePsr18Client implements RootZoneDatabaseClient
+final class TopLevelDomainListPsr18Client implements TopLevelDomainListClient
 {
     private ClientInterface $client;
 
@@ -23,17 +23,17 @@ final class RootZoneDatabasePsr18Client implements RootZoneDatabaseClient
         $this->requestFactory = $requestFactory;
     }
 
-    public function get(string $uri): RootZoneDatabase
+    public function get(string $uri): TopLevelDomainList
     {
         $request = $this->requestFactory->createRequest('GET', $uri);
         try {
             $response = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $exception) {
-            throw UnableToLoadRootZoneDatabase::dueToUnavailableService($uri, $exception);
+            throw UnableToLoadTopLevelDomainList::dueToUnavailableService($uri, $exception);
         }
 
         if (400 <= $response->getStatusCode()) {
-            throw UnableToLoadRootZoneDatabase::dueToUnexpectedContent($uri, $response->getStatusCode());
+            throw UnableToLoadTopLevelDomainList::dueToUnexpectedContent($uri, $response->getStatusCode());
         }
 
         return TopLevelDomains::fromString($response->getBody());

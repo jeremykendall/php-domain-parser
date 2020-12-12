@@ -12,7 +12,7 @@ interface EffectiveTopLevelDomain extends Host, DomainNameProvider
     public function isKnown(): bool;
 
     /**
-     * Tells whether the effective TLD has a matching rule in the IANA Root Zone Database.
+     * Tells whether the effective TLD has a matching rule in the IANA Top Level Domain List.
      */
     public function isIANA(): bool;
 

@@ -17,29 +17,29 @@ use TypeError;
 use function dirname;
 
 /**
- * @coversDefaultClass \Pdp\Storage\RootZoneDatabasePsr16Cache
+ * @coversDefaultClass \Pdp\Storage\TopLevelDomainListPsr16Cache
  */
-final class RootZoneDatabasePsr16CacheTest extends TestCase
+final class TopLevelDomainListPsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void
     {
         $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn(null);
 
-        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', '1 DAY');
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', '1 DAY');
 
         self::assertNull($instance->fetch('http://www.example.com'));
     }
 
     public function testItReturnsAnInstanceIfTheCorrectCacheExists(): void
     {
-        $rootZoneDB = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
+        $topLevelDomainList = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
         $cache = $this->createStub(CacheInterface::class);
-        $cache->method('get')->willReturn($rootZoneDB);
+        $cache->method('get')->willReturn($topLevelDomainList);
 
-        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', 86400);
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', 86400);
 
-        self::assertEquals($rootZoneDB, $instance->fetch('http://www.example.com'));
+        self::assertEquals($topLevelDomainList, $instance->fetch('http://www.example.com'));
     }
 
     public function testItReturnsNullIfTheCacheContentContainsInvalidJsonData(): void
@@ -47,7 +47,7 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
         $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn('foobar');
 
-        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
 
         self::assertNull($instance->fetch('http://www.example.com'));
     }
@@ -57,7 +57,7 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
         $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn('{"foo":"bar"}');
 
-        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new DateTimeImmutable('+1 DAY'));
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', new DateTimeImmutable('+1 DAY'));
 
         self::assertNull($instance->fetch('http://www.example.com'));
     }
@@ -68,7 +68,7 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
 
         self::assertTrue($instance->remember('http://www.example.com', $rzd));
     }
@@ -79,7 +79,7 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
         $cache->method('set')->willReturn(false);
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
 
         self::assertFalse($instance->remember('http://www.example.com', $rzd));
     }
@@ -92,7 +92,7 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
         $cache->method('set')->will(self::throwException($exception));
 
         $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
-        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
 
         self::assertFalse($instance->remember('http://www.example.com', $rzd));
     }
@@ -104,7 +104,7 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
         $cache = $this->createStub(CacheInterface::class);
         $cache->method('delete')->willReturn(true);
 
-        $instance = new RootZoneDatabasePsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
         self::assertTrue($instance->forget($uri));
     }
 
@@ -113,7 +113,7 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $cache = $this->createStub(CacheInterface::class);
-        new RootZoneDatabasePsr16Cache($cache, 'pdp_', 'foobar');
+        new TopLevelDomainListPsr16Cache($cache, 'pdp_', 'foobar');
     }
 
     public function testItWillThrowIfTheTTLIsInvalid(): void
@@ -121,6 +121,6 @@ final class RootZoneDatabasePsr16CacheTest extends TestCase
         $this->expectException(TypeError::class);
 
         $cache = $this->createStub(CacheInterface::class);
-        new RootZoneDatabasePsr16Cache($cache, 'pdp_', new stdClass());
+        new TopLevelDomainListPsr16Cache($cache, 'pdp_', new stdClass());
     }
 }

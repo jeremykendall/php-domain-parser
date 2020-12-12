@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\RootZoneDatabase;
+use Pdp\TopLevelDomainList;
 
-interface RootZoneDatabaseCache
+interface TopLevelDomainListCache
 {
     /**
-     * Retrieves the Root Zone Database from the Cache.
+     * Retrieves the Top Level Domain List from the Cache.
      */
-    public function fetch(string $uri): ?RootZoneDatabase;
+    public function fetch(string $uri): ?TopLevelDomainList;
 
     /**
-     * Cache the Root Zone Database.
+     * Cache the Top Level Domain List.
      *
      * If a local cache already exists, it will be overwritten.
      *
      * Returns true if the action was successful, false otherwise
      */
-    public function remember(string $uri, RootZoneDatabase $rootZoneDatabase): bool;
+    public function remember(string $uri, TopLevelDomainList $topLevelDomainList): bool;
 
     /**
-     * Deletes the Root Zone Database entry.
+     * Deletes the Top Level Domain List entry.
      *
      * Returns true if the action was successful, false otherwise
      */

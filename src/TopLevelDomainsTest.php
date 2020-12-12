@@ -44,11 +44,11 @@ final class TopLevelDomainsTest extends TestCase
 
     /**
      * @covers ::fromPath
-     * @covers \Pdp\UnableToLoadRootZoneDatabase
+     * @covers \Pdp\UnableToLoadTopLevelDomainList
      */
     public function testCreateFromPathThrowsException(): void
     {
-        $this->expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectException(UnableToLoadTopLevelDomainList::class);
 
         TopLevelDomains::fromPath('/foo/bar.dat');
     }
@@ -65,7 +65,7 @@ final class TopLevelDomainsTest extends TestCase
      */
     public function testConverterThrowsException(string $content): void
     {
-        $this->expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectException(UnableToLoadTopLevelDomainList::class);
 
         TopLevelDomains::fromString($content);
     }
@@ -159,22 +159,22 @@ EOF;
 
     /**
      * @covers ::fromJsonString
-     * @covers \Pdp\UnableToLoadRootZoneDatabase
+     * @covers \Pdp\UnableToLoadTopLevelDomainList
      */
     public function testJsonStringFailsWithInvalidJson(): void
     {
-        $this->expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectException(UnableToLoadTopLevelDomainList::class);
 
         TopLevelDomains::fromJsonString('');
     }
 
     /**
      * @covers ::fromJsonString
-     * @covers \Pdp\UnableToLoadRootZoneDatabase
+     * @covers \Pdp\UnableToLoadTopLevelDomainList
      */
     public function testJsonStringFailsWithMissingIndexes(): void
     {
-        $this->expectException(UnableToLoadRootZoneDatabase::class);
+        $this->expectException(UnableToLoadTopLevelDomainList::class);
 
         TopLevelDomains::fromJsonString('{"foo":"bar"}');
     }

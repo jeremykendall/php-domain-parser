@@ -10,6 +10,8 @@ use Iterator;
 use JsonException;
 use SplTempFileObject;
 use TypeError;
+use function array_flip;
+use function array_keys;
 use function count;
 use function fclose;
 use function fopen;
@@ -25,7 +27,7 @@ use function strpos;
 use function trim;
 use const JSON_THROW_ON_ERROR;
 
-final class TopLevelDomains implements RootZoneDatabase
+final class TopLevelDomains implements TopLevelDomainList
 {
     private const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
 
@@ -55,7 +57,7 @@ final class TopLevelDomains implements RootZoneDatabase
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadRootZoneDatabase If the rules can not be loaded from the path
+     * @throws UnableToLoadTopLevelDomainList If the rules can not be loaded from the path
      */
     public static function fromPath(string $path, $context = null): self
     {
@@ -66,7 +68,7 @@ final class TopLevelDomains implements RootZoneDatabase
 
         $resource = @fopen(...$args);
         if (false === $resource) {
-            throw UnableToLoadRootZoneDatabase::dueToInvalidPath($path);
+            throw UnableToLoadTopLevelDomainList::dueToInvalidPath($path);
         }
 
         /** @var string $content */
@@ -96,13 +98,13 @@ final class TopLevelDomains implements RootZoneDatabase
         /** @var DateTimeImmutable $lastUpdated */
         $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
 
-        return new self($data['records'], $data['version'], $lastUpdated);
+        return new self(array_flip($data['records']), $data['version'], $lastUpdated);
     }
 
     /**
-     * Converts the IANA Root Zone Database into a TopLevelDomains associative array.
+     * Converts the IANA Top Level Domain List into a TopLevelDomains associative array.
      *
-     * @throws UnableToLoadRootZoneDatabase if the content is invalid or can not be correctly parsed and converted
+     *@throws UnableToLoadTopLevelDomainList if the content is invalid or can not be correctly parsed and converted
      *
      * @return array{version:string, lastUpdated:string, records:array<string>}
      */
@@ -126,27 +128,27 @@ final class TopLevelDomains implements RootZoneDatabase
                 continue;
             }
 
-            throw UnableToLoadRootZoneDatabase::dueToInvalidLine($line);
+            throw UnableToLoadTopLevelDomainList::dueToInvalidLine($line);
         }
 
         if (isset($data['version'], $data['lastUpdated'], $data['records'])) {
             return $data;
         }
 
-        throw UnableToLoadRootZoneDatabase::dueToFailedConversion();
+        throw UnableToLoadTopLevelDomainList::dueToFailedConversion();
     }
 
     /**
-     * Extract IANA Root Zone Database header info.
+     * Extract IANA Top Level Domain List header info.
      *
-     * @throws UnableToLoadRootZoneDatabase if the Header line is invalid
+     * @throws UnableToLoadTopLevelDomainList if the Header line is invalid
      *
      * @return array{version:string, lastUpdated:string}
      */
     private static function extractHeader(string $content): array
     {
         if (1 !== preg_match(self::REGEXP_HEADER_LINE, $content, $matches)) {
-            throw UnableToLoadRootZoneDatabase::dueToInvalidVersionLine($content);
+            throw UnableToLoadTopLevelDomainList::dueToInvalidVersionLine($content);
         }
 
         /** @var DateTimeImmutable $date */
@@ -161,14 +163,14 @@ final class TopLevelDomains implements RootZoneDatabase
     /**
      * Extract IANA Root Zone.
      *
-     * @throws UnableToLoadRootZoneDatabase If the Root Zone is invalid
+     * @throws UnableToLoadTopLevelDomainList If the Root Zone is invalid
      */
     private static function extractRootZone(string $content): string
     {
         try {
             $tld = Suffix::fromIANA($content);
         } catch (CannotProcessHost $exception) {
-            throw UnableToLoadRootZoneDatabase::dueToInvalidRootZoneDomain($content, $exception);
+            throw UnableToLoadTopLevelDomainList::dueToInvalidTopLevelDomain($content, $exception);
         }
 
         return $tld->toString();
@@ -179,17 +181,17 @@ final class TopLevelDomains implements RootZoneDatabase
         try {
             $data = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
-            throw UnableToLoadRootZoneDatabase::dueToInvalidJson($exception);
+            throw UnableToLoadTopLevelDomainList::dueToInvalidJson($exception);
         }
 
         if (!isset($data['records'], $data['version'], $data['lastUpdated'])) {
-            throw UnableToLoadRootZoneDatabase::dueToInvalidHashMap();
+            throw UnableToLoadTopLevelDomainList::dueToInvalidHashMap();
         }
 
         /** @var DateTimeImmutable $lastUpdated */
         $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
 
-        return new self($data['records'], $data['version'], $lastUpdated);
+        return new self(array_flip($data['records']), $data['version'], $lastUpdated);
     }
 
     /**
@@ -225,7 +227,7 @@ final class TopLevelDomains implements RootZoneDatabase
      */
     public function getIterator(): Iterator
     {
-        foreach ($this->records as $tld) {
+        foreach ($this->records as $tld => $int) {
             yield $tld;
         }
     }
@@ -237,7 +239,7 @@ final class TopLevelDomains implements RootZoneDatabase
     {
         return [
             'version' => $this->version,
-            'records' => $this->records,
+            'records' => array_keys($this->records),
             'lastUpdated' => $this->lastUpdated->format(DateTimeInterface::ATOM),
         ];
     }
@@ -288,14 +290,7 @@ final class TopLevelDomains implements RootZoneDatabase
 
     private function containsTopLevelDomain(DomainName $domain): bool
     {
-        $label = $domain->toAscii()->label(0);
-        foreach ($this as $tld) {
-            if ($tld === $label) {
-                return true;
-            }
-        }
-
-        return false;
+        return isset($this->records[$domain->toAscii()->label(0)]);
     }
 
     /**

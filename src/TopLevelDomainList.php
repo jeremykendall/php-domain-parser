@@ -13,7 +13,7 @@ use JsonSerializable;
 /**
  * @extends IteratorAggregate<string>
  */
-interface RootZoneDatabase extends Countable, DomainNameResolver, IteratorAggregate, JsonSerializable
+interface TopLevelDomainList extends Countable, DomainNameResolver, IteratorAggregate, JsonSerializable
 {
     /**
      * Returns the Version ID.

@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
-use Pdp\RootZoneDatabase;
+use Pdp\TopLevelDomainList;
 
-final class TopLevelDomainsStorage implements RootZoneDatabaseStorage
+final class TopLevelDomainsStorage implements TopLevelDomainListStorage
 {
-    private RootZoneDatabaseCache $cache;
+    private TopLevelDomainListCache $cache;
 
-    private RootZoneDatabaseClient $client;
+    private TopLevelDomainListClient $client;
 
-    public function __construct(RootZoneDatabaseCache $cache, RootZoneDatabaseClient $client)
+    public function __construct(TopLevelDomainListCache $cache, TopLevelDomainListClient $client)
     {
         $this->cache = $cache;
         $this->client = $client;
     }
 
-    public function get(string $uri): RootZoneDatabase
+    public function get(string $uri): TopLevelDomainList
     {
-        $rootZoneDatabase = $this->cache->fetch($uri);
-        if (null !== $rootZoneDatabase) {
-            return $rootZoneDatabase;
+        $topLevelDomains = $this->cache->fetch($uri);
+        if (null !== $topLevelDomains) {
+            return $topLevelDomains;
         }
 
-        $rootZoneDatabase = $this->client->get($uri);
+        $topLevelDomains = $this->client->get($uri);
 
-        $this->cache->remember($uri, $rootZoneDatabase);
+        $this->cache->remember($uri, $topLevelDomains);
 
-        return $rootZoneDatabase;
+        return $topLevelDomains;
     }
 
     public function delete(string $uri): bool
