@@ -84,7 +84,7 @@ final class TopLevelDomainListPsr16CacheTest extends TestCase
         self::assertFalse($instance->remember('http://www.example.com', $rzd));
     }
 
-    public function testItReturnsFalseIfItCantCacheAPublicSuffixListInstance(): void
+    public function testItReturnsFalseIfItCantCacheATopLevelDomainListInstance(): void
     {
         $exception = new class('Something went wrong.', 0) extends RuntimeException implements CacheException {
         };
@@ -95,6 +95,21 @@ final class TopLevelDomainListPsr16CacheTest extends TestCase
         $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
 
         self::assertFalse($instance->remember('http://www.example.com', $rzd));
+    }
+
+    public function testItThrowsIfItCantCacheATopLevelDomainListInstance(): void
+    {
+        $exception = new class('Something went wrong.', 0) extends RuntimeException {
+        };
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('set')->will(self::throwException($exception));
+
+        $rzd = TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
+        $instance = new TopLevelDomainListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
+
+        $this->expectException(RuntimeException::class);
+
+        $instance->remember('http://www.example.com', $rzd);
     }
 
     public function testItCanDeleteTheCachedDatabase(): void

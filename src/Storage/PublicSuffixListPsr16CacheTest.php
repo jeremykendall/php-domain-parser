@@ -94,6 +94,25 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
         self::assertFalse($pslCache->remember('http://www.example.com', $psl));
     }
 
+    public function testItWillThrowIfItCantCacheAPublicSuffixListInstance(): void
+    {
+        $exception = new class('Something went wrong.', 0) extends RuntimeException {
+        };
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('set')->will(self::throwException($exception));
+
+        $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new class() {
+            public function __toString(): string
+            {
+                return '1 DAY';
+            }
+        });
+        $this->expectException(RuntimeException::class);
+
+        $pslCache->remember('http://www.example.com', $psl);
+    }
+
     public function testItCanDeleteTheCachedDatabase(): void
     {
         $uri = 'http://www.example.com';
