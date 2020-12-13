@@ -10,7 +10,7 @@ We accept bug reports via issues created on [Github](https://github.com/jeremyke
 
 - **Always search the issue or pull request list first** - The odds are good that if you've found a problem, someone else has found it, too.
 
-- **Always try the [developer branch](https://github.com/jeremykendall/php-domain-parser/tree/develop)** - to see if the reported bug has not already been fixed.
+- **Always try the [master branch](https://github.com/jeremykendall/php-domain-parser/tree/master)** - to see if the reported bug has not already been fixed.
 
 ### When submitting your report
 
@@ -24,7 +24,7 @@ We accept bug reports via issues created on [Github](https://github.com/jeremyke
 
 We accept contributions via Pull Requests on [Github](https://github.com/jeremykendall/php-domain-parser/pull).
 
-- **Always make your Pull Request against the [developer branch](https://github.com/jeremykendall/php-domain-parser/tree/develop)** 
+- **Always make your Pull Request against the [master branch](https://github.com/jeremykendall/php-domain-parser/tree/master)** 
 
 - **[PSR-2 Coding Standard](http://www.php-fig.org/psr/psr-2/)** - Your patch won't be accepted if it doesn't pass the package coding style test suite.
 

@@ -2,7 +2,7 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
-## 6.0.0 - TBD
+## 6.0.0 - 2020-12-13
 
 ### Added
 
@@ -11,10 +11,11 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - Added `Domain::slice` to easily slice a domain object
 - Added `ResolvedDomain` object to normalize Resolver results.
 - Added `Suffix` object to replace the `PublicSuffix` object from v5.
-- Public Suffix List and IANA Root Zone Database are fully decoupled
-- Added `IntlIdna`, IDN support has been completely revamped
+- Public Suffix List and IANA Top Level Domain List are fully decoupled
+- Added `Idna`, IDN support has been completely revamped
+- Added internal `Stream` class, to improve path/stream resolution
 - Resolver uses by default UTS#46 IDNA2008 algorithm to convert domain names
-- Storage capability is optional and can be based on PHP-FIG related interfaces to improve interoperability
+- Storage capability is now optional and can be based on PHP-FIG related interfaces to improve interoperability
 - `Pdp\TopLevelDomains::getIANADomain` which throws on syntax error and if no effective TLD is found (behave like `Pdp\TopLevelDomains::resolve` in v5).
 
 ### Fixed
@@ -46,11 +47,11 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\Domain::getSubDomain` replaced by `Pdp\ResolvedDomain::subDomain`
 - `Pdp\Domain::withPublicSuffix` replaced by `Pdp\ResolvedDomain::withSuffix`
 - `Pdp\Domain::getLabel` replaced by `Pdp\Domain::label`
-- `Pdp\Domain::isTransitionalDifferent` without replacement
+- `Pdp\Domain::isTransitionalDifferent` replaced by `Pdp\IdnaInfo::isTransitionalDifferent`
 - `Pdp\PublicSuffix` replaced by `Pdp\Suffix`
-- Directly accessing suffix information from the `Pdp\Domain` object
+- Accessing suffix information from the `Pdp\Domain` object is no longer possible you need to do it from `Pdp\Suffix`
 - `Pdp\TopLevelDomains::contains` without replacement
-- Internal Converter classes to convert external resources into PHP array structures.
+- Internal Converter classes (implementation details are no longer exposed).
 
 ## 5.7.2 - 2020-10-25
 
