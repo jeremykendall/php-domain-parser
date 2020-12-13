@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pdp\Storage;
+namespace Pdp;
 
 interface ResourceUri
 {

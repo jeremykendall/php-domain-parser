@@ -61,40 +61,6 @@ final class RulesTest extends TestCase
         Rules::fromString(new DateTimeImmutable());
     }
 
-    /**
-     * @covers ::jsonSerialize
-     * @covers ::fromJsonString
-     */
-    public function testJsonMethods(): void
-    {
-        /** @var string $data */
-        $data = json_encode(self::$rules);
-
-        self::assertEquals(self::$rules, Rules::fromJsonString($data));
-    }
-
-    /**
-     * @covers ::fromJsonString
-     * @covers \Pdp\UnableToLoadPublicSuffixList
-     */
-    public function testJsonStringFailsWithInvalidJson(): void
-    {
-        $this->expectException(UnableToLoadPublicSuffixList::class);
-
-        Rules::fromJsonString('');
-    }
-
-    /**
-     * @covers ::fromJsonString
-     * @covers \Pdp\UnableToLoadPublicSuffixList
-     */
-    public function testJsonStringFailsWithMissingIndexesCollection(): void
-    {
-        $this->expectException(UnableToLoadPublicSuffixList::class);
-
-        Rules::fromJsonString('{"ICANN_DOMAINS":"foo","PRIVATE_DOMAINS":"bar"}');
-    }
-
     public function testDomainInternalPhpMethod(): void
     {
         $generateRules = eval('return '.var_export(self::$rules, true).';');

@@ -4,17 +4,8 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use JsonSerializable;
-
-interface PublicSuffixList extends DomainNameResolver, JsonSerializable
+interface PublicSuffixList extends DomainNameResolver
 {
-    /**
-     * Returns an array representation of the Public Suffix List Rules JSON serializable.
-     *
-     * @return array<string, array<array>>
-     */
-    public function jsonSerialize(): array;
-
     /**
      * Returns PSL info for a given domain against the PSL rules for cookie domain detection.
      *

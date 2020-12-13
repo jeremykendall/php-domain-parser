@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use JsonException;
 use SplTempFileObject;
 use TypeError;
 use function array_pop;
@@ -13,16 +12,13 @@ use function explode;
 use function fclose;
 use function fopen;
 use function gettype;
-use function is_array;
 use function is_object;
 use function is_string;
-use function json_decode;
 use function method_exists;
 use function preg_match;
 use function stream_get_contents;
 use function strpos;
 use function substr;
-use const JSON_THROW_ON_ERROR;
 
 final class Rules implements PublicSuffixList
 {
@@ -190,35 +186,12 @@ final class Rules implements PublicSuffixList
         return $list;
     }
 
-    public static function fromJsonString(string $jsonString): self
-    {
-        try {
-            $data = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw UnableToLoadPublicSuffixList::dueToInvalidJson($exception);
-        }
-
-        if (!is_array($data[self::ICANN_DOMAINS]) || !is_array($data[self::PRIVATE_DOMAINS])) {
-            throw UnableToLoadPublicSuffixList::dueToCorruptedSection();
-        }
-
-        return new self($data);
-    }
-
     /**
      * @param array{rules:array{ICANN_DOMAINS:array,PRIVATE_DOMAINS:array}} $properties
      */
     public static function __set_state(array $properties): self
     {
         return new self($properties['rules']);
-    }
-
-    /**
-     * @return array<string, array<array>>
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->rules;
     }
 
     /**

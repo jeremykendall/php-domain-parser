@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
+use Pdp\ResourceUri;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\SimpleCache\CacheInterface;

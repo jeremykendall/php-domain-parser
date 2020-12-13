@@ -140,13 +140,9 @@ $topLevelDomains->getIANADomain('com');
 To instantiate each domain resolver you can use the following named constructor:
 
 - `fromString`: instantiate the resolver from a inline string representing the data source;
-- `fromJsonString`: instantiate the resolver from a json string representing the data source;
 - `fromPath`: instantiate the resolver from a local path or online URL by relying on `fopen`;
 
 **If the instantiation does not work an exception will be thrown.**
-
-Once instantiated, you can always convert the data source in a json encoded string as both
-resolver exposes the `JsonSerialize` method.
 
 **WARNING:**
 

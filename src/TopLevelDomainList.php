@@ -8,12 +8,11 @@ use Countable;
 use DateTimeImmutable;
 use Iterator;
 use IteratorAggregate;
-use JsonSerializable;
 
 /**
  * @extends IteratorAggregate<string>
  */
-interface TopLevelDomainList extends Countable, DomainNameResolver, IteratorAggregate, JsonSerializable
+interface TopLevelDomainList extends Countable, DomainNameResolver, IteratorAggregate
 {
     /**
      * Returns the Version ID.
@@ -39,13 +38,6 @@ interface TopLevelDomainList extends Countable, DomainNameResolver, IteratorAggr
      * @return Iterator<string>
      */
     public function getIterator(): Iterator;
-
-    /**
-     * Returns an array representation of the list.
-     *
-     * @return array{version:string, records:array<string>, lastUpdated:string}
-     */
-    public function jsonSerialize(): array;
 
     /**
      * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.

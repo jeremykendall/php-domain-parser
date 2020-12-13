@@ -7,11 +7,9 @@ namespace Pdp;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Iterator;
-use JsonException;
 use SplTempFileObject;
 use TypeError;
 use function array_flip;
-use function array_keys;
 use function count;
 use function fclose;
 use function fopen;
@@ -19,13 +17,11 @@ use function gettype;
 use function in_array;
 use function is_object;
 use function is_string;
-use function json_decode;
 use function method_exists;
 use function preg_match;
 use function stream_get_contents;
 use function strpos;
 use function trim;
-use const JSON_THROW_ON_ERROR;
 
 final class TopLevelDomains implements TopLevelDomainList
 {
@@ -185,24 +181,6 @@ final class TopLevelDomains implements TopLevelDomainList
         return $tld->toString();
     }
 
-    public static function fromJsonString(string $jsonString): self
-    {
-        try {
-            $data = json_decode($jsonString, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw UnableToLoadTopLevelDomainList::dueToInvalidJson($exception);
-        }
-
-        if (!isset($data['records'], $data['version'], $data['lastUpdated'])) {
-            throw UnableToLoadTopLevelDomainList::dueToInvalidHashMap();
-        }
-
-        /** @var DateTimeImmutable $lastUpdated */
-        $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
-
-        return new self(array_flip($data['records']), $data['version'], $lastUpdated);
-    }
-
     /**
      * @param array{records:array<string, int>, version:string, lastUpdated:DateTimeImmutable} $properties
      */
@@ -239,18 +217,6 @@ final class TopLevelDomains implements TopLevelDomainList
         foreach ($this->records as $tld => $int) {
             yield $tld;
         }
-    }
-
-    /**
-     * @return array{version:string, records:array<string>, lastUpdated:string}
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'version' => $this->version,
-            'records' => array_keys($this->records),
-            'lastUpdated' => $this->lastUpdated->format(DateTimeInterface::ATOM),
-        ];
     }
 
     /**

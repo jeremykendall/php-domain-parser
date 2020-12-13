@@ -9,7 +9,6 @@ use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function dirname;
-use function json_encode;
 
 /**
  * @coversDefaultClass \Pdp\TopLevelDomains
@@ -145,40 +144,6 @@ EOF;
         self::assertEquals(self::$topLevelDomains, $topLevelDomains);
     }
 
-    /**
-     * @covers ::jsonSerialize
-     * @covers ::fromJsonString
-     */
-    public function testJsonMethods(): void
-    {
-        /** @var string $data */
-        $data = json_encode(self::$topLevelDomains);
-
-        self::assertEquals(self::$topLevelDomains, TopLevelDomains::fromJsonString($data));
-    }
-
-    /**
-     * @covers ::fromJsonString
-     * @covers \Pdp\UnableToLoadTopLevelDomainList
-     */
-    public function testJsonStringFailsWithInvalidJson(): void
-    {
-        $this->expectException(UnableToLoadTopLevelDomainList::class);
-
-        TopLevelDomains::fromJsonString('');
-    }
-
-    /**
-     * @covers ::fromJsonString
-     * @covers \Pdp\UnableToLoadTopLevelDomainList
-     */
-    public function testJsonStringFailsWithMissingIndexes(): void
-    {
-        $this->expectException(UnableToLoadTopLevelDomainList::class);
-
-        TopLevelDomains::fromJsonString('{"foo":"bar"}');
-    }
-
     public function testGetterProperties(): void
     {
         $topLevelDomains = TopLevelDomains::fromPath(dirname(__DIR__).'/test_data/root_zones.dat');
@@ -190,7 +155,6 @@ EOF;
             $topLevelDomains->lastUpdated()
         );
         self::assertFalse($topLevelDomains->isEmpty());
-        self::assertArrayHasKey('lastUpdated', $topLevelDomains->jsonSerialize());
     }
 
     public function testIterator(): void
