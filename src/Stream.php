@@ -22,14 +22,14 @@ final class Stream
      */
     public static function getContentAsString(string $path, $context = null): string
     {
-        $resource = self::getResource($path, $context);
-        if (false === $resource) {
+        $stream = self::fromPath($path, $context);
+        if (false === $stream) {
             throw UnableToLoadResource::dueToInvalidUri($path);
         }
 
         /** @var string $content */
-        $content = stream_get_contents($resource);
-        fclose($resource);
+        $content = stream_get_contents($stream);
+        fclose($stream);
 
         return $content;
     }
@@ -39,7 +39,7 @@ final class Stream
      *
      * @return false|resource
      */
-    private static function getResource(string $path, $context = null)
+    private static function fromPath(string $path, $context = null)
     {
         if (null === $context) {
             return @fopen($path, 'r');

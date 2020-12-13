@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use InvalidArgumentException;
+use RuntimeException;
 use Throwable;
 
-final class UnableToLoadResource extends InvalidArgumentException implements CannotProcessHost
+final class UnableToLoadResource extends RuntimeException implements CannotProcessHost
 {
     public static function dueToInvalidUri(string $uri): self
     {
