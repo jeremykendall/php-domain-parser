@@ -1,376 +1,255 @@
 <?php
 
-/**
- * PHP Domain Parser: Public Suffix List based URL parsing.
- *
- * @see http://github.com/jeremykendall/php-domain-parser for the canonical source repository
- *
- * @copyright Copyright (c) 2017 Jeremy Kendall (http://jeremykendall.net)
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace Pdp;
 
-use Countable;
-use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
-use IteratorAggregate;
-use Pdp\Exception\CouldNotLoadTLDs;
+use Iterator;
+use SplTempFileObject;
+use TypeError;
 use function count;
-use function fclose;
-use function fopen;
-use function stream_get_contents;
-use const DATE_ATOM;
-use const IDNA_DEFAULT;
+use function gettype;
+use function in_array;
+use function is_object;
+use function is_string;
+use function method_exists;
+use function preg_match;
+use function strpos;
+use function trim;
 
-/**
- * A class to resolve domain name against the IANA Root Database.
- *
- * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
- */
-final class TopLevelDomains implements Countable, IteratorAggregate
+final class TopLevelDomains implements TopLevelDomainList
 {
-    /**
-     * @var DateTimeImmutable
-     */
-    private $modifiedDate;
+    private const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
+
+    private const REGEXP_HEADER_LINE = '/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/';
 
     /**
-     * @var string
+     * @var array<string, int>
      */
-    private $version;
+    private array $records;
+
+    private string $version;
+
+    private DateTimeImmutable $lastUpdated;
 
     /**
-     * @var array
+     * @param array<string, int> $records
      */
-    private $records;
-
-    /**
-     * @var int
-     */
-    private $asciiIDNAOption;
-
-    /**
-     * @var int
-     */
-    private $unicodeIDNAOption;
-
-    /**
-     * New instance.
-     *
-     * @internal
-     *
-     * @param array             $records
-     * @param string            $version
-     * @param DateTimeInterface $modifiedDate
-     * @param int               $asciiIDNAOption
-     * @param int               $unicodeIDNAOption
-     */
-    public function __construct(
-        array $records,
-        string $version,
-        DateTimeInterface $modifiedDate,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ) {
-        if ($modifiedDate instanceof DateTime) {
-            $modifiedDate = DateTimeImmutable::createFromMutable($modifiedDate);
-        }
-
+    private function __construct(array $records, string $version, DateTimeImmutable $lastUpdated)
+    {
         $this->records = $records;
         $this->version = $version;
-        $this->modifiedDate = $modifiedDate;
-        $this->asciiIDNAOption = $asciiIDNAOption;
-        $this->unicodeIDNAOption = $unicodeIDNAOption;
+        $this->lastUpdated = $lastUpdated;
     }
 
     /**
      * Returns a new instance from a file path.
      *
-     * @param string        $path
      * @param null|resource $context
-     * @param int           $asciiIDNAOption
-     * @param int           $unicodeIDNAOption
      *
-     * @throws CouldNotLoadTLDs If the rules can not be loaded from the path
-     *
-     * @return self
+     * @throws UnableToLoadResource           If the rules can not be loaded from the path
+     * @throws UnableToLoadTopLevelDomainList If the content is invalid or can not be correctly parsed and converted
      */
-    public static function createFromPath(
-        string $path,
-        $context = null,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ): self {
-        $args = [$path, 'r', false];
-        if (null !== $context) {
-            $args[] = $context;
-        }
-
-        $resource = @fopen(...$args);
-        if (false === $resource) {
-            throw new CouldNotLoadTLDs(sprintf('`%s`: failed to open stream: No such file or directory', $path));
-        }
-
-        /** @var string $content */
-        $content = stream_get_contents($resource);
-        fclose($resource);
-
-        return self::createFromString($content, $asciiIDNAOption, $unicodeIDNAOption);
+    public static function fromPath(string $path, $context = null): self
+    {
+        return self::fromString(Stream::getContentAsString($path, $context));
     }
 
     /**
      * Returns a new instance from a string.
      *
-     * @param string $content
-     * @param int    $asciiIDNAOption
-     * @param int    $unicodeIDNAOption
+     * @param object|string $content a string or an object which exposes the __toString method
      *
-     * @return self
+     * @throws UnableToLoadTopLevelDomainList if the content is invalid or can not be correctly parsed and converted
      */
-    public static function createFromString(
-        string $content,
-        int $asciiIDNAOption = IDNA_DEFAULT,
-        int $unicodeIDNAOption = IDNA_DEFAULT
-    ): self {
-        static $converter;
+    public static function fromString($content): self
+    {
+        if (is_object($content) && method_exists($content, '__toString')) {
+            $content = (string) $content;
+        }
 
-        $converter = $converter ?? new TLDConverter();
+        if (!is_string($content)) {
+            throw new TypeError('The content to be converted should be a string or a Stringable object, `'.gettype($content).'` given.');
+        }
 
-        $data = $converter->convert($content);
-        /** @var DateTimeImmutable $modifiedDate */
-        $modifiedDate = DateTimeImmutable::createFromFormat(DATE_ATOM, $data['modifiedDate']);
+        $data = self::parse($content);
 
-        return new self(
-            $data['records'],
-            $data['version'],
-            $modifiedDate,
-            $asciiIDNAOption,
-            $unicodeIDNAOption
-        );
+        return new self($data['records'], $data['version'], $data['lastUpdated']);
     }
 
     /**
-     * {@inheritdoc}
+     * Converts the IANA Top Level Domain List into a TopLevelDomains associative array.
+     *
+     * @throws UnableToLoadTopLevelDomainList if the content is invalid or can not be correctly parsed and converted
+     *
+     * @return array{version:string, lastUpdated:DateTimeImmutable, records:array<string,int>}
+     */
+    public static function parse(string $content): array
+    {
+        $data = [];
+        $file = new SplTempFileObject();
+        $file->fwrite($content);
+        $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        /** @var string $line */
+        foreach ($file as $line) {
+            $line = trim($line);
+            if ([] === $data) {
+                $data = self::extractHeader($line);
+                continue;
+            }
+
+            if (false === strpos($line, '#')) {
+                $data['records'] = $data['records'] ?? [];
+                $data['records'][self::extractRootZone($line)] = 1;
+                continue;
+            }
+
+            throw UnableToLoadTopLevelDomainList::dueToInvalidLine($line);
+        }
+
+        if (isset($data['version'], $data['lastUpdated'], $data['records'])) {
+            return $data;
+        }
+
+        throw UnableToLoadTopLevelDomainList::dueToFailedConversion();
+    }
+
+    /**
+     * Extract IANA Top Level Domain List header info.
+     *
+     * @throws UnableToLoadTopLevelDomainList if the Header line is invalid
+     *
+     * @return array{version:string, lastUpdated:DateTimeImmutable}
+     */
+    private static function extractHeader(string $content): array
+    {
+        if (1 !== preg_match(self::REGEXP_HEADER_LINE, $content, $matches)) {
+            throw UnableToLoadTopLevelDomainList::dueToInvalidVersionLine($content);
+        }
+
+        /** @var DateTimeImmutable $date */
+        $date = DateTimeImmutable::createFromFormat(self::IANA_DATE_FORMAT, $matches['date']);
+
+        return [
+            'version' => $matches['version'],
+            'lastUpdated' => $date,
+        ];
+    }
+
+    /**
+     * Extract IANA Root Zone.
+     *
+     * @throws UnableToLoadTopLevelDomainList If the Top Level Domain is invalid
+     */
+    private static function extractRootZone(string $content): string
+    {
+        try {
+            $tld = Suffix::fromIANA($content);
+        } catch (CannotProcessHost $exception) {
+            throw UnableToLoadTopLevelDomainList::dueToInvalidTopLevelDomain($content, $exception);
+        }
+
+        return $tld->toAscii()->toString();
+    }
+
+    /**
+     * @param array{records:array<string, int>, version:string, lastUpdated:DateTimeImmutable} $properties
      */
     public static function __set_state(array $properties): self
     {
-        return new self(
-            $properties['records'],
-            $properties['version'],
-            $properties['modifiedDate'],
-            $properties['asciiIDNAOption'] ?? IDNA_DEFAULT,
-            $properties['unicodeIDNAOption'] ?? IDNA_DEFAULT
-        );
+        return new self($properties['records'], $properties['version'], $properties['lastUpdated']);
     }
 
-    /**
-     * Returns the Version ID.
-     *
-     * @return string
-     */
-    public function getVersion(): string
+    public function version(): string
     {
         return $this->version;
     }
 
-    /**
-     * Returns the List Last Modified Date.
-     *
-     * @return DateTimeImmutable
-     */
-    public function getModifiedDate(): DateTimeImmutable
+    public function lastUpdated(): DateTimeImmutable
     {
-        return $this->modifiedDate;
+        return $this->lastUpdated;
     }
 
-    /**
-     * Gets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return int
-     */
-    public function getAsciiIDNAOption(): int
-    {
-        return $this->asciiIDNAOption;
-    }
-
-    /**
-     * Gets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @return int
-     */
-    public function getUnicodeIDNAOption(): int
-    {
-        return $this->unicodeIDNAOption;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function count(): int
     {
         return count($this->records);
     }
 
-    /**
-     * Tells whether the list is empty.
-     *
-     * @return bool
-     */
     public function isEmpty(): bool
     {
         return [] === $this->records;
     }
 
     /**
-     * {@inheritdoc}
+     * @return Iterator<string>
      */
-    public function getIterator()
+    public function getIterator(): Iterator
     {
-        foreach ($this->records as $tld) {
-            yield (new PublicSuffix(
-                $tld,
-                PublicSuffix::ICANN_DOMAINS,
-                $this->asciiIDNAOption,
-                $this->unicodeIDNAOption
-            ))->toAscii();
+        foreach ($this->records as $tld => $int) {
+            yield $tld;
         }
     }
 
     /**
-     * Returns an array representation of the list.
-     *
-     * @return array
+     * @param mixed $host a type that supports instantiating a Domain from.
      */
-    public function toArray(): array
-    {
-        return [
-            'version' => $this->version,
-            'records' => $this->records,
-            'modifiedDate' => $this->modifiedDate->format(DATE_ATOM),
-        ];
-    }
-
-    /**
-     * Tells whether the submitted TLD is a valid Top Level Domain.
-     *
-     * @param mixed $tld
-     *
-     * @return bool
-     */
-    public function contains($tld): bool
+    public function resolve($host): ResolvedDomainName
     {
         try {
-            if (!$tld instanceof Domain) {
-                $tld = new Domain($tld, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+            $domain = $this->validateDomain($host);
+            if ($this->containsTopLevelDomain($domain)) {
+                return ResolvedDomain::fromIANA($domain);
             }
-        } catch (Exception $e) {
-            return false;
+            return ResolvedDomain::fromUnknown($domain);
+        } catch (UnableToResolveDomain $exception) {
+            return ResolvedDomain::fromUnknown($exception->domain());
+        } catch (SyntaxError $exception) {
+            return ResolvedDomain::fromUnknown(null);
         }
-
-        if (1 !== count($tld)) {
-            return false;
-        }
-
-        $label = $tld->toAscii()->getLabel(0);
-        foreach ($this as $knownTld) {
-            if ($knownTld->getContent() === $label) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
-     * Returns a domain where its public suffix is the found TLD.
+     * Assert the domain is valid and is resolvable.
      *
-     * @param mixed $domain
+     * @param mixed $domain a type that supports instantiating a Domain from.
      *
-     * @return Domain
+     * @throws SyntaxError           If the domain is invalid
+     * @throws UnableToResolveDomain If the domain can not be resolved
      */
-    public function resolve($domain): Domain
+    private function validateDomain($domain): DomainName
     {
-        try {
-            if (!$domain instanceof Domain) {
-                $domain = new Domain($domain, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
-            }
-        } catch (Exception $e) {
-            return new Domain(null, null, $this->asciiIDNAOption, $this->unicodeIDNAOption);
+        if ($domain instanceof DomainNameProvider) {
+            $domain = $domain->domain();
         }
 
-        if (!$domain->isResolvable()) {
-            return $domain;
+        if (!$domain instanceof DomainName) {
+            $domain = Domain::fromIDNA2008($domain);
         }
 
-        $publicSuffix = null;
-        $label = $domain->toAscii()->getLabel(0);
-        foreach ($this as $tld) {
-            if ($tld->getContent() === $label) {
-                $publicSuffix = $tld;
-                break;
-            }
+        $label = $domain->label(0);
+        if (in_array($label, [null, ''], true)) {
+            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
-        return $domain->resolve($publicSuffix);
+        return $domain;
+    }
+
+    private function containsTopLevelDomain(DomainName $domain): bool
+    {
+        return isset($this->records[$domain->toAscii()->label(0)]);
     }
 
     /**
-     * Sets conversion options for idn_to_ascii.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @param int $option
-     *
-     * @return self
+     * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
      */
-    public function withAsciiIDNAOption(int $option): self
+    public function getIANADomain($domain): ResolvedDomainName
     {
-        if ($option === $this->asciiIDNAOption) {
-            return $this;
+        $domain = $this->validateDomain($domain);
+        if (!$this->containsTopLevelDomain($domain)) {
+            throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }
 
-        $clone = clone $this;
-        $clone->asciiIDNAOption = $option;
-
-        return $clone;
-    }
-
-    /**
-     * Sets conversion options for idn_to_utf8.
-     *
-     * combination of IDNA_* constants (except IDNA_ERROR_* constants).
-     *
-     * @see https://www.php.net/manual/en/intl.constants.php
-     *
-     * @param int $option
-     *
-     * @return self
-     */
-    public function withUnicodeIDNAOption(int $option): self
-    {
-        if ($option === $this->unicodeIDNAOption) {
-            return $this;
-        }
-
-        $clone = clone $this;
-        $clone->unicodeIDNAOption = $option;
-
-        return $clone;
+        return ResolvedDomain::fromIANA($domain);
     }
 }

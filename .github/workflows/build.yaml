@@ -1,0 +1,30 @@
+---
+name: Build
+on:
+    push: ~
+    pull_request: ~
+
+jobs:
+    phpunit:
+        name: PHPUnit tests on ${{ matrix.php }} ${{ matrix.composer-flags }}
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php: [ '7.4', '8.0' ]
+                composer-flags: [ '' ]
+                phpunit-flags: [ '--coverage-text' ]
+        steps:
+            - uses: actions/checkout@v2
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: pcov
+                  tools: composer:v2
+            - run: composer update --no-progress ${{ matrix.composer-flags }}
+            - run: composer phpunit
+            - run: composer phpstan
+              if: ${{ matrix.php == '7.4' }}
+            - run: composer psalm
+              if: ${{ matrix.php == '7.4' }}
+            - run: composer phpcs
+              if: ${{ matrix.php == '7.4' }}

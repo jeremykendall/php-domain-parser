@@ -1,6 +1,6 @@
 {
     "name": "jeremykendall/php-domain-parser",
-    "description": "Public Suffix List based URL parsing implemented in PHP.",
+    "description": "Public Suffix List and IANA Root Zone Database based Domain parsing implemented in PHP.",
     "homepage": "https://github.com/jeremykendall/php-domain-parser",
     "support": {
         "issues": "https://github.com/jeremykendall/php-domain-parser/issues",
@@ -29,9 +29,6 @@
             "url": "https://github.com/sponsors/nyamsprod"
         }
     ],
-    "bin": [
-        "bin/update-psl"
-    ],
     "keywords": [
         "Public Suffix List",
         "Top Level Domains",
@@ -43,24 +40,28 @@
         "psl"
     ],
     "require": {
+        "php": "^7.4 || ^8.0",
         "ext-intl": "*",
-        "ext-json": "*",
-        "php": "^7.2.5 || ^8.0",
-        "psr/log": "^1.1",
-        "psr/simple-cache": "^1.0.1"
+        "ext-json": "*"
     },
     "require-dev": {
-        "composer/composer": "^1.6 || ^2.0",
         "friendsofphp/php-cs-fixer": "^2.16",
-        "mikey179/vfsstream": "^1.6.7",
+        "guzzlehttp/guzzle": "^7.0",
+        "guzzlehttp/psr7": "^1.6",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
         "phpstan/phpstan-strict-rules": "^0.12",
-        "phpunit/phpunit": "^8.0 || ^9.3"
+        "phpunit/phpunit": "^9.3",
+        "psalm/plugin-phpunit": "^0.15.0",
+        "psr/http-factory": "^1.0",
+        "psr/simple-cache": "^1.0",
+        "symfony/cache": "^v5.0",
+        "vimeo/psalm": "^4.3"
     },
     "suggest": {
-        "psr/simple-cache-implementation": "To enable using other cache providers",
-        "ext-curl": "To use the package http client",
+        "psr/http-client-implementation": "To use the storage functionnality which depends on PSR-18",
+        "psr/http-factory-implementation": "To use the storage functionnality which depends on PSR-17",
+        "psr/simple-cache-implementation": "To use the storage functionnality which depends on PSR-16",
         "league/uri": "To parse URL and validate host"
     },
     "autoload": {
@@ -68,39 +69,28 @@
             "Pdp\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Pdp\\Tests\\": "tests/"
-        }
-    },
     "scripts": {
         "phpcs": "php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi",
-        "phpstan-src": "phpstan analyse -l max -c phpstan.src.neon src --ansi",
-        "phpstan-tests": "phpstan analyse -l max -c phpstan.tests.neon tests --ansi",
-        "phpstan": [
-            "@phpstan-src",
-            "@phpstan-tests"
-        ],
+        "phpstan": "phpstan analyse -l max -c phpstan.neon src --ansi",
+        "psalm": "psalm --show-info=true",
         "phpunit": "phpunit --coverage-text",
-        "post-install-cmd": "\\Pdp\\Installer::updateLocalCache",
-        "post-update-cmd": "\\Pdp\\Installer::updateLocalCache",
         "test": [
-            "@phpcs",
+            "@phpunit",
             "@phpstan",
-            "@phpunit"
+            "@psalm",
+            "@phpcs"
         ]
     },
     "scripts-descriptions": {
         "phpcs": "Runs coding style test suite",
         "phpstan": "Runs complete codebase static analysis",
-        "phpstan-src": "Runs PHP stan on the source code",
-        "phpstan-test": "Runs PHP stan on the test suite",
+        "psalm": "Runs complete codebase static analysis",
         "phpunit": "Runs unit and functional testing",
         "test": "Runs the complete test suite"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.x-dev"
+            "dev-master": "6.x-dev"
         }
     },
     "config": {

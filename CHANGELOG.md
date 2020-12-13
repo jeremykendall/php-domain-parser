@@ -1,6 +1,57 @@
 # Changelog
 
-All Notable changes to `PHP Domain Parser` **5.x** series will be documented in this file
+All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
+
+## 6.0.0 - 2020-12-13
+
+### Added
+
+- Adding proper Interfaces
+- Added `Domain::clear` to easily initialize an empty domain object
+- Added `Domain::slice` to easily slice a domain object
+- Added `ResolvedDomain` object to normalize Resolver results.
+- Added `Suffix` object to replace the `PublicSuffix` object from v5.
+- Public Suffix List and IANA Top Level Domain List are fully decoupled
+- Added `Idna`, IDN support has been completely revamped
+- Added internal `Stream` class, to improve path/stream resolution
+- Resolver uses by default UTS#46 IDNA2008 algorithm to convert domain names
+- Storage capability is now optional and can be based on PHP-FIG related interfaces to improve interoperability
+- `Pdp\TopLevelDomains::getIANADomain` which throws on syntax error and if no effective TLD is found (behave like `Pdp\TopLevelDomains::resolve` in v5).
+
+### Fixed
+
+- The `Pdp\Domain` class not longer directly exposes Effective TLD status.
+- Effective TLD resolver (`Pdp\Rules::resolve` and `Pdp\TopLevelDomains::resolve`) no longer accept IDNA options.
+- `Rules::getICANNDomain`, `Rules::getPrivateDomain` will throw even if a `PublicSuffix` is found but does not belong to the correct PSL section.
+- `Pdp\TopLevelDomains::resolve` acts like `Pdp\Rules::resolve` and only throw on `TypeError`
+
+### Deprecated
+
+- None
+
+### Removed
+
+- `__toString` and `__debugInfo` usage
+- Support for PHP7.4-
+- Composer script for automatic updates of the remote databases
+- CLI command `bin/update-psl`
+- `Pdp\Cache`, `Pdp\CacheException`: The package PSR-16 Cache implementation using the underlying filesystem.
+- `Pdp\HttpClient`, `Pdp\CurlHttpClient` and `Pdp\HttpClientException`: The package Http Client.
+- `Pdp\Installer`, `Pdp\Manager`: The package source manager and installer
+- `Pdp\Logger`, The package logger implementation
+- `Pdp\Rules::ALL_DOMAINS` constant deprecated in version 5.3
+- `Pdp\Domain::getDomain` deprecated in version 5.3
+- `Pdp\Domain::resolve`
+- `Pdp\Domain::getPublicSuffix` replaced by `Pdp\ResolvedDomain::suffix`
+- `Pdp\Domain::getRegistrableDomain` replaced by `Pdp\ResolvedDomain::registrableDomain`
+- `Pdp\Domain::getSubDomain` replaced by `Pdp\ResolvedDomain::subDomain`
+- `Pdp\Domain::withPublicSuffix` replaced by `Pdp\ResolvedDomain::withSuffix`
+- `Pdp\Domain::getLabel` replaced by `Pdp\Domain::label`
+- `Pdp\Domain::isTransitionalDifferent` replaced by `Pdp\IdnaInfo::isTransitionalDifferent`
+- `Pdp\PublicSuffix` replaced by `Pdp\Suffix`
+- Accessing suffix information from the `Pdp\Domain` object is no longer possible you need to do it from `Pdp\Suffix`
+- `Pdp\TopLevelDomains::contains` without replacement
+- Internal Converter classes (implementation details are no longer exposed).
 
 ## 5.7.2 - 2020-10-25
 
@@ -16,7 +67,7 @@ All Notable changes to `PHP Domain Parser` **5.x** series will be documented in 
 
 - None
 
-### Removed
+### Remove
 
 - None
 
