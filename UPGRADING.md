@@ -95,9 +95,9 @@ contains a syntax error.
 
 ```diff
 <?php
-/** @var TopLevelDomains $rootZoneDatabase */
-- $result = $rootZoneDatabase->resolve('####'); //throws an Exception
-+ $result = $rootZoneDatabase->resolve('####'); //returns a ResolvedDomain object 
+/** @var TopLevelDomains $topLevelDomain */
+- $result = $topLevelDomain->resolve('####'); //throws an Exception
++ $result = $topLevelDomain->resolve('####'); //returns a ResolvedDomain object 
 ```
 
 #### Strict domain resolution
@@ -109,7 +109,7 @@ of returning a response object.
 
 ```diff
 <?php
-/** @var PublicSuffixList $rules */
+/** @var Pdp\Rules $rules */
 - $rules->getICANNDomain('toto.foobar')->isICANN();   //returns false
 - $rules->getPrivateDomain('ulb.ac.be')->isPrivate(); //returns false
 + $rules->getICANNDomain('toto.foobar'); //will throw an exception 
@@ -140,7 +140,7 @@ need to use on of the two (2) named constructor `Domain::fromIDNA2008` or
 #### Methods renamed
 
 - The `create` prefix is removed from all named constructors.
-- The `get` prefix is removed from `RootZoneDatabase` methods.
+- The `get` prefix is removed from `TopLevelDomains` methods.
 
 ```diff
 <?php
@@ -148,13 +148,13 @@ use Pdp\Rules;
 use Pdp\TopLevelDomains;
 
 - $publicSuffixList = Rules::createFromPath('path/to/public-suffix-data.dat');
-- $rootZoneDatabase = TopLevelDomains::createFromString($rootZoneInlineContent);
-- $rootZoneDatabase->getVersion(); //returns 2018082200
-- $rootZoneDatabase->getModifiedDate(); //returns \DateTimeImmutable object
+- $topLevelDomains = TopLevelDomains::createFromString($rootZoneInlineContent);
+- $topLevelDomains->getVersion();      //returns 2018082200
+- $topLevelDomains->getModifiedDate(); //returns \DateTimeImmutable object
 + $publicSuffixList = Rules::fromPath('path/to/public-suffix-data.dat');
-+ $rootZoneDatabase = TopLevelDomains::fromString($rootZoneInlineContent);
-+ $rootZoneDatabase->version();    //returns 2018082200
-+ $rootZoneDatabase->lastUpdated();     //returns \DateTimeImmutable object
++ $topLevelDomains = TopLevelDomains::fromString($rootZoneInlineContent);
++ $topLevelDomains->version();     //returns 2018082200
++ $topLevelDomains->lastUpdated(); //returns \DateTimeImmutable object
 ```
 
 #### Resource manager system
@@ -177,7 +177,7 @@ The resource manager system (containing caching and refreshing resource) is remo
 - `DomainInterface` is removed use `DomainName` or `ResolvedDomainName` instead. 
 - `Domain::isResolvable` is removed without replacement.
 - `Domain::resolve` is removed without replacement.
-- `Rules::getPublicSuffix` is removed use `ResolvedDomain::publicSuffix` instead. 
+- `Rules::getPublicSuffix` is removed use `ResolvedDomain::suffix` instead. 
 - All v5 IDNA related methods are removed, IDNA is fully handle within the `Domain` object.
 
 #### Methods return type changed
