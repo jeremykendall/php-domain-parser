@@ -164,7 +164,7 @@ final class Rules implements PublicSuffixList
     }
 
     /**
-     * @param array{rules:array{ICANN_DOMAINS:array,PRIVATE_DOMAINS:array}} $properties
+     * @param array{rules:array<string, array<array>>} $properties
      */
     public static function __set_state(array $properties): self
     {

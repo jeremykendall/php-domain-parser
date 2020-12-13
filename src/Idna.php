@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Pdp;
 
 use UnexpectedValueException;
+use function defined;
+use function function_exists;
 use function idn_to_ascii;
 use function idn_to_utf8;
 use function preg_match;
@@ -67,11 +69,14 @@ final class Idna
     /**
      * @codeCoverageIgnore
      */
-    private static function supportIdna(): void
+    private static function supportsIdna(): void
     {
-        static $idn_support = null;
-        $idn_support = $idn_support ?? function_exists('\idn_to_ascii') && defined('\INTL_IDNA_VARIANT_UTS46');
-        if (!$idn_support) {
+        static $idnSupport;
+        if (null === $idnSupport) {
+            $idnSupport = function_exists('\idn_to_ascii') && defined('\INTL_IDNA_VARIANT_UTS46');
+        }
+
+        if (!$idnSupport) {
             throw new UnexpectedValueException('IDN host can not be processed. Verify that ext/intl is installed for IDN support and that ICU is at least version 4.6.');
         }
     }
@@ -90,10 +95,11 @@ final class Idna
             return IdnaInfo::fromIntl(['result' => strtolower($domain), 'isTransitionalDifferent' => false, 'errors' => 0]);
         }
 
-        self::supportIdna();
+        self::supportsIdna();
 
         idn_to_ascii($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
+        /* @var array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo */
         return self::createIdnaInfo($domain, $idnaInfo);
     }
 
@@ -110,23 +116,24 @@ final class Idna
             return IdnaInfo::fromIntl(['result' => $domain, 'isTransitionalDifferent' => false, 'errors' => 0]);
         }
 
-        self::supportIdna();
+        self::supportsIdna();
 
         idn_to_utf8($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
+        /* @var array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo */
         return self::createIdnaInfo($domain, $idnaInfo);
     }
 
     /**
-     * @param array{result:string, isTransitionalDifferent:bool, errors:int} $infos
+     * @param array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo
      */
-    private static function createIdnaInfo(string $domain, array $infos): IdnaInfo
+    private static function createIdnaInfo(string $domain, array $idnaInfo): IdnaInfo
     {
-        $result = IdnaInfo::fromIntl($infos);
-        if (0 !== $result->errors()) {
-            throw SyntaxError::dueToIDNAError($domain, $result);
+        $info = IdnaInfo::fromIntl($idnaInfo);
+        if (0 !== $info->errors()) {
+            throw SyntaxError::dueToIDNAError($domain, $info);
         }
 
-        return $result;
+        return $info;
     }
 }

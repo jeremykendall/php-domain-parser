@@ -24,6 +24,7 @@ final class SuffixTest extends TestCase
     public function testInternalPhpMethod(): void
     {
         $publicSuffix = Suffix::fromICANN('ac.be');
+        /** @var Suffix $generatePublicSuffix */
         $generatePublicSuffix = eval('return '.var_export($publicSuffix, true).';');
         self::assertEquals($publicSuffix, $generatePublicSuffix);
         self::assertEquals('"ac.be"', json_encode($publicSuffix));

@@ -63,6 +63,7 @@ final class RulesTest extends TestCase
 
     public function testDomainInternalPhpMethod(): void
     {
+        /** @var Rules $generateRules */
         $generateRules = eval('return '.var_export(self::$rules, true).';');
 
         self::assertEquals(self::$rules, $generateRules);

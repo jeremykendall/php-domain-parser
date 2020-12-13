@@ -13,6 +13,7 @@ final class IdnaInfoTest extends TestCase
     {
         $infos = ['result' => 'foo.bar', 'isTransitionalDifferent' => false, 'errors' => 0];
         $result = IdnaInfo::fromIntl($infos);
+        /** @var IdnaInfo $generateResult */
         $generateResult = eval('return '.var_export($result, true).';');
 
         self::assertEquals($result, $generateResult);

@@ -140,6 +140,7 @@ EOF;
      */
     public function testSetState(): void
     {
+        /** @var TopLevelDomains $topLevelDomains */
         $topLevelDomains = eval('return '.var_export(self::$topLevelDomains, true).';');
 
         self::assertEquals(self::$topLevelDomains, $topLevelDomains);

@@ -45,6 +45,7 @@ final class DomainTest extends TestCase
     public function testDomainInternalPhpMethod(): void
     {
         $domain = Domain::fromIDNA2008('www.ulb.ac.be');
+        /** @var Domain $generateDomain */
         $generateDomain = eval('return '.var_export($domain, true).';');
         self::assertEquals($domain, $generateDomain);
         self::assertSame(['be', 'ac', 'ulb', 'www'], iterator_to_array($domain));

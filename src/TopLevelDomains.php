@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use DateTimeImmutable;
-use DateTimeInterface;
 use Iterator;
 use SplTempFileObject;
 use TypeError;
@@ -25,14 +24,14 @@ final class TopLevelDomains implements TopLevelDomainList
 
     private const REGEXP_HEADER_LINE = '/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/';
 
-    private DateTimeImmutable $lastUpdated;
-
-    private string $version;
-
     /**
      * @var array<string, int>
      */
     private array $records;
+
+    private string $version;
+
+    private DateTimeImmutable $lastUpdated;
 
     /**
      * @param array<string, int> $records
@@ -76,10 +75,7 @@ final class TopLevelDomains implements TopLevelDomainList
 
         $data = self::parse($content);
 
-        /** @var DateTimeImmutable $lastUpdated */
-        $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
-
-        return new self($data['records'], $data['version'], $lastUpdated);
+        return new self($data['records'], $data['version'], $data['lastUpdated']);
     }
 
     /**
@@ -87,7 +83,7 @@ final class TopLevelDomains implements TopLevelDomainList
      *
      * @throws UnableToLoadTopLevelDomainList if the content is invalid or can not be correctly parsed and converted
      *
-     * @return array{version:string, lastUpdated:string, records:array<string,int>}
+     * @return array{version:string, lastUpdated:DateTimeImmutable, records:array<string,int>}
      */
     public static function parse(string $content): array
     {
@@ -124,7 +120,7 @@ final class TopLevelDomains implements TopLevelDomainList
      *
      * @throws UnableToLoadTopLevelDomainList if the Header line is invalid
      *
-     * @return array{version:string, lastUpdated:string}
+     * @return array{version:string, lastUpdated:DateTimeImmutable}
      */
     private static function extractHeader(string $content): array
     {
@@ -137,7 +133,7 @@ final class TopLevelDomains implements TopLevelDomainList
 
         return [
             'version' => $matches['version'],
-            'lastUpdated' => $date->format(DateTimeInterface::ATOM),
+            'lastUpdated' => $date,
         ];
     }
 

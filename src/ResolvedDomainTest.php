@@ -62,6 +62,7 @@ final class ResolvedDomainTest extends TestCase
     public function testItCanBeUsedWithInternalPhpMethod(): void
     {
         $domain = ResolvedDomain::fromICANN('www.ulb.ac.be', 2);
+        /** @var ResolvedDomain $generateDomain */
         $generateDomain = eval('return '.var_export($domain, true).';');
         self::assertEquals($domain, $generateDomain);
         self::assertEquals('"www.ulb.ac.be"', json_encode($domain->jsonSerialize()));
