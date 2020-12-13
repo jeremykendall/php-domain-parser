@@ -42,7 +42,7 @@ final class RulesTest extends TestCase
 
     public function testCreateFromPathThrowsException(): void
     {
-        $this->expectException(UnableToLoadPublicSuffixList::class);
+        $this->expectException(UnableToLoadResource::class);
 
         Rules::fromPath('/foo/bar.dat');
     }

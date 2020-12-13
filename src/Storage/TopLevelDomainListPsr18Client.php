@@ -6,7 +6,7 @@ namespace Pdp\Storage;
 
 use Pdp\TopLevelDomainList;
 use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadTopLevelDomainList;
+use Pdp\UnableToLoadResource;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -29,11 +29,11 @@ final class TopLevelDomainListPsr18Client implements TopLevelDomainListClient
         try {
             $response = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $exception) {
-            throw UnableToLoadTopLevelDomainList::dueToUnavailableService($uri, $exception);
+            throw UnableToLoadResource::dueToUnavailableService($uri, $exception);
         }
 
         if (400 <= $response->getStatusCode()) {
-            throw UnableToLoadTopLevelDomainList::dueToUnexpectedContent($uri, $response->getStatusCode());
+            throw UnableToLoadResource::dueToUnexpectedStatusCode($uri, $response->getStatusCode());
         }
 
         return TopLevelDomains::fromString($response->getBody());

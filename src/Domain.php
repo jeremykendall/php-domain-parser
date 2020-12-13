@@ -151,7 +151,7 @@ final class Domain implements DomainName
 
         // if the domain name does not contains UTF-8 chars then it is malformed
         if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $formattedDomain)) {
-            throw SyntaxError::dueToInvalidLength($domain);
+            throw SyntaxError::dueToMalformedValue($domain);
         }
 
         return $this->domainToUnicode($this->domainToAscii($formattedDomain));

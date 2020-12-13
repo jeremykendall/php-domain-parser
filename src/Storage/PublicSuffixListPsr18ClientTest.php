@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Pdp\Rules;
-use Pdp\UnableToLoadPublicSuffixList;
+use Pdp\UnableToLoadResource;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -62,8 +62,8 @@ final class PublicSuffixListPsr18ClientTest extends TestCase
             }
         };
 
-        $this->expectException(UnableToLoadPublicSuffixList::class);
-        $this->expectExceptionMessage('Could not access the Public Suffix List URI: `http://www.example.com`.');
+        $this->expectException(UnableToLoadResource::class);
+        $this->expectExceptionMessage('Could not access the URI: `http://www.example.com`.');
 
         $storage = new PublicSuffixListPsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');
@@ -85,8 +85,8 @@ final class PublicSuffixListPsr18ClientTest extends TestCase
             }
         };
 
-        $this->expectException(UnableToLoadPublicSuffixList::class);
-        $this->expectExceptionMessage('Invalid response from Public Suffix List URI: `http://www.example.com`.');
+        $this->expectException(UnableToLoadResource::class);
+        $this->expectExceptionMessage('Invalid response from URI: `http://www.example.com`.');
         $this->expectExceptionCode(404);
 
         $storage = new PublicSuffixListPsr18Client($client, $requestFactory);

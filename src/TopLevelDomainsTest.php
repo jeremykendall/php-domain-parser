@@ -25,6 +25,7 @@ final class TopLevelDomainsTest extends TestCase
     /**
      * @covers ::fromPath
      * @covers ::fromString
+     * @covers \Pdp\Stream
      * @covers ::__construct
      */
     public function testCreateFromPath(): void
@@ -47,7 +48,7 @@ final class TopLevelDomainsTest extends TestCase
      */
     public function testCreateFromPathThrowsException(): void
     {
-        $this->expectException(UnableToLoadTopLevelDomainList::class);
+        $this->expectException(UnableToLoadResource::class);
 
         TopLevelDomains::fromPath('/foo/bar.dat');
     }

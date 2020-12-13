@@ -9,17 +9,13 @@ use DateTimeInterface;
 use Iterator;
 use SplTempFileObject;
 use TypeError;
-use function array_flip;
 use function count;
-use function fclose;
-use function fopen;
 use function gettype;
 use function in_array;
 use function is_object;
 use function is_string;
 use function method_exists;
 use function preg_match;
-use function stream_get_contents;
 use function strpos;
 use function trim;
 
@@ -53,40 +49,20 @@ final class TopLevelDomains implements TopLevelDomainList
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadTopLevelDomainList If the rules can not be loaded from the path
+     * @throws UnableToLoadResource           If the rules can not be loaded from the path
+     * @throws UnableToLoadTopLevelDomainList If the content is invalid or can not be correctly parsed and converted
      */
     public static function fromPath(string $path, $context = null): self
     {
-        $resource = self::getResource($path, $context);
-        if (false === $resource) {
-            throw UnableToLoadTopLevelDomainList::dueToInvalidPath($path);
-        }
-
-        /** @var string $content */
-        $content = stream_get_contents($resource);
-        fclose($resource);
-
-        return self::fromString($content);
-    }
-
-    /**
-     * @param null|resource $context
-     *
-     * @return false|resource
-     */
-    private static function getResource(string $path, $context = null)
-    {
-        if (null === $context) {
-            return @fopen($path, 'r');
-        }
-
-        return @fopen($path, 'r', false, $context);
+        return self::fromString(Stream::getContentAsString($path, $context));
     }
 
     /**
      * Returns a new instance from a string.
      *
      * @param object|string $content a string or an object which exposes the __toString method
+     *
+     * @throws UnableToLoadTopLevelDomainList if the content is invalid or can not be correctly parsed and converted
      */
     public static function fromString($content): self
     {
@@ -103,15 +79,15 @@ final class TopLevelDomains implements TopLevelDomainList
         /** @var DateTimeImmutable $lastUpdated */
         $lastUpdated = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $data['lastUpdated']);
 
-        return new self(array_flip($data['records']), $data['version'], $lastUpdated);
+        return new self($data['records'], $data['version'], $lastUpdated);
     }
 
     /**
      * Converts the IANA Top Level Domain List into a TopLevelDomains associative array.
      *
-     *@throws UnableToLoadTopLevelDomainList if the content is invalid or can not be correctly parsed and converted
+     * @throws UnableToLoadTopLevelDomainList if the content is invalid or can not be correctly parsed and converted
      *
-     * @return array{version:string, lastUpdated:string, records:array<string>}
+     * @return array{version:string, lastUpdated:string, records:array<string,int>}
      */
     public static function parse(string $content): array
     {
@@ -129,7 +105,7 @@ final class TopLevelDomains implements TopLevelDomainList
 
             if (false === strpos($line, '#')) {
                 $data['records'] = $data['records'] ?? [];
-                $data['records'][] = self::extractRootZone($line);
+                $data['records'][self::extractRootZone($line)] = 1;
                 continue;
             }
 
@@ -168,7 +144,7 @@ final class TopLevelDomains implements TopLevelDomainList
     /**
      * Extract IANA Root Zone.
      *
-     * @throws UnableToLoadTopLevelDomainList If the Root Zone is invalid
+     * @throws UnableToLoadTopLevelDomainList If the Top Level Domain is invalid
      */
     private static function extractRootZone(string $content): string
     {
@@ -178,7 +154,7 @@ final class TopLevelDomains implements TopLevelDomainList
             throw UnableToLoadTopLevelDomainList::dueToInvalidTopLevelDomain($content, $exception);
         }
 
-        return $tld->toString();
+        return $tld->toAscii()->toString();
     }
 
     /**

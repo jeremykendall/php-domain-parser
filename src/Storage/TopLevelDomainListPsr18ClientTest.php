@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Pdp\TopLevelDomains;
-use Pdp\UnableToLoadTopLevelDomainList;
+use Pdp\UnableToLoadResource;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -63,8 +63,8 @@ final class TopLevelDomainListPsr18ClientTest extends TestCase
             }
         };
 
-        $this->expectException(UnableToLoadTopLevelDomainList::class);
-        $this->expectExceptionMessage('Could not access the Top Level Domain List URI: `http://www.example.com`.');
+        $this->expectException(UnableToLoadResource::class);
+        $this->expectExceptionMessage('Could not access the URI: `http://www.example.com`.');
 
         $storage = new TopLevelDomainListPsr18Client($client, $requestFactory);
         $storage->get('http://www.example.com');
@@ -86,8 +86,8 @@ final class TopLevelDomainListPsr18ClientTest extends TestCase
             }
         };
 
-        $this->expectException(UnableToLoadTopLevelDomainList::class);
-        $this->expectExceptionMessage('Invalid response from Top Level Domain List URI: `http://www.example.com`.');
+        $this->expectException(UnableToLoadResource::class);
+        $this->expectExceptionMessage('Invalid response from URI: `http://www.example.com`.');
         $this->expectExceptionCode(404);
 
         $storage = new TopLevelDomainListPsr18Client($client, $requestFactory);

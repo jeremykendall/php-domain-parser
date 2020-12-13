@@ -6,7 +6,7 @@ namespace Pdp\Storage;
 
 use Pdp\PublicSuffixList;
 use Pdp\Rules;
-use Pdp\UnableToLoadPublicSuffixList;
+use Pdp\UnableToLoadResource;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -29,11 +29,11 @@ final class PublicSuffixListPsr18Client implements PublicSuffixListClient
         try {
             $response = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $exception) {
-            throw UnableToLoadPublicSuffixList::dueToUnavailableService($uri, $exception);
+            throw UnableToLoadResource::dueToUnavailableService($uri, $exception);
         }
 
         if (400 <= $response->getStatusCode()) {
-            throw UnableToLoadPublicSuffixList::dueToUnexpectedContent($uri, $response->getStatusCode());
+            throw UnableToLoadResource::dueToUnexpectedStatusCode($uri, $response->getStatusCode());
         }
 
         return Rules::fromString($response->getBody());

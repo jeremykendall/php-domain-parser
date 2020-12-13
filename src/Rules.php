@@ -9,14 +9,11 @@ use TypeError;
 use function array_pop;
 use function count;
 use function explode;
-use function fclose;
-use function fopen;
 use function gettype;
 use function is_object;
 use function is_string;
 use function method_exists;
 use function preg_match;
-use function stream_get_contents;
 use function strpos;
 use function substr;
 
@@ -57,40 +54,20 @@ final class Rules implements PublicSuffixList
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadPublicSuffixList If the rules can not be loaded from the path
+     * @throws UnableToLoadResource         If the rules can not be loaded from the path
+     * @throws UnableToLoadPublicSuffixList If the rules contains in the resource are invalid
      */
     public static function fromPath(string $path, $context = null): self
     {
-        $resource = self::getResource($path, $context);
-        if (false === $resource) {
-            throw UnableToLoadPublicSuffixList::dueToInvalidPath($path);
-        }
-
-        /** @var string $content */
-        $content = stream_get_contents($resource);
-        fclose($resource);
-
-        return self::fromString($content);
-    }
-
-    /**
-     * @param null|resource $context
-     *
-     * @return false|resource
-     */
-    private static function getResource(string $path, $context = null)
-    {
-        if (null === $context) {
-            return @fopen($path, 'r');
-        }
-
-        return @fopen($path, 'r', false, $context);
+        return self::fromString(Stream::getContentAsString($path, $context));
     }
 
     /**
      * Returns a new instance from a string.
      *
      * @param object|string $content a string or an object which exposes the __toString method
+     *
+     * @throws UnableToLoadPublicSuffixList If the rules contains in the resource are invalid
      */
     public static function fromString($content): self
     {
