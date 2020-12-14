@@ -2,6 +2,27 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- `TimeToLive::fromNow`
+- `TimeToLive::fromDurationString`
+
+### Fixed
+
+- `.gitattributes` files to be filter out.
+
+### Deprecated
+
+- `TimeToLive::fromDateTimeInterface` use `TimeToLive::fromNow`
+- `TimeToLive::fromScalar` use `TimeToLive::fromDurationString`
+- `TimeToLive::convert` without replacement
+
+### Removed
+
+- None
+
 ## 6.0.0 - 2020-12-13
 
 ### Added

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use DateInterval;
+use DateTimeInterface;
+use InvalidArgumentException;
 use Pdp\PublicSuffixList;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
@@ -21,13 +23,31 @@ final class PublicSuffixListPsr16Cache implements PublicSuffixListCache
     private ?DateInterval $cacheTtl;
 
     /**
-     * @param mixed $cacheTtl cache TTL
+     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
      */
     public function __construct(CacheInterface $cache, string $cachePrefix = '', $cacheTtl = null)
     {
         $this->cache = $cache;
         $this->cachePrefix = $cachePrefix;
-        $this->cacheTtl = TimeToLive::convert($cacheTtl);
+        $this->cacheTtl = $this->setCacheTtl($cacheTtl);
+    }
+
+    /**
+     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
+     *
+     * @throws InvalidArgumentException if the value can not be computed
+     */
+    private function setCacheTtl($cacheTtl): ?DateInterval
+    {
+        if ($cacheTtl instanceof DateInterval || null === $cacheTtl) {
+            return $cacheTtl;
+        }
+
+        if ($cacheTtl instanceof DateTimeInterface) {
+            return TimeToLive::fromNow($cacheTtl);
+        }
+
+        return TimeToLive::fromDurationString($cacheTtl);
     }
 
     public function fetch(string $uri): ?PublicSuffixList

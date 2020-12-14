@@ -18,41 +18,30 @@ use const FILTER_VALIDATE_INT;
 
 final class TimeToLive
 {
-    public static function fromDateTimeInterface(DateTimeInterface $ttl): DateInterval
-    {
-        /** @var DateTimeZone $timezone */
-        $timezone = $ttl->getTimezone();
-
-        $now = new DateTimeImmutable('NOW', $timezone);
-
-        /** @var DateInterval $diff */
-        $diff = $now->diff($ttl, false);
-
-        return $diff;
-    }
-
     /**
-     * @param object|string|int $ttl the cache TTL the object must implement the __toString method
+     * Returns a DateInterval from string parsing.
+     *
+     * @param object|int|string $duration storage TTL object should implement the __toString method
      */
-    public static function fromScalar($ttl): DateInterval
+    public static function fromDurationString($duration): DateInterval
     {
-        if (is_object($ttl) && method_exists($ttl, '__toString')) {
-            $ttl = (string) $ttl;
+        if (is_object($duration) && method_exists($duration, '__toString')) {
+            $duration = (string) $duration;
         }
 
-        if (false !== ($res = filter_var($ttl, FILTER_VALIDATE_INT))) {
+        if (false !== ($res = filter_var($duration, FILTER_VALIDATE_INT))) {
             return new DateInterval('PT'.$res.'S');
         }
 
-        if (!is_string($ttl)) {
+        if (!is_string($duration)) {
             throw new TypeError('The ttl must null, an integer, a string, a DateTimeInterface or a DateInterval object.');
         }
 
         /** @var DateInterval|false $date */
-        $date = @DateInterval::createFromDateString($ttl);
+        $date = @DateInterval::createFromDateString($duration);
         if (!$date instanceof DateInterval) {
             throw new InvalidArgumentException(
-                'The ttl value "'.$ttl.'" can not be parsable by `DateInterval::createFromDateString`.'
+                'The ttl value "'.$duration.'" can not be parsable by `DateInterval::createFromDateString`.'
             );
         }
 
@@ -60,12 +49,65 @@ final class TimeToLive
     }
 
     /**
-     * Set the cache TTL.
+     * Returns a DateInterval relative to the current date and time.
+     */
+    public static function fromNow(DateTimeInterface $date): DateInterval
+    {
+        /** @var DateTimeZone $timezone */
+        $timezone = $date->getTimezone();
+
+        $now = new DateTimeImmutable('NOW', $timezone);
+
+        /** @var DateInterval $diff */
+        $diff = $now->diff($date, false);
+
+        return $diff;
+    }
+
+    /**
+     * Returns a DateInterval relative to the current date and time.
      *
-     * @param mixed $ttl the cache TTL
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated 6.1.0 deprecated
+     * @codeCoverageIgnore
+     * @see TimeToLive::fromNow
+     */
+    public static function fromDateTimeInterface(DateTimeInterface $date): DateInterval
+    {
+        return self::fromNow($date);
+    }
+
+    /**
+     * Returns a DateInterval from string parsing.
+     *
+     * @param object|int|string $duration storage TTL object should implement the __toString method
+     *
+     * @throws InvalidArgumentException if the value can not be parsable
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated 6.1.0 deprecated
+     * @codeCoverageIgnore
+     * @see TimeToLive::fromDurationString
+     */
+    public static function fromScalar($duration): DateInterval
+    {
+        return self::fromDurationString($duration);
+    }
+
+    /**
+     * Convert the input data into a DateInterval object or null.
+     *
+     * @param DateInterval|DateTimeInterface|object|int|string|null $ttl the object should implement the __toString method
      *
      * @throws InvalidArgumentException if the value can not be computed
      * @throws TypeError                if the value type is not recognized
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated 6.1.0 deprecated
+     * @codeCoverageIgnore
      */
     public static function convert($ttl): ?DateInterval
     {
@@ -74,9 +116,9 @@ final class TimeToLive
         }
 
         if ($ttl instanceof DateTimeInterface) {
-            return self::fromDateTimeInterface($ttl);
+            return self::fromNow($ttl);
         }
 
-        return self::fromScalar($ttl);
+        return self::fromDurationString($ttl);
     }
 }

@@ -540,8 +540,9 @@ Testing
 `pdp-domain-parser` has:
 
 - a [PHPUnit](https://phpunit.de) test suite
-- a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/).
-- a code analysis compliance test suite using [PHPStan](https://github.com/phpstan/phpstan).
+- a code analysis compliance test suite using [PHPStan](https://phpstan.org).
+- a code analysis compliance test suite using [Psalm](https://psalm.dev).
+- a coding style compliance test suite using [PHP CS Fixer](https://cs.symfony.com).
 
 To run the tests, run the following command from the project folder.
 
