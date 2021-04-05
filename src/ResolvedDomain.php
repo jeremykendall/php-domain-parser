@@ -165,11 +165,19 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->suffix;
     }
 
+    /**
+     * @psalm-suppress MoreSpecificReturnType
+     * @psalm-suppress LessSpecificReturnStatement
+     */
     public function toAscii(): self
     {
         return new self($this->domain->toAscii(), $this->suffix->toAscii());
     }
 
+    /**
+     * @psalm-suppress MoreSpecificReturnType
+     * @psalm-suppress LessSpecificReturnStatement
+     */
     public function toUnicode(): self
     {
         return new self($this->domain->toUnicode(), $this->suffix->toUnicode());

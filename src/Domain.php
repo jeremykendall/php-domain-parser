@@ -235,6 +235,10 @@ final class Domain implements DomainName
         return $this->labels;
     }
 
+    /**
+     * @psalm-suppress MoreSpecificReturnType
+     * @psalm-suppress LessSpecificReturnStatement
+     */
     public function toAscii(): self
     {
         if (null === $this->domain) {
@@ -249,6 +253,10 @@ final class Domain implements DomainName
         return new self($this->type, $domain);
     }
 
+    /**
+     * @psalm-suppress MoreSpecificReturnType
+     * @psalm-suppress LessSpecificReturnStatement
+     */
     public function toUnicode(): self
     {
         if (null === $this->domain) {

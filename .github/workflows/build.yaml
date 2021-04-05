@@ -23,8 +23,8 @@ jobs:
             - run: composer update --no-progress ${{ matrix.composer-flags }}
             - run: composer phpunit
             - run: composer phpstan
-              if: ${{ matrix.php == '7.4' }}
+              if: ${{ matrix.php == '8.0' }}
             - run: composer psalm
-              if: ${{ matrix.php == '7.4' }}
+              if: ${{ matrix.php == '8.0' }}
             - run: composer phpcs
-              if: ${{ matrix.php == '7.4' }}
+              if: ${{ matrix.php == '8.0' }}

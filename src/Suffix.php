@@ -148,6 +148,10 @@ final class Suffix implements EffectiveTopLevelDomain
         return $this->domain->toString();
     }
 
+    /**
+     * @psalm-suppress MoreSpecificReturnType
+     * @psalm-suppress LessSpecificReturnStatement
+     */
     public function toAscii(): self
     {
         $clone = clone $this;
@@ -156,6 +160,10 @@ final class Suffix implements EffectiveTopLevelDomain
         return $clone;
     }
 
+    /**
+     * @psalm-suppress MoreSpecificReturnType
+     * @psalm-suppress LessSpecificReturnStatement
+     */
     public function toUnicode(): self
     {
         $clone = clone $this;
