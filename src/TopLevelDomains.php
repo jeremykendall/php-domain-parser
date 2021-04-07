@@ -186,7 +186,7 @@ final class TopLevelDomains implements TopLevelDomainList
      */
     public function getIterator(): Iterator
     {
-        foreach ($this->records as $tld => $int) {
+        foreach ($this->records as $tld => $_) {
             yield $tld;
         }
     }

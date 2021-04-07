@@ -45,7 +45,7 @@ final class Domain implements DomainName
     private const REGEXP_URI_DELIMITERS = '/[:\/?#\[\]@ ]/';
 
     /**
-     * @var array<string>
+     * @var array<int, string>
      */
     private array $labels;
 
@@ -176,7 +176,7 @@ final class Domain implements DomainName
      */
     public function getIterator(): Iterator
     {
-        foreach ($this->labels as $offset => $label) {
+        foreach ($this->labels as $label) {
             yield $label;
         }
     }
@@ -216,7 +216,7 @@ final class Domain implements DomainName
     }
 
     /**
-     * @return array<int>
+     * @return list<int>
      */
     public function keys(string $label = null): array
     {
@@ -228,7 +228,7 @@ final class Domain implements DomainName
     }
 
     /**
-     * @return array<string>
+     * @return array<int, string>
      */
     public function labels(): array
     {
@@ -274,7 +274,7 @@ final class Domain implements DomainName
     /**
      * Filter a subdomain to update the domain part.
      *
-     * @param string|object $domain a domain
+     * @param string|object|null $domain a domain
      *
      * @throws TypeError if the domain can not be converted
      */

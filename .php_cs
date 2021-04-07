@@ -24,7 +24,7 @@ return PhpCsFixer\Config::create()
         'phpdoc_no_empty_return' => true,
         'phpdoc_order' => true,
         'phpdoc_scalar' => true,
-        'phpdoc_to_comment' => true,
+        'phpdoc_to_comment' => false,
         'phpdoc_summary' => true,
         'psr0' => true,
         'psr4' => true,

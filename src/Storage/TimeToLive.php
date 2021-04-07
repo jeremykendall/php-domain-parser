@@ -58,10 +58,7 @@ final class TimeToLive
 
         $now = new DateTimeImmutable('NOW', $timezone);
 
-        /** @var DateInterval $diff */
-        $diff = $now->diff($date, false);
-
-        return $diff;
+        return $now->diff($date, false);
     }
 
     /**

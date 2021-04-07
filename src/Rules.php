@@ -157,7 +157,9 @@ final class Rules implements PublicSuffixList
 
         $list[$rule] = $list[$rule] ?? ($isDomain ? [] : ['!' => '']);
         if ($isDomain && [] !== $ruleParts) {
-            $list[$rule] = self::addRule($list[$rule], $ruleParts);
+            /** @var array<array-key, array> $tmpList */
+            $tmpList = $list[$rule];
+            $list[$rule] = self::addRule($tmpList, $ruleParts);
         }
 
         return $list;
@@ -307,6 +309,7 @@ final class Rules implements PublicSuffixList
             }
 
             $matches[] = $label;
+            /** @var array<array-key, mixed> $rules */
             $rules = $rules[$label];
         }
 

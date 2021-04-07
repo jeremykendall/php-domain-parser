@@ -338,7 +338,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<array{0:string, 1:string, 2:string}>
+     * @return iterable<array-key, array{0:string, 1:string, 2:string}>
      */
     public function validAppend(): iterable
     {
@@ -359,7 +359,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<array{0:string, 1:string, 2:string}>
+     * @return iterable<array-key, array{0:string, 1:string, 2:string}>
      */
     public function validPrepend(): iterable
     {
