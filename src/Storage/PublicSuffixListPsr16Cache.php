@@ -44,7 +44,7 @@ final class PublicSuffixListPsr16Cache implements PublicSuffixListCache
         }
 
         if ($cacheTtl instanceof DateTimeInterface) {
-            return TimeToLive::fromNow($cacheTtl);
+            return TimeToLive::until($cacheTtl);
         }
 
         return TimeToLive::fromDurationString($cacheTtl);

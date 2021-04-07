@@ -6,7 +6,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 ### Added
 
-- `TimeToLive::fromNow`
+- `TimeToLive::until`
 - `TimeToLive::fromDurationString`
 
 ### Fixed

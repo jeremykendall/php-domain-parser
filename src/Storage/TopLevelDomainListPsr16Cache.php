@@ -44,7 +44,7 @@ final class TopLevelDomainListPsr16Cache implements TopLevelDomainListCache
         }
 
         if ($cacheTtl instanceof DateTimeInterface) {
-            return TimeToLive::fromNow($cacheTtl);
+            return TimeToLive::until($cacheTtl);
         }
 
         return TimeToLive::fromDurationString($cacheTtl);

@@ -7,7 +7,6 @@ namespace Pdp\Storage;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
-use DateTimeZone;
 use InvalidArgumentException;
 use TypeError;
 use function filter_var;
@@ -29,12 +28,19 @@ final class TimeToLive
             $duration = (string) $duration;
         }
 
-        if (false !== ($res = filter_var($duration, FILTER_VALIDATE_INT))) {
-            return new DateInterval('PT'.$res.'S');
+        if (false !== ($seconds = filter_var($duration, FILTER_VALIDATE_INT))) {
+            if (-1 < $seconds) {
+                return new DateInterval('PT'.$seconds.'S');
+            }
+
+            $interval = new DateInterval('PT'.($seconds * -1).'S');
+            $interval->invert = 1;
+
+            return $interval;
         }
 
         if (!is_string($duration)) {
-            throw new TypeError('The ttl must null, an integer, a string, a DateTimeInterface or a DateInterval object.');
+            throw new TypeError('The ttl must null, an integer, a string, or a stringable object.');
         }
 
         /** @var DateInterval|false $date */
@@ -51,14 +57,9 @@ final class TimeToLive
     /**
      * Returns a DateInterval relative to the current date and time.
      */
-    public static function fromNow(DateTimeInterface $date): DateInterval
+    public static function until(DateTimeInterface $date): DateInterval
     {
-        /** @var DateTimeZone $timezone */
-        $timezone = $date->getTimezone();
-
-        $now = new DateTimeImmutable('NOW', $timezone);
-
-        return $now->diff($date, false);
+        return (new DateTimeImmutable('NOW', $date->getTimezone()))->diff($date, false);
     }
 
     /**
@@ -68,11 +69,11 @@ final class TimeToLive
      *
      * @deprecated 6.1.0 deprecated
      * @codeCoverageIgnore
-     * @see TimeToLive::fromNow
+     * @see TimeToLive::until
      */
     public static function fromDateTimeInterface(DateTimeInterface $date): DateInterval
     {
-        return self::fromNow($date);
+        return self::until($date);
     }
 
     /**
@@ -113,7 +114,7 @@ final class TimeToLive
         }
 
         if ($ttl instanceof DateTimeInterface) {
-            return self::fromNow($ttl);
+            return self::until($ttl);
         }
 
         return self::fromDurationString($ttl);
