@@ -78,6 +78,9 @@ For the [IANA Top Level Domain List](https://www.iana.org/domains/root/files),
 the `Pdp\TopLevelDomains` class is use instead:
 
 ~~~php
+<?php
+
+use Pdp\Domain;
 use Pdp\TopLevelDomains;
 
 $topLevelDomains = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');

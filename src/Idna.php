@@ -75,14 +75,10 @@ final class Idna
 
         self::supportsIdna();
 
-        /**
-         * @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo
-         */
+        /** @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         idn_to_ascii($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
-        /**
-         * @var array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo
-         */
+        /** @var array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         return self::createIdnaInfo($domain, $idnaInfo);
     }
 
@@ -101,14 +97,10 @@ final class Idna
 
         self::supportsIdna();
 
-        /**
-         * @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo
-         */
+        /** @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         idn_to_utf8($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
-        /**
-         * @var array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo
-         */
+        /** @var array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         return self::createIdnaInfo($domain, $idnaInfo);
     }
 

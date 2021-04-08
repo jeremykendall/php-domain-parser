@@ -7,7 +7,6 @@ namespace Pdp;
 use SplTempFileObject;
 use TypeError;
 use function array_pop;
-use function count;
 use function explode;
 use function gettype;
 use function is_object;
@@ -193,16 +192,16 @@ final class Rules implements PublicSuffixList
     public function getCookieDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        [$length, $section] = $this->getEffectiveTopLevelDomain($domain, '');
+        [$suffixLength, $section] = $this->resolveSuffix($domain, '');
         if (self::ICANN_DOMAINS === $section) {
-            return ResolvedDomain::fromICANN($domain, $length);
+            return ResolvedDomain::fromICANN($domain, $suffixLength);
         }
 
         if (self::PRIVATE_DOMAINS === $section) {
-            return ResolvedDomain::fromPrivate($domain, $length);
+            return ResolvedDomain::fromPrivate($domain, $suffixLength);
         }
 
-        return ResolvedDomain::fromUnknown($domain, $length);
+        return ResolvedDomain::fromUnknown($domain, $suffixLength);
     }
 
     /**
@@ -211,12 +210,12 @@ final class Rules implements PublicSuffixList
     public function getICANNDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        [$length, $section] = $this->getEffectiveTopLevelDomain($domain, self::ICANN_DOMAINS);
+        [$suffixLength, $section] = $this->resolveSuffix($domain, self::ICANN_DOMAINS);
         if (self::ICANN_DOMAINS !== $section) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'ICANN');
         }
 
-        return ResolvedDomain::fromICANN($domain, $length);
+        return ResolvedDomain::fromICANN($domain, $suffixLength);
     }
 
     /**
@@ -225,12 +224,12 @@ final class Rules implements PublicSuffixList
     public function getPrivateDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        [$length, $section] = $this->getEffectiveTopLevelDomain($domain, self::PRIVATE_DOMAINS);
+        [$suffixLength, $section] = $this->resolveSuffix($domain, self::PRIVATE_DOMAINS);
         if (self::PRIVATE_DOMAINS !== $section) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'private');
         }
 
-        return ResolvedDomain::fromPrivate($domain, $length);
+        return ResolvedDomain::fromPrivate($domain, $suffixLength);
     }
 
     /**
@@ -259,38 +258,36 @@ final class Rules implements PublicSuffixList
     }
 
     /**
-     * Returns the matched public suffix.
+     * Returns the length and the section of thhe resolved effective top level domain.
      *
-     * @return array{0:int, 1:string}
+     * @return array{0: int, 1:string}
      */
-    private function getEffectiveTopLevelDomain(DomainName $domain, string $section): array
+    private function resolveSuffix(DomainName $domain, string $section): array
     {
-        $icann = $this->getEffectiveTopLevelDomainFromSection($domain, self::ICANN_DOMAINS);
+        $icannSuffixLength = $this->getPublicSuffixLengthFromSection($domain, self::ICANN_DOMAINS);
+        if (1 > $icannSuffixLength) {
+            return [1, ''];
+        }
+
         if (self::ICANN_DOMAINS === $section) {
-            return $icann;
+            return [$icannSuffixLength, self::ICANN_DOMAINS];
         }
 
-        $private = $this->getEffectiveTopLevelDomainFromSection($domain, self::PRIVATE_DOMAINS);
-        if ($private[0] > $icann[0]) {
-            return $private;
+        $privateSuffixLength = $this->getPublicSuffixLengthFromSection($domain, self::PRIVATE_DOMAINS);
+        if ($privateSuffixLength > $icannSuffixLength) {
+            return [$privateSuffixLength, self::PRIVATE_DOMAINS];
         }
 
-        if ('' === $section) {
-            return $icann;
-        }
-
-        return [1, ''];
+        return [$icannSuffixLength, self::ICANN_DOMAINS];
     }
 
     /**
-     * Returns the public suffix matched against a given PSL section.
-     *
-     * @return array{0:int, 1:string}
+     * Returns the public suffix label count for a domain name according to a PSL section.
      */
-    private function getEffectiveTopLevelDomainFromSection(DomainName $domain, string $section): array
+    private function getPublicSuffixLengthFromSection(DomainName $domain, string $section): int
     {
         $rules = $this->rules[$section];
-        $matches = [];
+        $labelCount = 0;
         foreach ($domain->toAscii() as $label) {
             //match exception rule
             if (isset($rules[$label], $rules[$label]['!'])) {
@@ -299,7 +296,7 @@ final class Rules implements PublicSuffixList
 
             //match wildcard rule
             if (isset($rules['*'])) {
-                $matches[] = $label;
+                ++$labelCount;
                 break;
             }
 
@@ -308,15 +305,11 @@ final class Rules implements PublicSuffixList
                 break;
             }
 
-            $matches[] = $label;
+            ++$labelCount;
             /** @var array<array-key, mixed> $rules */
             $rules = $rules[$label];
         }
 
-        if ([] === $matches) {
-            return [1, ''];
-        }
-
-        return [count($matches), $section];
+        return $labelCount;
     }
 }
