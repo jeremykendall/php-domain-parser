@@ -27,7 +27,7 @@ final class IdnaInfoTest extends TestCase
         self::assertSame('', $result->result());
         self::assertFalse($result->isTransitionalDifferent());
         self::assertSame(0, $result->errors());
-        self::assertNull($result->error(IdnaInfo::ERROR_BIDI));
+        self::assertNull($result->error(Idna::ERROR_BIDI));
         self::assertCount(0, $result->errorList());
     }
 
@@ -38,8 +38,8 @@ final class IdnaInfoTest extends TestCase
         } catch (SyntaxError $exception) {
             $result = $exception->idnaInfo();
             self::assertInstanceOf(IdnaInfo::class, $result);
-            self::assertSame(IdnaInfo::ERROR_DISALLOWED, $result->errors());
-            self::assertIsString($result->error(IdnaInfo::ERROR_DISALLOWED));
+            self::assertSame(Idna::ERROR_DISALLOWED, $result->errors());
+            self::assertIsString($result->error(Idna::ERROR_DISALLOWED));
             self::assertCount(1, $result->errorList());
         }
     }

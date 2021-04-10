@@ -12,12 +12,12 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 ### Fixed
 
 - `.gitattributes` files to be filter out.
+- `TimeToLive` marked as internal
 
 ### Deprecated
 
 - `TimeToLive::fromDateTimeInterface` use `TimeToLive::fromNow`
-- `TimeToLive::fromScalar` use `TimeToLive::fromDurationString`
-- `TimeToLive::convert` without replacement
+- `TimeToLive::fromScalar` use `TimeToLive::convert`
 
 ### Removed
 

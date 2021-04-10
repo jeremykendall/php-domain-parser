@@ -16,10 +16,13 @@ use function strtolower;
 use const INTL_IDNA_VARIANT_UTS46;
 
 /**
+ * @internal
  * @see https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/uidna_8h.html
  */
 final class Idna
 {
+    private const REGEXP_IDNA_PATTERN = '/[^\x20-\x7f]/';
+
     /**
      * IDNA options.
      */
@@ -32,6 +35,28 @@ final class Idna
     public const IDNA_NONTRANSITIONAL_TO_UNICODE = 0x20;
     public const IDNA_CHECK_CONTEXTO             = 0x40;
 
+    /**
+     * IDNA errors.
+     */
+    public const ERROR_EMPTY_LABEL            = 1;
+    public const ERROR_LABEL_TOO_LONG         = 2;
+    public const ERROR_DOMAIN_NAME_TOO_LONG   = 4;
+    public const ERROR_LEADING_HYPHEN         = 8;
+    public const ERROR_TRAILING_HYPHEN        = 0x10;
+    public const ERROR_HYPHEN_3_4             = 0x20;
+    public const ERROR_LEADING_COMBINING_MARK = 0x40;
+    public const ERROR_DISALLOWED             = 0x80;
+    public const ERROR_PUNYCODE               = 0x100;
+    public const ERROR_LABEL_HAS_DOT          = 0x200;
+    public const ERROR_INVALID_ACE_LABEL      = 0x400;
+    public const ERROR_BIDI                   = 0x800;
+    public const ERROR_CONTEXTJ               = 0x1000;
+    public const ERROR_CONTEXTO_PUNCTUATION   = 0x2000;
+    public const ERROR_CONTEXTO_DIGITS        = 0x4000;
+
+    /**
+     * IDNA default options.
+     */
     public const IDNA2008_ASCII = self::IDNA_NONTRANSITIONAL_TO_ASCII
         | self::IDNA_CHECK_BIDI
         | self::IDNA_USE_STD3_RULES
@@ -42,7 +67,6 @@ final class Idna
         | self::IDNA_CHECK_CONTEXTJ;
     public const IDNA2003_ASCII = self::IDNA_DEFAULT;
     public const IDNA2003_UNICODE = self::IDNA_DEFAULT;
-    private const REGEXP_IDNA_PATTERN = '/[^\x20-\x7f]/';
 
     /**
      * @codeCoverageIgnore
