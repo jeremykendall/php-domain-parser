@@ -13,6 +13,8 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - `.gitattributes` files to be filter out.
 - `TimeToLive` marked as internal
+- `Host::toUnicode` method MUST never throw exceptions on conversion according to RFC3490.
+- `UnableToResolveDomain` typo in the exception message
 
 ### Deprecated
 
