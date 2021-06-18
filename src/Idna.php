@@ -124,8 +124,16 @@ final class Idna
         /** @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         idn_to_utf8($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
-        /** @var array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
-        return self::createIdnaInfo($domain, $idnaInfo);
+        try {
+            /** @var array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
+            return self::createIdnaInfo($domain, $idnaInfo);
+        } catch (SyntaxError $exception) {
+            if ($exception->idnaInfo() instanceof IdnaInfo) {
+                return IdnaInfo::fromIntl(['result' => $domain, 'isTransitionalDifferent' => false, 'errors' => 0]);
+            }
+
+            throw $exception;
+        }
     }
 
     /**
