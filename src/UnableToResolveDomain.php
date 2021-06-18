@@ -23,7 +23,7 @@ final class UnableToResolveDomain extends InvalidArgumentException implements Ca
 
     public static function dueToIdenticalValue(DomainName $domain): self
     {
-        return new self('The public suffix and the domain name are is identical `'.$domain->toString().'`.', $domain);
+        return new self('The public suffix and the domain name are identical `'.$domain->toString().'`.', $domain);
     }
 
     public static function dueToMissingSuffix(DomainName $domain, string $type): self
