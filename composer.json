@@ -41,6 +41,7 @@
     ],
     "require": {
         "php": "^7.4 || ^8.0",
+        "ext-filter": "*",
         "ext-intl": "*",
         "ext-json": "*"
     },
@@ -71,7 +72,8 @@
     },
     "scripts": {
         "phpcs": "php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi",
-        "phpstan": "phpstan analyse -l max -c phpstan.neon src --ansi",
+        "phpcs:fix": "php-cs-fixer fix -vvv --allow-risky=yes --ansi",
+        "phpstan": "phpstan analyse -l max -c phpstan.neon src --memory-limit=256M --ansi",
         "psalm": "psalm --show-info=true",
         "phpunit": "phpunit --coverage-text",
         "test": [
@@ -83,6 +85,7 @@
     },
     "scripts-descriptions": {
         "phpcs": "Runs coding style test suite",
+        "phpcs:fix": "Fix the package coding style",
         "phpstan": "Runs complete codebase static analysis",
         "psalm": "Runs complete codebase static analysis",
         "phpunit": "Runs unit and functional testing",

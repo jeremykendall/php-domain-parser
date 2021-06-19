@@ -2,6 +2,29 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
+## 6.1.0 - 2021-06-19
+
+### Added
+
+- `TimeToLive::until`
+- `TimeToLive::fromDurationString`
+
+### Fixed
+
+- `.gitattributes` files to be filter out.
+- `TimeToLive` marked as internal
+- `Host::toUnicode` method MUST never throw exceptions on conversion according to RFC3490.
+- `UnableToResolveDomain` typo in the exception message
+
+### Deprecated
+
+- `TimeToLive::fromDateTimeInterface` use `TimeToLive::fromNow`
+- `TimeToLive::fromScalar` use `TimeToLive::convert`
+
+### Removed
+
+- None
+
 ## 6.0.0 - 2020-12-13
 
 ### Added

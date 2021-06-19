@@ -35,11 +35,12 @@ final class DomainTest extends TestCase
         ];
     }
 
-    public function testToUnicodeThrowsException(): void
+    public function testToUnicodeNeverThrowsException(): void
     {
-        $this->expectException(SyntaxError::class);
-
-        Domain::fromIDNA2008('xn--a-ecp.ru')->toUnicode();
+        self::assertSame(
+            'xn--a-ecp.ru',
+            Domain::fromIDNA2008('xN--a-eCp.rU')->toUnicode()->toString()
+        );
     }
 
     public function testDomainInternalPhpMethod(): void
@@ -338,7 +339,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<array{0:string, 1:string, 2:string}>
+     * @return iterable<array-key, array{0:string, 1:string, 2:string}>
      */
     public function validAppend(): iterable
     {
@@ -359,7 +360,7 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @return iterable<array{0:string, 1:string, 2:string}>
+     * @return iterable<array-key, array{0:string, 1:string, 2:string}>
      */
     public function validPrepend(): iterable
     {

@@ -36,7 +36,7 @@ interface DomainName extends Host, IteratorAggregate
     /**
      * Returns the object labels.
      *
-     * @return array<string>
+     * @return array<int, string>
      */
     public function labels(): array;
 
@@ -63,7 +63,7 @@ interface DomainName extends Host, IteratorAggregate
      *
      * @see ::withLabel
      *
-     * @param mixed $label a domain label
+     * @param string|null|object $label a domain label
      */
     public function prepend($label): self;
 
@@ -72,7 +72,7 @@ interface DomainName extends Host, IteratorAggregate
      *
      * @see ::withLabel
      *
-     * @param mixed $label a domain label
+     * @param string|null|object $label a domain label
      */
     public function append($label): self;
 
@@ -85,7 +85,7 @@ interface DomainName extends Host, IteratorAggregate
      * If $key is non-negative, the added label will be the label at $key position from the start.
      * If $key is negative, the added label will be the label at $key position from the end.
      *
-     * @param mixed $label a domain label
+     * @param string|null|object $label a domain label
      *
      * @throws CannotProcessHost If the key is out of bounds
      * @throws CannotProcessHost If the label is converted to the NULL value

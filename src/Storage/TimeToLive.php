@@ -7,62 +7,81 @@ namespace Pdp\Storage;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
-use DateTimeZone;
 use InvalidArgumentException;
 use TypeError;
 use function filter_var;
 use function is_object;
-use function is_string;
 use function method_exists;
 use const FILTER_VALIDATE_INT;
 
+/**
+ * @internal
+ */
 final class TimeToLive
 {
-    public static function fromDateTimeInterface(DateTimeInterface $ttl): DateInterval
+    public static function fromDurationString(string $duration): DateInterval
     {
-        /** @var DateTimeZone $timezone */
-        $timezone = $ttl->getTimezone();
-
-        $now = new DateTimeImmutable('NOW', $timezone);
-
-        /** @var DateInterval $diff */
-        $diff = $now->diff($ttl, false);
-
-        return $diff;
-    }
-
-    /**
-     * @param object|string|int $ttl the cache TTL the object must implement the __toString method
-     */
-    public static function fromScalar($ttl): DateInterval
-    {
-        if (is_object($ttl) && method_exists($ttl, '__toString')) {
-            $ttl = (string) $ttl;
-        }
-
-        if (false !== ($res = filter_var($ttl, FILTER_VALIDATE_INT))) {
-            return new DateInterval('PT'.$res.'S');
-        }
-
-        if (!is_string($ttl)) {
-            throw new TypeError('The ttl must null, an integer, a string, a DateTimeInterface or a DateInterval object.');
-        }
-
-        /** @var DateInterval|false $date */
-        $date = @DateInterval::createFromDateString($ttl);
-        if (!$date instanceof DateInterval) {
+        /** @var DateInterval|false $interval */
+        $interval = @DateInterval::createFromDateString($duration);
+        if (!$interval instanceof DateInterval) {
             throw new InvalidArgumentException(
-                'The ttl value "'.$ttl.'" can not be parsable by `DateInterval::createFromDateString`.'
+                'The ttl value "'.$duration.'" can not be parsable by `DateInterval::createFromDateString`.'
             );
         }
 
-        return $date;
+        return $interval;
+    }
+
+    public static function until(DateTimeInterface $date): DateInterval
+    {
+        return (new DateTimeImmutable('NOW', $date->getTimezone()))->diff($date, false);
     }
 
     /**
-     * Set the cache TTL.
+     * Returns a DateInterval relative to the current date and time.
      *
-     * @param mixed $ttl the cache TTL
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated 6.1.0 deprecated
+     * @codeCoverageIgnore
+     * @see TimeToLive::until
+     */
+    public static function fromDateTimeInterface(DateTimeInterface $date): DateInterval
+    {
+        return self::until($date);
+    }
+
+    /**
+     * Returns a DateInterval from string parsing.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated 6.1.0 deprecated
+     * @see TimeToLive::fromDurationString
+     * @codeCoverageIgnore
+     *
+     * @param object|int|string $duration storage TTL object should implement the __toString method
+     *
+     * @throws InvalidArgumentException if the value can not be parsable
+     *
+     */
+    public static function fromScalar($duration): DateInterval
+    {
+        if (is_object($duration) && method_exists($duration, '__toString')) {
+            $duration = (string) $duration;
+        }
+
+        if (!is_scalar($duration)) {
+            throw new TypeError('The duration type is unsupported or is an non stringable object.');
+        }
+
+        return self::fromDurationString((string) $duration);
+    }
+
+    /**
+     * Convert the input data into a DateInterval object or null.
+     *
+     * @param DateInterval|DateTimeInterface|object|int|string|null $ttl the object should implement the __toString method
      *
      * @throws InvalidArgumentException if the value can not be computed
      * @throws TypeError                if the value type is not recognized
@@ -74,9 +93,21 @@ final class TimeToLive
         }
 
         if ($ttl instanceof DateTimeInterface) {
-            return self::fromDateTimeInterface($ttl);
+            return self::until($ttl);
         }
 
-        return self::fromScalar($ttl);
+        if (is_object($ttl) && method_exists($ttl, '__toString')) {
+            $ttl = (string) $ttl;
+        }
+
+        if (false !== ($seconds = filter_var($ttl, FILTER_VALIDATE_INT))) {
+            return self::fromDurationString($seconds.' seconds');
+        }
+
+        if (!is_string($ttl)) {
+            throw new TypeError('The duration type is unsupported or is an non stringable object.');
+        }
+
+        return self::fromDurationString($ttl);
     }
 }

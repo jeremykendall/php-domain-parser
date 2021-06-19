@@ -186,7 +186,7 @@ final class TopLevelDomains implements TopLevelDomainList
      */
     public function getIterator(): Iterator
     {
-        foreach ($this->records as $tld => $int) {
+        foreach ($this->records as $tld => $_) {
             yield $tld;
         }
     }
@@ -241,11 +241,11 @@ final class TopLevelDomains implements TopLevelDomainList
     }
 
     /**
-     * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
+     * @param mixed $host a domain in a type that can be converted into a DomainInterface instance
      */
-    public function getIANADomain($domain): ResolvedDomainName
+    public function getIANADomain($host): ResolvedDomainName
     {
-        $domain = $this->validateDomain($domain);
+        $domain = $this->validateDomain($host);
         if (!$this->containsTopLevelDomain($domain)) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }

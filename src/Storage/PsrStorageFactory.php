@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
+use DateInterval;
+use DateTimeInterface;
 use Pdp\ResourceUri;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -28,7 +30,7 @@ final class PsrStorageFactory implements
     }
 
     /**
-     * @param mixed $cacheTtl The cache TTL
+     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
      */
     public function createPublicSuffixListStorage(string $cachePrefix = '', $cacheTtl = null): PublicSuffixListStorage
     {
@@ -39,7 +41,7 @@ final class PsrStorageFactory implements
     }
 
     /**
-     * @param mixed $cacheTtl The cache TTL
+     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
      */
     public function createTopLevelDomainListStorage(string $cachePrefix = '', $cacheTtl = null): TopLevelDomainListStorage
     {

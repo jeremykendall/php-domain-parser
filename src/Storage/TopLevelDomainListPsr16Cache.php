@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pdp\Storage;
 
 use DateInterval;
+use DateTimeInterface;
 use Pdp\TopLevelDomainList;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
@@ -21,7 +22,7 @@ final class TopLevelDomainListPsr16Cache implements TopLevelDomainListCache
     private ?DateInterval $cacheTtl;
 
     /**
-     * @param mixed $cacheTtl storage TTL
+     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
      */
     public function __construct(CacheInterface $cache, string $cachePrefix = '', $cacheTtl = null)
     {

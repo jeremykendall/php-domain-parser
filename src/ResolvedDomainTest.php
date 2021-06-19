@@ -540,7 +540,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     /**
-     * @return iterable<array{host:string|null, publicSuffix:string|null, sld:string|null, expectedSld:string|null, expectedHost:string|null}>
+     * @return iterable<array-key, array{host:string|null, publicSuffix:string|null, sld:string|null, expectedSld:string|null, expectedHost:string|null}>
      */
     public function withSldWorksProvider(): iterable
     {

@@ -60,10 +60,12 @@ For the [Public Suffix List](http://publicsuffix.org/) you need to use the
 ~~~php
 <?php 
 use Pdp\Rules;
+use Pdp\Domain;
 
 $publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+$domain = Domain::fromIDNA2008('www.PreF.OkiNawA.jP');
 
-$result = $publicSuffixList->resolve('www.PreF.OkiNawA.jP');
+$result = $publicSuffixList->resolve($domain);
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->subDomain()->toString();         //display 'www';
 echo $result->secondLevelDomain()->toString(); //display 'pref';
@@ -76,11 +78,15 @@ For the [IANA Top Level Domain List](https://www.iana.org/domains/root/files),
 the `Pdp\TopLevelDomains` class is use instead:
 
 ~~~php
+<?php
+
+use Pdp\Domain;
 use Pdp\TopLevelDomains;
 
 $topLevelDomains = TopLevelDomains::fromPath('/path/to/cache/tlds-alpha-by-domain.txt');
+$domain = Domain::fromIDNA2008('www.PreF.OkiNawA.jP');
 
-$result = $topLevelDomains->resolve('www.PreF.OkiNawA.jP');
+$result = $topLevelDomains->resolve($domain);
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->suffix()->toString();            //display 'jp';
 echo $result->secondLevelDomain()->toString(); //display 'okinawa';
@@ -109,31 +115,38 @@ These methods resolve the domain against their respective data source using
 the same rules as the `resolve` method but will instead throw an exception 
 if no valid effective TLD is found or if the submitted domain is invalid.
 
+**All these methods expect as their sole argument a `Pdp\Host` implementing 
+object, but other types (ie: `string`, `null`  and stringable objects) are 
+supported with predefined conditions as explained in the remaining document.**
+
 ~~~php
-<?php 
+<?php
+
+use Pdp\Domain;
 use Pdp\Rules;
 use Pdp\TopLevelDomains;
 
 $publicSuffixList = Rules::fromPath('/path/to/cache/public-suffix-list.dat');
+$domain = Domain::fromIDNA2008('qfdsf.unknownTLD');
 
-$publicSuffixList->getICANNDomain('qfdsf.unknownTLD');
+$publicSuffixList->getICANNDomain($domain);
 // will throw because `.unknownTLD` is not part of the ICANN section
 
-$result = $publicSuffixList->getCookieDomain('qfdsf.unknownTLD');
+$result = $publicSuffixList->getCookieDomain($domain);
 $result->suffix()->value();   // returns 'unknownTLD'
 $result->suffix()->isKnown(); // returns false
 // will not throw because the domain syntax is correct.
 
-$publicSuffixList->getCookieDomain('com');
+$publicSuffixList->getCookieDomain(Domain::fromIDNA2008('com'));
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
 
-$result = $publicSuffixList->resolve('com');
+$result = $publicSuffixList->resolve(Domain::fromIDNA2008('com'));
 $result->suffix()->value();   // returns null
 $result->suffix()->isKnown(); // returns false
 // will not throw but its public suffix value equal to NULL
 
 $topLevelDomains = TopLevelDomains::fromPath('/path/to/cache/public-suffix-list.dat');
-$topLevelDomains->getIANADomain('com');
+$topLevelDomains->getIANADomain(Domain::fromIDNA2008('com'));
 // will not throw because the domain syntax is invalid (ie: does not support public suffix)
 ~~~
 
@@ -171,10 +184,12 @@ The `Pdp\ResolvedDomain` decorates the `Pdp\Domain` class resolved but also
 gives access as separate methods to the domain different components.
 
 ~~~php
+use Pdp\Domain;
 use Pdp\TopLevelDomains;
 
+$domain = Domain::fromIDNA2008('www.PreF.OkiNawA.jP');
 /** @var TopLevelDomains $topLevelDomains */
-$result = $topLevelDomains->resolve('www.PreF.OkiNawA.jP');
+$result = $topLevelDomains->resolve($domain);
 echo $result->domain()->toString();            //display 'www.pref.okinawa.jp';
 echo $result->suffix()->toString();            //display 'jp';
 echo $result->secondLevelDomain()->toString(); //display 'okinawa';
@@ -188,14 +203,15 @@ You can modify the returned `Pdp\ResolvedDomain` instance using the following me
 ~~~php
 <?php 
 
+use Pdp\Domain;
 use Pdp\Rules;
 
 /** @var Rules $publicSuffixList */
-$result = $publicSuffixList->resolve('shop.example.com');
+$result = $publicSuffixList->resolve(Domain::fromIDNA2008('shop.example.com'));
 $altResult = $result
-    ->withSubDomain('foo.bar')
-    ->withSecondLevelDomain('test')
-    ->withSuffix('example');
+    ->withSubDomain(Domain::fromIDNA2008('foo.bar'))
+    ->withSecondLevelDomain(Domain::fromIDNA2008('test'))
+    ->withSuffix(Domain::fromIDNA2008('example'));
 
 echo $result->domain()->toString(); //display 'shop.example.com';
 $result->suffix()->isKnown();       //return true;
@@ -217,10 +233,11 @@ origin.
 
 ~~~php
 <?php 
+use Pdp\Domain;
 use Pdp\Rules;
 
 /** @var Rules $publicSuffixList */
-$suffix = $publicSuffixList->resolve('example.github.io')->suffix();
+$suffix = $publicSuffixList->resolve(Domain::fromIDNA2008('example.github.io'))->suffix();
 
 echo $suffix->domain()->toString(); //display 'github.io';
 $suffix->isICANN();                 //will return false
@@ -274,11 +291,12 @@ manipulating domain labels. You can access the object using the following method
 `Domain` objects usage are explain in the next section.
 
 ~~~php
-<?php 
+<?php
+use Pdp\Domain;
 use Pdp\Rules;
 
 /** @var Rules $publicSuffixList */
-$result = $publicSuffixList->resolve('www.bbc.co.uk');
+$result = $publicSuffixList->resolve(Domain::from2008('www.bbc.co.uk'));
 $domain = $result->domain();
 echo $domain->toString(); // display 'www.bbc.co.uk'
 count($domain);           // returns 4
@@ -303,10 +321,11 @@ following methods:
 
 ~~~php
 <?php 
+use Pdp\Domain;
 use Pdp\Rules;
 
 /** @var Rules $publicSuffixList */
-$domain = $publicSuffixList->resolve('www.ExAmpLE.cOM')->domain();
+$domain = $publicSuffixList->resolve(Domain::from2008('www.ExAmpLE.cOM'))->domain();
 
 $newDomain = $domain
     ->withLabel(1, 'com')  //replace 'example' by 'com'
@@ -540,8 +559,9 @@ Testing
 `pdp-domain-parser` has:
 
 - a [PHPUnit](https://phpunit.de) test suite
-- a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/).
-- a code analysis compliance test suite using [PHPStan](https://github.com/phpstan/phpstan).
+- a code analysis compliance test suite using [PHPStan](https://phpstan.org).
+- a code analysis compliance test suite using [Psalm](https://psalm.dev).
+- a coding style compliance test suite using [PHP CS Fixer](https://cs.symfony.com).
 
 To run the tests, run the following command from the project folder.
 
@@ -570,10 +590,9 @@ The MIT License (MIT). Please see [License File](LICENSE) for more information.
 Attribution
 -------
 
-Portions of the `Pdp\Converter` and `Pdp\Rules` are derivative works of the PHP
+Portions of the `Pdp\Rules` class are derivative works of the PHP
 [registered-domain-libs](https://github.com/usrflo/registered-domain-libs).
-Those parts of this codebase are heavily commented, and I've included a copy of
-the Apache Software Foundation License 2.0 in this project.
+I've included a copy of the Apache Software Foundation License 2.0 in this project.
 
 [ico-github-actions-build]: https://img.shields.io/github/workflow/status/jeremykendall/php-domain-parser/Build?style=flat-square
 [ico-packagist]: https://img.shields.io/packagist/dt/jeremykendall/php-domain-parser.svg?style=flat-square

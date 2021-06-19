@@ -8,6 +8,7 @@ use function array_filter;
 use const ARRAY_FILTER_USE_KEY;
 
 /**
+ * @internal
  * @see https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/uidna_8h.html
  */
 final class IdnaInfo

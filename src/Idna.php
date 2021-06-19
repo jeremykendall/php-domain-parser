@@ -16,10 +16,25 @@ use function strtolower;
 use const INTL_IDNA_VARIANT_UTS46;
 
 /**
+ * @internal
  * @see https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/uidna_8h.html
  */
 final class Idna
 {
+    private const REGEXP_IDNA_PATTERN = '/[^\x20-\x7f]/';
+
+    /**
+     * IDNA options.
+     */
+    public const IDNA_DEFAULT                    = 0;
+    public const IDNA_ALLOW_UNASSIGNED           = 1;
+    public const IDNA_USE_STD3_RULES             = 2;
+    public const IDNA_CHECK_BIDI                 = 4;
+    public const IDNA_CHECK_CONTEXTJ             = 8;
+    public const IDNA_NONTRANSITIONAL_TO_ASCII   = 0x10;
+    public const IDNA_NONTRANSITIONAL_TO_UNICODE = 0x20;
+    public const IDNA_CHECK_CONTEXTO             = 0x40;
+
     /**
      * IDNA errors.
      */
@@ -40,31 +55,18 @@ final class Idna
     public const ERROR_CONTEXTO_DIGITS        = 0x4000;
 
     /**
-     * IDNA options.
+     * IDNA default options.
      */
-    public const IDNA_DEFAULT                    = 0;
-    public const IDNA_ALLOW_UNASSIGNED           = 1;
-    public const IDNA_USE_STD3_RULES             = 2;
-    public const IDNA_CHECK_BIDI                 = 4;
-    public const IDNA_CHECK_CONTEXTJ             = 8;
-    public const IDNA_NONTRANSITIONAL_TO_ASCII   = 0x10;
-    public const IDNA_NONTRANSITIONAL_TO_UNICODE = 0x20;
-    public const IDNA_CHECK_CONTEXTO             = 0x40;
-
     public const IDNA2008_ASCII = self::IDNA_NONTRANSITIONAL_TO_ASCII
         | self::IDNA_CHECK_BIDI
         | self::IDNA_USE_STD3_RULES
         | self::IDNA_CHECK_CONTEXTJ;
-
     public const IDNA2008_UNICODE = self::IDNA_NONTRANSITIONAL_TO_UNICODE
         | self::IDNA_CHECK_BIDI
         | self::IDNA_USE_STD3_RULES
         | self::IDNA_CHECK_CONTEXTJ;
-
     public const IDNA2003_ASCII = self::IDNA_DEFAULT;
     public const IDNA2003_UNICODE = self::IDNA_DEFAULT;
-
-    private const REGEXP_IDNA_PATTERN = '/[^\x20-\x7f]/';
 
     /**
      * @codeCoverageIgnore
@@ -97,18 +99,22 @@ final class Idna
 
         self::supportsIdna();
 
+        /** @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         idn_to_ascii($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
-        /* @var array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo */
-        return self::createIdnaInfo($domain, $idnaInfo);
+        /** @var array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo */
+        $info = IdnaInfo::fromIntl($idnaInfo);
+        if (0 !== $info->errors()) {
+            throw SyntaxError::dueToIDNAError($domain, $info);
+        }
+
+        return $info;
     }
 
     /**
      * Converts the input to its IDNA UNICODE form.
      *
      * This method returns the string converted to IDN UNICODE form
-     *
-     * @throws SyntaxError if the string can not be converted to UNICODE using IDN UTS46 algorithm
      */
     public static function toUnicode(string $domain, int $options): IdnaInfo
     {
@@ -118,20 +124,13 @@ final class Idna
 
         self::supportsIdna();
 
+        /** @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         idn_to_utf8($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
-        /* @var array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo */
-        return self::createIdnaInfo($domain, $idnaInfo);
-    }
-
-    /**
-     * @param array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo
-     */
-    private static function createIdnaInfo(string $domain, array $idnaInfo): IdnaInfo
-    {
+        /** @var array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo */
         $info = IdnaInfo::fromIntl($idnaInfo);
         if (0 !== $info->errors()) {
-            throw SyntaxError::dueToIDNAError($domain, $info);
+            return IdnaInfo::fromIntl(['result' => $domain, 'isTransitionalDifferent' => false, 'errors' => 0]);
         }
 
         return $info;

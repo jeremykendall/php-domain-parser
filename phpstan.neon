@@ -4,5 +4,4 @@ includes:
   - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
   ignoreErrors:
-    - '#should be covariant with return type#'
   reportUnmatchedIgnoredErrors: true
