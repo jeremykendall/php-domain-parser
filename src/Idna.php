@@ -102,16 +102,19 @@ final class Idna
         /** @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         idn_to_ascii($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
-        /** @var array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
-        return self::createIdnaInfo($domain, $idnaInfo);
+        /** @var array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo */
+        $info = IdnaInfo::fromIntl($idnaInfo);
+        if (0 !== $info->errors()) {
+            throw SyntaxError::dueToIDNAError($domain, $info);
+        }
+
+        return $info;
     }
 
     /**
      * Converts the input to its IDNA UNICODE form.
      *
      * This method returns the string converted to IDN UNICODE form
-     *
-     * @throws SyntaxError if the string can not be converted to UNICODE using IDN UTS46 algorithm
      */
     public static function toUnicode(string $domain, int $options): IdnaInfo
     {
@@ -124,26 +127,10 @@ final class Idna
         /** @param-out array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
         idn_to_utf8($domain, $options, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
 
-        try {
-            /** @var array{errors: int, isTransitionalDifferent: bool, result: string} $idnaInfo */
-            return self::createIdnaInfo($domain, $idnaInfo);
-        } catch (SyntaxError $exception) {
-            if ($exception->idnaInfo() instanceof IdnaInfo) {
-                return IdnaInfo::fromIntl(['result' => $domain, 'isTransitionalDifferent' => false, 'errors' => 0]);
-            }
-
-            throw $exception;
-        }
-    }
-
-    /**
-     * @param array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo
-     */
-    private static function createIdnaInfo(string $domain, array $idnaInfo): IdnaInfo
-    {
+        /** @var array{result:string, isTransitionalDifferent:bool, errors:int} $idnaInfo */
         $info = IdnaInfo::fromIntl($idnaInfo);
         if (0 !== $info->errors()) {
-            throw SyntaxError::dueToIDNAError($domain, $info);
+            return IdnaInfo::fromIntl(['result' => $domain, 'isTransitionalDifferent' => false, 'errors' => 0]);
         }
 
         return $info;

@@ -241,11 +241,11 @@ final class TopLevelDomains implements TopLevelDomainList
     }
 
     /**
-     * @param mixed $domain a domain in a type that can be converted into a DomainInterface instance
+     * @param mixed $host a domain in a type that can be converted into a DomainInterface instance
      */
-    public function getIANADomain($domain): ResolvedDomainName
+    public function getIANADomain($host): ResolvedDomainName
     {
-        $domain = $this->validateDomain($domain);
+        $domain = $this->validateDomain($host);
         if (!$this->containsTopLevelDomain($domain)) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }
