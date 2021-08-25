@@ -48,7 +48,7 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
         "guzzlehttp/guzzle": "^7.0",
-        "guzzlehttp/psr7": "^1.6",
+        "guzzlehttp/psr7": "^1.6|^2.0",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
         "phpstan/phpstan-strict-rules": "^0.12",
