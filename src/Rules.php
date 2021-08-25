@@ -290,18 +290,18 @@ final class Rules implements PublicSuffixList
         $labelCount = 0;
         foreach ($domain->toAscii() as $label) {
             //match exception rule
-            if (isset($rules[$label], $rules[$label]['!'])) {
+            if (isset($rules[$label]['!'])) {
                 break;
             }
 
             //match wildcard rule
-            if (isset($rules['*'])) {
+            if (array_key_exists('*', $rules)) {
                 ++$labelCount;
                 break;
             }
 
             //no match found
-            if (!isset($rules[$label])) {
+            if (!array_key_exists($label, $rules)) {
                 break;
             }
 
