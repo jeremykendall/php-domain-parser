@@ -46,18 +46,18 @@
         "ext-json": "*"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.19||^3.0",
+        "friendsofphp/php-cs-fixer": "^v3.5.0",
         "guzzlehttp/guzzle": "^7.0",
         "guzzlehttp/psr7": "^1.6||^2.0",
-        "phpstan/phpstan": "^0.12.89",
-        "phpstan/phpstan-phpunit": "^0.12.20",
-        "phpstan/phpstan-strict-rules": "^0.12.9",
-        "phpunit/phpunit": "^9.5",
-        "psalm/plugin-phpunit": "^0.15.0",
+        "phpstan/phpstan": "^1.4.6.",
+        "phpstan/phpstan-phpunit": "^1.0.0",
+        "phpstan/phpstan-strict-rules": "^1.1.0",
+        "phpunit/phpunit": "^9.5.13",
+        "psalm/plugin-phpunit": "^0.15.2",
         "psr/http-factory": "^1.0",
         "psr/simple-cache": "^1.0",
         "symfony/cache": "^v5.0",
-        "vimeo/psalm": "^4.3"
+        "vimeo/psalm": "^4.20"
     },
     "suggest": {
         "psr/http-client-implementation": "To use the storage functionnality which depends on PSR-18",

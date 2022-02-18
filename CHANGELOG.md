@@ -2,6 +2,24 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
+## 6.1.1 - 2022-02-18
+
+### Added
+
+- None
+
+### Fixed
+
+- [#321](https://github.com/jeremykendall/php-domain-parser/issues/321) improve resolving private domain suffix. `Rules::getPrivateDomain` will now throw if the domain name does not contain a "private" TLD.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 6.1.0 - 2021-06-19
 
 ### Added
