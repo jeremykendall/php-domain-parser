@@ -594,7 +594,7 @@ final class RulesTest extends TestCase
         ];
     }
 
-    public function testIssue321(): void
+    public function testIssue321Success(): void
     {
         $result = self::$rules->resolve('node857-gelofesta.users.scale.virtualcloud.com.br');
         self::assertSame('users.scale.virtualcloud.com.br', $result->suffix()->value());
@@ -603,5 +603,12 @@ final class RulesTest extends TestCase
         $result = self::$rules->resolve('clientportal.virtualcloud.com.br');
         self::assertSame('com.br', $result->suffix()->value());
         self::assertTrue($result->suffix()->isICANN());
+    }
+
+    public function testIssue321Failure(): void
+    {
+        $this->expectException(UnableToResolveDomain::class);
+
+        self::$rules->getPrivateDomain('clientportal.virtualcloud.com.br');
     }
 }
