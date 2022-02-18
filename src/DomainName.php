@@ -101,7 +101,6 @@ interface DomainName extends Host, IteratorAggregate
      * If $key is non-negative, the removed label will be the label at $key position from the start.
      * If $key is negative, the removed label will be the label at $key position from the end.
      *
-     * @param int ...$keys
      *
      * @throws CannotProcessHost If the key is out of bounds
      */
