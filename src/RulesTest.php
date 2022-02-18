@@ -593,4 +593,15 @@ final class RulesTest extends TestCase
             ],
         ];
     }
+
+    public function testIssue321(): void
+    {
+        $result = self::$rules->resolve('node857-gelofesta.users.scale.virtualcloud.com.br');
+        self::assertSame('users.scale.virtualcloud.com.br', $result->suffix()->value());
+        self::assertTrue($result->suffix()->isPrivate());
+
+        $result = self::$rules->resolve('clientportal.virtualcloud.com.br');
+        self::assertSame('com.br', $result->suffix()->value());
+        self::assertTrue($result->suffix()->isICANN());
+    }
 }
