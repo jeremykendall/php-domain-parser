@@ -4,4 +4,12 @@ includes:
   - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
   ignoreErrors:
+    - message: '#has no value type specified in iterable type array.#'
+      path: src/Rules.php
+    - message: '#has parameter \$(properties|rules|list|tmpList) with no value type specified in iterable type array.#'
+      path: src/Rules.php
+    - message: "#Cannot access offset '!' on mixed.#"
+      path: src/Rules.php
+    - message: '#Variable \$line on left side of \?\? always exists and is not nullable.#'
+      path: src/Rules.php
   reportUnmatchedIgnoredErrors: true
