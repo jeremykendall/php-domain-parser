@@ -36,12 +36,12 @@ final class Rules implements PublicSuffixList
     /**
      * PSL rules as a multidimensional associative array.
      *
-     * @var array<string, array<array>>
+     * @var array{ICANN_DOMAINS: array<array>, PRIVATE_DOMAINS: array<array>}
      */
     private array $rules;
 
     /**
-     * @param array<string, array<array>> $rules
+     * @param array{ICANN_DOMAINS: array<array>, PRIVATE_DOMAINS: array<array>} $rules
      */
     private function __construct(array $rules)
     {
@@ -84,7 +84,7 @@ final class Rules implements PublicSuffixList
     /**
      * Convert the Public Suffix List into an associative, multidimensional array.
      *
-     * @return array<string, array<array>>
+     * @return array{ICANN_DOMAINS: array<array>, PRIVATE_DOMAINS: array<array>}
      */
     private static function parse(string $content): array
     {
@@ -165,7 +165,7 @@ final class Rules implements PublicSuffixList
     }
 
     /**
-     * @param array{rules:array<string, array<array>>} $properties
+     * @param array{rules:array{ICANN_DOMAINS: array<array>, PRIVATE_DOMAINS: array<array>}} $properties
      */
     public static function __set_state(array $properties): self
     {
@@ -290,18 +290,23 @@ final class Rules implements PublicSuffixList
         $labelCount = 0;
         foreach ($domain->toAscii() as $label) {
             //match exception rule
-            if (isset($rules[$label], $rules[$label]['!'])) {
+            if (isset($rules[$label]['!'])) {
                 break;
             }
 
             //match wildcard rule
-            if (isset($rules['*'])) {
+            if (array_key_exists('*', $rules)) {
                 ++$labelCount;
                 break;
             }
 
             //no match found
-            if (!isset($rules[$label])) {
+            if (!array_key_exists($label, $rules)) {
+                // for private domain suffix MUST be fully matched else no suffix is found
+                // https://github.com/jeremykendall/php-domain-parser/issues/321
+                if (self::PRIVATE_DOMAINS === $section && [] !== $rules) {
+                    $labelCount = 0;
+                }
                 break;
             }
 

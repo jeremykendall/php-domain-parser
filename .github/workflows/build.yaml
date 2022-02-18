@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php: [ '7.4', '8.0' ]
+                php: [ '7.4', '8.0', '8.1' ]
                 composer-flags: [ '' ]
                 phpunit-flags: [ '--coverage-text' ]
         steps:
@@ -23,8 +23,8 @@ jobs:
             - run: composer update --no-progress ${{ matrix.composer-flags }}
             - run: composer phpunit
             - run: composer phpstan
-              if: ${{ matrix.php == '8.0' }}
+              if: ${{ matrix.php == '8.1' }}
             - run: composer psalm
-              if: ${{ matrix.php == '8.0' }}
+              if: ${{ matrix.php == '8.1' }}
             - run: composer phpcs
-              if: ${{ matrix.php == '8.0' }}
+              if: ${{ matrix.php == '8.1' }}

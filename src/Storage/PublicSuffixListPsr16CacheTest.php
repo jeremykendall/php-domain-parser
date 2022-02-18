@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Pdp\Storage;
 
+use DateInterval;
+use DateTimeImmutable;
 use InvalidArgumentException;
 use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
@@ -54,7 +56,7 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
         $cache = $this->createStub(CacheInterface::class);
         $cache->method('get')->willReturn('{"foo":"bar"}');
 
-        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateTimeImmutable('+1 DAY'));
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new DateTimeImmutable('+1 DAY'));
 
         self::assertNull($pslCache->fetch('http://www.example.com'));
     }
@@ -65,7 +67,7 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
         $cache->method('set')->willReturn(true);
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
 
         self::assertTrue($pslCache->remember('http://www.example.com', $psl));
     }
@@ -76,7 +78,7 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
         $cache->method('set')->willReturn(false);
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
 
         self::assertFalse($pslCache->remember('http://www.example.com', $psl));
     }
@@ -89,7 +91,7 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
         $cache->method('set')->will(self::throwException($exception));
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
 
         self::assertFalse($pslCache->remember('http://www.example.com', $psl));
     }
@@ -120,7 +122,7 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
         $cache = $this->createStub(CacheInterface::class);
         $cache->method('delete')->willReturn(true);
 
-        $instance = new PublicSuffixListPsr16Cache($cache, 'pdp_', new \DateInterval('P1D'));
+        $instance = new PublicSuffixListPsr16Cache($cache, 'pdp_', new DateInterval('P1D'));
         self::assertTrue($instance->forget($uri));
     }
 

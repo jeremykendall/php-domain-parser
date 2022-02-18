@@ -24,9 +24,7 @@ interface TopLevelDomainList extends Countable, DomainNameResolver, IteratorAggr
      */
     public function lastUpdated(): DateTimeImmutable;
 
-    /**
-     * {@inheritdoc}
-     */
+    
     public function count(): int;
 
     /**
