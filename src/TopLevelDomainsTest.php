@@ -193,7 +193,7 @@ EOF;
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array<object|string>>
      */
     public function validDomainProvider(): iterable
     {
@@ -286,7 +286,7 @@ EOF;
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array<string|object>>
      */
     public function validTldProvider(): iterable
     {
@@ -312,7 +312,7 @@ EOF;
     }
 
     /**
-     * @return iterable<string,array>
+     * @return iterable<string,array<object|string|null>>
      */
     public function invalidTldProvider(): iterable
     {

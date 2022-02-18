@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use TypeError;
 
 /**
@@ -314,7 +315,7 @@ final class DomainTest extends TestCase
     public function testWithLabelFailsWithTypeError(): void
     {
         $this->expectException(TypeError::class);
-        Domain::fromIDNA2008('example.com')->withLabel(1, new \stdClass());
+        Domain::fromIDNA2008('example.com')->withLabel(1, new stdClass());
     }
 
     public function testWithLabelFailsWithInvalidKey(): void
