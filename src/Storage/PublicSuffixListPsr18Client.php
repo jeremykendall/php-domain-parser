@@ -32,6 +32,6 @@ final class PublicSuffixListPsr18Client implements PublicSuffixListClient
             throw UnableToLoadResource::dueToUnexpectedStatusCode($uri, $response->getStatusCode());
         }
 
-        return Rules::fromString($response->getBody());
+        return Rules::fromString((string) $response->getBody());
     }
 }

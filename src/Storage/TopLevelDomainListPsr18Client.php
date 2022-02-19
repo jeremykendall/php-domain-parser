@@ -32,6 +32,6 @@ final class TopLevelDomainListPsr18Client implements TopLevelDomainListClient
             throw UnableToLoadResource::dueToUnexpectedStatusCode($uri, $response->getStatusCode());
         }
 
-        return TopLevelDomains::fromString($response->getBody());
+        return TopLevelDomains::fromString((string) $response->getBody());
     }
 }
