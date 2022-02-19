@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use SplTempFileObject;
-use TypeError;
+use Stringable;
 use function array_pop;
 use function explode;
 use function gettype;
@@ -34,18 +34,11 @@ final class Rules implements PublicSuffixList
     ];
 
     /**
-     * PSL rules as a multidimensional associative array.
-     *
-     * @var array{ICANN_DOMAINS: array<array>, PRIVATE_DOMAINS: array<array>}
+     * @param array{ICANN_DOMAINS: array<array>, PRIVATE_DOMAINS: array<array>} $rules PSL rules as a multidimensional associative array
      */
-    private array $rules;
-
-    /**
-     * @param array{ICANN_DOMAINS: array<array>, PRIVATE_DOMAINS: array<array>} $rules
-     */
-    private function __construct(array $rules)
-    {
-        $this->rules = $rules;
+    private function __construct(
+        private array $rules
+    ) {
     }
 
     /**
@@ -64,21 +57,11 @@ final class Rules implements PublicSuffixList
     /**
      * Returns a new instance from a string.
      *
-     * @param object|string $content a string or an object which exposes the __toString method
-     *
      * @throws UnableToLoadPublicSuffixList If the rules contains in the resource are invalid
      */
-    public static function fromString($content): self
+    public static function fromString(Stringable|string $content): self
     {
-        if (is_object($content) && method_exists($content, '__toString')) {
-            $content = (string) $content;
-        }
-
-        if (!is_string($content)) {
-            throw new TypeError('The content to be converted should be a string or a Stringable object, `'.gettype($content).'` given.');
-        }
-
-        return new self(self::parse($content));
+        return new self(self::parse((string) $content));
     }
 
     /**
@@ -172,10 +155,7 @@ final class Rules implements PublicSuffixList
         return new self($properties['rules']);
     }
 
-    /**
-     * @param mixed $host a type that supports instantiating a Domain from.
-     */
-    public function resolve($host): ResolvedDomainName
+    public function resolve(DomainNameProvider|DomainName|Host|Stringable|string|null $host): ResolvedDomainName
     {
         try {
             return $this->getCookieDomain($host);
@@ -186,10 +166,7 @@ final class Rules implements PublicSuffixList
         }
     }
 
-    /**
-     * @param mixed $host the domain value
-     */
-    public function getCookieDomain($host): ResolvedDomainName
+    public function getCookieDomain(DomainNameProvider|DomainName|Host|Stringable|string|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain, '');
@@ -204,10 +181,7 @@ final class Rules implements PublicSuffixList
         return ResolvedDomain::fromUnknown($domain, $suffixLength);
     }
 
-    /**
-     * @param mixed $host a type that supports instantiating a Domain from.
-     */
-    public function getICANNDomain($host): ResolvedDomainName
+    public function getICANNDomain(DomainNameProvider|DomainName|Host|Stringable|string|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain, self::ICANN_DOMAINS);
@@ -218,10 +192,7 @@ final class Rules implements PublicSuffixList
         return ResolvedDomain::fromICANN($domain, $suffixLength);
     }
 
-    /**
-     * @param mixed $host a type that supports instantiating a Domain from.
-     */
-    public function getPrivateDomain($host): ResolvedDomainName
+    public function getPrivateDomain(DomainNameProvider|DomainName|Host|Stringable|string|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain, self::PRIVATE_DOMAINS);
@@ -235,12 +206,10 @@ final class Rules implements PublicSuffixList
     /**
      * Assert the domain is valid and is resolvable.
      *
-     * @param mixed $domain a type that supports instantiating a Domain from.
-     *
      * @throws SyntaxError           If the domain is invalid
      * @throws UnableToResolveDomain If the domain can not be resolved
      */
-    private function validateDomain($domain): DomainName
+    private function validateDomain(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): DomainName
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();

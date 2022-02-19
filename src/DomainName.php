@@ -28,10 +28,8 @@ interface DomainName extends Host, IteratorAggregate
      * If $key is negative, the returned value will be the label at $key position from the end.
      *
      * If no label is found the submitted $key the returned value will be null.
-     *
-     * @param int $key the label offset
      */
-    public function label(int $key): ?string;
+    public function label(int $key): string|null;
 
     /**
      * Returns the object labels.
@@ -62,19 +60,15 @@ interface DomainName extends Host, IteratorAggregate
      * Prepends a label to the domain.
      *
      * @see ::withLabel
-     *
-     * @param string|null|object $label a domain label
      */
-    public function prepend($label): self;
+    public function prepend(Host $label): self;
 
     /**
      * Appends a label to the domain.
      *
      * @see ::withLabel
-     *
-     * @param string|null|object $label a domain label
      */
-    public function append($label): self;
+    public function append(Host $label): self;
 
     /**
      * Returns an instance with the specified label added at the specified key.
@@ -85,12 +79,10 @@ interface DomainName extends Host, IteratorAggregate
      * If $key is non-negative, the added label will be the label at $key position from the start.
      * If $key is negative, the added label will be the label at $key position from the end.
      *
-     * @param string|null|object $label a domain label
-     *
      * @throws CannotProcessHost If the key is out of bounds
      * @throws CannotProcessHost If the label is converted to the NULL value
      */
-    public function withLabel(int $key, $label): self;
+    public function withLabel(int $key, Host $label): self;
 
     /**
      * Returns an instance with the label at the specified key removed.

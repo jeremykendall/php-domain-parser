@@ -7,7 +7,7 @@ namespace Pdp;
 use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
-use TypeError;
+use Stringable;
 use function dirname;
 
 /**
@@ -51,13 +51,6 @@ final class TopLevelDomainsTest extends TestCase
         $this->expectException(UnableToLoadResource::class);
 
         TopLevelDomains::fromPath('/foo/bar.dat');
-    }
-
-    public function testFromStringThrowsOnTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-
-        TopLevelDomains::fromString(new DateTimeImmutable());
     }
 
     /**
@@ -168,10 +161,8 @@ EOF;
 
     /**
      * @dataProvider validDomainProvider
-     *
-     * @param mixed $tld the tld
      */
-    public function testResolve($tld): void
+    public function testResolve(DomainNameProvider|Stringable|string $tld): void
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
@@ -181,10 +172,8 @@ EOF;
 
     /**
      * @dataProvider validDomainProvider
-     *
-     * @param mixed $tld the tld
      */
-    public function testGetTopLevelDomain($tld): void
+    public function testGetTopLevelDomain(DomainNameProvider|Stringable|string $tld): void
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
@@ -193,7 +182,7 @@ EOF;
     }
 
     /**
-     * @return iterable<string,array<object|string>>
+     * @return iterable<string,array<DomainNameProvider|Stringable|string>>
      */
     public function validDomainProvider(): iterable
     {
@@ -216,13 +205,6 @@ EOF;
             }],
             'external domain name' => [$resolvedDomain],
         ];
-    }
-
-    public function testTopLevelDomainThrowsTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-
-        self::$topLevelDomains->getIANADomain(new DateTimeImmutable());
     }
 
     public function testTopLevelDomainWithInvalidDomain(): void

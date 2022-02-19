@@ -17,7 +17,7 @@ interface Host extends Countable, JsonSerializable
     /**
      * Returns the domain content.
      */
-    public function value(): ?string;
+    public function value(): string|null;
 
     /**
      * Returns the domain content as a string.
@@ -27,7 +27,7 @@ interface Host extends Countable, JsonSerializable
     /**
      * Returns the domain content.
      */
-    public function jsonSerialize(): ?string;
+    public function jsonSerialize(): string|null;
 
     /**
      * The labels total number.
@@ -41,10 +41,8 @@ interface Host extends Countable, JsonSerializable
      * an instance with its content converted to its IDNA ASCII form
      *
      * @throws CannotProcessHost if the domain can not be converted to ASCII using IDN UTS46 algorithm
-     *
-     * @return static
      */
-    public function toAscii(): self;
+    public function toAscii(): static;
 
     /**
      * Converts the domain to its IDNA UTF8 form.
@@ -53,8 +51,6 @@ interface Host extends Countable, JsonSerializable
      * an instance with its content converted to its IDNA UTF8 form
      *
      * @throws CannotProcessHost if the domain can not be converted to Unicode using IDN UTS46 algorithm
-     *
-     * @return static
      */
-    public function toUnicode(): self;
+    public function toUnicode(): static;
 }

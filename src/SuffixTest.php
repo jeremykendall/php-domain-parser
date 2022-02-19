@@ -106,9 +106,8 @@ final class SuffixTest extends TestCase
 
     /**
      * @dataProvider conversionReturnsTheSameInstanceProvider
-     * @param ?string $publicSuffix
      */
-    public function testConversionReturnsTheSameInstance(?string $publicSuffix): void
+    public function testConversionReturnsTheSameInstance(string|null $publicSuffix): void
     {
         $instance = Suffix::fromUnknown($publicSuffix);
 
@@ -136,9 +135,8 @@ final class SuffixTest extends TestCase
 
     /**
      * @dataProvider countableProvider
-     * @param ?string $domain
      */
-    public function testCountable(?string $domain, int $nbLabels): void
+    public function testCountable(string|null $domain, int $nbLabels): void
     {
         $domain = Suffix::fromUnknown($domain);
 

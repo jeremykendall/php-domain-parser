@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use Iterator;
-use TypeError;
+use Stringable;
 use function array_count_values;
 use function array_keys;
 use function array_reverse;
@@ -14,13 +14,9 @@ use function array_unshift;
 use function count;
 use function explode;
 use function filter_var;
-use function gettype;
 use function implode;
 use function in_array;
-use function is_object;
-use function is_scalar;
 use function ksort;
-use function method_exists;
 use function preg_match;
 use function rawurldecode;
 use function strtolower;
@@ -44,53 +40,17 @@ final class Domain implements DomainName
 
     private const REGEXP_URI_DELIMITERS = '/[:\/?#\[\]@ ]/';
 
-    /**
-     * @var array<int, string>
-     */
+    /** @var array<int, string> */
     private array $labels;
+    private string|null $domain;
 
-    private ?string $domain;
-
-    private string $type;
-
-    /**
-     * @param null|mixed $domain
-     */
-    private function __construct(string $type, $domain)
+    private function __construct(private string $type, DomainNameProvider|DomainName|Host|Stringable|string|null $domain)
     {
-        $this->type = $type;
         $this->domain = $this->parseDomain($domain);
         $this->labels = null === $this->domain ? [] : array_reverse(explode('.', $this->domain));
     }
 
-    /**
-     * @param array{domain:string|null, type:string} $properties
-     */
-    public static function __set_state(array $properties): self
-    {
-        return new self($properties['type'], $properties['domain']);
-    }
-
-    /**
-     * @param null|mixed $domain
-     */
-    public static function fromIDNA2003($domain): self
-    {
-        return new self(self::IDNA_2003, $domain);
-    }
-
-    /**
-     * @param null|mixed $domain
-     */
-    public static function fromIDNA2008($domain): self
-    {
-        return new self(self::IDNA_2008, $domain);
-    }
-
-    /**
-     * @param mixed $domain a domain
-     */
-    private function parseDomain($domain): ?string
+    private function parseDomain(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): ?string
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
@@ -110,26 +70,19 @@ final class Domain implements DomainName
      *
      * For example: parse('wWw.uLb.Ac.be') should return ['www.ulb.ac.be', ['be', 'ac', 'ulb', 'www']];.
      *
-     * @param mixed $domain a domain
-     *
      * @throws SyntaxError If the host is not a domain
      * @throws SyntaxError If the domain is not a host
      */
-    private function parseValue($domain): ?string
+    private function parseValue(Stringable|string|null $domain): ?string
     {
         if (null === $domain) {
             return null;
         }
 
-        if (is_object($domain) && method_exists($domain, '__toString')) {
+        if ($domain instanceof Stringable) {
             $domain = (string) $domain;
         }
 
-        if (!is_scalar($domain)) {
-            throw new TypeError('The domain must be a string, a stringable object, a Host object or NULL; `'.gettype($domain).'` given.');
-        }
-
-        $domain = (string) $domain;
         if ('' === $domain) {
             return '';
         }
@@ -172,6 +125,24 @@ final class Domain implements DomainName
     }
 
     /**
+     * @param array{domain:string|null, type:string} $properties
+     */
+    public static function __set_state(array $properties): self
+    {
+        return new self($properties['type'], $properties['domain']);
+    }
+
+    public static function fromIDNA2003(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): self
+    {
+        return new self(self::IDNA_2003, $domain);
+    }
+
+    public static function fromIDNA2008(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): self
+    {
+        return new self(self::IDNA_2008, $domain);
+    }
+
+    /**
      * @return Iterator<string>
      */
     public function getIterator(): Iterator
@@ -186,7 +157,7 @@ final class Domain implements DomainName
         return null === $this->domain || 1 !== preg_match(self::REGEXP_IDN_PATTERN, $this->domain);
     }
 
-    public function jsonSerialize(): ?string
+    public function jsonSerialize(): string|null
     {
         return $this->domain;
     }
@@ -196,7 +167,7 @@ final class Domain implements DomainName
         return count($this->labels);
     }
 
-    public function value(): ?string
+    public function value(): string|null
     {
         return $this->domain;
     }
@@ -206,7 +177,7 @@ final class Domain implements DomainName
         return (string) $this->domain;
     }
 
-    public function label(int $key): ?string
+    public function label(int $key): string|null
     {
         if ($key < 0) {
             $key += count($this->labels);
@@ -235,11 +206,7 @@ final class Domain implements DomainName
         return $this->labels;
     }
 
-    /**
-     * @psalm-suppress MoreSpecificReturnType
-     * @psalm-suppress LessSpecificReturnStatement
-     */
-    public function toAscii(): self
+    public function toAscii(): static
     {
         if (null === $this->domain) {
             return $this;
@@ -253,11 +220,7 @@ final class Domain implements DomainName
         return new self($this->type, $domain);
     }
 
-    /**
-     * @psalm-suppress MoreSpecificReturnType
-     * @psalm-suppress LessSpecificReturnStatement
-     */
-    public function toUnicode(): self
+    public function toUnicode(): static
     {
         if (null === $this->domain) {
             return $this;
@@ -273,12 +236,8 @@ final class Domain implements DomainName
 
     /**
      * Filter a subdomain to update the domain part.
-     *
-     * @param string|object|null $domain a domain
-     *
-     * @throws TypeError if the domain can not be converted
      */
-    private function normalize($domain): ?string
+    private function normalize(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): string|null
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
@@ -290,10 +249,6 @@ final class Domain implements DomainName
 
         if (null === $domain) {
             return $domain;
-        }
-
-        if ((!is_string($domain) && !method_exists($domain, '__toString'))) {
-            throw new TypeError('The label must be a '.Host::class.', a stringable object or a string, `'.gettype($domain).'` given.');
         }
 
         $domain = (string) $domain;
@@ -308,17 +263,26 @@ final class Domain implements DomainName
         return $this->domainToAscii($domain);
     }
 
-    public function prepend($label): self
+    /**
+     * @throws CannotProcessHost
+     */
+    public function prepend(DomainNameProvider|DomainName|Host|Stringable|string|null $label): self
     {
         return $this->withLabel(count($this->labels), $label);
     }
 
-    public function append($label): self
+    /**
+     * @throws CannotProcessHost
+     */
+    public function append(DomainNameProvider|DomainName|Host|Stringable|string|null $label): self
     {
         return $this->withLabel(- count($this->labels) - 1, $label);
     }
 
-    public function withLabel(int $key, $label): self
+    /**
+     * @throws CannotProcessHost
+     */
+    public function withLabel(int $key, DomainNameProvider|DomainName|Host|Stringable|string|null $label): self
     {
         $nbLabels = count($this->labels);
         if ($key < - $nbLabels - 1 || $key > $nbLabels) {
@@ -342,6 +306,9 @@ final class Domain implements DomainName
         return new self($this->type, implode('.', array_reverse($labels)));
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public function withoutLabel(int $key, int ...$keys): self
     {
         array_unshift($keys, $key);

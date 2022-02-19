@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Stringable;
 use function count;
 use function in_array;
 
@@ -13,14 +14,10 @@ final class Suffix implements EffectiveTopLevelDomain
     private const PRIVATE = 'PRIVATE';
     private const IANA = 'IANA';
 
-    private DomainName $domain;
-
-    private string $section;
-
-    private function __construct(DomainName $domain, string $section)
-    {
-        $this->domain = $domain;
-        $this->section = $section;
+    private function __construct(
+        private DomainName $domain,
+        private string $section
+    ) {
     }
 
     /**
@@ -31,10 +28,7 @@ final class Suffix implements EffectiveTopLevelDomain
         return new self($properties['domain'], $properties['section']);
     }
 
-    /**
-     * @param mixed $domain the public suffix domain information
-     */
-    public static function fromICANN($domain): self
+    public static function fromICANN(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): self
     {
         $domain = self::setDomainName($domain);
         if (1 > count($domain)) {
@@ -44,10 +38,7 @@ final class Suffix implements EffectiveTopLevelDomain
         return new self($domain, self::ICANN);
     }
 
-    /**
-     * @param mixed $domain the public suffix domain information
-     */
-    public static function fromPrivate($domain): self
+    public static function fromPrivate(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): self
     {
         $domain = self::setDomainName($domain);
         if (1 > count($domain)) {
@@ -57,10 +48,7 @@ final class Suffix implements EffectiveTopLevelDomain
         return new self($domain, self::PRIVATE);
     }
 
-    /**
-     * @param mixed $domain the public suffix domain information
-     */
-    public static function fromIANA($domain): self
+    public static function fromIANA(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): self
     {
         $domain = self::setDomainName($domain);
         if (1 !== count($domain)) {
@@ -70,18 +58,12 @@ final class Suffix implements EffectiveTopLevelDomain
         return new self($domain, self::IANA);
     }
 
-    /**
-     * @param mixed $domain the public suffix domain information
-     */
-    public static function fromUnknown($domain): self
+    public static function fromUnknown(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): self
     {
         return new self(self::setDomainName($domain), '');
     }
 
-    /**
-     * @param mixed $domain The domain to be resolved
-     */
-    private static function setDomainName($domain): DomainName
+    private static function setDomainName(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): DomainName
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
@@ -148,11 +130,7 @@ final class Suffix implements EffectiveTopLevelDomain
         return $this->domain->toString();
     }
 
-    /**
-     * @psalm-suppress MoreSpecificReturnType
-     * @psalm-suppress LessSpecificReturnStatement
-     */
-    public function toAscii(): self
+    public function toAscii(): static
     {
         $clone = clone $this;
         $clone->domain = $this->domain->toAscii();
@@ -160,11 +138,7 @@ final class Suffix implements EffectiveTopLevelDomain
         return $clone;
     }
 
-    /**
-     * @psalm-suppress MoreSpecificReturnType
-     * @psalm-suppress LessSpecificReturnStatement
-     */
-    public function toUnicode(): self
+    public function toUnicode(): static
     {
         $clone = clone $this;
         $clone->domain = $this->domain->toUnicode();

@@ -54,13 +54,6 @@ final class RulesTest extends TestCase
         Rules::fromPath(dirname(__DIR__).'/test_data/invalid_suffix_list_content.dat');
     }
 
-    public function testFromStringThrowsOnTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-
-        Rules::fromString(new DateTimeImmutable());
-    }
-
     public function testDomainInternalPhpMethod(): void
     {
         /** @var Rules $generateRules */
@@ -74,13 +67,6 @@ final class RulesTest extends TestCase
         $domain = self::$rules->resolve('COM');
 
         self::assertFalse($domain->suffix()->isKnown());
-    }
-
-    public function testThrowsTypeErrorOnWrongInput(): void
-    {
-        $this->expectException(TypeError::class);
-
-        self::$rules->resolve(date_create());
     }
 
     public function testIsSuffixValidFalse(): void
@@ -213,33 +199,24 @@ final class RulesTest extends TestCase
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
-    public function testGetRegistrableDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
+    public function testGetRegistrableDomain(string|null $publicSuffix, string|null $registrableDomain, string $domain, string|null $expectedDomain): void
     {
         self::assertSame($registrableDomain, self::$rules->resolve($domain)->registrableDomain()->value());
     }
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
-    public function testGetPublicSuffix(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
+    public function testGetPublicSuffix(string|null $publicSuffix, string|null $registrableDomain, string $domain, string|null $expectedDomain): void
     {
         self::assertSame($publicSuffix, self::$rules->resolve($domain)->suffix()->value());
     }
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
-    public function testGetDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
+    public function testGetDomain(string|null $publicSuffix, string|null $registrableDomain, string $domain, string|null $expectedDomain): void
     {
         self::assertSame($expectedDomain, self::$rules->resolve($domain)->value());
     }
@@ -414,10 +391,8 @@ final class RulesTest extends TestCase
      * @covers \Pdp\Domain::parseValue
      *
      * @dataProvider validPublicSectionProvider
-     * @param ?string $domain
-     * @param ?string $expected
      */
-    public function testPublicSuffixSection(?string $domain, ?string $expected): void
+    public function testPublicSuffixSection(string|null $domain, string|null $expected): void
     {
         self::assertSame($expected, self::$rules->getCookieDomain($domain)->suffix()->value());
     }
@@ -452,10 +427,8 @@ final class RulesTest extends TestCase
      * on the domain name and checks the result is the public suffix expected."
      *
      * @see http://publicsuffix.org/list/
-     * @param ?string $input
-     * @param ?string $expected
      */
-    public function checkPublicSuffix(?string $input, ?string $expected): void
+    public function checkPublicSuffix(string|null $input, string|null $expected): void
     {
         self::assertSame($expected, self::$rules->resolve($input)->registrableDomain()->value());
     }

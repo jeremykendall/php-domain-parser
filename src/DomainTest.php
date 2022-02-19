@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Pdp;
 
 use PHPUnit\Framework\TestCase;
-use stdClass;
-use TypeError;
 
 /**
  * @coversDefaultClass \Pdp\Domain
@@ -58,10 +56,9 @@ final class DomainTest extends TestCase
     /**
      * @dataProvider countableProvider
      *
-     * @param string[] $labels
-     * @param ?string  $domain
+     * @param array<string> $labels
      */
-    public function testCountable(?string $domain, int $nbLabels, array $labels): void
+    public function testCountable(string|null $domain, int $nbLabels, array $labels): void
     {
         $domain = Domain::fromIDNA2008($domain);
         self::assertCount($nbLabels, $domain);
@@ -115,15 +112,11 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider toUnicodeProvider
-     *
-     * @param ?string $domain
-     * @param ?string $expectedDomain
-     * @param ?string $expectedIDNDomain
      */
     public function testToIDN(
-        ?string $domain,
-        ?string $expectedDomain,
-        ?string $expectedIDNDomain
+        string|null $domain,
+        string|null $expectedDomain,
+        string|null $expectedIDNDomain
     ): void {
         $domain = Domain::fromIDNA2008($domain);
         self::assertSame($expectedDomain, $domain->value());
@@ -179,14 +172,11 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider toAsciiProvider
-     * @param ?string $domain
-     * @param ?string $expectedDomain
-     * @param ?string $expectedAsciiDomain
      */
     public function testToAscii(
-        ?string $domain,
-        ?string $expectedDomain,
-        ?string $expectedAsciiDomain
+        string|null $domain,
+        string|null $expectedDomain,
+        string|null $expectedAsciiDomain
     ): void {
         $domain = Domain::fromIDNA2008($domain);
         self::assertSame($expectedDomain, $domain->value());
@@ -232,21 +222,19 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider withLabelWorksProvider
-     *
-     * @param ?string $expected
      */
-    public function testWithLabelWorks(DomainName $domain, int $key, string $label, ?string $expected): void
+    public function testWithLabelWorks(Domain $domain, int $key, string $label, string|null $expected): void
     {
         $result = $domain->withLabel($key, $label);
         self::assertSame($expected, $result->value());
     }
 
     /**
-     * @return iterable<string,array{domain:DomainName, key:int, label:string, expected:string}>
+     * @return iterable<string,array{domain:Domain, key:int, label:string, expected:string}>
      */
     public function withLabelWorksProvider(): iterable
     {
-        $base_domain = Domain::fromIDNA2008('www.example.com');
+        $domain = Domain::fromIDNA2008('www.example.com');
 
         return [
             'null domain' => [
@@ -256,43 +244,43 @@ final class DomainTest extends TestCase
                 'expected' => 'localhost',
             ],
             'simple replace positive offset' => [
-                'domain' => $base_domain,
+                'domain' => $domain,
                 'key' => 2,
                 'label' => 'shop',
                 'expected' => 'shop.example.com',
             ],
             'simple replace negative offset' => [
-                'domain' => $base_domain,
+                'domain' => $domain,
                 'key' => -1,
                 'label' => 'shop',
                 'expected' => 'shop.example.com',
             ],
             'simple addition positive offset' => [
-                'domain' => $base_domain,
+                'domain' => $domain,
                 'key' => 3,
                 'label' => 'shop',
                 'expected' => 'shop.www.example.com',
             ],
             'simple addition negative offset' => [
-                'domain' => $base_domain,
+                'domain' => $domain,
                 'key' => -4,
                 'label' => 'shop',
                 'expected' => 'www.example.com.shop',
             ],
             'simple replace remove PSL info' => [
-                'domain' => $base_domain,
+                'domain' => $domain,
                 'key' => 0,
                 'label' => 'fr',
                 'expected' => 'www.example.fr',
             ],
             'replace without any change' => [
-                'domain' => $base_domain,
+                'domain' => $domain,
                 'key' => 2,
                 'label' => 'www',
                 'expected' => 'www.example.com',
             ],
             'simple update IDN (1)' => [
-                'domain' => $base_domain,
+                'domain' => $domain,
                 'key' => 2,
                 'label' => 'рф',
                 'expected' => 'xn--p1ai.example.com',
@@ -304,18 +292,12 @@ final class DomainTest extends TestCase
                 'expected' => 'рф.bébé.be',
             ],
             'replace a domain with multiple label' => [
-                'domain' => $base_domain,
+                'domain' => $domain,
                 'key' => -1,
                 'label' => 'www.shop',
                 'expected' => 'www.shop.example.com',
             ],
         ];
-    }
-
-    public function testWithLabelFailsWithTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-        Domain::fromIDNA2008('example.com')->withLabel(1, new stdClass());
     }
 
     public function testWithLabelFailsWithInvalidKey(): void
@@ -374,9 +356,8 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider withoutLabelWorksProvider
-     * @param ?string $expected
      */
-    public function testwithoutLabelWorks(DomainName $domain, int $key, ?string $expected): void
+    public function testwithoutLabelWorks(DomainName $domain, int $key, string|null $expected): void
     {
         $result = $domain->withoutLabel($key);
         self::assertSame($expected, $result->value());
@@ -426,18 +407,14 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider resolveCustomIDNAOptionsProvider
-     * @param ?string $expectedContent
-     * @param ?string $expectedAscii
-     * @param ?string $expectedUnicode
-     * @param ?string $expectedWithLabel
      */
     public function testResolveWorksWithCustomIDNAOptions(
         string $domainName,
         string $withLabel,
-        ?string $expectedContent,
-        ?string $expectedAscii,
-        ?string $expectedUnicode,
-        ?string $expectedWithLabel
+        string|null $expectedContent,
+        string|null $expectedAscii,
+        string|null $expectedUnicode,
+        string|null $expectedWithLabel
     ): void {
         $domain = Domain::fromIDNA2008($domainName);
         self::assertSame($expectedContent, $domain->value());
