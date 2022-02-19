@@ -77,7 +77,7 @@ final class IdnaInfo
         return $this->errors;
     }
 
-    public function error(int $error): ?string
+    public function error(int $error): string|null
     {
         return $this->errorList[$error] ?? null;
     }

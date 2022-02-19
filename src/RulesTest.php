@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
-use TypeError;
 use function array_fill;
 use function dirname;
 use function file_get_contents;

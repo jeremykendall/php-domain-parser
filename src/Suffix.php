@@ -115,12 +115,12 @@ final class Suffix implements EffectiveTopLevelDomain
         return count($this->domain);
     }
 
-    public function jsonSerialize(): ?string
+    public function jsonSerialize(): string|null
     {
         return $this->domain->jsonSerialize();
     }
 
-    public function value(): ?string
+    public function value(): string|null
     {
         return $this->domain->value();
     }

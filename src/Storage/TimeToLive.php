@@ -20,8 +20,10 @@ final class TimeToLive
 {
     public static function fromDurationString(string $duration): DateInterval
     {
+        set_error_handler(fn (int $_errno, string $_errstr): bool => true);
         /** @var DateInterval|false $interval */
-        $interval = @DateInterval::createFromDateString($duration);
+        $interval = DateInterval::createFromDateString($duration);
+        restore_error_handler();
         if (!$interval instanceof DateInterval) {
             throw new InvalidArgumentException(
                 'The ttl value "'.$duration.'" can not be parsable by `DateInterval::createFromDateString`.'

@@ -8,12 +8,9 @@ use InvalidArgumentException;
 
 final class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 {
-    private ?IdnaInfo $idnaInfo;
-
-    private function __construct(string $message, IdnaInfo $idnaInfo = null)
+    private function __construct(string $message, private IdnaInfo|null $idnaInfo = null)
     {
         parent::__construct($message);
-        $this->idnaInfo = $idnaInfo;
     }
 
     public static function dueToInvalidCharacters(string $domain): self
@@ -50,7 +47,7 @@ final class SyntaxError extends InvalidArgumentException implements CannotProces
         return new self('the given key `'.$key.'` is invalid for the domain `'.($domain->value() ?? 'NULL').'`.');
     }
 
-    public function idnaInfo(): ?IdnaInfo
+    public function idnaInfo(): IdnaInfo|null
     {
         return $this->idnaInfo;
     }

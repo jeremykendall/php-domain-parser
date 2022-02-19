@@ -8,12 +8,9 @@ use InvalidArgumentException;
 
 final class UnableToResolveDomain extends InvalidArgumentException implements CannotProcessHost
 {
-    private ?DomainName $domain;
-
-    private function __construct(string $message, ?DomainName $domain = null)
+    private function __construct(string $message, private DomainName|null $domain = null)
     {
         parent::__construct($message);
-        $this->domain = $domain;
     }
 
     public static function dueToInvalidSecondLevelDomain(DomainName $domain): self
@@ -41,7 +38,7 @@ final class UnableToResolveDomain extends InvalidArgumentException implements Ca
         return new self('A subdomain can not be added to a domain "'.($domain->value() ?? 'NULL').'" without a registrable domain part.', $domain);
     }
 
-    public function domain(): ?DomainName
+    public function domain(): DomainName|null
     {
         return $this->domain;
     }

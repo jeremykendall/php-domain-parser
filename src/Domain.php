@@ -46,21 +46,21 @@ final class Domain implements DomainName
 
     private function __construct(private string $type, DomainNameProvider|DomainName|Host|Stringable|string|null $domain)
     {
-        $this->domain = $this->parseDomain($domain);
+        $this->domain = self::parseDomain($domain, $this->type);
         $this->labels = null === $this->domain ? [] : array_reverse(explode('.', $this->domain));
     }
 
-    private function parseDomain(DomainNameProvider|DomainName|Host|Stringable|string|null $domain): ?string
+    private static function parseDomain(DomainNameProvider|DomainName|Host|Stringable|string|null $domain, string $type): string|null
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
         }
 
         if ($domain instanceof Host) {
-            return $this->parseValue($domain->toUnicode()->value());
+            return self::parseValue($domain->toUnicode()->value(), $type);
         }
 
-        return $this->parseValue($domain);
+        return self::parseValue($domain, $type);
     }
 
     /**
@@ -73,7 +73,7 @@ final class Domain implements DomainName
      * @throws SyntaxError If the host is not a domain
      * @throws SyntaxError If the domain is not a host
      */
-    private function parseValue(Stringable|string|null $domain): ?string
+    private static function parseValue(Stringable|string|null $domain, string $type): string|null
     {
         if (null === $domain) {
             return null;
@@ -107,21 +107,17 @@ final class Domain implements DomainName
             throw SyntaxError::dueToMalformedValue($domain);
         }
 
-        return $this->domainToUnicode($this->domainToAscii($formattedDomain));
+        return self::domainToUnicode($type, self::domainToAscii($type, $formattedDomain));
     }
 
-    private function domainToAscii(string $domain): string
+    private static function domainToAscii(string $type, string $domain): string
     {
-        $option = self::IDNA_2003 === $this->type ? Idna::IDNA2003_ASCII : Idna::IDNA2008_ASCII;
-
-        return Idna::toAscii($domain, $option)->result();
+        return Idna::toAscii($domain, self::IDNA_2003 === $type ? Idna::IDNA2003_ASCII : Idna::IDNA2008_ASCII)->result();
     }
 
-    private function domainToUnicode(string $domain): string
+    private static function domainToUnicode(string $type, string $domain): string
     {
-        $option = self::IDNA_2003 === $this->type ? Idna::IDNA2003_UNICODE : Idna::IDNA2008_UNICODE;
-
-        return Idna::toUnicode($domain, $option)->result();
+        return Idna::toUnicode($domain, self::IDNA_2003 === $type ? Idna::IDNA2003_UNICODE : Idna::IDNA2008_UNICODE)->result();
     }
 
     /**
@@ -212,7 +208,7 @@ final class Domain implements DomainName
             return $this;
         }
 
-        $domain = $this->domainToAscii($this->domain);
+        $domain = self::domainToAscii($this->type, $this->domain);
         if ($domain === $this->domain) {
             return $this;
         }
@@ -226,7 +222,7 @@ final class Domain implements DomainName
             return $this;
         }
 
-        $domain = $this->domainToUnicode($this->domain);
+        $domain = self::domainToUnicode($this->type, $this->domain);
         if ($domain === $this->domain) {
             return $this;
         }
@@ -257,10 +253,10 @@ final class Domain implements DomainName
         }
 
         if (!$this->isAscii()) {
-            return $this->domainToUnicode($domain);
+            return self::domainToUnicode($this->type, $domain);
         }
 
-        return $this->domainToAscii($domain);
+        return self::domainToAscii($this->type, $domain);
     }
 
     /**
