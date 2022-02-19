@@ -11,7 +11,7 @@ interface TopLevelDomainListCache
     /**
      * Retrieves the Top Level Domain List from the Cache.
      */
-    public function fetch(string $uri): ?TopLevelDomainList;
+    public function fetch(string $uri): TopLevelDomainList|null;
 
     /**
      * Cache the Top Level Domain List.

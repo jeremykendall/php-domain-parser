@@ -17,7 +17,7 @@ final class TopLevelDomainsStorageTest extends TestCase
     public function testIsCanReturnARootZoneDatabaseInstanceFromCache(): void
     {
         $cache = new class() implements TopLevelDomainListCache {
-            public function fetch(string $uri): ?TopLevelDomainList
+            public function fetch(string $uri): TopLevelDomainList|null
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }
@@ -48,7 +48,7 @@ final class TopLevelDomainsStorageTest extends TestCase
     public function testIsCanReturnARootZoneDatabaseInstanceFromTheInnerStorage(): void
     {
         $cache = new class() implements TopLevelDomainListCache {
-            public function fetch(string $uri): ?TopLevelDomainList
+            public function fetch(string $uri): TopLevelDomainList|null
             {
                 return null;
             }
@@ -79,7 +79,7 @@ final class TopLevelDomainsStorageTest extends TestCase
     public function testIsCanDeleteARootZoneDatabaseInstanceFromTheInnerStorage(): void
     {
         $cache = new class() implements TopLevelDomainListCache {
-            public function fetch(string $uri): ?TopLevelDomainList
+            public function fetch(string $uri): TopLevelDomainList|null
             {
                 return null;
             }

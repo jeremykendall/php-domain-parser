@@ -8,10 +8,9 @@ use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use Stringable;
 use TypeError;
 use function filter_var;
-use function is_object;
-use function method_exists;
 use const FILTER_VALIDATE_INT;
 
 /**
@@ -60,19 +59,13 @@ final class TimeToLive
      * @see TimeToLive::fromDurationString
      * @codeCoverageIgnore
      *
-     * @param object|int|string $duration storage TTL object should implement the __toString method
-     *
      * @throws InvalidArgumentException if the value can not be parsable
      *
      */
-    public static function fromScalar($duration): DateInterval
+    public static function fromScalar(Stringable|int|string $duration): DateInterval
     {
-        if (is_object($duration) && method_exists($duration, '__toString')) {
+        if ($duration instanceof Stringable) {
             $duration = (string) $duration;
-        }
-
-        if (!is_scalar($duration)) {
-            throw new TypeError('The duration type is unsupported or is an non stringable object.');
         }
 
         return self::fromDurationString((string) $duration);
@@ -81,12 +74,10 @@ final class TimeToLive
     /**
      * Convert the input data into a DateInterval object or null.
      *
-     * @param DateInterval|DateTimeInterface|object|int|string|null $ttl the object should implement the __toString method
-     *
      * @throws InvalidArgumentException if the value can not be computed
      * @throws TypeError                if the value type is not recognized
      */
-    public static function convert($ttl): ?DateInterval
+    public static function convert(DateInterval|DateTimeInterface|Stringable|int|string|null $ttl): DateInterval|null
     {
         if ($ttl instanceof DateInterval || null === $ttl) {
             return $ttl;
@@ -96,7 +87,7 @@ final class TimeToLive
             return self::until($ttl);
         }
 
-        if (is_object($ttl) && method_exists($ttl, '__toString')) {
+        if ($ttl instanceof Stringable) {
             $ttl = (string) $ttl;
         }
 

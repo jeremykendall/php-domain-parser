@@ -11,7 +11,7 @@ interface PublicSuffixListCache
     /**
      * Retrieves the Public Suffix List from Cache.
      */
-    public function fetch(string $uri): ?PublicSuffixList;
+    public function fetch(string $uri): PublicSuffixList|null;
 
     /**
      * Caches the Public Suffix List.

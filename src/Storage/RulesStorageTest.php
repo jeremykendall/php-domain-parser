@@ -17,7 +17,7 @@ final class RulesStorageTest extends TestCase
     public function testIsCanReturnAPublicSuffixListInstanceFromCache(): void
     {
         $cache = new class() implements PublicSuffixListCache {
-            public function fetch(string $uri): ?PublicSuffixList
+            public function fetch(string $uri): PublicSuffixList|null
             {
                 return Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
             }
@@ -49,7 +49,7 @@ final class RulesStorageTest extends TestCase
     public function testIsCanReturnAPublicSuffixListInstanceFromTheInnerStorage(): void
     {
         $cache = new class() implements PublicSuffixListCache {
-            public function fetch(string $uri): ?PublicSuffixList
+            public function fetch(string $uri): PublicSuffixList|null
             {
                 return null;
             }
@@ -81,7 +81,7 @@ final class RulesStorageTest extends TestCase
     public function testIsCanDeleteAPublicSuffixListInstanceFromTheInnerStorage(): void
     {
         $cache = new class() implements PublicSuffixListCache {
-            public function fetch(string $uri): ?PublicSuffixList
+            public function fetch(string $uri): PublicSuffixList|null
             {
                 return null;
             }

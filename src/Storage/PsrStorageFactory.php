@@ -10,41 +10,34 @@ use Pdp\ResourceUri;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\SimpleCache\CacheInterface;
+use Stringable;
 
 final class PsrStorageFactory implements
     ResourceUri,
     PublicSuffixListStorageFactory,
     TopLevelDomainListStorageFactory
 {
-    private CacheInterface $cache;
-
-    private ClientInterface $client;
-
-    private RequestFactoryInterface $requestFactory;
-
-    public function __construct(CacheInterface $cache, ClientInterface $client, RequestFactoryInterface $requestFactory)
-    {
-        $this->cache = $cache;
-        $this->client = $client;
-        $this->requestFactory = $requestFactory;
+    public function __construct(
+        private CacheInterface $cache,
+        private ClientInterface $client,
+        private RequestFactoryInterface $requestFactory
+    ) {
     }
 
-    /**
-     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
-     */
-    public function createPublicSuffixListStorage(string $cachePrefix = '', $cacheTtl = null): PublicSuffixListStorage
-    {
+    public function createPublicSuffixListStorage(
+        string $cachePrefix = '',
+        DateInterval|DateTimeInterface|Stringable|int|string|null $cacheTtl = null
+    ): PublicSuffixListStorage {
         return new RulesStorage(
             new PublicSuffixListPsr16Cache($this->cache, $cachePrefix, $cacheTtl),
             new PublicSuffixListPsr18Client($this->client, $this->requestFactory)
         );
     }
 
-    /**
-     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
-     */
-    public function createTopLevelDomainListStorage(string $cachePrefix = '', $cacheTtl = null): TopLevelDomainListStorage
-    {
+    public function createTopLevelDomainListStorage(
+        string $cachePrefix = '',
+        DateInterval|DateTimeInterface|Stringable|int|string|null $cacheTtl = null
+    ): TopLevelDomainListStorage {
         return new TopLevelDomainsStorage(
             new TopLevelDomainListPsr16Cache($this->cache, $cachePrefix, $cacheTtl),
             new TopLevelDomainListPsr18Client($this->client, $this->requestFactory)
