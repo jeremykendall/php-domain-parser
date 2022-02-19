@@ -9,8 +9,8 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use Stringable;
-use TypeError;
 use function filter_var;
+use function is_string;
 use const FILTER_VALIDATE_INT;
 
 /**
@@ -66,10 +66,6 @@ final class TimeToLive
      */
     public static function fromScalar(Stringable|int|string $duration): DateInterval
     {
-        if ($duration instanceof Stringable) {
-            $duration = (string) $duration;
-        }
-
         return self::fromDurationString((string) $duration);
     }
 
@@ -77,7 +73,6 @@ final class TimeToLive
      * Convert the input data into a DateInterval object or null.
      *
      * @throws InvalidArgumentException if the value can not be computed
-     * @throws TypeError                if the value type is not recognized
      */
     public static function convert(DateInterval|DateTimeInterface|Stringable|int|string|null $ttl): DateInterval|null
     {
@@ -93,12 +88,8 @@ final class TimeToLive
             $ttl = (string) $ttl;
         }
 
-        if (false !== ($seconds = filter_var($ttl, FILTER_VALIDATE_INT))) {
-            return self::fromDurationString($seconds.' seconds');
-        }
-
-        if (!is_string($ttl)) {
-            throw new TypeError('The duration type is unsupported or is an non stringable object.');
+        if (false !== filter_var($ttl, FILTER_VALIDATE_INT) || !is_string($ttl)) {
+            $ttl .= ' seconds';
         }
 
         return self::fromDurationString($ttl);
