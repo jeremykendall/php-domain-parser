@@ -40,7 +40,7 @@
         "psl"
     ],
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.0",
         "ext-filter": "*",
         "ext-intl": "*",
         "ext-json": "*"
