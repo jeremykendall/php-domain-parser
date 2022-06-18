@@ -13,14 +13,10 @@ use Psr\Http\Message\RequestFactoryInterface;
 
 final class PublicSuffixListPsr18Client implements PublicSuffixListClient
 {
-    private ClientInterface $client;
-
-    private RequestFactoryInterface $requestFactory;
-
-    public function __construct(ClientInterface $client, RequestFactoryInterface $requestFactory)
-    {
-        $this->client = $client;
-        $this->requestFactory = $requestFactory;
+    public function __construct(
+        private ClientInterface $client,
+        private RequestFactoryInterface $requestFactory
+    ) {
     }
 
     public function get(string $uri): PublicSuffixList

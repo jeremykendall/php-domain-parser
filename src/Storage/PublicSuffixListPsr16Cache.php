@@ -9,25 +9,20 @@ use DateTimeInterface;
 use Pdp\PublicSuffixList;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
+use Stringable;
 use Throwable;
 use function md5;
 use function strtolower;
 
 final class PublicSuffixListPsr16Cache implements PublicSuffixListCache
 {
-    private CacheInterface $cache;
-
-    private string $cachePrefix;
-
     private ?DateInterval $cacheTtl;
 
-    /**
-     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
-     */
-    public function __construct(CacheInterface $cache, string $cachePrefix = '', $cacheTtl = null)
-    {
-        $this->cache = $cache;
-        $this->cachePrefix = $cachePrefix;
+    public function __construct(
+        private CacheInterface $cache,
+        private string $cachePrefix = '',
+        DateInterval|DateTimeInterface|Stringable|int|string|null $cacheTtl = null
+    ) {
         $this->cacheTtl = TimeToLive::convert($cacheTtl);
     }
 

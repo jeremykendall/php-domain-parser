@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function array_fill;
@@ -54,13 +53,6 @@ final class RulesTest extends TestCase
         Rules::fromPath(dirname(__DIR__).'/test_data/invalid_suffix_list_content.dat');
     }
 
-    public function testFromStringThrowsOnTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-
-        Rules::fromString(new DateTimeImmutable());
-    }
-
     public function testDomainInternalPhpMethod(): void
     {
         /** @var Rules $generateRules */
@@ -80,7 +72,7 @@ final class RulesTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
-        self::$rules->resolve(date_create());
+        self::$rules->resolve(date_create());  /* @phpstan-ignore-line */
     }
 
     public function testIsSuffixValidFalse(): void

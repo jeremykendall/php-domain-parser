@@ -8,6 +8,7 @@ use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
+use Stringable;
 
 final class TimeToLiveTest extends TestCase
 {
@@ -47,8 +48,8 @@ final class TimeToLiveTest extends TestCase
     }
 
     /**
-     * @param int|string|object|null|DateInterval $input
-     * @param ?DateInterval                       $expected
+     * @param int|string|Stringable|null|DateInterval $input
+     * @param ?DateInterval                           $expected
      * @dataProvider validDurationInt
      */
     public function testItCanBeInstantiatedFromSeconds($input, ?DateInterval $expected): void

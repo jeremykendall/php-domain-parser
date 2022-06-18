@@ -8,14 +8,10 @@ use Pdp\TopLevelDomainList;
 
 final class TopLevelDomainsStorage implements TopLevelDomainListStorage
 {
-    private TopLevelDomainListCache $cache;
-
-    private TopLevelDomainListClient $client;
-
-    public function __construct(TopLevelDomainListCache $cache, TopLevelDomainListClient $client)
-    {
-        $this->cache = $cache;
-        $this->client = $client;
+    public function __construct(
+        private TopLevelDomainListCache $cache,
+        private TopLevelDomainListClient $client
+    ) {
     }
 
     public function get(string $uri): TopLevelDomainList

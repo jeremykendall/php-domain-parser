@@ -10,27 +10,22 @@ use Pdp\ResourceUri;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\SimpleCache\CacheInterface;
+use Stringable;
 
 final class PsrStorageFactory implements
     ResourceUri,
     PublicSuffixListStorageFactory,
     TopLevelDomainListStorageFactory
 {
-    private CacheInterface $cache;
-
-    private ClientInterface $client;
-
-    private RequestFactoryInterface $requestFactory;
-
-    public function __construct(CacheInterface $cache, ClientInterface $client, RequestFactoryInterface $requestFactory)
-    {
-        $this->cache = $cache;
-        $this->client = $client;
-        $this->requestFactory = $requestFactory;
+    public function __construct(
+        private CacheInterface $cache,
+        private ClientInterface $client,
+        private RequestFactoryInterface $requestFactory
+    ) {
     }
 
     /**
-     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
+     * @param DateInterval|DateTimeInterface|Stringable|int|string|null $cacheTtl
      */
     public function createPublicSuffixListStorage(string $cachePrefix = '', $cacheTtl = null): PublicSuffixListStorage
     {
@@ -41,7 +36,7 @@ final class PsrStorageFactory implements
     }
 
     /**
-     * @param DateInterval|DateTimeInterface|object|int|string|null $cacheTtl storage TTL object should implement the __toString method
+     * @param DateInterval|DateTimeInterface|Stringable|int|string|null $cacheTtl
      */
     public function createTopLevelDomainListStorage(string $cachePrefix = '', $cacheTtl = null): TopLevelDomainListStorage
     {

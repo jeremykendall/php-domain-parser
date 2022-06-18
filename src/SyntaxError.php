@@ -8,12 +8,9 @@ use InvalidArgumentException;
 
 final class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 {
-    private ?IdnaInfo $idnaInfo;
-
-    private function __construct(string $message, IdnaInfo $idnaInfo = null)
+    private function __construct(string $message, private IdnaInfo|null $idnaInfo = null)
     {
         parent::__construct($message);
-        $this->idnaInfo = $idnaInfo;
     }
 
     public static function dueToInvalidCharacters(string $domain): self

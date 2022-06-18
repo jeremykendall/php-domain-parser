@@ -332,18 +332,15 @@ final class ResolvedDomainTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
-        ResolvedDomain::fromICANN('www.example.com', 1)->withSubDomain(date_create());
+        ResolvedDomain::fromICANN('www.example.com', 1)->withSubDomain(date_create()); /* @phpstan-ignore-line */
     }
 
     /**
      * @dataProvider withPublicSuffixWorksProvider
-     *
-     * @param mixed   $publicSuffix the public suffix
-     * @param ?string $expected
      */
     public function testItCanChangeItsSuffix(
         ResolvedDomain $domain,
-        $publicSuffix,
+        EffectiveTopLevelDomain|string|null $publicSuffix,
         ?string $expected,
         bool $isKnown,
         bool $isICANN,
