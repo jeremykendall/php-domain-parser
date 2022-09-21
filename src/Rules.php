@@ -33,6 +33,8 @@ final class Rules implements PublicSuffixList
         ],
     ];
 
+    private const VALID_SUFFIX_MARKER = '<>';
+
     /**
      * PSL rules as a multidimensional associative array.
      *
@@ -159,6 +161,10 @@ final class Rules implements PublicSuffixList
             /** @var array<array-key, array> $tmpList */
             $tmpList = $list[$rule];
             $list[$rule] = self::addRule($tmpList, $ruleParts);
+        }
+
+        if ($isDomain && $ruleParts == []) {
+            $list[$rule][self::VALID_SUFFIX_MARKER] = [];
         }
 
         return $list;
@@ -302,9 +308,17 @@ final class Rules implements PublicSuffixList
 
             //no match found
             if (!array_key_exists($label, $rules)) {
-                // for private domain suffix MUST be fully matched else no suffix is found
-                // https://github.com/jeremykendall/php-domain-parser/issues/321
-                if (self::PRIVATE_DOMAINS === $section && [] !== $rules) {
+                /**
+                 * for a private domain, suffix needs to contain an entry marking
+                 * it as a valid option.
+                 * Consider domain [node857-gelofesta.users.scale.virtualcloud.com.br]:
+                 * suffix [users.scale.virtualcloud.com.br] is a valid private domain, but
+                 * [virtualcloud.com.br] is not.
+                 * [ br => com => virtualcloud => scale => users ] will contain the marker, but
+                 * [ br => com => virtualcloud ] will not.
+                 *
+                **/
+                if (self::PRIVATE_DOMAINS === $section && !array_key_exists(self::VALID_SUFFIX_MARKER, $rules)) {
                     $labelCount = 0;
                 }
                 break;

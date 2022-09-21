@@ -134,6 +134,22 @@ final class RulesTest extends TestCase
         self::assertSame('github.io', $domain->suffix()->value());
     }
 
+
+    public function testWithMultiLevelPrivateDomain(): void
+    {
+        $domain = self::$rules->resolve('test-domain.eu.org');
+
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertTrue($domain->suffix()->isPrivate());
+        self::assertSame('eu.org', $domain->suffix()->value());
+
+        $domain = self::$rules->resolve('test-domain.lt.eu.org');
+
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertTrue($domain->suffix()->isPrivate());
+        self::assertSame('lt.eu.org', $domain->suffix()->value());
+    }
+
     public function testWithAbsoluteHostInvalid(): void
     {
         $domain = self::$rules->resolve('private.ulb.ac.be.');
