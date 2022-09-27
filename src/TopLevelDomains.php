@@ -75,8 +75,8 @@ final class TopLevelDomains implements TopLevelDomainList
                 continue;
             }
 
-            if (false === strpos($line, '#')) {
-                $data['records'] = $data['records'] ?? [];
+            $data['records'] = $data['records'] ?? [];
+            if (!str_contains($line, '#')) {
                 $data['records'][self::extractRootZone($line)] = 1;
                 continue;
             }
