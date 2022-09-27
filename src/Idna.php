@@ -11,7 +11,6 @@ use function idn_to_ascii;
 use function idn_to_utf8;
 use function preg_match;
 use function rawurldecode;
-use function strpos;
 use function strtolower;
 use const INTL_IDNA_VARIANT_UTS46;
 
