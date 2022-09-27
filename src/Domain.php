@@ -46,7 +46,6 @@ final class Domain implements DomainName
 
     private function __construct(private string $type, DomainNameProvider|Host|Stringable|string|int|null $domain)
     {
-        $this->type = $type;
         $this->domain = $this->parseDomain($domain);
         $this->labels = null === $this->domain ? [] : array_reverse(explode('.', $this->domain));
     }
@@ -113,35 +112,30 @@ final class Domain implements DomainName
         }
 
         $formattedDomain = rawurldecode($domain);
-        if (1 === preg_match(self::REGEXP_REGISTERED_NAME, $formattedDomain)) {
-            return strtolower($formattedDomain);
-        }
-
-        // a domain name can not contains URI delimiters or space
-        if (1 === preg_match(self::REGEXP_URI_DELIMITERS, $formattedDomain)) {
-            throw SyntaxError::dueToInvalidCharacters($domain);
-        }
-
-        // if the domain name does not contains UTF-8 chars then it is malformed
-        if (1 !== preg_match(self::REGEXP_IDN_PATTERN, $formattedDomain)) {
-            throw SyntaxError::dueToMalformedValue($domain);
-        }
-
-        return $this->domainToUnicode($this->domainToAscii($formattedDomain));
+        return match (true) {
+            1 === preg_match(self::REGEXP_REGISTERED_NAME, $formattedDomain) => strtolower($formattedDomain),
+            // a domain name can not contain URI delimiters or space
+            1 === preg_match(self::REGEXP_URI_DELIMITERS, $formattedDomain) => throw SyntaxError::dueToInvalidCharacters($domain),
+            // if the domain name does not contain UTF-8 chars then it is malformed
+            1 !== preg_match(self::REGEXP_IDN_PATTERN, $formattedDomain) => throw SyntaxError::dueToMalformedValue($domain),
+            default => $this->domainToUnicode($this->domainToAscii($formattedDomain)),
+        };
     }
 
     private function domainToAscii(string $domain): string
     {
-        $option = self::IDNA_2003 === $this->type ? Idna::IDNA2003_ASCII : Idna::IDNA2008_ASCII;
-
-        return Idna::toAscii($domain, $option)->result();
+        return Idna::toAscii(
+            $domain,
+            self::IDNA_2003 === $this->type ? Idna::IDNA2003_ASCII : Idna::IDNA2008_ASCII
+        )->result();
     }
 
     private function domainToUnicode(string $domain): string
     {
-        $option = self::IDNA_2003 === $this->type ? Idna::IDNA2003_UNICODE : Idna::IDNA2008_UNICODE;
-
-        return Idna::toUnicode($domain, $option)->result();
+        return Idna::toUnicode(
+            $domain,
+            self::IDNA_2003 === $this->type ? Idna::IDNA2003_UNICODE : Idna::IDNA2008_UNICODE
+        )->result();
     }
 
     /**
@@ -149,9 +143,7 @@ final class Domain implements DomainName
      */
     public function getIterator(): Iterator
     {
-        foreach ($this->labels as $label) {
-            yield $label;
-        }
+        yield from $this->labels;
     }
 
     public function isAscii(): bool
