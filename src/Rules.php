@@ -277,7 +277,8 @@ final class Rules implements PublicSuffixList
             if (!array_key_exists($label, $rules)) {
                 // for private domain suffix MUST be fully matched else no suffix is found
                 // https://github.com/jeremykendall/php-domain-parser/issues/321
-                if (self::PRIVATE_DOMAINS === $section && [] !== $rules) {
+                // https://github.com/jeremykendall/php-domain-parser/issues/334
+                if (self::PRIVATE_DOMAINS === $section && [] !== $rules && [] !== reset($rules)) {
                     $labelCount = 0;
                 }
                 break;

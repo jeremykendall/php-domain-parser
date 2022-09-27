@@ -11,7 +11,6 @@ use Stringable;
 use function count;
 use function in_array;
 use function preg_match;
-use function strpos;
 use function trim;
 
 final class TopLevelDomains implements TopLevelDomainList
@@ -71,11 +70,10 @@ final class TopLevelDomains implements TopLevelDomainList
         foreach ($file as $line) {
             $line = trim($line);
             if ([] === $data) {
-                $data = self::extractHeader($line);
+                $data = self::extractHeader($line) + ['records' => []];
                 continue;
             }
 
-            $data['records'] = $data['records'] ?? [];
             if (!str_contains($line, '#')) {
                 $data['records'][self::extractRootZone($line)] = 1;
                 continue;
