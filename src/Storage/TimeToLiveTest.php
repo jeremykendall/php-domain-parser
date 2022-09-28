@@ -48,11 +48,9 @@ final class TimeToLiveTest extends TestCase
     }
 
     /**
-     * @param int|string|Stringable|null|DateInterval $input
-     * @param ?DateInterval                           $expected
      * @dataProvider validDurationInt
      */
-    public function testItCanBeInstantiatedFromSeconds($input, ?DateInterval $expected): void
+    public function testItCanBeInstantiatedFromSeconds(int|string|Stringable|null|DateInterval  $input, ?DateInterval $expected): void
     {
         self::assertEquals($expected, TimeToLive::convert($input));
     }

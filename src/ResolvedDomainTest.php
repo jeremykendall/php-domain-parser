@@ -33,7 +33,6 @@ final class ResolvedDomainTest extends TestCase
 
     /**
      * @dataProvider provideWrongConstructor
-     * @param ?string $domain
      */
     public function testItThrowsExceptionMisMatchPublicSuffixDomain(?string $domain, int $length): void
     {
@@ -71,7 +70,6 @@ final class ResolvedDomainTest extends TestCase
 
     /**
      * @dataProvider countableProvider
-     * @param ?string $domain
      */
     public function testItImplementsCountable(?string $domain, int $nbLabels): void
     {
@@ -93,12 +91,6 @@ final class ResolvedDomainTest extends TestCase
 
     /**
      * @dataProvider toUnicodeProvider
-     * @param ?string $domain
-     * @param ?string $publicSuffix
-     * @param ?string $expectedDomain
-     * @param ?string $expectedSuffix
-     * @param ?string $expectedIDNDomain
-     * @param ?string $expectedIDNSuffix
      */
     public function testItCanBeConvertedToUnicode(
         ?string $domain,
@@ -185,12 +177,6 @@ final class ResolvedDomainTest extends TestCase
 
     /**
      * @dataProvider toAsciiProvider
-     * @param ?string $domain
-     * @param ?string $publicSuffix
-     * @param ?string $expectedDomain
-     * @param ?string $expectedSuffix
-     * @param ?string $expectedAsciiDomain
-     * @param ?string $expectedAsciiSuffix
      */
     public function testItCanBeConvertedToAscii(
         ?string $domain,
@@ -261,10 +247,8 @@ final class ResolvedDomainTest extends TestCase
 
     /**
      * @dataProvider withSubDomainWorksProvider
-     *
-     * @param DomainName|string|null $subdomain the subdomain to add
      */
-    public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, $subdomain, string $expected = null): void
+    public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, DomainName|string|null $subdomain, string $expected = null): void
     {
         $result = $domain->withSubDomain($subdomain);
 
@@ -447,7 +431,6 @@ final class ResolvedDomainTest extends TestCase
 
     /**
      * @dataProvider resolveCustomIDNAOptionsProvider
-     * @param ?string $expectedSubDomain
      */
     public function testItCanWorksWithIDNAOptions(
         string $domainName,
@@ -514,11 +497,6 @@ final class ResolvedDomainTest extends TestCase
 
     /**
      * @dataProvider withSldWorksProvider
-     * @param ?string $host
-     * @param ?string $publicSuffix
-     * @param ?string $sld
-     * @param ?string $expectedSld
-     * @param ?string $expectedHost
      */
     public function testWithSecondLevelDomain(
         ?string $host,

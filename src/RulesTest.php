@@ -205,9 +205,6 @@ final class RulesTest extends TestCase
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
     public function testGetRegistrableDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
@@ -216,9 +213,6 @@ final class RulesTest extends TestCase
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
     public function testGetPublicSuffix(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
@@ -227,9 +221,6 @@ final class RulesTest extends TestCase
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
     public function testGetDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
@@ -406,8 +397,6 @@ final class RulesTest extends TestCase
      * @covers \Pdp\Domain::parseValue
      *
      * @dataProvider validPublicSectionProvider
-     * @param ?string $domain
-     * @param ?string $expected
      */
     public function testPublicSuffixSection(?string $domain, ?string $expected): void
     {
@@ -444,8 +433,6 @@ final class RulesTest extends TestCase
      * on the domain name and checks the result is the public suffix expected."
      *
      * @see http://publicsuffix.org/list/
-     * @param ?string $input
-     * @param ?string $expected
      */
     public function checkPublicSuffix(?string $input, ?string $expected): void
     {
