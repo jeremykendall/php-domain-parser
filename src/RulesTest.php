@@ -611,4 +611,19 @@ final class RulesTest extends TestCase
 
         self::$rules->getPrivateDomain('clientportal.virtualcloud.com.br');
     }
+
+    public function testWithMultiLevelPrivateDomain(): void
+    {
+        $domain = self::$rules->resolve('test-domain.eu.org');
+
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertTrue($domain->suffix()->isPrivate());
+        self::assertSame('eu.org', $domain->suffix()->value());
+
+        $domain = self::$rules->resolve('test-domain.lt.eu.org');
+
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertTrue($domain->suffix()->isPrivate());
+        self::assertSame('lt.eu.org', $domain->suffix()->value());
+    }
 }
