@@ -77,7 +77,7 @@
         "test": [
             "@phpunit",
             "@phpstan",
-            "@phpcs"
+            "@phpcs:fix"
         ]
     },
     "scripts-descriptions": {
