@@ -7,6 +7,7 @@ namespace Pdp\Storage;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use mysql_xdevapi\CollectionModify;
 use PHPUnit\Framework\TestCase;
 use Stringable;
 
@@ -26,7 +27,9 @@ final class TimeToLiveTest extends TestCase
      */
     public function testItCanBeInstantiatedFromDurationInput(string $input, DateInterval $expected): void
     {
-        self::assertEquals($expected, TimeToLive::fromDurationString($input));
+        $now = new DateTimeImmutable();
+
+        self::assertEquals($now->add($expected), $now->add(TimeToLive::fromDurationString($input)));
     }
 
     /**
@@ -47,16 +50,25 @@ final class TimeToLiveTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider validDurationInt
-     */
-    public function testItCanBeInstantiatedFromSeconds(int|string|Stringable|null|DateInterval  $input, ?DateInterval $expected): void
+    public function testItCastToNullWithNull(): void
     {
-        self::assertEquals($expected, TimeToLive::convert($input));
+        self::assertNull(TimeToLive::convert(null));
     }
 
     /**
-     * @return iterable<string, array{input:int|string|object|null|DateInterval, expected:DateInterval|null}>
+     * @dataProvider validDurationInt
+     */
+    public function testItCanBeInstantiatedFromSeconds(int|string|Stringable|DateInterval $input, DateInterval $expected): void
+    {
+        /** @var DateInterval $ttl */
+        $ttl = TimeToLive::convert($input);
+        $now = new DateTimeImmutable();
+
+        self::assertEquals($now->add($expected), $now->add($ttl));
+    }
+
+    /**
+     * @return iterable<string, array{input:int|string|object|DateInterval, expected:DateInterval|null}>
      */
     public function validDurationInt(): iterable
     {
@@ -65,11 +77,6 @@ final class TimeToLiveTest extends TestCase
         yield 'DateInterval' => [
             'input' => $seconds,
             'expected' => $seconds,
-        ];
-
-        yield 'null' => [
-            'input' => null,
-            'expected' => null,
         ];
 
         yield 'stringable object' => [
