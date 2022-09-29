@@ -53,11 +53,9 @@
         "phpstan/phpstan-phpunit": "^1.0.0",
         "phpstan/phpstan-strict-rules": "^1.1.0",
         "phpunit/phpunit": "^9.5.13",
-        "psalm/plugin-phpunit": "^0.15.2",
         "psr/http-factory": "^1.0",
         "psr/simple-cache": "^1.0",
-        "symfony/cache": "^v5.0",
-        "vimeo/psalm": "^4.20"
+        "symfony/cache": "^v5.0"
     },
     "suggest": {
         "psr/http-client-implementation": "To use the storage functionnality which depends on PSR-18",
@@ -79,7 +77,6 @@
         "test": [
             "@phpunit",
             "@phpstan",
-            "@psalm",
             "@phpcs"
         ]
     },
@@ -87,7 +84,6 @@
         "phpcs": "Runs coding style test suite",
         "phpcs:fix": "Fix the package coding style",
         "phpstan": "Runs complete codebase static analysis",
-        "psalm": "Runs complete codebase static analysis",
         "phpunit": "Runs unit and functional testing",
         "test": "Runs the complete test suite"
     },
