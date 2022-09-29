@@ -55,7 +55,7 @@
         "phpunit/phpunit": "^9.5.13",
         "psr/http-factory": "^1.0",
         "psr/simple-cache": "^1.0",
-        "symfony/cache": "^v5.0"
+        "symfony/cache": "^v5.0 || ^v6.0"
     },
     "suggest": {
         "psr/http-client-implementation": "To use the storage functionnality which depends on PSR-18",

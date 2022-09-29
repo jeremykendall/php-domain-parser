@@ -306,6 +306,7 @@ final class Rules implements PublicSuffixList
                 // https://github.com/jeremykendall/php-domain-parser/issues/321
                 // https://github.com/jeremykendall/php-domain-parser/issues/334
                 if (self::PRIVATE_DOMAINS === $section && self::hasRemainingRuleLabels($rules)) {
+
                     $labelCount = 0;
                 }
                 break;
