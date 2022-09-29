@@ -16,7 +16,7 @@ final class Suffix implements EffectiveTopLevelDomain
 
     private function __construct(
         private DomainName $domain,
-        private string $section
+        private readonly string $section
     ) {
     }
 
@@ -132,18 +132,12 @@ final class Suffix implements EffectiveTopLevelDomain
 
     public function toAscii(): self
     {
-        $clone = clone $this;
-        $clone->domain = $this->domain->toAscii();
-
-        return $clone;
+        return new self($this->domain->toAscii(), $this->section);
     }
 
     public function toUnicode(): self
     {
-        $clone = clone $this;
-        $clone->domain = $this->domain->toUnicode();
-
-        return $clone;
+        return new self($this->domain->toUnicode(), $this->section);
     }
 
     public function normalize(DomainName $domain): self
@@ -153,9 +147,6 @@ final class Suffix implements EffectiveTopLevelDomain
             $newDomain = $newDomain->toAscii();
         }
 
-        $clone = clone $this;
-        $clone->domain = $newDomain;
-
-        return $clone;
+        return new self($newDomain, $this->section);
     }
 }

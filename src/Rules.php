@@ -32,7 +32,7 @@ final class Rules implements PublicSuffixList
     /**
      * @param array{ICANN_DOMAINS: array<array>, PRIVATE_DOMAINS: array<array>} $rules
      */
-    private function __construct(private array $rules)
+    private function __construct(private readonly array $rules)
     {
     }
 

@@ -22,9 +22,9 @@ final class TopLevelDomains implements TopLevelDomainList
      * @param array<string, int> $records
      */
     private function __construct(
-        private array $records,
-        private string $version,
-        private DateTimeImmutable $lastUpdated
+        private readonly array $records,
+        private readonly string $version,
+        private readonly DateTimeImmutable $lastUpdated
     ) {
     }
 
