@@ -2,6 +2,24 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
+## 6.1.2 - 2022-09-29
+
+### Added
+
+- None
+
+### Fixed
+
+- [#321](https://github.com/jeremykendall/php-domain-parser/issues/334) remove regression to resolving private domain suffix.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 6.1.1 - 2022-02-18
 
 ### Added

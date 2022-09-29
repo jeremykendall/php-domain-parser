@@ -95,12 +95,11 @@ final class TopLevelDomains implements TopLevelDomainList
         foreach ($file as $line) {
             $line = trim($line);
             if ([] === $data) {
-                $data = self::extractHeader($line);
+                $data = self::extractHeader($line) + ['records' => []];
                 continue;
             }
 
             if (false === strpos($line, '#')) {
-                $data['records'] = $data['records'] ?? [];
                 $data['records'][self::extractRootZone($line)] = 1;
                 continue;
             }
