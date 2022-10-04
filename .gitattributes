@@ -8,6 +8,7 @@
 /phpstan.neon        export-ignore
 /phpunit.xml.dist    export-ignore
 /psalm.xml           export-ignore
+/test_data/          export-ignore
 /CHANGELOG.md        export-ignore
 /UPGRADING.md        export-ignore
 /README.md           export-ignore
