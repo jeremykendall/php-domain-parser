@@ -21,7 +21,6 @@ use const INTL_IDNA_VARIANT_UTS46;
 final class Idna
 {
     private const REGEXP_IDNA_PATTERN = '/[^\x20-\x7f]/';
-
     /**
      * IDNA options.
      */
@@ -33,7 +32,6 @@ final class Idna
     public const IDNA_NONTRANSITIONAL_TO_ASCII   = 0x10;
     public const IDNA_NONTRANSITIONAL_TO_UNICODE = 0x20;
     public const IDNA_CHECK_CONTEXTO             = 0x40;
-
     /**
      * IDNA errors.
      */

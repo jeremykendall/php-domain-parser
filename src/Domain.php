@@ -28,7 +28,6 @@ final class Domain implements DomainName
     private const IDNA_2003 = 'IDNA_2003';
     private const IDNA_2008 = 'IDNA_2008';
     private const REGEXP_IDN_PATTERN = '/[^\x20-\x7f]/';
-
     // Note that unreserved is purposely missing . as it is used to separate labels.
     private const REGEXP_REGISTERED_NAME = '/(?(DEFINE)
         (?<unreserved>[a-z0-9_~\-])
@@ -37,7 +36,6 @@ final class Domain implements DomainName
         (?<reg_name>(?:(?&unreserved)|(?&sub_delims)|(?&encoded)){1,63})
     )
     ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
-
     private const REGEXP_URI_DELIMITERS = '/[:\/?#\[\]@ ]/';
 
     /** @var array<int, string> */
