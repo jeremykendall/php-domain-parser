@@ -2,6 +2,24 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
+## 6.2.0 - 2022-10-30
+
+### Added
+
+- None
+
+### Fixed 
+
+- None
+
+### Deprecated
+
+- None
+
+### Removed
+
+- PHP7 and PHP8.0 support
+
 ## 6.1.2 - 2022-09-29
 
 ### Added

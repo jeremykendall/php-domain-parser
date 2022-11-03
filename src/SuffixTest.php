@@ -106,7 +106,6 @@ final class SuffixTest extends TestCase
 
     /**
      * @dataProvider conversionReturnsTheSameInstanceProvider
-     * @param ?string $publicSuffix
      */
     public function testConversionReturnsTheSameInstance(?string $publicSuffix): void
     {

@@ -41,10 +41,14 @@ final class Stream
      */
     private static function fromPath(string $path, $context = null)
     {
-        if (null === $context) {
-            return @fopen($path, 'r');
+        $args = [$path, 'r'];
+        if (null !== $context) {
+            $args = [...$args, false, $context];
         }
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $stream = fopen(...$args);
+        restore_error_handler();
 
-        return @fopen($path, 'r', false, $context);
+        return $stream;
     }
 }

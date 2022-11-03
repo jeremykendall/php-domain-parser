@@ -11,7 +11,6 @@ use function idn_to_ascii;
 use function idn_to_utf8;
 use function preg_match;
 use function rawurldecode;
-use function strpos;
 use function strtolower;
 use const INTL_IDNA_VARIANT_UTS46;
 
@@ -22,7 +21,6 @@ use const INTL_IDNA_VARIANT_UTS46;
 final class Idna
 {
     private const REGEXP_IDNA_PATTERN = '/[^\x20-\x7f]/';
-
     /**
      * IDNA options.
      */
@@ -34,7 +32,6 @@ final class Idna
     public const IDNA_NONTRANSITIONAL_TO_ASCII   = 0x10;
     public const IDNA_NONTRANSITIONAL_TO_UNICODE = 0x20;
     public const IDNA_CHECK_CONTEXTO             = 0x40;
-
     /**
      * IDNA errors.
      */
@@ -118,7 +115,7 @@ final class Idna
      */
     public static function toUnicode(string $domain, int $options): IdnaInfo
     {
-        if (false === strpos($domain, 'xn--')) {
+        if (!str_contains($domain, 'xn--')) {
             return IdnaInfo::fromIntl(['result' => $domain, 'isTransitionalDifferent' => false, 'errors' => 0]);
         }
 

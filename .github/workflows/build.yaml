@@ -1,28 +1,60 @@
 ---
-name: Build
+name: build
 on:
     push: ~
     pull_request: ~
 
 jobs:
-    phpunit:
-        name: PHPUnit tests on ${{ matrix.php }} ${{ matrix.composer-flags }}
-        runs-on: ubuntu-latest
+    linux_tests:
+        name: PHP on ${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.composer-flags }}
+        runs-on: ubuntu-20.04
         strategy:
             matrix:
-                php: [ '7.4', '8.0', '8.1' ]
-                composer-flags: [ '' ]
-                phpunit-flags: [ '--coverage-text' ]
+                php: ['8.1']
+                stability: [prefer-lowest, prefer-stable]
+                include:
+                    -   php: '8.2'
+                        flags: "--ignore-platform-req=php"
+                        phpunit-flags: '--no-coverage'
+                        stability: prefer-stable
         steps:
-            - uses: actions/checkout@v2
-            - uses: shivammathur/setup-php@v2
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
-                  coverage: pcov
+                  coverage: xdebug
                   tools: composer:v2
-            - run: composer update --no-progress ${{ matrix.composer-flags }}
-            - run: composer phpunit
-            - run: composer phpstan
-              if: ${{ matrix.php == '8.1' }}
-            - run: composer phpcs
-              if: ${{ matrix.php == '8.1' }}
+            - name: Check PHP Version
+              run: php -v
+
+            - name: Validate composer files
+              run: composer validate --strict
+
+            - name: Get Composer Cache Directory
+              id: composer-cache
+              run: |
+                  echo "::set-output name=dir::$(composer config cache-files-dir)"
+            - uses: actions/cache@v2
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ matrix.stability }}-${{ matrix.flags }}-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-composer-${{ matrix.stability }}-${{ matrix.flags }}-
+                      ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
+
+            - name: Run Unit tests with coverage
+              run: composer phpunit -- ${{ matrix.phpunit-flags }}
+
+            - name: Run static analysis
+              run: composer phpstan
+              if: ${{ matrix.php == '8.1' && matrix.stability == 'prefer-stable'}}
+
+            - name: Run Coding style rules
+              run: composer phpcs:fix
+              if: ${{ matrix.php == '8.1' && matrix.stability == 'prefer-stable'}}

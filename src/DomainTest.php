@@ -59,7 +59,6 @@ final class DomainTest extends TestCase
      * @dataProvider countableProvider
      *
      * @param string[] $labels
-     * @param ?string  $domain
      */
     public function testCountable(?string $domain, int $nbLabels, array $labels): void
     {
@@ -115,10 +114,6 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider toUnicodeProvider
-     *
-     * @param ?string $domain
-     * @param ?string $expectedDomain
-     * @param ?string $expectedIDNDomain
      */
     public function testToIDN(
         ?string $domain,
@@ -179,9 +174,6 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider toAsciiProvider
-     * @param ?string $domain
-     * @param ?string $expectedDomain
-     * @param ?string $expectedAsciiDomain
      */
     public function testToAscii(
         ?string $domain,
@@ -232,8 +224,6 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider withLabelWorksProvider
-     *
-     * @param ?string $expected
      */
     public function testWithLabelWorks(DomainName $domain, int $key, string $label, ?string $expected): void
     {
@@ -315,7 +305,7 @@ final class DomainTest extends TestCase
     public function testWithLabelFailsWithTypeError(): void
     {
         $this->expectException(TypeError::class);
-        Domain::fromIDNA2008('example.com')->withLabel(1, new stdClass());
+        Domain::fromIDNA2008('example.com')->withLabel(1, new stdClass()); /* @phpstan-ignore-line */
     }
 
     public function testWithLabelFailsWithInvalidKey(): void
@@ -374,7 +364,6 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider withoutLabelWorksProvider
-     * @param ?string $expected
      */
     public function testwithoutLabelWorks(DomainName $domain, int $key, ?string $expected): void
     {
@@ -426,10 +415,6 @@ final class DomainTest extends TestCase
 
     /**
      * @dataProvider resolveCustomIDNAOptionsProvider
-     * @param ?string $expectedContent
-     * @param ?string $expectedAscii
-     * @param ?string $expectedUnicode
-     * @param ?string $expectedWithLabel
      */
     public function testResolveWorksWithCustomIDNAOptions(
         string $domainName,

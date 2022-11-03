@@ -8,14 +8,10 @@ use Pdp\PublicSuffixList;
 
 final class RulesStorage implements PublicSuffixListStorage
 {
-    private PublicSuffixListCache $cache;
-
-    private PublicSuffixListClient $client;
-
-    public function __construct(PublicSuffixListCache $cache, PublicSuffixListClient $client)
-    {
-        $this->cache = $cache;
-        $this->client = $client;
+    public function __construct(
+        private readonly PublicSuffixListCache $cache,
+        private readonly PublicSuffixListClient $client
+    ) {
     }
 
     public function get(string $uri): PublicSuffixList
