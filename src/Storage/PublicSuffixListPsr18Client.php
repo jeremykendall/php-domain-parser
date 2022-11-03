@@ -14,8 +14,8 @@ use Psr\Http\Message\RequestFactoryInterface;
 final class PublicSuffixListPsr18Client implements PublicSuffixListClient
 {
     public function __construct(
-        private ClientInterface $client,
-        private RequestFactoryInterface $requestFactory
+        private readonly ClientInterface $client,
+        private readonly RequestFactoryInterface $requestFactory
     ) {
     }
 

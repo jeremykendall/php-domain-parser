@@ -16,11 +16,11 @@ use function strtolower;
 
 final class PublicSuffixListPsr16Cache implements PublicSuffixListCache
 {
-    private ?DateInterval $cacheTtl;
+    private readonly ?DateInterval $cacheTtl;
 
     public function __construct(
-        private CacheInterface $cache,
-        private string $cachePrefix = '',
+        private readonly CacheInterface $cache,
+        private readonly string $cachePrefix = '',
         DateInterval|DateTimeInterface|Stringable|int|string|null $cacheTtl = null
     ) {
         $this->cacheTtl = TimeToLive::convert($cacheTtl);

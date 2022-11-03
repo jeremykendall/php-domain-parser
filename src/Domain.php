@@ -39,8 +39,8 @@ final class Domain implements DomainName
     private const REGEXP_URI_DELIMITERS = '/[:\/?#\[\]@ ]/';
 
     /** @var array<int, string> */
-    private array $labels;
-    private ?string $domain;
+    private readonly array $labels;
+    private readonly ?string $domain;
 
     private function __construct(private string $type, DomainNameProvider|Host|Stringable|string|int|null $domain)
     {
@@ -315,11 +315,11 @@ final class Domain implements DomainName
             }
         }
 
-        $clone = clone $this;
-        $clone->labels = $labels;
-        $clone->domain = [] === $labels ? null : implode('.', array_reverse($labels));
+        if ($labels === $this->labels) {
+            return $this;
+        }
 
-        return $clone;
+        return new self($this->type, [] === $labels ? null : implode('.', array_reverse($labels)));
     }
 
     public function clear(): self
@@ -343,10 +343,6 @@ final class Domain implements DomainName
             return $this;
         }
 
-        $clone = clone $this;
-        $clone->labels = $labels;
-        $clone->domain = [] === $labels ? null : implode('.', array_reverse($labels));
-
-        return $clone;
+        return new self($this->type, [] === $labels ? null : implode('.', array_reverse($labels)));
     }
 }

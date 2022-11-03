@@ -9,8 +9,8 @@ use Pdp\PublicSuffixList;
 final class RulesStorage implements PublicSuffixListStorage
 {
     public function __construct(
-        private PublicSuffixListCache $cache,
-        private PublicSuffixListClient $client
+        private readonly PublicSuffixListCache $cache,
+        private readonly PublicSuffixListClient $client
     ) {
     }
 

@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 final class SyntaxError extends InvalidArgumentException implements CannotProcessHost
 {
-    private function __construct(string $message, private IdnaInfo|null $idnaInfo = null)
+    private function __construct(string $message, private readonly ?IdnaInfo $idnaInfo = null)
     {
         parent::__construct($message);
     }

@@ -6,6 +6,7 @@ namespace Pdp;
 
 use DateTimeImmutable;
 use Iterator;
+use SplFileObject;
 use SplTempFileObject;
 use Stringable;
 use function count;
@@ -65,7 +66,7 @@ final class TopLevelDomains implements TopLevelDomainList
         $data = [];
         $file = new SplTempFileObject();
         $file->fwrite($content);
-        $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        $file->setFlags(SplFileObject::DROP_NEW_LINE | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         /** @var string $line */
         foreach ($file as $line) {
             $line = trim($line);
@@ -160,9 +161,7 @@ final class TopLevelDomains implements TopLevelDomainList
      */
     public function getIterator(): Iterator
     {
-        foreach ($this->records as $tld => $_) {
-            yield $tld;
-        }
+        yield from array_keys($this->records);
     }
 
     /**

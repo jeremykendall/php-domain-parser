@@ -9,8 +9,8 @@ use Pdp\TopLevelDomainList;
 final class TopLevelDomainsStorage implements TopLevelDomainListStorage
 {
     public function __construct(
-        private TopLevelDomainListCache $cache,
-        private TopLevelDomainListClient $client
+        private readonly TopLevelDomainListCache $cache,
+        private readonly TopLevelDomainListClient $client
     ) {
     }
 

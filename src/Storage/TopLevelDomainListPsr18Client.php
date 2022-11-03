@@ -14,8 +14,8 @@ use Psr\Http\Message\RequestFactoryInterface;
 final class TopLevelDomainListPsr18Client implements TopLevelDomainListClient
 {
     public function __construct(
-        private ClientInterface $client,
-        private RequestFactoryInterface $requestFactory
+        private readonly ClientInterface $client,
+        private readonly RequestFactoryInterface $requestFactory
     ) {
     }
 

@@ -9,15 +9,19 @@ use function count;
 
 final class ResolvedDomain implements ResolvedDomainName
 {
-    private DomainName $secondLevelDomain;
-    private DomainName $registrableDomain;
-    private DomainName $subDomain;
+    private readonly DomainName $secondLevelDomain;
+    private readonly DomainName $registrableDomain;
+    private readonly DomainName $subDomain;
 
     private function __construct(
-        private DomainName $domain,
-        private EffectiveTopLevelDomain $suffix
+        private readonly DomainName $domain,
+        private readonly EffectiveTopLevelDomain $suffix
     ) {
-        $this->validateState();
+        [
+            'registrableDomain' => $this->registrableDomain,
+            'secondLevelDomain' => $this->secondLevelDomain,
+            'subDomain' => $this->subDomain,
+        ] = $this->parse();
     }
 
     public static function fromICANN(int|DomainNameProvider|Host|string|Stringable|null $domain, int $suffixLength): self
@@ -69,16 +73,20 @@ final class ResolvedDomain implements ResolvedDomainName
      * Make sure the Value Object is always in a valid state.
      *
      * @throws UnableToResolveDomain If the suffix can not be attached to the domain
+     *
+     * @return array{registrableDomain: DomainName, secondLevelDomain: DomainName, subDomain: DomainName}
      */
-    private function validateState(): void
+    private function parse(): array
     {
         $suffixValue = $this->suffix->value();
         if (null === $suffixValue) {
             $nullDomain = $this->domain->clear();
-            $this->registrableDomain = $nullDomain;
-            $this->secondLevelDomain = $nullDomain;
-            $this->subDomain = $nullDomain;
-            return;
+
+            return [
+                'registrableDomain' => $nullDomain,
+                'secondLevelDomain' => $nullDomain,
+                'subDomain' => $nullDomain,
+            ];
         }
 
         if (2 > count($this->domain)) {
@@ -90,9 +98,12 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $length = count($this->suffix);
-        $this->registrableDomain = $this->domain->slice(0, $length + 1);
-        $this->secondLevelDomain = $this->domain->slice($length, 1);
-        $this->subDomain = $this->domain->slice($length + 1);
+
+        return [
+            'registrableDomain' => $this->domain->slice(0, $length + 1),
+            'secondLevelDomain' => $this->domain->slice($length, 1),
+            'subDomain' => $this->domain->slice($length + 1),
+        ];
     }
 
     public function count(): int

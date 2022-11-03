@@ -18,9 +18,9 @@ final class PsrStorageFactory implements
     TopLevelDomainListStorageFactory
 {
     public function __construct(
-        private CacheInterface $cache,
-        private ClientInterface $client,
-        private RequestFactoryInterface $requestFactory
+        private readonly CacheInterface $cache,
+        private readonly ClientInterface $client,
+        private readonly RequestFactoryInterface $requestFactory
     ) {
     }
 

@@ -15,7 +15,7 @@ final class Suffix implements EffectiveTopLevelDomain
     private const IANA = 'IANA';
 
     private function __construct(
-        private DomainName $domain,
+        private readonly DomainName $domain,
         private readonly string $section
     ) {
     }
