@@ -4,62 +4,48 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use Stringable;
 use function count;
 
 final class ResolvedDomain implements ResolvedDomainName
 {
-    private DomainName $domain;
+    private readonly DomainName $secondLevelDomain;
+    private readonly DomainName $registrableDomain;
+    private readonly DomainName $subDomain;
 
-    private EffectiveTopLevelDomain $suffix;
-
-    private DomainName $secondLevelDomain;
-
-    private DomainName $registrableDomain;
-
-    private DomainName $subDomain;
-
-    private function __construct(DomainName $domain, EffectiveTopLevelDomain $suffix)
-    {
-        $this->domain = $domain;
-        $this->suffix = $suffix;
-
-        $this->validateState();
+    private function __construct(
+        private readonly DomainName $domain,
+        private readonly EffectiveTopLevelDomain $suffix
+    ) {
+        [
+            'registrableDomain' => $this->registrableDomain,
+            'secondLevelDomain' => $this->secondLevelDomain,
+            'subDomain' => $this->subDomain,
+        ] = $this->parse();
     }
 
-    /**
-     * @param mixed $domain the domain to be resolved
-     */
-    public static function fromICANN($domain, int $suffixLength): self
+    public static function fromICANN(int|DomainNameProvider|Host|string|Stringable|null $domain, int $suffixLength): self
     {
         $domain = self::setDomainName($domain);
 
         return new self($domain, Suffix::fromICANN($domain->slice(0, $suffixLength)));
     }
 
-    /**
-     * @param mixed $domain the domain to be resolved
-     */
-    public static function fromPrivate($domain, int $suffixLength): self
+    public static function fromPrivate(int|DomainNameProvider|Host|string|Stringable|null $domain, int $suffixLength): self
     {
         $domain = self::setDomainName($domain);
 
         return new self($domain, Suffix::fromPrivate($domain->slice(0, $suffixLength)));
     }
 
-    /**
-     * @param mixed $domain the domain to be resolved
-     */
-    public static function fromIANA($domain): self
+    public static function fromIANA(int|DomainNameProvider|Host|string|Stringable|null $domain): self
     {
         $domain = self::setDomainName($domain);
 
         return new self($domain, Suffix::fromIANA($domain->label(0)));
     }
 
-    /**
-     * @param mixed $domain the domain to be resolved
-     */
-    public static function fromUnknown($domain, int $suffixLength = 0): self
+    public static function fromUnknown(int|DomainNameProvider|Host|string|Stringable|null $domain, int $suffixLength = 0): self
     {
         $domain = self::setDomainName($domain);
 
@@ -74,36 +60,33 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($properties['domain'], $properties['suffix']);
     }
 
-    /**
-     * @param mixed $domain The domain to be resolved
-     */
-    private static function setDomainName($domain): DomainName
+    private static function setDomainName(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName
     {
-        if ($domain instanceof DomainNameProvider) {
-            return $domain->domain();
-        }
-
-        if ($domain instanceof DomainName) {
-            return $domain;
-        }
-
-        return Domain::fromIDNA2008($domain);
+        return match (true) {
+            $domain instanceof DomainNameProvider => $domain->domain(),
+            $domain instanceof DomainName => $domain,
+            default => Domain::fromIDNA2008($domain),
+        };
     }
 
     /**
      * Make sure the Value Object is always in a valid state.
      *
      * @throws UnableToResolveDomain If the suffix can not be attached to the domain
+     *
+     * @return array{registrableDomain: DomainName, secondLevelDomain: DomainName, subDomain: DomainName}
      */
-    private function validateState(): void
+    private function parse(): array
     {
         $suffixValue = $this->suffix->value();
         if (null === $suffixValue) {
             $nullDomain = $this->domain->clear();
-            $this->registrableDomain = $nullDomain;
-            $this->secondLevelDomain = $nullDomain;
-            $this->subDomain = $nullDomain;
-            return;
+
+            return [
+                'registrableDomain' => $nullDomain,
+                'secondLevelDomain' => $nullDomain,
+                'subDomain' => $nullDomain,
+            ];
         }
 
         if (2 > count($this->domain)) {
@@ -115,9 +98,12 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $length = count($this->suffix);
-        $this->registrableDomain = $this->domain->slice(0, $length + 1);
-        $this->secondLevelDomain = $this->domain->slice($length, 1);
-        $this->subDomain = $this->domain->slice($length + 1);
+
+        return [
+            'registrableDomain' => $this->domain->slice(0, $length + 1),
+            'secondLevelDomain' => $this->domain->slice($length, 1),
+            'subDomain' => $this->domain->slice($length + 1),
+        ];
     }
 
     public function count(): int
@@ -165,28 +151,17 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->suffix;
     }
 
-    /**
-     * @psalm-suppress MoreSpecificReturnType
-     * @psalm-suppress LessSpecificReturnStatement
-     */
     public function toAscii(): self
     {
         return new self($this->domain->toAscii(), $this->suffix->toAscii());
     }
 
-    /**
-     * @psalm-suppress MoreSpecificReturnType
-     * @psalm-suppress LessSpecificReturnStatement
-     */
     public function toUnicode(): self
     {
         return new self($this->domain->toUnicode(), $this->suffix->toUnicode());
     }
 
-    /**
-     * @param mixed $suffix the suffix
-     */
-    public function withSuffix($suffix): self
+    public function withSuffix(int|DomainNameProvider|Host|string|Stringable|null $suffix): self
     {
         if (!$suffix instanceof EffectiveTopLevelDomain) {
             $suffix = Suffix::fromUnknown($suffix);
@@ -198,10 +173,7 @@ final class ResolvedDomain implements ResolvedDomainName
         );
     }
 
-    /**
-     * @param mixed $subDomain the sub domain
-     */
-    public function withSubDomain($subDomain): self
+    public function withSubDomain(int|DomainNameProvider|Host|string|Stringable|null $subDomain): self
     {
         if (null === $this->suffix->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
@@ -216,7 +188,7 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * @param mixed $label the second level domain
+     * @param int|DomainNameProvider|Host|string|Stringable|null $label the second level domain
      */
     public function withSecondLevelDomain($label): self
     {

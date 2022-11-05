@@ -6,6 +6,7 @@ namespace Pdp;
 
 use Iterator;
 use IteratorAggregate;
+use Stringable;
 
 /**
  * @see https://tools.ietf.org/html/rfc1034#section-3.5
@@ -62,19 +63,15 @@ interface DomainName extends Host, IteratorAggregate
      * Prepends a label to the domain.
      *
      * @see ::withLabel
-     *
-     * @param string|null|object $label a domain label
      */
-    public function prepend($label): self;
+    public function prepend(DomainNameProvider|Host|string|Stringable|null $label): self;
 
     /**
      * Appends a label to the domain.
      *
      * @see ::withLabel
-     *
-     * @param string|null|object $label a domain label
      */
-    public function append($label): self;
+    public function append(DomainNameProvider|Host|string|Stringable|null $label): self;
 
     /**
      * Returns an instance with the specified label added at the specified key.
@@ -85,12 +82,12 @@ interface DomainName extends Host, IteratorAggregate
      * If $key is non-negative, the added label will be the label at $key position from the start.
      * If $key is negative, the added label will be the label at $key position from the end.
      *
-     * @param string|null|object $label a domain label
+     * @param string|null|Stringable|Host|DomainNameProvider $label a domain label
      *
      * @throws CannotProcessHost If the key is out of bounds
      * @throws CannotProcessHost If the label is converted to the NULL value
      */
-    public function withLabel(int $key, $label): self;
+    public function withLabel(int $key, DomainNameProvider|Host|string|Stringable|null $label): self;
 
     /**
      * Returns an instance with the label at the specified key removed.

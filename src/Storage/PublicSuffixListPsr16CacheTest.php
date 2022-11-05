@@ -12,8 +12,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
-use stdClass;
-use TypeError;
 use function dirname;
 
 /**
@@ -132,13 +130,5 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
 
         $cache = $this->createStub(CacheInterface::class);
         new PublicSuffixListPsr16Cache($cache, 'pdp_', 'foobar');
-    }
-
-    public function testItWillThrowIfTheTTLIsInvalid(): void
-    {
-        $this->expectException(TypeError::class);
-
-        $cache = $this->createStub(CacheInterface::class);
-        new PublicSuffixListPsr16Cache($cache, 'pdp_', new stdClass());
     }
 }

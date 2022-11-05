@@ -7,6 +7,7 @@ namespace Pdp;
 use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
+use Stringable;
 use TypeError;
 use function dirname;
 
@@ -51,13 +52,6 @@ final class TopLevelDomainsTest extends TestCase
         $this->expectException(UnableToLoadResource::class);
 
         TopLevelDomains::fromPath('/foo/bar.dat');
-    }
-
-    public function testFromStringThrowsOnTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-
-        TopLevelDomains::fromString(new DateTimeImmutable());
     }
 
     /**
@@ -168,10 +162,8 @@ EOF;
 
     /**
      * @dataProvider validDomainProvider
-     *
-     * @param mixed $tld the tld
      */
-    public function testResolve($tld): void
+    public function testResolve(DomainNameProvider|Host|Stringable|string|int|null $tld): void
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
@@ -181,10 +173,8 @@ EOF;
 
     /**
      * @dataProvider validDomainProvider
-     *
-     * @param mixed $tld the tld
      */
-    public function testGetTopLevelDomain($tld): void
+    public function testGetTopLevelDomain(DomainNameProvider|Host|Stringable|string|int|null $tld): void
     {
         self::assertSame(
             Domain::fromIDNA2008($tld)->label(0),
@@ -222,7 +212,7 @@ EOF;
     {
         $this->expectException(TypeError::class);
 
-        self::$topLevelDomains->getIANADomain(new DateTimeImmutable());
+        self::$topLevelDomains->getIANADomain(new DateTimeImmutable()); /* @phpstan-ignore-line */
     }
 
     public function testTopLevelDomainWithInvalidDomain(): void

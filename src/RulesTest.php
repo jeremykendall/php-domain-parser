@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Pdp;
 
-use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function array_fill;
@@ -54,13 +53,6 @@ final class RulesTest extends TestCase
         Rules::fromPath(dirname(__DIR__).'/test_data/invalid_suffix_list_content.dat');
     }
 
-    public function testFromStringThrowsOnTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-
-        Rules::fromString(new DateTimeImmutable());
-    }
-
     public function testDomainInternalPhpMethod(): void
     {
         /** @var Rules $generateRules */
@@ -80,7 +72,7 @@ final class RulesTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
-        self::$rules->resolve(date_create());
+        self::$rules->resolve(date_create());  /* @phpstan-ignore-line */
     }
 
     public function testIsSuffixValidFalse(): void
@@ -213,9 +205,6 @@ final class RulesTest extends TestCase
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
     public function testGetRegistrableDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
@@ -224,9 +213,6 @@ final class RulesTest extends TestCase
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
     public function testGetPublicSuffix(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
@@ -235,9 +221,6 @@ final class RulesTest extends TestCase
 
     /**
      * @dataProvider parseDataProvider
-     * @param ?string $publicSuffix
-     * @param ?string $registrableDomain
-     * @param ?string $expectedDomain
      */
     public function testGetDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
@@ -414,8 +397,6 @@ final class RulesTest extends TestCase
      * @covers \Pdp\Domain::parseValue
      *
      * @dataProvider validPublicSectionProvider
-     * @param ?string $domain
-     * @param ?string $expected
      */
     public function testPublicSuffixSection(?string $domain, ?string $expected): void
     {
@@ -452,8 +433,6 @@ final class RulesTest extends TestCase
      * on the domain name and checks the result is the public suffix expected."
      *
      * @see http://publicsuffix.org/list/
-     * @param ?string $input
-     * @param ?string $expected
      */
     public function checkPublicSuffix(?string $input, ?string $expected): void
     {

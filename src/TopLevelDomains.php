@@ -6,41 +6,27 @@ namespace Pdp;
 
 use DateTimeImmutable;
 use Iterator;
+use SplFileObject;
 use SplTempFileObject;
-use TypeError;
+use Stringable;
 use function count;
-use function gettype;
 use function in_array;
-use function is_object;
-use function is_string;
-use function method_exists;
 use function preg_match;
-use function strpos;
 use function trim;
 
 final class TopLevelDomains implements TopLevelDomainList
 {
     private const IANA_DATE_FORMAT = 'D M d H:i:s Y e';
-
     private const REGEXP_HEADER_LINE = '/^\# Version (?<version>\d+), Last Updated (?<date>.*?)$/';
-
-    /**
-     * @var array<string, int>
-     */
-    private array $records;
-
-    private string $version;
-
-    private DateTimeImmutable $lastUpdated;
 
     /**
      * @param array<string, int> $records
      */
-    private function __construct(array $records, string $version, DateTimeImmutable $lastUpdated)
-    {
-        $this->records = $records;
-        $this->version = $version;
-        $this->lastUpdated = $lastUpdated;
+    private function __construct(
+        private readonly array $records,
+        private readonly string $version,
+        private readonly DateTimeImmutable $lastUpdated
+    ) {
     }
 
     /**
@@ -59,21 +45,11 @@ final class TopLevelDomains implements TopLevelDomainList
     /**
      * Returns a new instance from a string.
      *
-     * @param object|string $content a string or an object which exposes the __toString method
-     *
      * @throws UnableToLoadTopLevelDomainList if the content is invalid or can not be correctly parsed and converted
      */
-    public static function fromString($content): self
+    public static function fromString(Stringable|string $content): self
     {
-        if (is_object($content) && method_exists($content, '__toString')) {
-            $content = (string) $content;
-        }
-
-        if (!is_string($content)) {
-            throw new TypeError('The content to be converted should be a string or a Stringable object, `'.gettype($content).'` given.');
-        }
-
-        $data = self::parse($content);
+        $data = self::parse((string) $content);
 
         return new self($data['records'], $data['version'], $data['lastUpdated']);
     }
@@ -90,7 +66,7 @@ final class TopLevelDomains implements TopLevelDomainList
         $data = [];
         $file = new SplTempFileObject();
         $file->fwrite($content);
-        $file->setFlags(SplTempFileObject::DROP_NEW_LINE | SplTempFileObject::READ_AHEAD | SplTempFileObject::SKIP_EMPTY);
+        $file->setFlags(SplFileObject::DROP_NEW_LINE | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         /** @var string $line */
         foreach ($file as $line) {
             $line = trim($line);
@@ -99,7 +75,7 @@ final class TopLevelDomains implements TopLevelDomainList
                 continue;
             }
 
-            if (false === strpos($line, '#')) {
+            if (!str_contains($line, '#')) {
                 $data['records'][self::extractRootZone($line)] = 1;
                 continue;
             }
@@ -185,13 +161,11 @@ final class TopLevelDomains implements TopLevelDomainList
      */
     public function getIterator(): Iterator
     {
-        foreach ($this->records as $tld => $_) {
-            yield $tld;
-        }
+        yield from array_keys($this->records);
     }
 
     /**
-     * @param mixed $host a type that supports instantiating a Domain from.
+     * @param int|DomainNameProvider|Host|string|Stringable|null $host a type that supports instantiating a Domain from.
      */
     public function resolve($host): ResolvedDomainName
     {
@@ -211,12 +185,10 @@ final class TopLevelDomains implements TopLevelDomainList
     /**
      * Assert the domain is valid and is resolvable.
      *
-     * @param mixed $domain a type that supports instantiating a Domain from.
-     *
      * @throws SyntaxError           If the domain is invalid
      * @throws UnableToResolveDomain If the domain can not be resolved
      */
-    private function validateDomain($domain): DomainName
+    private function validateDomain(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
@@ -240,7 +212,7 @@ final class TopLevelDomains implements TopLevelDomainList
     }
 
     /**
-     * @param mixed $host a domain in a type that can be converted into a DomainInterface instance
+     * @param int|DomainNameProvider|Host|string|Stringable|null $host a domain in a type that can be converted into a DomainInterface instance
      */
     public function getIANADomain($host): ResolvedDomainName
     {
