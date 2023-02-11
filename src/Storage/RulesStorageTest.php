@@ -9,9 +9,6 @@ use Pdp\Rules;
 use PHPUnit\Framework\TestCase;
 use function dirname;
 
-/**
- * @coversDefaultClass \Pdp\Storage\RulesStorage
- */
 final class RulesStorageTest extends TestCase
 {
     public function testIsCanReturnAPublicSuffixListInstanceFromCache(): void

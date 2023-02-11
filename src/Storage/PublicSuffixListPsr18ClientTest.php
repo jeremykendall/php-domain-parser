@@ -17,9 +17,6 @@ use Psr\Http\Message\ResponseInterface;
 use function dirname;
 use function file_get_contents;
 
-/**
- * @coversDefaultClass \Pdp\Storage\PublicSuffixListPsr18Client
- */
 final class PublicSuffixListPsr18ClientTest extends TestCase
 {
     public function testIsCanReturnAPublicSuffixListInstance(): void

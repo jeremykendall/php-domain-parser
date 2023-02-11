@@ -17,9 +17,6 @@ use Psr\Http\Message\ResponseInterface;
 use function dirname;
 use function file_get_contents;
 
-/**
- * @coversDefaultClass \Pdp\Storage\TopLevelDomainListPsr18Client
- */
 final class TopLevelDomainListPsr18ClientTest extends TestCase
 {
     public function testIsCanReturnARootZoneDatabaseInstance(): void

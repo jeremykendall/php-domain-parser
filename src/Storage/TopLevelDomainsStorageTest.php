@@ -9,9 +9,6 @@ use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
 use function dirname;
 
-/**
- * @coversDefaultClass \Pdp\Storage\TopLevelDomainsStorage
- */
 final class TopLevelDomainsStorageTest extends TestCase
 {
     public function testIsCanReturnARootZoneDatabaseInstanceFromCache(): void

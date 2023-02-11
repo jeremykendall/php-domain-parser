@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function date_create;
 
-/**
- * @coversDefaultClass \Pdp\ResolvedDomain
- */
 final class ResolvedDomainTest extends TestCase
 {
     public function testItCanBeCreatedWithAnotherResolvedDomain(): void
@@ -31,9 +29,7 @@ final class ResolvedDomainTest extends TestCase
         self::assertNull($domain->secondLevelDomain()->value());
     }
 
-    /**
-     * @dataProvider provideWrongConstructor
-     */
+    #[DataProvider('provideWrongConstructor')]
     public function testItThrowsExceptionMisMatchPublicSuffixDomain(?string $domain, int $length): void
     {
         $this->expectException(UnableToResolveDomain::class);
@@ -44,7 +40,7 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @return iterable<string,array{domain:string, length:int}>
      */
-    public function provideWrongConstructor(): iterable
+    public static function provideWrongConstructor(): iterable
     {
         return [
             'domain and public suffix are the same' => [
@@ -68,9 +64,7 @@ final class ResolvedDomainTest extends TestCase
         self::assertSame('www.ulb.ac.be', $domain->toString());
     }
 
-    /**
-     * @dataProvider countableProvider
-     */
+    #[DataProvider('countableProvider')]
     public function testItImplementsCountable(?string $domain, int $nbLabels): void
     {
         self::assertCount($nbLabels, ResolvedDomain::fromUnknown($domain));
@@ -79,7 +73,7 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @return iterable<string,array{0:string|null, 1:int}>
      */
-    public function countableProvider(): iterable
+    public static function countableProvider(): iterable
     {
         return [
             'null' => [null, 0],
@@ -89,9 +83,7 @@ final class ResolvedDomainTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider toUnicodeProvider
-     */
+    #[DataProvider('toUnicodeProvider')]
     public function testItCanBeConvertedToUnicode(
         ?string $domain,
         ?string $publicSuffix,
@@ -113,7 +105,7 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @return iterable<string,array{domain:string|null, publicSuffix:string|null, expectedDomain:string|null, expectedSuffix:string|null, expectedIDNDomain:string|null, expectedIDNSuffix:string|null}>
      */
-    public function toUnicodeProvider(): iterable
+    public static function toUnicodeProvider(): iterable
     {
         return [
             'simple domain' => [
@@ -175,9 +167,7 @@ final class ResolvedDomainTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider toAsciiProvider
-     */
+    #[DataProvider('toAsciiProvider')]
     public function testItCanBeConvertedToAscii(
         ?string $domain,
         ?string $publicSuffix,
@@ -199,7 +189,7 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @return iterable<string,array{domain:string|null, publicSuffix:string|null, expectedDomain:string|null, expectedSuffix:string|null, expectedIDNDomain:string|null, expectedIDNSuffix:string|null}>
      */
-    public function toAsciiProvider(): iterable
+    public static function toAsciiProvider(): iterable
     {
         return [
             'simple domain' => [
@@ -245,9 +235,7 @@ final class ResolvedDomainTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider withSubDomainWorksProvider
-     */
+    #[DataProvider('withSubDomainWorksProvider')]
     public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, DomainName|string|null $subdomain, string $expected = null): void
     {
         $result = $domain->withSubDomain($subdomain);
@@ -260,7 +248,7 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @return iterable<string,array{domain:ResolvedDomain, subdomain:DomainName|string|null, expected:string|null}>
      */
-    public function withSubDomainWorksProvider(): iterable
+    public static function withSubDomainWorksProvider(): iterable
     {
         return [
             'simple addition' => [
@@ -319,9 +307,7 @@ final class ResolvedDomainTest extends TestCase
         ResolvedDomain::fromICANN('www.example.com', 1)->withSubDomain(date_create()); /* @phpstan-ignore-line */
     }
 
-    /**
-     * @dataProvider withPublicSuffixWorksProvider
-     */
+    #[DataProvider('withPublicSuffixWorksProvider')]
     public function testItCanChangeItsSuffix(
         ResolvedDomain $domain,
         EffectiveTopLevelDomain|string|null $publicSuffix,
@@ -342,7 +328,7 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @return iterable<string, array{domain:ResolvedDomain, publicSuffix:EffectiveTopLevelDomain|string|null, expected:string|null, isKnown:bool,isICANN:bool, isPrivate:bool}>
      */
-    public function withPublicSuffixWorksProvider(): iterable
+    public static function withPublicSuffixWorksProvider(): iterable
     {
         $baseDomain = ResolvedDomain::fromICANN('example.com', 1);
 
@@ -429,9 +415,7 @@ final class ResolvedDomainTest extends TestCase
         ResolvedDomain::fromUnknown(null)->withSuffix('www');
     }
 
-    /**
-     * @dataProvider resolveCustomIDNAOptionsProvider
-     */
+    #[DataProvider('resolveCustomIDNAOptionsProvider')]
     public function testItCanWorksWithIDNAOptions(
         string $domainName,
         string $publicSuffix,
@@ -453,7 +437,7 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @return iterable<string,array{0:string, 1:string, 2:string, 3:string, 4:string, 5:string, 6:string|null}>
      */
-    public function resolveCustomIDNAOptionsProvider(): iterable
+    public static function resolveCustomIDNAOptionsProvider(): iterable
     {
         return [
             'without deviation characters' => [
@@ -495,9 +479,7 @@ final class ResolvedDomainTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider withSldWorksProvider
-     */
+    #[DataProvider('withSldWorksProvider')]
     public function testWithSecondLevelDomain(
         ?string $host,
         ?string $publicSuffix,
@@ -517,7 +499,7 @@ final class ResolvedDomainTest extends TestCase
     /**
      * @return iterable<array-key, array{host:string|null, publicSuffix:string|null, sld:string|null, expectedSld:string|null, expectedHost:string|null}>
      */
-    public function withSldWorksProvider(): iterable
+    public static function withSldWorksProvider(): iterable
     {
         return [
             [

@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
 
-/**
- * @coversDefaultClass \Pdp\Domain
- */
 final class DomainTest extends TestCase
 {
-    /**
-     * @covers \Pdp\SyntaxError
-     * @dataProvider invalidDomainProvider
-     */
+    #[DataProvider('invalidDomainProvider')]
     public function testToAsciiThrowsException(string $domain): void
     {
         $this->expectException(SyntaxError::class);
@@ -27,7 +22,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<string,array{0:string}>
      */
-    public function invalidDomainProvider(): iterable
+    public static function invalidDomainProvider(): iterable
     {
         return [
             'invalid IDN domain' => ['a⒈com'],
@@ -56,10 +51,9 @@ final class DomainTest extends TestCase
     }
 
     /**
-     * @dataProvider countableProvider
-     *
-     * @param string[] $labels
+     * @param array<string> $labels
      */
+    #[DataProvider('countableProvider')]
     public function testCountable(?string $domain, int $nbLabels, array $labels): void
     {
         $domain = Domain::fromIDNA2008($domain);
@@ -70,7 +64,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<string,array{0:string|null, 1:int, 2:array<string>}>
      */
-    public function countableProvider(): iterable
+    public static function countableProvider(): iterable
     {
         return [
             'null' => [null, 0, []],
@@ -112,9 +106,7 @@ final class DomainTest extends TestCase
         self::assertSame([], Domain::fromIDNA2008(null)->labels());
     }
 
-    /**
-     * @dataProvider toUnicodeProvider
-     */
+    #[DataProvider('toUnicodeProvider')]
     public function testToIDN(
         ?string $domain,
         ?string $expectedDomain,
@@ -131,7 +123,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<string,array{domain:string|null, expectedDomain:string|null, expectedIDNDomain:string|null}>
      */
-    public function toUnicodeProvider(): iterable
+    public static function toUnicodeProvider(): iterable
     {
         return [
             'simple domain' => [
@@ -172,9 +164,7 @@ final class DomainTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider toAsciiProvider
-     */
+    #[DataProvider('toAsciiProvider')]
     public function testToAscii(
         ?string $domain,
         ?string $expectedDomain,
@@ -191,7 +181,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<string,array{domain:string|null, expectedDomain:string|null, expectedIDNDomain:string|null}>
      */
-    public function toAsciiProvider(): iterable
+    public static function toAsciiProvider(): iterable
     {
         return [
             'simple domain' => [
@@ -222,9 +212,7 @@ final class DomainTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider withLabelWorksProvider
-     */
+    #[DataProvider('withLabelWorksProvider')]
     public function testWithLabelWorks(DomainName $domain, int $key, string $label, ?string $expected): void
     {
         $result = $domain->withLabel($key, $label);
@@ -234,7 +222,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<string,array{domain:DomainName, key:int, label:string, expected:string}>
      */
-    public function withLabelWorksProvider(): iterable
+    public static function withLabelWorksProvider(): iterable
     {
         $base_domain = Domain::fromIDNA2008('www.example.com');
 
@@ -321,9 +309,7 @@ final class DomainTest extends TestCase
         Domain::fromIDNA2008('example.com')->withLabel(-1, '');
     }
 
-    /**
-     * @dataProvider validAppend
-     */
+    #[DataProvider('validAppend')]
     public function testAppend(string $raw, string $append, string $expected): void
     {
         self::assertSame($expected, Domain::fromIDNA2008($raw)->append($append)->toString());
@@ -332,7 +318,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<array-key, array{0:string, 1:string, 2:string}>
      */
-    public function validAppend(): iterable
+    public static function validAppend(): iterable
     {
         return [
             ['secure.example.com', '8.8.8.8', 'secure.example.com.8.8.8.8'],
@@ -342,9 +328,7 @@ final class DomainTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider validPrepend
-     */
+    #[DataProvider('validPrepend')]
     public function testPrepend(string $raw, string $prepend, string $expected): void
     {
         self::assertSame($expected, Domain::fromIDNA2008($raw)->prepend($prepend)->toString());
@@ -353,7 +337,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<array-key, array{0:string, 1:string, 2:string}>
      */
-    public function validPrepend(): iterable
+    public static function validPrepend(): iterable
     {
         return [
             ['secure.example.com', 'master', 'master.secure.example.com'],
@@ -362,9 +346,7 @@ final class DomainTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider withoutLabelWorksProvider
-     */
+    #[DataProvider('withoutLabelWorksProvider')]
     public function testwithoutLabelWorks(DomainName $domain, int $key, ?string $expected): void
     {
         $result = $domain->withoutLabel($key);
@@ -374,7 +356,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<string,array{domain:DomainName, key:int, expected:string}>
      */
-    public function withoutLabelWorksProvider(): iterable
+    public static function withoutLabelWorksProvider(): iterable
     {
         $base_domain = Domain::fromIDNA2008('www.example.com');
 
@@ -413,9 +395,7 @@ final class DomainTest extends TestCase
         self::assertNull(Domain::fromIDNA2008('www.example.com')->withoutLabel(0, 1, 2)->value());
     }
 
-    /**
-     * @dataProvider resolveCustomIDNAOptionsProvider
-     */
+    #[DataProvider('resolveCustomIDNAOptionsProvider')]
     public function testResolveWorksWithCustomIDNAOptions(
         string $domainName,
         string $withLabel,
@@ -434,7 +414,7 @@ final class DomainTest extends TestCase
     /**
      * @return iterable<string,array<string>>
      */
-    public function resolveCustomIDNAOptionsProvider(): iterable
+    public static function resolveCustomIDNAOptionsProvider(): iterable
     {
         return [
             'without deviation characters' => [
