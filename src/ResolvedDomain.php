@@ -102,7 +102,7 @@ final class ResolvedDomain implements ResolvedDomainName
         return [
             'registrableDomain' => $this->domain->slice(0, $length + 1),
             'secondLevelDomain' => $this->domain->slice($length, 1),
-            'subDomain' => $this->domain->slice($length + 1),
+            'subDomain' => RegisteredName::fromIDNA2008($this->domain->value())->slice($length + 1),
         ];
     }
 

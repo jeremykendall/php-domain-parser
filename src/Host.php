@@ -11,6 +11,8 @@ use JsonSerializable;
  * @see https://tools.ietf.org/html/rfc1034#section-3.5
  * @see https://tools.ietf.org/html/rfc1123#section-2.1
  * @see https://tools.ietf.org/html/rfc5890
+ *
+ * @method bool isIpv4()
  */
 interface Host extends Countable, JsonSerializable
 {

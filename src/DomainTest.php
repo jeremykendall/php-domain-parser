@@ -45,7 +45,7 @@ final class DomainTest extends TestCase
         /** @var Domain $generateDomain */
         $generateDomain = eval('return '.var_export($domain, true).';');
         self::assertEquals($domain, $generateDomain);
-        self::assertSame(['be', 'ac', 'ulb', 'www'], iterator_to_array($domain));
+        self::assertSame(['be', 'ac', 'ulb', 'www'], [...$domain]);
         self::assertEquals('"www.ulb.ac.be"', json_encode($domain));
         self::assertSame('www.ulb.ac.be', $domain->toString());
     }
@@ -58,7 +58,7 @@ final class DomainTest extends TestCase
     {
         $domain = Domain::fromIDNA2008($domain);
         self::assertCount($nbLabels, $domain);
-        self::assertSame($labels, iterator_to_array($domain));
+        self::assertSame($labels, [...$domain]);
     }
 
     /**
