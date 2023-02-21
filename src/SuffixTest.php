@@ -144,6 +144,7 @@ final class SuffixTest extends TestCase
             'null' => [null, 0, []],
             'simple' => ['foo.bar.baz', 3, ['baz', 'bar', 'foo']],
             'unicode' => ['www.食狮.公司.cn', 4, ['cn', '公司', '食狮', 'www']],
+            'ipv4 like' => ['1.2.3.4', 4, ['1', '2', '3', '4']],
         ];
     }
 }

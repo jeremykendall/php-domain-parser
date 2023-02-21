@@ -553,4 +553,20 @@ final class ResolvedDomainTest extends TestCase
 
         self::assertEquals($domain->withSecondLevelDomain('ulb'), $domain);
     }
+
+    public function testSubDomainCanHandleIpLikeValue(): void
+    {
+        self::assertSame(
+            '1.1.1.1.cloudflare-dns.com',
+            ResolvedDomain::fromICANN('cloudflare-dns.com', 1)->withSubDomain('1.1.1.1')->toString()
+        );
+    }
+
+    public function testSuffixCanHandleIpLikeValue(): void
+    {
+        self::assertSame(
+            'cloudflare-dns.com.1.1.1.1',
+            ResolvedDomain::fromICANN('cloudflare-dns.com.1.1.1.1', 4)->toString()
+        );
+    }
 }

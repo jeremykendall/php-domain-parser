@@ -22,15 +22,15 @@ interface ResolvedDomainName extends Host, DomainNameProvider
     public function registrableDomain(): DomainName;
 
     /**
-     * Returns the sub domain component.
+     * Returns the subdomain component.
      */
     public function subDomain(): DomainName;
 
     /**
-     * Returns an instance with the specified sub domain added.
+     * Returns an instance with the specified subdomain added.
      *
      * This method MUST retain the state of the current instance, and return
-     * an instance that contains the new sub domain
+     * an instance that contains the new subdomain
      *
      * @throws CannotProcessHost If the Sub domain can not be added to the current Domain
      */

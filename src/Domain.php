@@ -83,7 +83,7 @@ final class Domain implements DomainName
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function labels(): array
     {
@@ -112,7 +112,7 @@ final class Domain implements DomainName
     /**
      * @throws CannotProcessHost
      */
-    public function prepend(DomainNameProvider|Host|string|Stringable|null $label): self
+    public function prepend(DomainNameProvider|Host|Stringable|string|int|null $label): self
     {
         return $this->newInstance($this->registeredName->prepend($label));
     }
@@ -120,12 +120,12 @@ final class Domain implements DomainName
     /**
      * @throws CannotProcessHost
      */
-    public function append(DomainNameProvider|Host|string|Stringable|null $label): self
+    public function append(DomainNameProvider|Host|Stringable|string|int|null $label): self
     {
         return $this->newInstance($this->registeredName->append($label));
     }
 
-    public function withLabel(int $key, DomainNameProvider|Host|string|Stringable|null $label): self
+    public function withLabel(int $key, DomainNameProvider|Host|Stringable|string|int|null $label): self
     {
         return $this->newInstance($this->registeredName->withLabel($key, $label));
     }

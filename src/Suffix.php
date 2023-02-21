@@ -13,6 +13,7 @@ final class Suffix implements EffectiveTopLevelDomain
     private const ICANN = 'ICANN';
     private const PRIVATE = 'PRIVATE';
     private const IANA = 'IANA';
+    private const UNKNOWN = 'UNKNOWN';
 
     private function __construct(
         private readonly DomainName $domain,
@@ -21,14 +22,14 @@ final class Suffix implements EffectiveTopLevelDomain
     }
 
     /**
-     * @param array{domain:DomainName, section:string} $properties
+     * @param array{domain:DomainName, section:Suffix::ICANN|Suffix::PRIVATE|Suffix::IANA|Suffix::UNKNOWN} $properties
      */
     public static function __set_state(array $properties): self
     {
         return new self($properties['domain'], $properties['section']);
     }
 
-    public static function fromICANN(int|DomainNameProvider|Host|string|Stringable|null $domain): self
+    public static function fromICANN(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
         $domain = self::setDomainName($domain);
         if (1 > count($domain)) {
@@ -38,7 +39,7 @@ final class Suffix implements EffectiveTopLevelDomain
         return new self($domain, self::ICANN);
     }
 
-    public static function fromPrivate(int|DomainNameProvider|Host|string|Stringable|null $domain): self
+    public static function fromPrivate(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
         $domain = self::setDomainName($domain);
         if (1 > count($domain)) {
@@ -48,7 +49,7 @@ final class Suffix implements EffectiveTopLevelDomain
         return new self($domain, self::PRIVATE);
     }
 
-    public static function fromIANA(int|DomainNameProvider|Host|string|Stringable|null $domain): self
+    public static function fromIANA(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
         $domain = self::setDomainName($domain);
         if (1 !== count($domain)) {
@@ -58,9 +59,9 @@ final class Suffix implements EffectiveTopLevelDomain
         return new self($domain, self::IANA);
     }
 
-    public static function fromUnknown(int|DomainNameProvider|Host|string|Stringable|null $domain): self
+    public static function fromUnknown(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
-        return new self(self::setDomainName($domain), '');
+        return new self(self::setDomainName($domain), self::UNKNOWN);
     }
 
     private static function setDomainName(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName
@@ -70,7 +71,7 @@ final class Suffix implements EffectiveTopLevelDomain
         }
 
         if (!$domain instanceof DomainName) {
-            $domain = Domain::fromIDNA2008($domain);
+            $domain = RegisteredName::fromIDNA2008($domain);
         }
 
         if ('' === $domain->label(0)) {
@@ -82,7 +83,7 @@ final class Suffix implements EffectiveTopLevelDomain
 
     public function isKnown(): bool
     {
-        return '' !== $this->section;
+        return self::UNKNOWN !== $this->section;
     }
 
     public function isIANA(): bool

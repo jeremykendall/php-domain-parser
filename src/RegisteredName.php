@@ -37,7 +37,7 @@ final class RegisteredName implements DomainName
     ^(?:(?&reg_name)\.){0,126}(?&reg_name)\.?$/ix';
     private const REGEXP_URI_DELIMITERS = '/[:\/?#\[\]@ ]/';
 
-    /** @var array<int, string> */
+    /** @var list<string> */
     private readonly array $labels;
     private readonly ?string $domain;
 
@@ -200,7 +200,7 @@ final class RegisteredName implements DomainName
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function labels(): array
     {
@@ -238,7 +238,7 @@ final class RegisteredName implements DomainName
     /**
      * Filter a subdomain to update the domain part.
      */
-    private function normalize(DomainNameProvider|Host|Stringable|string|null $domain): ?string
+    private function normalize(DomainNameProvider|Host|Stringable|string|int|null $domain): ?string
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
@@ -264,7 +264,7 @@ final class RegisteredName implements DomainName
     /**
      * @throws CannotProcessHost
      */
-    public function prepend(DomainNameProvider|Host|string|Stringable|null $label): self
+    public function prepend(DomainNameProvider|Host|Stringable|string|int|null $label): self
     {
         return $this->withLabel(count($this->labels), $label);
     }
@@ -272,12 +272,12 @@ final class RegisteredName implements DomainName
     /**
      * @throws CannotProcessHost
      */
-    public function append(DomainNameProvider|Host|string|Stringable|null $label): self
+    public function append(DomainNameProvider|Host|Stringable|string|int|null $label): self
     {
         return $this->withLabel(- count($this->labels) - 1, $label);
     }
 
-    public function withLabel(int $key, DomainNameProvider|Host|string|Stringable|null $label): self
+    public function withLabel(int $key, DomainNameProvider|Host|Stringable|string|int|null $label): self
     {
         $nbLabels = count($this->labels);
         if ($key < - $nbLabels - 1 || $key > $nbLabels) {
