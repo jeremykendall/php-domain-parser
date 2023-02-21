@@ -6,12 +6,14 @@ namespace Pdp;
 
 use Iterator;
 use Stringable;
+use const FILTER_FLAG_IPV4;
+use const FILTER_VALIDATE_IP;
 
 final class Domain implements DomainName
 {
     private function __construct(private RegisteredName $registeredName)
     {
-        if ($this->registeredName->isIpv4()) {
+        if (false !== filter_var($this->registeredName->value(), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             throw SyntaxError::dueToUnsupportedType($this->registeredName->toString());
         }
     }
@@ -88,11 +90,6 @@ final class Domain implements DomainName
         return $this->registeredName->labels();
     }
 
-    public function isIpv4(): bool
-    {
-        return $this->registeredName->isIpv4();
-    }
-
     private function newInstance(RegisteredName $registeredName): self
     {
         if ($registeredName->value() === $this->registeredName->value()) {
@@ -133,9 +130,9 @@ final class Domain implements DomainName
         return $this->newInstance($this->registeredName->withLabel($key, $label));
     }
 
-    public function withoutLabel(int $key, int ...$keys): self
+    public function withoutLabel(int ...$keys): self
     {
-        return $this->newInstance($this->registeredName->withoutLabel($key, ...$keys));
+        return $this->newInstance($this->registeredName->withoutLabel(...$keys));
     }
 
     public function clear(): self

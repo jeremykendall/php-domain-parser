@@ -10,7 +10,6 @@ use function array_count_values;
 use function array_keys;
 use function array_reverse;
 use function array_slice;
-use function array_unshift;
 use function count;
 use function explode;
 use function filter_var;
@@ -42,7 +41,10 @@ final class RegisteredName implements DomainName
     private readonly array $labels;
     private readonly ?string $domain;
 
-    private function __construct(private string $type, DomainNameProvider|Host|Stringable|string|int|null $domain)
+    /**
+     * @throws CannotProcessHost
+     */
+    private function __construct(private readonly string $type, DomainNameProvider|Host|Stringable|string|int|null $domain)
     {
         $this->domain = $this->parseDomain($domain);
         $this->labels = null === $this->domain ? [] : array_reverse(explode('.', $this->domain));
@@ -50,22 +52,33 @@ final class RegisteredName implements DomainName
 
     /**
      * @param array{domain:string|null, type:string} $properties
+     *
+     * @throws CannotProcessHost
      */
     public static function __set_state(array $properties): self
     {
         return new self($properties['type'], $properties['domain']);
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public static function fromIDNA2003(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
         return new self(self::IDNA_2003, $domain);
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public static function fromIDNA2008(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
         return new self(self::IDNA_2008, $domain);
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     private function parseDomain(DomainNameProvider|Host|Stringable|string|int|null $domain): ?string
     {
         if ($domain instanceof DomainNameProvider) {
@@ -134,11 +147,6 @@ final class RegisteredName implements DomainName
             $domain,
             self::IDNA_2003 === $this->type ? Idna::IDNA2003_UNICODE : Idna::IDNA2008_UNICODE
         )->result();
-    }
-
-    public function isIpv4(): bool
-    {
-        return false !== filter_var($this->domain, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
     }
 
     /**
@@ -245,7 +253,7 @@ final class RegisteredName implements DomainName
         }
 
         if (null === $domain) {
-            return $domain;
+            return null;
         }
 
         $domain = (string) $domain;
@@ -297,13 +305,12 @@ final class RegisteredName implements DomainName
         return new self($this->type, implode('.', array_reverse($labels)));
     }
 
-    public function withoutLabel(int $key, int ...$keys): self
+    public function withoutLabel(int ...$keys): self
     {
-        array_unshift($keys, $key);
         $nbLabels = count($this->labels);
         foreach ($keys as &$offset) {
             if (- $nbLabels > $offset || $nbLabels - 1 < $offset) {
-                throw SyntaxError::dueToInvalidLabelKey($this, $key);
+                throw SyntaxError::dueToInvalidLabelKey($this, $offset);
             }
 
             if (0 > $offset) {
@@ -327,6 +334,9 @@ final class RegisteredName implements DomainName
         return new self($this->type, [] === $labels ? null : implode('.', array_reverse($labels)));
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public function clear(): self
     {
         if (null === $this->domain) {
@@ -336,6 +346,9 @@ final class RegisteredName implements DomainName
         return new self($this->type, null);
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public function slice(int $offset, int $length = null): self
     {
         $nbLabels = count($this->labels);

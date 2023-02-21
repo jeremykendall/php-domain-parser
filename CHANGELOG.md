@@ -6,11 +6,12 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 ### Added
 
-- `RegisteredName` class to allow subdomain with IP-like labels [#347](https://github.com/jeremykendall/php-domain-parser/issues/347)
+- `RegisteredName` class to allow subdomain with IP-like labels
 
 ### Fixed
 
 - Using PHPUnit 10
+- `Domain` decorates the new `RegisteredName` class [#347](https://github.com/jeremykendall/php-domain-parser/issues/347)
 
 ### Deprecated
 

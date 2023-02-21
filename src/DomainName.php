@@ -101,7 +101,7 @@ interface DomainName extends Host, IteratorAggregate
      *
      * @throws CannotProcessHost If the key is out of bounds
      */
-    public function withoutLabel(int $key, int ...$keys): self;
+    public function withoutLabel(int ...$keys): self;
 
     /**
      * Returns an instance with all labels removed.
