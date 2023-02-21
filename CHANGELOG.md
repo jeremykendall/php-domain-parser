@@ -12,6 +12,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - Using PHPUnit 10
 - `Domain` decorates the new `RegisteredName` class [#347](https://github.com/jeremykendall/php-domain-parser/issues/347)
+- `Host::withoutLabel` works without arguments.
 
 ### Deprecated
 

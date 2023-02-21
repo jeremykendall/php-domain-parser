@@ -81,15 +81,11 @@ final class RegisteredName implements DomainName
      */
     private function parseDomain(DomainNameProvider|Host|Stringable|string|int|null $domain): ?string
     {
-        if ($domain instanceof DomainNameProvider) {
-            $domain = $domain->domain();
-        }
-
-        if ($domain instanceof Host) {
-            return $this->parseValue($domain->toUnicode()->value());
-        }
-
-        return $this->parseValue($domain);
+        return $this->parseValue(match (true) {
+            $domain instanceof DomainNameProvider => $domain->domain()->value(),
+            $domain instanceof Host => $domain->toUnicode()->value(),
+            default => $domain,
+        });
     }
 
     /**

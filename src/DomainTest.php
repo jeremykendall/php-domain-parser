@@ -395,6 +395,13 @@ final class DomainTest extends TestCase
         self::assertNull(Domain::fromIDNA2008('www.example.com')->withoutLabel(0, 1, 2)->value());
     }
 
+    public function testWithoutLabelWorksWithoutArgument(): void
+    {
+        $domain = Domain::fromIDNA2008('www.example.com');
+
+        self::assertSame($domain, $domain->withoutLabel());
+    }
+
     #[DataProvider('resolveCustomIDNAOptionsProvider')]
     public function testResolveWorksWithCustomIDNAOptions(
         string $domainName,
