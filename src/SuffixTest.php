@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use function json_encode;
 
-/**
- * @coversDefaultClass \Pdp\Suffix
- */
 final class SuffixTest extends TestCase
 {
     public function testItCanBeCreatedWithAnotherResolvedDomain(): void
@@ -36,9 +34,7 @@ final class SuffixTest extends TestCase
         self::assertSame('bébe', Suffix::fromUnknown('b%C3%A9be')->toUnicode()->value());
     }
 
-    /**
-     * @dataProvider invalidPublicSuffixProvider
-     */
+    #[DataProvider('invalidPublicSuffixProvider')]
     public function testConstructorThrowsException(string $publicSuffix): void
     {
         $this->expectException(SyntaxError::class);
@@ -49,7 +45,7 @@ final class SuffixTest extends TestCase
     /**
      * @return iterable<string,array<string>>
      */
-    public function invalidPublicSuffixProvider(): iterable
+    public static function invalidPublicSuffixProvider(): iterable
     {
         return [
             'empty string' => [''],
@@ -104,9 +100,7 @@ final class SuffixTest extends TestCase
         Suffix::fromIANA('ac.be');
     }
 
-    /**
-     * @dataProvider conversionReturnsTheSameInstanceProvider
-     */
+    #[DataProvider('conversionReturnsTheSameInstanceProvider')]
     public function testConversionReturnsTheSameInstance(?string $publicSuffix): void
     {
         $instance = Suffix::fromUnknown($publicSuffix);
@@ -118,7 +112,7 @@ final class SuffixTest extends TestCase
     /**
      * @return iterable<string,array{0:null|string}>
      */
-    public function conversionReturnsTheSameInstanceProvider(): iterable
+    public static function conversionReturnsTheSameInstanceProvider(): iterable
     {
         return [
             'ascii only domain' => ['ac.be'],
@@ -133,10 +127,7 @@ final class SuffixTest extends TestCase
         self::assertEquals($instance->toUnicode(), $instance);
     }
 
-    /**
-     * @dataProvider countableProvider
-     * @param ?string $domain
-     */
+    #[DataProvider('countableProvider')]
     public function testCountable(?string $domain, int $nbLabels): void
     {
         $domain = Suffix::fromUnknown($domain);
@@ -147,12 +138,13 @@ final class SuffixTest extends TestCase
     /**
      * @return iterable<string, array{0:string|null, 1:int, 2:array<string>}>
      */
-    public function countableProvider(): iterable
+    public static function countableProvider(): iterable
     {
         return [
             'null' => [null, 0, []],
             'simple' => ['foo.bar.baz', 3, ['baz', 'bar', 'foo']],
             'unicode' => ['www.食狮.公司.cn', 4, ['cn', '公司', '食狮', 'www']],
+            'ipv4 like' => ['1.2.3.4', 4, ['1', '2', '3', '4']],
         ];
     }
 }

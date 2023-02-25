@@ -29,7 +29,7 @@ PHP Domain Parser is compliant around:
 ### Composer
 
 ~~~
-$ composer require jeremykendall/php-domain-parser
+composer require jeremykendall/php-domain-parser:^6.0
 ~~~
 
 ### System Requirements
@@ -594,7 +594,7 @@ Portions of the `Pdp\Rules` class are derivative works of the PHP
 [registered-domain-libs](https://github.com/usrflo/registered-domain-libs).
 I've included a copy of the Apache Software Foundation License 2.0 in this project.
 
-[ico-github-actions-build]: https://img.shields.io/github/workflow/status/jeremykendall/php-domain-parser/Build?style=flat-square
+[ico-github-actions-build]: https://img.shields.io/github/actions/workflow/status/jeremykendall/php-domain-parser/build.yaml?branch=develop&style=flat-square
 [ico-packagist]: https://img.shields.io/packagist/dt/jeremykendall/php-domain-parser.svg?style=flat-square
 [ico-release]: https://img.shields.io/github/release/jeremykendall/php-domain-parser.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square

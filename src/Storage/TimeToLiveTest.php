@@ -7,6 +7,7 @@ namespace Pdp\Storage;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Stringable;
 
@@ -34,7 +35,7 @@ final class TimeToLiveTest extends TestCase
     /**
      * @return iterable<string, array{input:string, expected:DateInterval}>
      */
-    public function validDurationString(): iterable
+    public static function validDurationString(): iterable
     {
         $threeDays = new DateInterval('P3D');
 
@@ -54,9 +55,7 @@ final class TimeToLiveTest extends TestCase
         self::assertNull(TimeToLive::convert(null));
     }
 
-    /**
-     * @dataProvider validDurationInt
-     */
+    #[DataProvider('validDurationInt')]
     public function testItCanBeInstantiatedFromSeconds(int|string|Stringable|DateInterval $input, DateInterval $expected): void
     {
         /** @var DateInterval $ttl */
@@ -69,7 +68,7 @@ final class TimeToLiveTest extends TestCase
     /**
      * @return iterable<string, array{input:int|string|object|DateInterval, expected:DateInterval|null}>
      */
-    public function validDurationInt(): iterable
+    public static function validDurationInt(): iterable
     {
         $seconds = new DateInterval('PT2345S');
 

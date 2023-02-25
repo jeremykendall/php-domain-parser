@@ -22,7 +22,7 @@ final class TimeToLive
         set_error_handler(fn () => true);
         $interval = DateInterval::createFromDateString($duration);
         restore_error_handler();
-        if (!$interval instanceof DateInterval) { /* @phpstan-ignore-line */
+        if (!$interval instanceof DateInterval) {
             throw new InvalidArgumentException(
                 'The ttl value "'.$duration.'" can not be parsable by `DateInterval::createFromDateString`.'
             );

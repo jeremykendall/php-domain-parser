@@ -13,6 +13,9 @@ final class ResolvedDomain implements ResolvedDomainName
     private readonly DomainName $registrableDomain;
     private readonly DomainName $subDomain;
 
+    /**
+     * @throws CannotProcessHost
+     */
     private function __construct(
         private readonly DomainName $domain,
         private readonly EffectiveTopLevelDomain $suffix
@@ -24,28 +27,40 @@ final class ResolvedDomain implements ResolvedDomainName
         ] = $this->parse();
     }
 
-    public static function fromICANN(int|DomainNameProvider|Host|string|Stringable|null $domain, int $suffixLength): self
+    /**
+     * @throws CannotProcessHost
+     */
+    public static function fromICANN(DomainNameProvider|Host|Stringable|string|int|null $domain, int $suffixLength): self
     {
         $domain = self::setDomainName($domain);
 
         return new self($domain, Suffix::fromICANN($domain->slice(0, $suffixLength)));
     }
 
-    public static function fromPrivate(int|DomainNameProvider|Host|string|Stringable|null $domain, int $suffixLength): self
+    /**
+     * @throws CannotProcessHost
+     */
+    public static function fromPrivate(DomainNameProvider|Host|Stringable|string|int|null $domain, int $suffixLength): self
     {
         $domain = self::setDomainName($domain);
 
         return new self($domain, Suffix::fromPrivate($domain->slice(0, $suffixLength)));
     }
 
-    public static function fromIANA(int|DomainNameProvider|Host|string|Stringable|null $domain): self
+    /**
+     * @throws CannotProcessHost
+     */
+    public static function fromIANA(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
         $domain = self::setDomainName($domain);
 
         return new self($domain, Suffix::fromIANA($domain->label(0)));
     }
 
-    public static function fromUnknown(int|DomainNameProvider|Host|string|Stringable|null $domain, int $suffixLength = 0): self
+    /**
+     * @throws CannotProcessHost
+     */
+    public static function fromUnknown(DomainNameProvider|Host|Stringable|string|int|null $domain, int $suffixLength = 0): self
     {
         $domain = self::setDomainName($domain);
 
@@ -54,25 +69,30 @@ final class ResolvedDomain implements ResolvedDomainName
 
     /**
      * @param array{domain:DomainName, suffix:EffectiveTopLevelDomain} $properties
+     *
+     * @throws CannotProcessHost
      */
     public static function __set_state(array $properties): self
     {
         return new self($properties['domain'], $properties['suffix']);
     }
 
-    private static function setDomainName(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName
+    /**
+     * @throws CannotProcessHost
+     */
+    private static function setDomainName(DomainNameProvider|Host|Stringable|string|int|null $domain): DomainName
     {
         return match (true) {
             $domain instanceof DomainNameProvider => $domain->domain(),
             $domain instanceof DomainName => $domain,
-            default => Domain::fromIDNA2008($domain),
+            default => RegisteredName::fromIDNA2008($domain),
         };
     }
 
     /**
      * Make sure the Value Object is always in a valid state.
      *
-     * @throws UnableToResolveDomain If the suffix can not be attached to the domain
+     * @throws UnableToResolveDomain|CannotProcessHost If the suffix can not be attached to the domain
      *
      * @return array{registrableDomain: DomainName, secondLevelDomain: DomainName, subDomain: DomainName}
      */
@@ -102,7 +122,7 @@ final class ResolvedDomain implements ResolvedDomainName
         return [
             'registrableDomain' => $this->domain->slice(0, $length + 1),
             'secondLevelDomain' => $this->domain->slice($length, 1),
-            'subDomain' => $this->domain->slice($length + 1),
+            'subDomain' => RegisteredName::fromIDNA2008($this->domain->value())->slice($length + 1),
         ];
     }
 
@@ -114,21 +134,6 @@ final class ResolvedDomain implements ResolvedDomainName
     public function domain(): DomainName
     {
         return $this->domain;
-    }
-
-    public function jsonSerialize(): ?string
-    {
-        return $this->domain->jsonSerialize();
-    }
-
-    public function value(): ?string
-    {
-        return $this->domain->value();
-    }
-
-    public function toString(): string
-    {
-        return $this->domain->toString();
     }
 
     public function registrableDomain(): DomainName
@@ -151,6 +156,21 @@ final class ResolvedDomain implements ResolvedDomainName
         return $this->suffix;
     }
 
+    public function jsonSerialize(): ?string
+    {
+        return $this->domain->jsonSerialize();
+    }
+
+    public function value(): ?string
+    {
+        return $this->domain->value();
+    }
+
+    public function toString(): string
+    {
+        return $this->domain->toString();
+    }
+
     public function toAscii(): self
     {
         return new self($this->domain->toAscii(), $this->suffix->toAscii());
@@ -161,7 +181,10 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($this->domain->toUnicode(), $this->suffix->toUnicode());
     }
 
-    public function withSuffix(int|DomainNameProvider|Host|string|Stringable|null $suffix): self
+    /**
+     * @throws CannotProcessHost
+     */
+    public function withSuffix(DomainNameProvider|Host|Stringable|string|int|null $suffix): self
     {
         if (!$suffix instanceof EffectiveTopLevelDomain) {
             $suffix = Suffix::fromUnknown($suffix);
@@ -173,13 +196,16 @@ final class ResolvedDomain implements ResolvedDomainName
         );
     }
 
-    public function withSubDomain(int|DomainNameProvider|Host|string|Stringable|null $subDomain): self
+    /**
+     * @throws CannotProcessHost|UnableToResolveDomain
+     */
+    public function withSubDomain(DomainNameProvider|Host|Stringable|string|int|null $subDomain): self
     {
         if (null === $this->suffix->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
-        $subDomain = $this->domain->clear()->append(self::setDomainName($subDomain));
+        $subDomain = RegisteredName::fromIDNA2008($subDomain);
         if ($this->subDomain->value() === $subDomain->value()) {
             return $this;
         }
@@ -188,15 +214,15 @@ final class ResolvedDomain implements ResolvedDomainName
     }
 
     /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $label the second level domain
+     * @throws CannotProcessHost|UnableToResolveDomain
      */
-    public function withSecondLevelDomain($label): self
+    public function withSecondLevelDomain(DomainNameProvider|Host|Stringable|string|int|null $label): self
     {
         if (null === $this->suffix->value()) {
             throw UnableToResolveDomain::dueToMissingRegistrableDomain($this->domain);
         }
 
-        $label = self::setDomainName($label);
+        $label = RegisteredName::fromIDNA2008($label);
         if (1 !== count($label)) {
             throw UnableToResolveDomain::dueToInvalidSecondLevelDomain($label);
         }

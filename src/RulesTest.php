@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pdp;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function array_fill;
@@ -11,9 +12,6 @@ use function dirname;
 use function file_get_contents;
 use function implode;
 
-/**
- * @coversDefaultClass \Pdp\Rules
- */
 final class RulesTest extends TestCase
 {
     private static Rules $rules;
@@ -203,25 +201,19 @@ final class RulesTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider parseDataProvider
-     */
+    #[DataProvider('parseDataProvider')]
     public function testGetRegistrableDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
         self::assertSame($registrableDomain, self::$rules->resolve($domain)->registrableDomain()->value());
     }
 
-    /**
-     * @dataProvider parseDataProvider
-     */
+    #[DataProvider('parseDataProvider')]
     public function testGetPublicSuffix(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
         self::assertSame($publicSuffix, self::$rules->resolve($domain)->suffix()->value());
     }
 
-    /**
-     * @dataProvider parseDataProvider
-     */
+    #[DataProvider('parseDataProvider')]
     public function testGetDomain(?string $publicSuffix, ?string $registrableDomain, string $domain, ?string $expectedDomain): void
     {
         self::assertSame($expectedDomain, self::$rules->resolve($domain)->value());
@@ -230,7 +222,7 @@ final class RulesTest extends TestCase
     /**
      * @return iterable<string,array{publicSuffix:string|null,registrableDomain:string|null,domain:string,expectedDomain:string|null}>
      */
-    public function parseDataProvider(): iterable
+    public static function parseDataProvider(): iterable
     {
         return [
             // public suffix, registrable domain, domain
@@ -324,11 +316,6 @@ final class RulesTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::validateDomain
-     * @covers \Pdp\Domain::parseDomain
-     * @covers \Pdp\Domain::parseValue
-     */
     public function testGetPublicSuffixThrowsCouldNotResolvePublicSuffix(): void
     {
         $this->expectException(UnableToResolveDomain::class);
@@ -336,13 +323,7 @@ final class RulesTest extends TestCase
         self::$rules->getICANNDomain('localhost');
     }
 
-    /**
-     * @covers ::getICANNDomain
-     * @covers \Pdp\Domain::parseDomain
-     * @covers \Pdp\Domain::parseValue
-     *
-     * @dataProvider invalidDomainParseProvider
-     */
+    #[DataProvider('invalidDomainParseProvider')]
     public function testGetPublicSuffixThrowsInvalidDomainException(string $domain): void
     {
         $this->expectException(SyntaxError::class);
@@ -353,7 +334,7 @@ final class RulesTest extends TestCase
     /**
      * @return iterable<string,array{0:string}>
      */
-    public function invalidDomainParseProvider(): iterable
+    public static function invalidDomainParseProvider(): iterable
     {
         return [
             'IPv6' => ['[::1]'],
@@ -362,13 +343,7 @@ final class RulesTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::getICANNDomain
-     * @covers \Pdp\Domain::parseDomain
-     * @covers \Pdp\Domain::parseValue
-     *
-     * @dataProvider invalidHostParseProvider
-     */
+    #[DataProvider('invalidHostParseProvider')]
     public function testGetPublicSuffixThrowsInvalidHostException(string $domain): void
     {
         $this->expectException(SyntaxError::class);
@@ -379,7 +354,7 @@ final class RulesTest extends TestCase
     /**
      * @return iterable<string,array{0:string}>
      */
-    public function invalidHostParseProvider(): iterable
+    public static function invalidHostParseProvider(): iterable
     {
         $longLabel = implode('.', array_fill(0, 62, 'a'));
 
@@ -391,13 +366,7 @@ final class RulesTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::getCookieDomain
-     * @covers \Pdp\Domain::parseDomain
-     * @covers \Pdp\Domain::parseValue
-     *
-     * @dataProvider validPublicSectionProvider
-     */
+    #[DataProvider('validPublicSectionProvider')]
     public function testPublicSuffixSection(?string $domain, ?string $expected): void
     {
         self::assertSame($expected, self::$rules->getCookieDomain($domain)->suffix()->value());
@@ -406,7 +375,7 @@ final class RulesTest extends TestCase
     /**
      * @return iterable<string,array{domain:string, expected:string}>
      */
-    public function validPublicSectionProvider(): iterable
+    public static function validPublicSectionProvider(): iterable
     {
         return [
             'idn domain' => [
@@ -548,9 +517,7 @@ final class RulesTest extends TestCase
         $this->checkPublicSuffix('xn--fiqs8s', null);
     }
 
-    /**
-     * @dataProvider effectiveTLDProvider
-     */
+    #[DataProvider('effectiveTLDProvider')]
     public function testEffectiveTLDResolution(string $host, string $cookieETLD, string $icannETLD, string $privateETLD): void
     {
         self::assertSame($cookieETLD, self::$rules->getCookieDomain($host)->suffix()->toString());
@@ -561,7 +528,7 @@ final class RulesTest extends TestCase
     /**
      * @return iterable<string,array{host:string, cookieETLD:string, icannETLD:string, privateETLD:string}>
      */
-    public function effectiveTLDProvider(): iterable
+    public static function effectiveTLDProvider(): iterable
     {
         return [
             'private domain effective TLD' => [

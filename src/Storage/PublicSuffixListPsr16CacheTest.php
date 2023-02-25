@@ -14,9 +14,6 @@ use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
 use function dirname;
 
-/**
- * @coversDefaultClass \Pdp\Storage\PublicSuffixListPsr16Cache
- */
 final class PublicSuffixListPsr16CacheTest extends TestCase
 {
     public function testItReturnsNullIfTheCacheDoesNotExists(): void

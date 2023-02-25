@@ -2,7 +2,27 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
-## 6.2.0 - 2022-10-30
+## [6.3.0] - 2023-02-25
+
+### Added
+
+- `RegisteredName` class to allow domain with IP4-like labels
+
+### Fixed
+
+- Using PHPUnit 10
+- `Domain` decorates the new `RegisteredName` class [#347](https://github.com/jeremykendall/php-domain-parser/issues/347)
+- `Host::withoutLabel` works without arguments.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
+## [6.2.0] - 2022-10-30
 
 ### Added
 
@@ -20,7 +40,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - PHP7 and PHP8.0 support
 
-## 6.1.2 - 2022-09-29
+## [6.1.2] - 2022-09-29
 
 ### Added
 
@@ -38,7 +58,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 6.1.1 - 2022-02-18
+## [6.1.1] - 2022-02-18
 
 ### Added
 
@@ -56,7 +76,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 6.1.0 - 2021-06-19
+## [6.1.0] - 2021-06-19
 
 ### Added
 
@@ -79,7 +99,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 6.0.0 - 2020-12-13
+## [6.0.0] - 2020-12-13
 
 ### Added
 
@@ -130,7 +150,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\TopLevelDomains::contains` without replacement
 - Internal Converter classes (implementation details are no longer exposed).
 
-## 5.7.2 - 2020-10-25
+## [5.7.2] - 2020-10-25
 
 ### Added
 
@@ -148,7 +168,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 5.7.1 - 2020-08-24
+## [5.7.1] - 2020-08-24
 
 ### Added
 
@@ -166,7 +186,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 5.7.0 - 2020-08-02
+## [5.7.0] - 2020-08-02
 
 ### Added
 
@@ -190,7 +210,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - Support for PHP7.0 and PHP7.1
 - The external data from IANA and mozilla is no longer part of the package and will be downloaded only on demand on composer update/install.
 
-## 5.6.0 - 2019-12-29
+## [5.6.0] - 2019-12-29
 
 ### Added
 
@@ -209,7 +229,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 5.5.0 - 2019-04-14
+## [5.5.0] - 2019-04-14
 
 ### Added
 
@@ -232,7 +252,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 5.4.0 - 2018-11-22
+## [5.4.0] - 2018-11-22
 
 ### Added
 
@@ -259,7 +279,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 5.3.0 - 2018-05-22
+## [5.3.0] - 2018-05-22
 
 ### Added
 
@@ -294,7 +314,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 5.2.0 - 2018-02-23
+## [5.2.0] - 2018-02-23
 
 ### Added
 
@@ -320,7 +340,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 5.1.0 - 2017-12-18
+## [5.1.0] - 2017-12-18
 
 ### Added
 
@@ -339,7 +359,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - None
 
-## 5.0.0 - 2017-12-13
+## [5.0.0] - 2017-12-13
 
 ### Added
 
@@ -369,3 +389,21 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\PublicSuffixManager` class replaced by the `Pdp\Manager` class
 - `Pdp\HttpAdapter\HttpAdapterInterface` interface replaced by the `Pdp\HttpClient` interface
 - `Pdp\HttpAdapter\CurlHttpAdapter` class replaced by the `Pdp\CurlHttpClient` class
+
+[6.3.0]: https://github.com/jeremykendall/php-domain-parser/compare/6.2.0...6.3.0
+[6.2.0]: https://github.com/jeremykendall/php-domain-parser/compare/6.1.2...6.2.0
+[6.1.2]: https://github.com/jeremykendall/php-domain-parser/compare/6.1.1...6.1.2
+[6.1.1]: https://github.com/jeremykendall/php-domain-parser/compare/6.1.0...6.1.1
+[6.1.0]: https://github.com/jeremykendall/php-domain-parser/compare/6.0.0...6.1.0
+[6.0.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.7.2...6.0.0
+[6.0.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.7.2...6.0.0
+[5.7.2]: https://github.com/jeremykendall/php-domain-parser/compare/5.7.1...5.7.2
+[5.7.1]: https://github.com/jeremykendall/php-domain-parser/compare/5.7.0...5.7.1
+[5.7.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.6.0...5.7.0
+[5.6.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.5.0...5.6.0
+[5.5.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.4.0...5.5.0
+[5.4.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.3.0...5.4.0
+[5.3.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.2.0...5.3.0
+[5.2.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.1.0...5.3.0
+[5.1.0]: https://github.com/jeremykendall/php-domain-parser/compare/5.0.0...5.1.0
+[5.0.0]: https://github.com/jeremykendall/php-domain-parser/compare/3.0.0...5.0.0
