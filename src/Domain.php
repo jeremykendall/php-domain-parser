@@ -11,7 +11,10 @@ use const FILTER_VALIDATE_IP;
 
 final class Domain implements DomainName
 {
-    private function __construct(private RegisteredName $registeredName)
+    /**
+     * @throws SyntaxError
+     */
+    private function __construct(private readonly RegisteredName $registeredName)
     {
         if (false !== filter_var($this->registeredName->value(), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             throw SyntaxError::dueToUnsupportedType($this->registeredName->toString());
@@ -26,11 +29,17 @@ final class Domain implements DomainName
         return new self($properties['registeredName']);
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public static function fromIDNA2003(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
         return new self(RegisteredName::fromIDNA2003($domain));
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public static function fromIDNA2008(DomainNameProvider|Host|Stringable|string|int|null $domain): self
     {
         return new self(RegisteredName::fromIDNA2008($domain));
@@ -135,11 +144,17 @@ final class Domain implements DomainName
         return $this->newInstance($this->registeredName->withoutLabel(...$keys));
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public function clear(): self
     {
         return $this->newInstance($this->registeredName->clear());
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public function slice(int $offset, int $length = null): self
     {
         return $this->newInstance($this->registeredName->slice($offset, $length));

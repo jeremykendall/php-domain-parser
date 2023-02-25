@@ -69,12 +69,17 @@ final class ResolvedDomain implements ResolvedDomainName
 
     /**
      * @param array{domain:DomainName, suffix:EffectiveTopLevelDomain} $properties
+     *
+     * @throws CannotProcessHost
      */
     public static function __set_state(array $properties): self
     {
         return new self($properties['domain'], $properties['suffix']);
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     private static function setDomainName(DomainNameProvider|Host|Stringable|string|int|null $domain): DomainName
     {
         return match (true) {
@@ -176,6 +181,9 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($this->domain->toUnicode(), $this->suffix->toUnicode());
     }
 
+    /**
+     * @throws CannotProcessHost
+     */
     public function withSuffix(DomainNameProvider|Host|Stringable|string|int|null $suffix): self
     {
         if (!$suffix instanceof EffectiveTopLevelDomain) {
@@ -188,6 +196,9 @@ final class ResolvedDomain implements ResolvedDomainName
         );
     }
 
+    /**
+     * @throws CannotProcessHost|UnableToResolveDomain
+     */
     public function withSubDomain(DomainNameProvider|Host|Stringable|string|int|null $subDomain): self
     {
         if (null === $this->suffix->value()) {
@@ -202,6 +213,9 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($this->registrableDomain->prepend($subDomain), $this->suffix);
     }
 
+    /**
+     * @throws CannotProcessHost|UnableToResolveDomain
+     */
     public function withSecondLevelDomain(DomainNameProvider|Host|Stringable|string|int|null $label): self
     {
         if (null === $this->suffix->value()) {
