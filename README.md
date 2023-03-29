@@ -160,18 +160,18 @@ To instantiate each domain resolver you can use the following named constructor:
 
 **WARNING:**
 
-**You should never resolve domain name this way in production, without, at 
+**You SHOULD never resolve domain name this way in production, without, at 
 least, a caching mechanism to reduce PSL downloads.**
 
 **Using the Public Suffix List to determine what is a valid domain name and what 
-isn't is dangerous, particularly in these days when new gTLDs are arriving at a 
-rapid pace.**
+isn't is dangerous, and MAY lead to errors because of new gTLDs being registered
+on a regular basis.**
 
-**If you are looking to know the validity of a Top Level Domain, the 
-IANA Top Level Domain List is the proper source for this information or 
-alternatively consider using directly the DNS.** 
+**If you are looking to know the validity of a Top Level Domain, you MUST use
+the IANA Top Level Domain List as the proper source for this information or 
+alternatively the DNS.**
 
-**If you must use this library for any of the above purposes, please consider 
+**If you MUST use this library for any of the above purposes, you SHOULD consider 
 integrating an updating mechanism into your software.**
 
 **For more information go to the [Managing external data source section](#managing-the-package-external-resources)** 
