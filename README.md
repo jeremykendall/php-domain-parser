@@ -161,7 +161,7 @@ To instantiate each domain resolver you can use the following named constructor:
 **WARNING:**
 
 **You SHOULD never resolve domain name this way in production, without, at 
-least, a caching mechanism to reduce PSL downloads.**
+least, a caching mechanism to reduce external resource downloads.**
 
 **Using the Public Suffix List to determine what is a valid domain name and what 
 isn't is dangerous, and MAY lead to errors because of new gTLDs being registered
