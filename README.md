@@ -561,7 +561,6 @@ Testing
 
 - a [PHPUnit](https://phpunit.de) test suite
 - a code analysis compliance test suite using [PHPStan](https://phpstan.org).
-- a code analysis compliance test suite using [Psalm](https://psalm.dev).
 - a coding style compliance test suite using [PHP CS Fixer](https://cs.symfony.com).
 
 To run the tests, run the following command from the project folder.
