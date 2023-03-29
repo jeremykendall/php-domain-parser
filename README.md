@@ -38,6 +38,7 @@ You need:
 
 - **PHP >= 7.4** but the latest stable version of PHP is recommended
 - the `intl` extension
+- a copy of the [Public Suffix List](https://publicsuffix.org/) data and/or a copy of the [IANA Top Level Domain List](https://www.iana.org/domains/root/files). Please refer to the [Managing external data source section](#managing-the-package-external-resources) for more information when using this package in production.
 
 ## Usage
 
