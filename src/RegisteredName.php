@@ -190,7 +190,7 @@ final class RegisteredName implements DomainName
     /**
      * @return list<int>
      */
-    public function keys(string $label = null): array
+    public function keys(?string $label = null): array
     {
         if (null === $label) {
             return array_keys($this->labels);
@@ -345,7 +345,7 @@ final class RegisteredName implements DomainName
     /**
      * @throws CannotProcessHost
      */
-    public function slice(int $offset, int $length = null): self
+    public function slice(int $offset, ?int $length = null): self
     {
         $nbLabels = count($this->labels);
         if ($offset < - $nbLabels || $offset > $nbLabels) {

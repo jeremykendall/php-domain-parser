@@ -236,7 +236,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     #[DataProvider('withSubDomainWorksProvider')]
-    public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, DomainName|string|null $subdomain, string $expected = null): void
+    public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, DomainName|string|null $subdomain, ?string $expected = null): void
     {
         $result = $domain->withSubDomain($subdomain);
 

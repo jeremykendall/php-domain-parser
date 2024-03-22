@@ -9,7 +9,7 @@ use Throwable;
 
 final class UnableToLoadTopLevelDomainList extends InvalidArgumentException implements CannotProcessHost
 {
-    public static function dueToInvalidTopLevelDomain(string $content, Throwable $exception = null): self
+    public static function dueToInvalidTopLevelDomain(string $content, ?Throwable $exception = null): self
     {
         return new self('Invalid Top Level Domain: '.$content, 0, $exception);
     }

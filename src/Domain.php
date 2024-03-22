@@ -86,7 +86,7 @@ final class Domain implements DomainName
     /**
      * @return list<int>
      */
-    public function keys(string $label = null): array
+    public function keys(?string $label = null): array
     {
         return $this->registeredName->keys($label);
     }
@@ -155,7 +155,7 @@ final class Domain implements DomainName
     /**
      * @throws CannotProcessHost
      */
-    public function slice(int $offset, int $length = null): self
+    public function slice(int $offset, ?int $length = null): self
     {
         return $this->newInstance($this->registeredName->slice($offset, $length));
     }
