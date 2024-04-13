@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Pdp\TopLevelDomains;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Runner\ErrorHandler;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
@@ -124,5 +125,41 @@ final class TopLevelDomainListPsr16CacheTest extends TestCase
 
         $cache = self::createStub(CacheInterface::class);
         new TopLevelDomainListPsr16Cache($cache, 'pdp_', 'foobar');
+    }
+
+
+
+    protected function restoreExceptionHandler(): void
+    {
+        while (true) {
+            $previousHandler = set_exception_handler(static fn () => null);
+            restore_exception_handler();
+            if (null === $previousHandler) {
+                break;
+            }
+
+            restore_exception_handler();
+        }
+    }
+
+    protected function restoreErrorHandler(): void
+    {
+        while (true) {
+            $previousHandler = set_error_handler(static fn (int $errno, string $errstr, ?string $errfile = null, ?int $errline = null) => null);
+            restore_error_handler();
+            $isPhpUnitErrorHandler = ($previousHandler instanceof ErrorHandler);
+            if (null === $previousHandler || $isPhpUnitErrorHandler) {
+                break;
+            }
+            restore_error_handler();
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->restoreErrorHandler();
+        $this->restoreExceptionHandler();
     }
 }

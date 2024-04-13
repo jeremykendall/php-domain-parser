@@ -22,9 +22,7 @@ final class TimeToLiveTest extends TestCase
         self::assertSame(0, TimeToLive::until($tomorrow)->invert);
     }
 
-    /**
-     * @dataProvider validDurationString
-     */
+    #[DataProvider('validDurationString')]
     public function testItCanBeInstantiatedFromDurationInput(string $input, DateInterval $expected): void
     {
         $now = new DateTimeImmutable();

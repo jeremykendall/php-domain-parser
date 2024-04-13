@@ -12,4 +12,5 @@ parameters:
       path: src/Rules.php
     - message: '#Variable \$line on left side of \?\? always exists and is not nullable.#'
       path: src/Rules.php
+    - '#^Parameter \#1 \$callback of function set_error_handler expects#'
   reportUnmatchedIgnoredErrors: true
