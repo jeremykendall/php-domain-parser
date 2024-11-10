@@ -38,10 +38,12 @@ You need:
 
 - **PHP >= 7.4** but the latest stable version of PHP is recommended
 - the `intl` extension
+- a copy of the [Public Suffix List](https://publicsuffix.org/) data and/or a copy of the [IANA Top Level Domain List](https://www.iana.org/domains/root/files). Please refer to the [Managing external data source section](#managing-the-package-external-resources) for more information when using this package in production.
 
 ## Usage
 
-**If you are upgrading from version 5 please check the [upgrading guide](UPGRADING.md) for known issues.**
+> [!WARNING]
+> If you are upgrading from version 5 please check the [upgrading guide](UPGRADING.md) for known issues.
 
 ### Resolving Domains
 
@@ -115,9 +117,10 @@ These methods resolve the domain against their respective data source using
 the same rules as the `resolve` method but will instead throw an exception 
 if no valid effective TLD is found or if the submitted domain is invalid.
 
-**All these methods expect as their sole argument a `Pdp\Host` implementing 
+> [!CAUTION]
+> All these methods expect as their sole argument a `Pdp\Host` implementing 
 object, but other types (ie: `string`, `null`  and stringable objects) are 
-supported with predefined conditions as explained in the remaining document.**
+supported with predefined conditions as explained in the remaining document.
 
 ~~~php
 <?php
@@ -157,23 +160,18 @@ To instantiate each domain resolver you can use the following named constructor:
 
 **If the instantiation does not work an exception will be thrown.**
 
-**WARNING:**
-
-**You should never resolve domain name this way in production, without, at 
-least, a caching mechanism to reduce PSL downloads.**
-
-**Using the Public Suffix List to determine what is a valid domain name and what 
-isn't is dangerous, particularly in these days when new gTLDs are arriving at a 
-rapid pace.**
-
-**If you are looking to know the validity of a Top Level Domain, the 
-IANA Top Level Domain List is the proper source for this information or 
-alternatively consider using directly the DNS.** 
-
-**If you must use this library for any of the above purposes, please consider 
-integrating an updating mechanism into your software.**
-
-**For more information go to the [Managing external data source section](#managing-the-package-external-resources)** 
+> [!WARNING]
+> You SHOULD never resolve domain name this way in production, without, at 
+least, a caching mechanism to reduce external resource downloads.
+> Using the Public Suffix List to determine what is a valid domain name and what 
+isn't is dangerous, and MAY lead to errors because of new gTLDs being registered
+on a regular basis.
+> If you are looking to know the validity of a Top Level Domain, you MUST use
+the IANA Top Level Domain List as the proper source for this information or 
+alternatively the DNS.
+> If you MUST use this library for any of the above purposes, you SHOULD consider 
+integrating an updating mechanism into your software.
+> For more information go to the [Managing external data source section](#managing-the-package-external-resources)** 
 
 ### Resolved domain information.
 
@@ -220,10 +218,11 @@ echo $altResult->domain()->toString(); //display 'foo.bar.test.example';
 $altResult->suffix()->isKnown();       //return false;
 ~~~
 
-**TIP: Always favor submitting a `Pdp\Suffix` object rather that any other
+> [!TIP]
+> Always favor submitting a `Pdp\Suffix` object rather that any other
 supported type to avoid unexpected results. By default, if the input is not a
 `Pdp\Suffix` instance, the resulting public suffix will be labelled as
-being unknown. For more information go to the [Public Suffix section](#public-suffix)**
+being unknown. For more information go to the [Public Suffix section](#public-suffix)
 
 ### Domain Suffix
 
@@ -339,7 +338,8 @@ $newDomain->clear()->labels();      //return []
 echo $domain->slice(2)->toString(); //display 'www'
 ~~~
 
-**WARNING: Because of its definition, a domain name can be `null` or a string.**
+> [!WARNING]
+> Because of its definition, a domain name can be `null` or a string.
 
 To distinguish this possibility the object exposes two (2) formatting methods 
 `Domain::value` which can be `null` or a `string` and `Domain::toString` which 
@@ -396,8 +396,9 @@ is done via two (2) named constructors:
 At any given moment the `Pdp\Domain` instance can tell you whether it is in 
 `ASCII` mode or not.
 
-**Once instantiated there's no way to tell which algorithm is used to convert
-the object from ascii to unicode and vice-versa**
+> [!WARNING]
+> Once instantiated there's no way to tell which algorithm is used to convert
+the object from ascii to unicode and vice-versa
 
 ~~~php
 use Pdp\Domain;
@@ -419,10 +420,11 @@ echo $asciiDomain->value(); // display 'fass.de'
 $asciiDomain->isAscii();    // returns true
 ~~~
 
-**TIP: Always favor submitting a `Pdp\Domain` object for resolution rather that a 
+> [!TIP]
+> Always favor submitting a `Pdp\Domain` object for resolution rather that a 
 string or an object that can be cast to a string to avoid unexpected format 
 conversion errors/results. By default, and with lack of information conversion
-is done using IDNA 2008 rules.**
+is done using IDNA 2008 rules.
 
 ### Managing the package external resources
 
@@ -469,7 +471,8 @@ on packagist.
 
 #### Refreshing the resource using the provided factories
 
-**THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY**
+> [!NOTE]
+> THIS IS THE RECOMMENDED WAY OF USING THE LIBRARY
 
 For the purpose of this example we will use our PSR powered solution with:
  
@@ -526,12 +529,14 @@ $publicSuffixList = $pslStorage->get(PsrStorageFactory::PUBLIC_SUFFIX_LIST_URI);
 $topLevelDomains = $rzdStorage->get(PsrStorageFactory::TOP_LEVEL_DOMAIN_LIST_URI);
 ~~~
 
-**Be sure to adapt the following code to your own application.
+> [!NOTE]
+> Be sure to adapt the following code to your own application.
 The following code is an example given without warranty of it working 
-out of the box.**
+out of the box.
 
-**You should use your dependency injection container to avoid repeating this
-code in your application.**
+> [!WARNING]
+> You should use your dependency injection container to avoid repeating this
+code in your application.
 
 ### Automatic Updates
 
@@ -560,7 +565,6 @@ Testing
 
 - a [PHPUnit](https://phpunit.de) test suite
 - a code analysis compliance test suite using [PHPStan](https://phpstan.org).
-- a code analysis compliance test suite using [Psalm](https://psalm.dev).
 - a coding style compliance test suite using [PHP CS Fixer](https://cs.symfony.com).
 
 To run the tests, run the following command from the project folder.

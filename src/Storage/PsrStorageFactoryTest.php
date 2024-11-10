@@ -15,9 +15,9 @@ final class PsrStorageFactoryTest extends TestCase
 
     public function setUp(): void
     {
-        $cache = $this->createStub(CacheInterface::class);
-        $requestFactory = $this->createStub(RequestFactoryInterface::class);
-        $client = $this->createStub(ClientInterface::class);
+        $cache = self::createStub(CacheInterface::class);
+        $requestFactory = self::createStub(RequestFactoryInterface::class);
+        $client = self::createStub(ClientInterface::class);
 
         $this->factory = new PsrStorageFactory($cache, $client, $requestFactory);
     }

@@ -173,8 +173,8 @@ final class ResolvedDomainTest extends TestCase
         ?string $publicSuffix,
         ?string $expectedDomain,
         ?string $expectedSuffix,
-        ?string $expectedAsciiDomain,
-        ?string $expectedAsciiSuffix
+        ?string $expectedIDNDomain,
+        ?string $expectedIDNSuffix
     ): void {
         $domain = ResolvedDomain::fromUnknown(Domain::fromIDNA2003($domain), count(Domain::fromIDNA2003($publicSuffix)));
         self::assertSame($expectedDomain, $domain->value());
@@ -182,8 +182,8 @@ final class ResolvedDomainTest extends TestCase
 
         /** @var ResolvedDomain $domainIDN */
         $domainIDN = $domain->toAscii();
-        self::assertSame($expectedAsciiDomain, $domainIDN->value());
-        self::assertSame($expectedAsciiSuffix, $domainIDN->suffix()->value());
+        self::assertSame($expectedIDNDomain, $domainIDN->value());
+        self::assertSame($expectedIDNSuffix, $domainIDN->suffix()->value());
     }
 
     /**
@@ -236,7 +236,7 @@ final class ResolvedDomainTest extends TestCase
     }
 
     #[DataProvider('withSubDomainWorksProvider')]
-    public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, DomainName|string|null $subdomain, string $expected = null): void
+    public function testItCanHaveItsSubDomainChanged(ResolvedDomain $domain, DomainName|string|null $subdomain, ?string $expected = null): void
     {
         $result = $domain->withSubDomain($subdomain);
 

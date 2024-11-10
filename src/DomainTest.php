@@ -168,14 +168,14 @@ final class DomainTest extends TestCase
     public function testToAscii(
         ?string $domain,
         ?string $expectedDomain,
-        ?string $expectedAsciiDomain
+        ?string $expectedIDNDomain
     ): void {
         $domain = Domain::fromIDNA2008($domain);
         self::assertSame($expectedDomain, $domain->value());
 
         /** @var Domain $domainIDN */
         $domainIDN = $domain->toAscii();
-        self::assertSame($expectedAsciiDomain, $domainIDN->value());
+        self::assertSame($expectedIDNDomain, $domainIDN->value());
     }
 
     /**

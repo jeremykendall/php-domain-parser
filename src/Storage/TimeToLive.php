@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use Stringable;
+use Throwable;
 use function filter_var;
 use const FILTER_VALIDATE_INT;
 
@@ -19,13 +20,26 @@ final class TimeToLive
 {
     public static function fromDurationString(string $duration): DateInterval
     {
-        set_error_handler(fn () => true);
-        $interval = DateInterval::createFromDateString($duration);
-        restore_error_handler();
-        if (!$interval instanceof DateInterval) {
-            throw new InvalidArgumentException(
-                'The ttl value "'.$duration.'" can not be parsable by `DateInterval::createFromDateString`.'
-            );
+        try {
+            set_error_handler(fn () => true);
+            $interval = DateInterval::createFromDateString($duration);
+            restore_error_handler();
+            if (!$interval instanceof DateInterval) {
+                throw new InvalidArgumentException(
+                    'The ttl value "'.$duration.'" can not be parsable by `DateInterval::createFromDateString`.'
+                );
+            }
+
+        } catch (Throwable $exception) {
+            if (!$exception instanceof InvalidArgumentException) {
+                throw new InvalidArgumentException(
+                    'The ttl value "'.$duration.'" can not be parsable by `DateInterval::createFromDateString`.',
+                    0,
+                    $exception
+                );
+            }
+
+            throw $exception;
         }
 
         return $interval;
