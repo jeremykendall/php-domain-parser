@@ -3,6 +3,9 @@ includes:
   - vendor/phpstan/phpstan-phpunit/extension.neon
   - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
+  level: max
+  paths:
+    - src
   ignoreErrors:
     - message: '#has no value type specified in iterable type array.#'
       path: src/Rules.php

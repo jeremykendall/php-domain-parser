@@ -71,8 +71,9 @@
     "scripts": {
         "phpcs": "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi",
         "phpcs:fix": "php-cs-fixer fix -vvv --allow-risky=yes --ansi",
-        "phpstan": "phpstan analyse -l max -c phpstan.neon src --memory-limit=256M --ansi",
+        "phpstan": "phpstan analyse -c phpstan.neon --ansi --memory-limit=192M",
         "phpunit": "XDEBUG_MODE=coverage phpunit --coverage-text",
+        "phpunit:min": "phpunit --no-coverage",
         "test": [
             "@phpunit",
             "@phpstan",
