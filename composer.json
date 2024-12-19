@@ -58,9 +58,9 @@
         "symfony/cache": "^v5.0.0 || ^6.4.16"
     },
     "suggest": {
-        "psr/http-client-implementation": "To use the storage functionnality which depends on PSR-18",
-        "psr/http-factory-implementation": "To use the storage functionnality which depends on PSR-17",
-        "psr/simple-cache-implementation": "To use the storage functionnality which depends on PSR-16",
+        "psr/http-client-implementation": "To use the storage functionality which depends on PSR-18",
+        "psr/http-factory-implementation": "To use the storage functionality which depends on PSR-17",
+        "psr/simple-cache-implementation": "To use the storage functionality which depends on PSR-16",
         "league/uri": "To parse URL and validate host"
     },
     "autoload": {
