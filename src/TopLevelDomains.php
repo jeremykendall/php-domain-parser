@@ -164,10 +164,7 @@ final class TopLevelDomains implements TopLevelDomainList
         yield from array_keys($this->records);
     }
 
-    /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $host a type that supports instantiating a Domain from.
-     */
-    public function resolve($host): ResolvedDomainName
+    public function resolve(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
     {
         try {
             $domain = $this->validateDomain($host);
@@ -188,7 +185,7 @@ final class TopLevelDomains implements TopLevelDomainList
      * @throws SyntaxError If the domain is invalid
      * @throws UnableToResolveDomain If the domain can not be resolved
      */
-    private function validateDomain(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName
+    private function validateDomain(DomainNameProvider|Host|Stringable|string|int|null $domain): DomainName
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();

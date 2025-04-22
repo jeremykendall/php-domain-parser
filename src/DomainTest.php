@@ -6,8 +6,6 @@ namespace Pdp;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use stdClass;
-use TypeError;
 
 final class DomainTest extends TestCase
 {
@@ -288,12 +286,6 @@ final class DomainTest extends TestCase
                 'expected' => 'www.shop.example.com',
             ],
         ];
-    }
-
-    public function testWithLabelFailsWithTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-        Domain::fromIDNA2008('example.com')->withLabel(1, new stdClass()); /* @phpstan-ignore-line */
     }
 
     public function testWithLabelFailsWithInvalidKey(): void

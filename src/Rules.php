@@ -152,10 +152,7 @@ final class Rules implements PublicSuffixList
         return new self($properties['rules']);
     }
 
-    /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $host a type that supports instantiating a Domain from.
-     */
-    public function resolve($host): ResolvedDomainName
+    public function resolve(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
     {
         try {
             return $this->getCookieDomain($host);
@@ -166,10 +163,7 @@ final class Rules implements PublicSuffixList
         }
     }
 
-    /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $host the domain value
-     */
-    public function getCookieDomain($host): ResolvedDomainName
+    public function getCookieDomain(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain->withoutRootLabel(), self::UNKNOWN_DOMAINS);
@@ -181,10 +175,7 @@ final class Rules implements PublicSuffixList
         };
     }
 
-    /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $host a type that supports instantiating a Domain from.
-     */
-    public function getICANNDomain($host): ResolvedDomainName
+    public function getICANNDomain(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain, self::ICANN_DOMAINS);
@@ -195,10 +186,7 @@ final class Rules implements PublicSuffixList
         return ResolvedDomain::fromICANN($domain, $suffixLength);
     }
 
-    /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $host a type that supports instantiating a Domain from.
-     */
-    public function getPrivateDomain($host): ResolvedDomainName
+    public function getPrivateDomain(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain, self::PRIVATE_DOMAINS);
@@ -215,7 +203,7 @@ final class Rules implements PublicSuffixList
      * @throws SyntaxError If the domain is invalid
      * @throws UnableToResolveDomain If the domain can not be resolved
      */
-    private function validateDomain(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName
+    private function validateDomain(DomainNameProvider|Host|Stringable|string|int|null $domain): DomainName
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();

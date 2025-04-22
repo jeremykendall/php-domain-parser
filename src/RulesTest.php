@@ -6,7 +6,6 @@ namespace Pdp;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use TypeError;
 
 use function array_fill;
 use function dirname;
@@ -65,13 +64,6 @@ final class RulesTest extends TestCase
         $domain = self::$rules->resolve('COM');
 
         self::assertFalse($domain->suffix()->isKnown());
-    }
-
-    public function testThrowsTypeErrorOnWrongInput(): void
-    {
-        $this->expectException(TypeError::class);
-
-        self::$rules->resolve(date_create());  /* @phpstan-ignore-line */
     }
 
     public function testIsSuffixValidFalse(): void
