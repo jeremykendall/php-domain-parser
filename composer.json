@@ -41,8 +41,7 @@
     ],
     "require": {
         "php": "^8.1",
-        "ext-filter": "*",
-        "ext-intl": "*"
+        "ext-filter": "*"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.65.0",
@@ -61,7 +60,9 @@
         "psr/http-client-implementation": "To use the storage functionality which depends on PSR-18",
         "psr/http-factory-implementation": "To use the storage functionality which depends on PSR-17",
         "psr/simple-cache-implementation": "To use the storage functionality which depends on PSR-16",
-        "league/uri": "To parse URL and validate host"
+        "league/uri": "To parse and extract the host from an URL using a RFC3986/RFC3987 URI parser",
+        "rowbot/url": "To parse and extract the host from an URL using a  WHATWG URL parser",
+        "symfony/polyfill-intl-idn": "to handle IDN host via the Symfony polyfill if ext-intl is not present"
     },
     "autoload": {
         "psr-4": {
