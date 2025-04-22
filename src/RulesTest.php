@@ -7,6 +7,7 @@ namespace Pdp;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+
 use function array_fill;
 use function dirname;
 use function file_get_contents;
@@ -27,7 +28,7 @@ final class RulesTest extends TestCase
     public function testCreateFromPath(): void
     {
         $context = stream_context_create([
-            'http'=> [
+            'http' => [
                 'method' => 'GET',
                 'header' => "Accept-language: en\r\nCookie: foo=bar\r\n",
             ],
@@ -129,10 +130,10 @@ final class RulesTest extends TestCase
         $domain = self::$rules->resolve('private.ulb.ac.be.');
 
         self::assertSame('private.ulb.ac.be.', $domain->value());
-        self::assertFalse($domain->suffix()->isKnown());
-        self::assertFalse($domain->suffix()->isICANN());
+        self::assertTrue($domain->suffix()->isKnown());
+        self::assertTrue($domain->suffix()->isICANN());
         self::assertFalse($domain->suffix()->isPrivate());
-        self::assertNull($domain->suffix()->value());
+        self::assertSame('ac.be', $domain->suffix()->value());
     }
 
     public function testWithICANNDomainInvalid(): void

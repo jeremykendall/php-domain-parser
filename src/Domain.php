@@ -6,6 +6,7 @@ namespace Pdp;
 
 use Iterator;
 use Stringable;
+
 use const FILTER_FLAG_IPV4;
 use const FILTER_VALIDATE_IP;
 
@@ -158,5 +159,28 @@ final class Domain implements DomainName
     public function slice(int $offset, ?int $length = null): self
     {
         return $this->newInstance($this->registeredName->slice($offset, $length));
+    }
+
+    public function withRootLabel(): self
+    {
+        if ('' === $this->label(0)) {
+            return $this;
+        }
+
+        return $this->append('');
+    }
+
+    public function withoutRootLabel(): self
+    {
+        if ('' === $this->label(0)) {
+            return $this->slice(1);
+        }
+
+        return $this;
+    }
+
+    public function isAbsolute(): bool
+    {
+        return '' === $this->label(0);
     }
 }

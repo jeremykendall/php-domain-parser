@@ -7,6 +7,7 @@ namespace Pdp;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+
 use function date_create;
 
 final class ResolvedDomainTest extends TestCase
@@ -397,7 +398,7 @@ final class ResolvedDomainTest extends TestCase
                 'isICANN' => false,
                 'isPrivate' => false,
             ],
-            'with custom IDNA domain options' =>[
+            'with custom IDNA domain options' => [
                 'domain' => ResolvedDomain::fromICANN('www.bébé.be', 1),
                 'publicSuffix' => null,
                 'expected' => null,

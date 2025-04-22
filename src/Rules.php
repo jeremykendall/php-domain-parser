@@ -7,6 +7,7 @@ namespace Pdp;
 use SplFileObject;
 use SplTempFileObject;
 use Stringable;
+
 use function array_pop;
 use function explode;
 use function preg_match;
@@ -42,7 +43,7 @@ final class Rules implements PublicSuffixList
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadResource         If the rules can not be loaded from the path
+     * @throws UnableToLoadResource If the rules can not be loaded from the path
      * @throws UnableToLoadPublicSuffixList If the rules contain in the resource are invalid
      */
     public static function fromPath(string $path, $context = null): self
@@ -104,8 +105,8 @@ final class Rules implements PublicSuffixList
      * A copy of the Apache License, Version 2.0, is provided with this
      * distribution
      *
-     * @param array<array>  $list      Initially an empty array, this eventually becomes the array representation of a
-     *                                 Public Suffix List section
+     * @param array<array> $list Initially an empty array, this eventually becomes the array representation of a
+     *                           Public Suffix List section
      * @param array<string> $ruleParts One line (rule) from the Public Suffix List exploded on '.', or the remaining
      *                                 portion of that array during recursion
      *
@@ -171,7 +172,7 @@ final class Rules implements PublicSuffixList
     public function getCookieDomain($host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        [$suffixLength, $section] = $this->resolveSuffix($domain, self::UNKNOWN_DOMAINS);
+        [$suffixLength, $section] = $this->resolveSuffix($domain->withoutRootLabel(), self::UNKNOWN_DOMAINS);
 
         return match (true) {
             self::ICANN_DOMAINS === $section => ResolvedDomain::fromICANN($domain, $suffixLength),
@@ -211,7 +212,7 @@ final class Rules implements PublicSuffixList
     /**
      * Assert the domain is valid and is resolvable.
      *
-     * @throws SyntaxError           If the domain is invalid
+     * @throws SyntaxError If the domain is invalid
      * @throws UnableToResolveDomain If the domain can not be resolved
      */
     private function validateDomain(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName
@@ -222,10 +223,6 @@ final class Rules implements PublicSuffixList
 
         if (!$domain instanceof DomainName) {
             $domain = Domain::fromIDNA2008($domain);
-        }
-
-        if ('' === $domain->label(0)) {
-            throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
         return $domain;

@@ -6,6 +6,7 @@ namespace Pdp;
 
 use Iterator;
 use Stringable;
+
 use function array_count_values;
 use function array_keys;
 use function array_reverse;
@@ -19,6 +20,7 @@ use function ksort;
 use function preg_match;
 use function rawurldecode;
 use function strtolower;
+
 use const FILTER_FLAG_IPV4;
 use const FILTER_VALIDATE_IP;
 
@@ -358,5 +360,28 @@ final class RegisteredName implements DomainName
         }
 
         return new self($this->type, [] === $labels ? null : implode('.', array_reverse($labels)));
+    }
+
+    public function withRootLabel(): self
+    {
+        if ('' === $this->label(0)) {
+            return $this;
+        }
+
+        return $this->append('');
+    }
+
+    public function withoutRootLabel(): self
+    {
+        if ('' === $this->label(0)) {
+            return $this->slice(1);
+        }
+
+        return $this;
+    }
+
+    public function isAbsolute(): bool
+    {
+        return '' === $this->label(0);
     }
 }
