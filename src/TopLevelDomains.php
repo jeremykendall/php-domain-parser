@@ -9,6 +9,7 @@ use Iterator;
 use SplFileObject;
 use SplTempFileObject;
 use Stringable;
+
 use function count;
 use function in_array;
 use function preg_match;
@@ -34,7 +35,7 @@ final class TopLevelDomains implements TopLevelDomainList
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadResource           If the rules can not be loaded from the path
+     * @throws UnableToLoadResource If the rules can not be loaded from the path
      * @throws UnableToLoadTopLevelDomainList If the content is invalid or can not be correctly parsed and converted
      */
     public static function fromPath(string $path, $context = null): self
@@ -185,7 +186,7 @@ final class TopLevelDomains implements TopLevelDomainList
     /**
      * Assert the domain is valid and is resolvable.
      *
-     * @throws SyntaxError           If the domain is invalid
+     * @throws SyntaxError If the domain is invalid
      * @throws UnableToResolveDomain If the domain can not be resolved
      */
     private function validateDomain(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use function array_filter;
+
 use const ARRAY_FILTER_USE_KEY;
 
 /**

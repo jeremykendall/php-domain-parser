@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use UnexpectedValueException;
+
 use function defined;
 use function function_exists;
 use function idn_to_ascii;
@@ -12,6 +13,7 @@ use function idn_to_utf8;
 use function preg_match;
 use function rawurldecode;
 use function strtolower;
+
 use const INTL_IDNA_VARIANT_UTS46;
 
 /**

@@ -14,6 +14,7 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+
 use function dirname;
 use function file_get_contents;
 
@@ -21,7 +22,7 @@ final class TopLevelDomainListPsr18ClientTest extends TestCase
 {
     public function testIsCanReturnARootZoneDatabaseInstance(): void
     {
-        $client = new class() implements ClientInterface {
+        $client = new class () implements ClientInterface {
             public function sendRequest(RequestInterface $request): ResponseInterface
             {
                 /** @var string $body */
@@ -31,7 +32,7 @@ final class TopLevelDomainListPsr18ClientTest extends TestCase
             }
         };
 
-        $requestFactory = new class() implements RequestFactoryInterface {
+        $requestFactory = new class () implements RequestFactoryInterface {
             public function createRequest(string $method, $uri): RequestInterface
             {
                 return new Request($method, $uri);
@@ -46,14 +47,14 @@ final class TopLevelDomainListPsr18ClientTest extends TestCase
 
     public function testItWillThrowIfTheClientCanNotConnectToTheRemoteURI(): void
     {
-        $client = new class() implements ClientInterface {
+        $client = new class () implements ClientInterface {
             public function sendRequest(RequestInterface $request): ResponseInterface
             {
                 throw new ConnectException('foobar', $request, null);
             }
         };
 
-        $requestFactory = new class() implements RequestFactoryInterface {
+        $requestFactory = new class () implements RequestFactoryInterface {
             public function createRequest(string $method, $uri): RequestInterface
             {
                 return new Request($method, $uri);
@@ -69,14 +70,14 @@ final class TopLevelDomainListPsr18ClientTest extends TestCase
 
     public function testItWillThrowIfTheReturnedStatusCodeIsNotOK(): void
     {
-        $client = new class() implements ClientInterface {
+        $client = new class () implements ClientInterface {
             public function sendRequest(RequestInterface $request): ResponseInterface
             {
                 return new Response(404);
             }
         };
 
-        $requestFactory = new class() implements RequestFactoryInterface {
+        $requestFactory = new class () implements RequestFactoryInterface {
             public function createRequest(string $method, $uri): RequestInterface
             {
                 return new Request($method, $uri);

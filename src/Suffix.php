@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use Stringable;
+
 use function count;
 use function in_array;
 

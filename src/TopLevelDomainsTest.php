@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Stringable;
 use TypeError;
+
 use function dirname;
 
 final class TopLevelDomainsTest extends TestCase
@@ -24,7 +25,7 @@ final class TopLevelDomainsTest extends TestCase
     public function testCreateFromPath(): void
     {
         $context = stream_context_create([
-            'http'=> [
+            'http' => [
                 'method' => 'GET',
                 'header' => "Accept-language: en\r\nCookie: foo=bar\r\n",
             ],
@@ -176,7 +177,7 @@ EOF;
             'Unicode domain (1)' => ['الاعلى-للاتصالات.قطر'],
             'Unicode domain (2)' => ['кто.рф'],
             'Unicode domain (3)' => ['Deutsche.Vermögensberatung.vermögensberater'],
-            'object with __toString method' => [new class() {
+            'object with __toString method' => [new class () {
                 public function __toString(): string
                 {
                     return 'www.இந.இந்தியா';
@@ -269,7 +270,7 @@ EOF;
             'Unicode TLD (3)' => ['рф'],
             'Unicode TLD (4)' => ['இந்தியா'],
             'Unicode TLD (5)' => ['vermögensberater'],
-            'object with __toString method' => [new class() {
+            'object with __toString method' => [new class () {
                 public function __toString(): string
                 {
                     return 'COM';
@@ -296,7 +297,7 @@ EOF;
             'invalid IDN to ASCII' => ['XN--TTT'],
             'invalid IDN to ASCII with leading dot' => ['.XN--TTT'],
             'null' => [null],
-            'object with __toString method' => [new class() {
+            'object with __toString method' => [new class () {
                 public function __toString(): string
                 {
                     return 'COMMM';

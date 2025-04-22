@@ -13,6 +13,7 @@ use PHPUnit\Runner\ErrorHandler;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
+
 use function dirname;
 
 final class TopLevelDomainListPsr16CacheTest extends TestCase
@@ -82,7 +83,7 @@ final class TopLevelDomainListPsr16CacheTest extends TestCase
 
     public function testItReturnsFalseIfItCantCacheATopLevelDomainListInstance(): void
     {
-        $exception = new class('Something went wrong.', 0) extends RuntimeException implements CacheException {
+        $exception = new class ('Something went wrong.', 0) extends RuntimeException implements CacheException {
         };
         $cache = self::createStub(CacheInterface::class);
         $cache->method('set')->will(self::throwException($exception));
@@ -95,7 +96,7 @@ final class TopLevelDomainListPsr16CacheTest extends TestCase
 
     public function testItThrowsIfItCantCacheATopLevelDomainListInstance(): void
     {
-        $exception = new class('Something went wrong.', 0) extends RuntimeException {
+        $exception = new class ('Something went wrong.', 0) extends RuntimeException {
         };
         $cache = self::createStub(CacheInterface::class);
         $cache->method('set')->will(self::throwException($exception));

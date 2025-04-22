@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use PHPUnit\Framework\TestCase;
+
 use function var_export;
 
 final class IdnaInfoTest extends TestCase
