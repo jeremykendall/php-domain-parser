@@ -9,8 +9,8 @@ use Iterator;
 use SplFileObject;
 use SplTempFileObject;
 use Stringable;
+
 use function count;
-use function in_array;
 use function preg_match;
 use function trim;
 
@@ -34,7 +34,7 @@ final class TopLevelDomains implements TopLevelDomainList
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadResource           If the rules can not be loaded from the path
+     * @throws UnableToLoadResource If the rules can not be loaded from the path
      * @throws UnableToLoadTopLevelDomainList If the content is invalid or can not be correctly parsed and converted
      */
     public static function fromPath(string $path, $context = null): self
@@ -164,14 +164,11 @@ final class TopLevelDomains implements TopLevelDomainList
         yield from array_keys($this->records);
     }
 
-    /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $host a type that supports instantiating a Domain from.
-     */
-    public function resolve($host): ResolvedDomainName
+    public function resolve(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
     {
         try {
             $domain = $this->validateDomain($host);
-            if ($this->containsTopLevelDomain($domain)) {
+            if ($this->containsTopLevelDomain($domain->withoutRootLabel())) {
                 return ResolvedDomain::fromIANA($domain);
             }
             return ResolvedDomain::fromUnknown($domain);
@@ -185,10 +182,10 @@ final class TopLevelDomains implements TopLevelDomainList
     /**
      * Assert the domain is valid and is resolvable.
      *
-     * @throws SyntaxError           If the domain is invalid
+     * @throws SyntaxError If the domain is invalid
      * @throws UnableToResolveDomain If the domain can not be resolved
      */
-    private function validateDomain(int|DomainNameProvider|Host|string|Stringable|null $domain): DomainName
+    private function validateDomain(DomainNameProvider|Host|Stringable|string|int|null $domain): DomainName
     {
         if ($domain instanceof DomainNameProvider) {
             $domain = $domain->domain();
@@ -198,8 +195,7 @@ final class TopLevelDomains implements TopLevelDomainList
             $domain = Domain::fromIDNA2008($domain);
         }
 
-        $label = $domain->label(0);
-        if (in_array($label, [null, ''], true)) {
+        if (null === $domain->label(0)) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
@@ -211,13 +207,10 @@ final class TopLevelDomains implements TopLevelDomainList
         return isset($this->records[$domain->toAscii()->label(0)]);
     }
 
-    /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $host a domain in a type that can be converted into a DomainInterface instance
-     */
-    public function getIANADomain($host): ResolvedDomainName
+    public function getIANADomain(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        if (!$this->containsTopLevelDomain($domain)) {
+        if (!$this->containsTopLevelDomain($domain->withoutRootLabel())) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }
 

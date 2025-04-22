@@ -36,9 +36,13 @@ composer require jeremykendall/php-domain-parser:^6.0
 
 You need:
 
-- **PHP >= 7.4** but the latest stable version of PHP is recommended
-- the `intl` extension
+- **PHP >= 8.1** but the latest stable version of PHP is recommended
 - a copy of the [Public Suffix List](https://publicsuffix.org/) data and/or a copy of the [IANA Top Level Domain List](https://www.iana.org/domains/root/files). Please refer to the [Managing external data source section](#managing-the-package-external-resources) for more information when using this package in production.
+
+Handling of an IDN host requires the presence of the `intl` extension or
+a polyfill for the `intl` IDN functions like the `symfony/polyfill-intl-idn`
+otherwise an exception will be thrown when attempting to validate or interact
+with such a host.
 
 ## Usage
 

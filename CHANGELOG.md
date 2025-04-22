@@ -2,6 +2,25 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
+## [6.4.0] - 2025-04-22
+
+### Added
+
+- `DomainName::withRootLabel`, `DomainName::withoutRootLabel`, `DomainName::isAbsolute` methods to handle absolute domain names.
+
+### Fixed
+
+- Absolute domain name can now also be resolved by the package see issue [#361](https://github.com/jeremykendall/php-domain-parser/issues/361) prior to this release an exception was thrown.
+- Since we no longer support PHP7 type hint and return type are improved.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## [6.3.0] - 2023-02-25
 
 ### Added

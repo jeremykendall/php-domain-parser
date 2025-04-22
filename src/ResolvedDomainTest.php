@@ -6,8 +6,6 @@ namespace Pdp;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use TypeError;
-use function date_create;
 
 final class ResolvedDomainTest extends TestCase
 {
@@ -300,13 +298,6 @@ final class ResolvedDomainTest extends TestCase
         ResolvedDomain::fromICANN('www.example.com', 1)->withSubDomain('');
     }
 
-    public function testItCanThrowsDuringSubDomainChangesIfTheSubDomainIsNotStringable(): void
-    {
-        $this->expectException(TypeError::class);
-
-        ResolvedDomain::fromICANN('www.example.com', 1)->withSubDomain(date_create()); /* @phpstan-ignore-line */
-    }
-
     #[DataProvider('withPublicSuffixWorksProvider')]
     public function testItCanChangeItsSuffix(
         ResolvedDomain $domain,
@@ -397,7 +388,7 @@ final class ResolvedDomainTest extends TestCase
                 'isICANN' => false,
                 'isPrivate' => false,
             ],
-            'with custom IDNA domain options' =>[
+            'with custom IDNA domain options' => [
                 'domain' => ResolvedDomain::fromICANN('www.bébé.be', 1),
                 'publicSuffix' => null,
                 'expected' => null,

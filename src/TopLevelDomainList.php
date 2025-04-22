@@ -24,7 +24,7 @@ interface TopLevelDomainList extends Countable, DomainNameResolver, IteratorAggr
      */
     public function lastUpdated(): DateTimeImmutable;
 
-    
+
     public function count(): int;
 
     /**
@@ -40,7 +40,7 @@ interface TopLevelDomainList extends Countable, DomainNameResolver, IteratorAggr
     /**
      * Returns PSL info for a given domain against the PSL rules for ICANN domain detection.
      *
-     * @throws SyntaxError           if the domain is invalid
+     * @throws SyntaxError if the domain is invalid
      * @throws UnableToResolveDomain if the domain does not contain a IANA Effective TLD
      */
     public function getIANADomain(Host $host): ResolvedDomainName;

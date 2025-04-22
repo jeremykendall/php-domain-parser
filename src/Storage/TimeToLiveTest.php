@@ -76,7 +76,7 @@ final class TimeToLiveTest extends TestCase
         ];
 
         yield 'stringable object' => [
-            'input' => new class() {
+            'input' => new class () {
                 public function __toString(): string
                 {
                     return '2345';

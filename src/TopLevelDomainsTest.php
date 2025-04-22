@@ -9,7 +9,7 @@ use DateTimeZone;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Stringable;
-use TypeError;
+
 use function dirname;
 
 final class TopLevelDomainsTest extends TestCase
@@ -24,7 +24,7 @@ final class TopLevelDomainsTest extends TestCase
     public function testCreateFromPath(): void
     {
         $context = stream_context_create([
-            'http'=> [
+            'http' => [
                 'method' => 'GET',
                 'header' => "Accept-language: en\r\nCookie: foo=bar\r\n",
             ],
@@ -176,7 +176,7 @@ EOF;
             'Unicode domain (1)' => ['الاعلى-للاتصالات.قطر'],
             'Unicode domain (2)' => ['кто.рф'],
             'Unicode domain (3)' => ['Deutsche.Vermögensberatung.vermögensberater'],
-            'object with __toString method' => [new class() {
+            'object with __toString method' => [new class () {
                 public function __toString(): string
                 {
                     return 'www.இந.இந்தியா';
@@ -184,13 +184,6 @@ EOF;
             }],
             'external domain name' => [$resolvedDomain],
         ];
-    }
-
-    public function testTopLevelDomainThrowsTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-
-        self::$topLevelDomains->getIANADomain(new DateTimeImmutable()); /* @phpstan-ignore-line */
     }
 
     public function testTopLevelDomainWithInvalidDomain(): void
@@ -211,8 +204,8 @@ EOF;
     {
         $result = self::$topLevelDomains->resolve('example.com.');
         self::assertSame('example.com.', $result->value());
-        self::assertFalse($result->suffix()->isIANA());
-        self::assertNull($result->suffix()->value());
+        self::assertTrue($result->suffix()->isIANA());
+        self::assertSame('com', $result->suffix()->value());
     }
 
     public function testTopLevelDomainWithUnResolvableDomain(): void
@@ -220,6 +213,13 @@ EOF;
         $this->expectException(UnableToResolveDomain::class);
 
         self::$topLevelDomains->getIANADomain('localhost');
+    }
+
+    public function testTopLevelDomainWithUnResolvableDomain2(): void
+    {
+        $this->expectException(UnableToResolveDomain::class);
+
+        self::$topLevelDomains->getIANADomain('localhost.');
     }
 
     public function testResolveWithUnResolvableDomain(): void
@@ -269,7 +269,7 @@ EOF;
             'Unicode TLD (3)' => ['рф'],
             'Unicode TLD (4)' => ['இந்தியா'],
             'Unicode TLD (5)' => ['vermögensberater'],
-            'object with __toString method' => [new class() {
+            'object with __toString method' => [new class () {
                 public function __toString(): string
                 {
                     return 'COM';
@@ -296,7 +296,7 @@ EOF;
             'invalid IDN to ASCII' => ['XN--TTT'],
             'invalid IDN to ASCII with leading dot' => ['.XN--TTT'],
             'null' => [null],
-            'object with __toString method' => [new class() {
+            'object with __toString method' => [new class () {
                 public function __toString(): string
                 {
                     return 'COMMM';

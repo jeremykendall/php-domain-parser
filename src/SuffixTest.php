@@ -6,6 +6,7 @@ namespace Pdp;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+
 use function json_encode;
 
 final class SuffixTest extends TestCase

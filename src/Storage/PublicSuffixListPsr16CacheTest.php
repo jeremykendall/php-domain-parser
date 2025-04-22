@@ -13,6 +13,7 @@ use PHPUnit\Runner\ErrorHandler;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
+
 use function dirname;
 
 final class PublicSuffixListPsr16CacheTest extends TestCase
@@ -81,7 +82,7 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
 
     public function testItReturnsFalseIfItCantCacheAPublicSuffixListInstance(): void
     {
-        $exception = new class('Something went wrong.', 0) extends RuntimeException implements CacheException {
+        $exception = new class ('Something went wrong.', 0) extends RuntimeException implements CacheException {
         };
         $cache = self::createStub(CacheInterface::class);
         $cache->method('set')->will(self::throwException($exception));
@@ -94,13 +95,13 @@ final class PublicSuffixListPsr16CacheTest extends TestCase
 
     public function testItWillThrowIfItCantCacheAPublicSuffixListInstance(): void
     {
-        $exception = new class('Something went wrong.', 0) extends RuntimeException {
+        $exception = new class ('Something went wrong.', 0) extends RuntimeException {
         };
         $cache = self::createStub(CacheInterface::class);
         $cache->method('set')->will(self::throwException($exception));
 
         $psl = Rules::fromPath(dirname(__DIR__, 2).'/test_data/public_suffix_list.dat');
-        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new class() {
+        $pslCache = new PublicSuffixListPsr16Cache($cache, 'pdp_', new class () {
             public function __toString(): string
             {
                 return '1 DAY';

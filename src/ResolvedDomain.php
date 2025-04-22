@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pdp;
 
 use Stringable;
+
 use function count;
 
 final class ResolvedDomain implements ResolvedDomainName
@@ -34,7 +35,7 @@ final class ResolvedDomain implements ResolvedDomainName
     {
         $domain = self::setDomainName($domain);
 
-        return new self($domain, Suffix::fromICANN($domain->slice(0, $suffixLength)));
+        return new self($domain, Suffix::fromICANN($domain->withoutRootLabel()->slice(0, $suffixLength)));
     }
 
     /**
@@ -44,7 +45,7 @@ final class ResolvedDomain implements ResolvedDomainName
     {
         $domain = self::setDomainName($domain);
 
-        return new self($domain, Suffix::fromPrivate($domain->slice(0, $suffixLength)));
+        return new self($domain, Suffix::fromPrivate($domain->withoutRootLabel()->slice(0, $suffixLength)));
     }
 
     /**
@@ -54,7 +55,7 @@ final class ResolvedDomain implements ResolvedDomainName
     {
         $domain = self::setDomainName($domain);
 
-        return new self($domain, Suffix::fromIANA($domain->label(0)));
+        return new self($domain, Suffix::fromIANA($domain->withoutRootLabel()->label(0)));
     }
 
     /**
@@ -118,11 +119,15 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $length = count($this->suffix);
+        $offset = 0;
+        if ($this->domain->isAbsolute()) {
+            $offset = 1;
+        }
 
         return [
-            'registrableDomain' => $this->domain->slice(0, $length + 1),
-            'secondLevelDomain' => $this->domain->slice($length, 1),
-            'subDomain' => RegisteredName::fromIDNA2008($this->domain->value())->slice($length + 1),
+            'registrableDomain' => $this->domain->slice($offset, $length + 1),
+            'secondLevelDomain' => $this->domain->slice($length + $offset, 1),
+            'subDomain' => RegisteredName::fromIDNA2008($this->domain->value())->slice($length + 1 + $offset),
         ];
     }
 
