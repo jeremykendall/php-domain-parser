@@ -9,7 +9,6 @@ use DateTimeZone;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Stringable;
-use TypeError;
 
 use function dirname;
 
@@ -187,13 +186,6 @@ EOF;
         ];
     }
 
-    public function testTopLevelDomainThrowsTypeError(): void
-    {
-        $this->expectException(TypeError::class);
-
-        self::$topLevelDomains->getIANADomain(new DateTimeImmutable()); /* @phpstan-ignore-line */
-    }
-
     public function testTopLevelDomainWithInvalidDomain(): void
     {
         $this->expectException(SyntaxError::class);
@@ -212,8 +204,8 @@ EOF;
     {
         $result = self::$topLevelDomains->resolve('example.com.');
         self::assertSame('example.com.', $result->value());
-        self::assertFalse($result->suffix()->isIANA());
-        self::assertNull($result->suffix()->value());
+        self::assertTrue($result->suffix()->isIANA());
+        self::assertSame('com', $result->suffix()->value());
     }
 
     public function testTopLevelDomainWithUnResolvableDomain(): void
@@ -221,6 +213,13 @@ EOF;
         $this->expectException(UnableToResolveDomain::class);
 
         self::$topLevelDomains->getIANADomain('localhost');
+    }
+
+    public function testTopLevelDomainWithUnResolvableDomain2(): void
+    {
+        $this->expectException(UnableToResolveDomain::class);
+
+        self::$topLevelDomains->getIANADomain('localhost.');
     }
 
     public function testResolveWithUnResolvableDomain(): void

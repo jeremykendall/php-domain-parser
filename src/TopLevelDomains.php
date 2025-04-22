@@ -11,7 +11,6 @@ use SplTempFileObject;
 use Stringable;
 
 use function count;
-use function in_array;
 use function preg_match;
 use function trim;
 
@@ -172,7 +171,7 @@ final class TopLevelDomains implements TopLevelDomainList
     {
         try {
             $domain = $this->validateDomain($host);
-            if ($this->containsTopLevelDomain($domain)) {
+            if ($this->containsTopLevelDomain($domain->withoutRootLabel())) {
                 return ResolvedDomain::fromIANA($domain);
             }
             return ResolvedDomain::fromUnknown($domain);
@@ -199,8 +198,7 @@ final class TopLevelDomains implements TopLevelDomainList
             $domain = Domain::fromIDNA2008($domain);
         }
 
-        $label = $domain->label(0);
-        if (in_array($label, [null, ''], true)) {
+        if (null === $domain->label(0)) {
             throw UnableToResolveDomain::dueToUnresolvableDomain($domain);
         }
 
@@ -212,13 +210,10 @@ final class TopLevelDomains implements TopLevelDomainList
         return isset($this->records[$domain->toAscii()->label(0)]);
     }
 
-    /**
-     * @param int|DomainNameProvider|Host|string|Stringable|null $host a domain in a type that can be converted into a DomainInterface instance
-     */
-    public function getIANADomain($host): ResolvedDomainName
+    public function getIANADomain(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
-        if (!$this->containsTopLevelDomain($domain)) {
+        if (!$this->containsTopLevelDomain($domain->withoutRootLabel())) {
             throw UnableToResolveDomain::dueToMissingSuffix($domain, 'IANA');
         }
 
