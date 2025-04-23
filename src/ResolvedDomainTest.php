@@ -534,6 +534,13 @@ final class ResolvedDomainTest extends TestCase
                 'expectedHost' => 'www.com',
             ],
             [
+                'host' => 'example.com',
+                'publicSuffix' => 'com',
+                'sld' => 'www.',
+                'expectedSld' => 'www',
+                'expectedHost' => 'www.com',
+            ],
+            [
                 'host' => 'www.example.com',
                 'publicSuffix' => 'com',
                 'sld' => 'www',
@@ -547,6 +554,13 @@ final class ResolvedDomainTest extends TestCase
                 'expectedSld' => 'hamburger',
                 'expectedHost' => 'www.hamburger.co.uk',
             ],
+            [
+                'host' => 'www.bbc.co.uk',
+                'publicSuffix' => 'co.uk',
+                'sld' => 'hamburger.',
+                'expectedSld' => 'hamburger',
+                'expectedHost' => 'www.hamburger.co.uk',
+            ],
         ];
     }
 
@@ -555,6 +569,20 @@ final class ResolvedDomainTest extends TestCase
         $this->expectException(UnableToResolveDomain::class);
 
         ResolvedDomain::fromICANN('private.ulb.ac.be', 2)->withSecondLevelDomain(null);
+    }
+
+    public function testItCanNotAppendAnEmptyRootLabelSLD(): void
+    {
+        $this->expectException(SyntaxError::class);
+
+        ResolvedDomain::fromICANN('private.ulb.ac.be', 2)->withSecondLevelDomain('.');
+    }
+
+    public function testItCanNotAppendAnInvalidRootLabelSLD(): void
+    {
+        $this->expectException(UnableToResolveDomain::class);
+
+        ResolvedDomain::fromICANN('private.ulb.ac.be', 2)->withSecondLevelDomain('toto.foo.');
     }
 
     public function testItCanNotAppendASLDToAResolvedDomainWithoutSuffix(): void
@@ -569,6 +597,13 @@ final class ResolvedDomainTest extends TestCase
         $this->expectException(UnableToResolveDomain::class);
 
         ResolvedDomain::fromIANA('private.ulb.ac.be')->withSecondLevelDomain('foo.bar');
+    }
+
+    public function testItCanNotAppendAnInvalidSubDomainToAResolvedDomain(): void
+    {
+        $this->expectException(SyntaxError::class);
+
+        ResolvedDomain::fromIANA('private.ulb.ac.be')->withSubDomain('');
     }
 
     public function testItReturnsTheInstanceWhenTheSLDIsEqual(): void

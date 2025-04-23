@@ -199,10 +199,10 @@ final class ResolvedDomain implements ResolvedDomainName
             $suffix = Suffix::fromUnknown($suffix);
         }
 
-        $newDomain = $this->domain->withoutRootLabel()->slice(count($this->suffix))->append($suffix);
+        $domain = $this->domain->withoutRootLabel()->slice(count($this->suffix))->append($suffix);
 
         return new self(
-            $this->domain->isAbsolute() ? $newDomain->withRootLabel() : $newDomain,
+            $this->domain->isAbsolute() ? $domain->withRootLabel() : $domain,
             $suffix->normalize($this->domain)
         );
     }
@@ -217,15 +217,20 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $subDomain = RegisteredName::fromIDNA2008($subDomain);
-        if ('' === $subDomain->withoutRootLabel()->value()) {
-            throw SyntaxError::dueToMalformedValue($subDomain->toString());
+        if ($subDomain->isAbsolute()) {
+            $subDomain = $subDomain->withoutRootLabel();
+            if (null === $subDomain->value()) {
+                throw SyntaxError::dueToMalformedValue($subDomain->withRootLabel()->toString());
+            }
         }
 
         if ($this->subDomain->value() === $subDomain->value()) {
             return $this;
         }
 
-        return new self($this->registrableDomain->prepend($subDomain), $this->suffix);
+        $domain = $this->registrableDomain->prepend($subDomain);
+
+        return new self($this->domain->isAbsolute() ? $domain->withRootLabel() : $domain, $this->suffix);
     }
 
     /**
@@ -238,6 +243,13 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $label = RegisteredName::fromIDNA2008($label);
+        if ($label->isAbsolute()) {
+            if (2 !== count($label)) {
+                throw UnableToResolveDomain::dueToInvalidSecondLevelDomain($label);
+            }
+            $label = $label->withoutRootLabel();
+        }
+
         if (1 !== count($label)) {
             throw UnableToResolveDomain::dueToInvalidSecondLevelDomain($label);
         }
