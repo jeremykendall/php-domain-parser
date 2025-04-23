@@ -322,10 +322,19 @@ final class ResolvedDomainTest extends TestCase
     public static function withPublicSuffixWorksProvider(): iterable
     {
         $baseDomain = ResolvedDomain::fromICANN('example.com', 1);
+        $baseRootDomain = ResolvedDomain::fromICANN('example.com.', 1);
 
         return [
             'simple update (1)' => [
                 'domain' => $baseDomain,
+                'publicSuffix' => 'be',
+                'expected' => 'be',
+                'isKnown' => false,
+                'isICANN' => false,
+                'isPrivate' => false,
+            ],
+            'simple update with root-label (1)' => [
+                'domain' => $baseRootDomain,
                 'publicSuffix' => 'be',
                 'expected' => 'be',
                 'isKnown' => false,
@@ -340,8 +349,24 @@ final class ResolvedDomainTest extends TestCase
                 'isICANN' => false,
                 'isPrivate' => true,
             ],
+            'simple update with root-label (2)' => [
+                'domain' => $baseRootDomain,
+                'publicSuffix' => Suffix::fromPrivate('github.io'),
+                'expected' => 'github.io',
+                'isKnown' => true,
+                'isICANN' => false,
+                'isPrivate' => true,
+            ],
             'same public suffix but PSL info is changed' => [
                 'domain' => $baseDomain,
+                'publicSuffix' => Suffix::fromPrivate('com'),
+                'expected' => 'com',
+                'isKnown' => true,
+                'isICANN' => false,
+                'isPrivate' => true,
+            ],
+            'same public suffix but PSL info is changed with root domain' => [
+                'domain' => $baseRootDomain,
                 'publicSuffix' => Suffix::fromPrivate('com'),
                 'expected' => 'com',
                 'isKnown' => true,
@@ -366,6 +391,14 @@ final class ResolvedDomainTest extends TestCase
             ],
             'simple update IDN (2)' => [
                 'domain' => ResolvedDomain::fromICANN(Domain::fromIDNA2003('www.bébé.be'), 1),
+                'publicSuffix' => Suffix::fromICANN(Domain::fromIDNA2003('xn--p1ai')),
+                'expected' => 'рф',
+                'isKnown' => true,
+                'isICANN' => true,
+                'isPrivate' => false,
+            ],
+            'simple update IDN (2) with root domains' => [
+                'domain' => ResolvedDomain::fromICANN(Domain::fromIDNA2003('www.bébé.be.'), 1),
                 'publicSuffix' => Suffix::fromICANN(Domain::fromIDNA2003('xn--p1ai')),
                 'expected' => 'рф',
                 'isKnown' => true,

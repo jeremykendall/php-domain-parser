@@ -124,6 +124,4 @@ interface DomainName extends Host, IteratorAggregate
      * If $length is null it returns all elements from $offset to the end of the Domain.
      */
     public function slice(int $offset, ?int $length = null): self;
-
-
 }

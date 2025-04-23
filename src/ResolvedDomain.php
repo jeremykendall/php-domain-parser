@@ -10,17 +10,21 @@ use function count;
 
 final class ResolvedDomain implements ResolvedDomainName
 {
+    private readonly DomainName $domain;
     private readonly DomainName $secondLevelDomain;
     private readonly DomainName $registrableDomain;
     private readonly DomainName $subDomain;
+    private readonly EffectiveTopLevelDomain $suffix;
 
     /**
      * @throws CannotProcessHost
      */
     private function __construct(
-        private readonly DomainName $domain,
-        private readonly EffectiveTopLevelDomain $suffix
+        DomainName $domain,
+        EffectiveTopLevelDomain $suffix
     ) {
+        $this->domain = $domain;
+        $this->suffix = $suffix;
         [
             'registrableDomain' => $this->registrableDomain,
             'secondLevelDomain' => $this->secondLevelDomain,
@@ -195,8 +199,10 @@ final class ResolvedDomain implements ResolvedDomainName
             $suffix = Suffix::fromUnknown($suffix);
         }
 
+        $newDomain = $this->domain->withoutRootLabel()->slice(count($this->suffix))->append($suffix);
+
         return new self(
-            $this->domain->slice(count($this->suffix))->append($suffix),
+            $this->domain->isAbsolute() ? $newDomain->withRootLabel() : $newDomain,
             $suffix->normalize($this->domain)
         );
     }
@@ -211,6 +217,10 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         $subDomain = RegisteredName::fromIDNA2008($subDomain);
+        if ('' === $subDomain->withoutRootLabel()->value()) {
+            throw SyntaxError::dueToMalformedValue($subDomain->toString());
+        }
+
         if ($this->subDomain->value() === $subDomain->value()) {
             return $this;
         }
