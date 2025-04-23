@@ -228,6 +228,13 @@ supported type to avoid unexpected results. By default, if the input is not a
 `Pdp\Suffix` instance, the resulting public suffix will be labelled as
 being unknown. For more information go to the [Public Suffix section](#public-suffix)
 
+> [!INFO]
+> Since version `6.4` Domain resolution is also adapted so that absolute domain
+can effectively be resolved. Prior to version `6.4` an exception was thrown.
+The `ResolvedDomain` stays the same as with the equivalent non-absolute domain
+but with the only difference being that the resolved domain will be absolute.
+Everything else stays the same.
+
 ### Domain Suffix
 
 The domain effective TLD is represented using the `Pdp\Suffix`. Depending on
@@ -340,6 +347,26 @@ echo $domain->toString();           //display 'www.example.com'
 echo $newDomain->toString();        //display 'docs.example.com.www'
 $newDomain->clear()->labels();      //return []
 echo $domain->slice(2)->toString(); //display 'www'
+~~~
+
+Starting with version `6.4` it is possible to specify and handle absolute domain
+with the following methods.
+
+~~~php
+<?php 
+use Pdp\Domain;
+use Pdp\Rules;
+
+/** @var Rules $publicSuffixList */
+$domain = $publicSuffixList->resolve(Domain::from2008('www.ExAmpLE.cOM'))->domain();
+$newDomain = $domain->withRootLabel();
+
+echo $domain->toString();    //display 'www.example.com'
+echo $newDomain->toString(); //display 'www.example.com.www.'
+$domain->isAbsolute();       //return false
+$newDomain->isAbsolute()     //return true
+
+$domain->value() === $newDomain->withoutRootLabel()->value();
 ~~~
 
 > [!WARNING]
