@@ -228,12 +228,9 @@ supported type to avoid unexpected results. By default, if the input is not a
 `Pdp\Suffix` instance, the resulting public suffix will be labelled as
 being unknown. For more information go to the [Public Suffix section](#public-suffix)
 
-> [!INFO]
+> [!TIP]
 > Since version `6.4` Domain resolution is also adapted so that absolute domain
 can effectively be resolved. Prior to version `6.4` an exception was thrown.
-The `ResolvedDomain` stays the same as with the equivalent non-absolute domain
-but with the only difference being that the resolved domain will be absolute.
-Everything else stays the same.
 
 ### Domain Suffix
 
