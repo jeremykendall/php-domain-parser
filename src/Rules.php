@@ -8,8 +8,10 @@ use SplFileObject;
 use SplTempFileObject;
 use Stringable;
 
+use function array_key_exists;
 use function array_pop;
 use function explode;
+use function in_array;
 use function preg_match;
 use function substr;
 
@@ -18,6 +20,8 @@ final class Rules implements PublicSuffixList
     private const ICANN_DOMAINS = 'ICANN_DOMAINS';
     private const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
     private const UNKNOWN_DOMAINS = 'UNKNOWN_DOMAINS';
+
+    private const DOMAIN_RULE_MARKER = '?';
 
     private const REGEX_PSL_SECTION = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
     private const PSL_SECTION = [
@@ -134,7 +138,13 @@ final class Rules implements PublicSuffixList
             $isDomain = false;
         }
 
-        $list[$rule] = $list[$rule] ?? ($isDomain ? [] : ['!' => '']);
+        if (isset($list[$rule]) && [] === $list[$rule]) {
+            $list[$rule] = [self::DOMAIN_RULE_MARKER => ''];
+        }
+        if (!isset($list[$rule])) {
+            $list[$rule] = $isDomain ? [] : ['!' => ''];
+        }
+
         if ($isDomain && [] !== $ruleParts) {
             /** @var array<array-key, array> $tmpList */
             $tmpList = $list[$rule];
@@ -264,6 +274,9 @@ final class Rules implements PublicSuffixList
             //no match found
             if (!array_key_exists($label, $rules)) {
                 // Suffix MUST be fully matched else no suffix is found for private domain
+                if (self::PRIVATE_DOMAINS === $section && array_key_exists(self::DOMAIN_RULE_MARKER, $rules)) {
+                    return $labelCount;
+                }
                 if (self::PRIVATE_DOMAINS === $section && self::hasRemainingRules($rules)) {
                     $labelCount = 0;
                 }
