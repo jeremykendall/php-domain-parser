@@ -273,13 +273,20 @@ final class Rules implements PublicSuffixList
 
             //no match found
             if (!array_key_exists($label, $rules)) {
-                // Suffix MUST be fully matched else no suffix is found for private domain
-                if (self::PRIVATE_DOMAINS === $section && array_key_exists(self::DOMAIN_RULE_MARKER, $rules)) {
+                if (self::PRIVATE_DOMAINS !== $section) {
+                    break;
+                }
+
+                // Suffix MATCHES default domain
+                if (array_key_exists(self::DOMAIN_RULE_MARKER, $rules)) {
                     return $labelCount;
                 }
-                if (self::PRIVATE_DOMAINS === $section && self::hasRemainingRules($rules)) {
-                    $labelCount = 0;
+
+                // Suffix MUST be fully matched else no suffix is found for private domain
+                if (self::hasRemainingRules($rules)) {
+                    return 0;
                 }
+
                 break;
             }
 

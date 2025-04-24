@@ -7,11 +7,14 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 ### Added
 
 - `DomainName::withRootLabel`, `DomainName::withoutRootLabel`, `DomainName::isAbsolute` methods to handle absolute domain names.
+- `DomainName::when` to allow conditionable when building the domain.
 
 ### Fixed
 
 - Absolute domain name can now also be resolved by the package see issue [#361](https://github.com/jeremykendall/php-domain-parser/issues/361) prior to this release an exception was thrown.
 - Since we no longer support PHP7 type hint and return type are improved.
+- Resolving private suffixes that have a wildcarded subdomain suffix [#363](https://github.com/jeremykendall/php-domain-parser/issues/363) by [@wikando-ck](https://github.com/wikando-ck)
+  (Once downloaded and installed you MUST refresh your cache to enable the fix to work.)
 
 ### Deprecated
 

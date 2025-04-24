@@ -44,6 +44,10 @@ a polyfill for the `intl` IDN functions like the `symfony/polyfill-intl-idn`
 otherwise an exception will be thrown when attempting to validate or interact
 with such a host.
 
+> [!WARNING]
+> When upgrading to version `6.4` you MUST refresh your local cache for the fix on
+> private domain resolution to take effect.
+
 ## Usage
 
 > [!WARNING]
