@@ -628,4 +628,19 @@ final class ResolvedDomainTest extends TestCase
             ResolvedDomain::fromICANN('cloudflare-dns.com.1.1.1.1', 4)->toString()
         );
     }
+
+    public function testWithAndWithoutRootLabelResult(): void
+    {
+        $withoutRootLabelResult = ResolvedDomain::fromICANN('cloudflare-dns.com', 1);
+        $withRootLabelResult = $withoutRootLabelResult->withRootLabel();
+
+        self::assertTrue($withRootLabelResult->isAbsolute());
+        self::assertFalse($withoutRootLabelResult->isAbsolute());
+        self::assertEquals($withoutRootLabelResult, $withRootLabelResult->withoutRootLabel());
+        self::assertSame($withoutRootLabelResult->suffix()->value(), $withRootLabelResult->suffix()->value());
+        self::assertSame($withoutRootLabelResult->subDomain()->value(), $withRootLabelResult->subDomain()->value());
+        self::assertSame($withoutRootLabelResult->registrableDomain()->value(), $withRootLabelResult->registrableDomain()->value());
+        self::assertSame($withoutRootLabelResult->secondLevelDomain()->value(), $withRootLabelResult->secondLevelDomain()->value());
+        self::assertNotSame($withoutRootLabelResult->domain()->value(), $withRootLabelResult->domain()->value());
+    }
 }

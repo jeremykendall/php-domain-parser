@@ -190,6 +190,21 @@ final class ResolvedDomain implements ResolvedDomainName
         return new self($this->domain->toUnicode(), $this->suffix->toUnicode());
     }
 
+    public function isAbsolute(): bool
+    {
+        return $this->domain->isAbsolute();
+    }
+
+    public function withoutRootLabel(): self
+    {
+        return new self($this->domain->withoutRootLabel(), $this->suffix);
+    }
+
+    public function withRootLabel(): self
+    {
+        return new self($this->domain->withRootLabel(), $this->suffix);
+    }
+
     /**
      * @throws CannotProcessHost
      */

@@ -14,10 +14,6 @@ use Stringable;
  * @see https://tools.ietf.org/html/rfc5890
  *
  * @extends IteratorAggregate<string>
- *
- * @method bool isAbsolute() tells whether the domain is absolute or not.
- * @method self withRootLabel() returns an instance with its Root label. (see https://tools.ietf.org/html/rfc3986#section-3.2.2)
- * @method self withoutRootLabel() returns an instance without its Root label. (see https://tools.ietf.org/html/rfc3986#section-3.2.2)
  */
 interface DomainName extends Host, IteratorAggregate
 {

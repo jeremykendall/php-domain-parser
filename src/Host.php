@@ -11,6 +11,10 @@ use JsonSerializable;
  * @see https://tools.ietf.org/html/rfc1034#section-3.5
  * @see https://tools.ietf.org/html/rfc1123#section-2.1
  * @see https://tools.ietf.org/html/rfc5890
+ *
+ * @method bool isAbsolute() tells whether the domain is absolute or not.
+ * @method static withRootLabel() returns an instance with its Root label. (see https://tools.ietf.org/html/rfc3986#section-3.2.2)
+ * @method static withoutRootLabel() returns an instance without its Root label. (see https://tools.ietf.org/html/rfc3986#section-3.2.2)
  */
 interface Host extends Countable, JsonSerializable
 {
