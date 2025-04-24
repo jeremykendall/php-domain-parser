@@ -20,9 +20,7 @@ final class Rules implements PublicSuffixList
     private const ICANN_DOMAINS = 'ICANN_DOMAINS';
     private const PRIVATE_DOMAINS = 'PRIVATE_DOMAINS';
     private const UNKNOWN_DOMAINS = 'UNKNOWN_DOMAINS';
-
     private const DOMAIN_RULE_MARKER = '?';
-
     private const REGEX_PSL_SECTION = ',^// ===(?<point>BEGIN|END) (?<type>ICANN|PRIVATE) DOMAINS===,';
     private const PSL_SECTION = [
         'ICANN' => [
@@ -106,8 +104,7 @@ final class Rules implements PublicSuffixList
      * This method is based heavily on the code found in generateEffectiveTLDs.php
      *
      * @see https://github.com/usrflo/registered-domain-libs/blob/master/generateEffectiveTLDs.php
-     * A copy of the Apache License, Version 2.0, is provided with this
-     * distribution
+     * A copy of the Apache License, Version 2.0, is provided with this distribution
      *
      * @param array<array> $list Initially an empty array, this eventually becomes the array representation of a
      *                           Public Suffix List section
@@ -141,14 +138,13 @@ final class Rules implements PublicSuffixList
         if (isset($list[$rule]) && [] === $list[$rule]) {
             $list[$rule] = [self::DOMAIN_RULE_MARKER => ''];
         }
+
         if (!isset($list[$rule])) {
             $list[$rule] = $isDomain ? [] : ['!' => ''];
         }
 
         if ($isDomain && [] !== $ruleParts) {
-            /** @var array<array-key, array> $tmpList */
-            $tmpList = $list[$rule];
-            $list[$rule] = self::addRule($tmpList, $ruleParts);
+            $list[$rule] = self::addRule($list[$rule], $ruleParts);
         }
 
         return $list;
