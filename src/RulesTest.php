@@ -565,4 +565,39 @@ final class RulesTest extends TestCase
         self::assertTrue($domain->suffix()->isPrivate());
         self::assertSame('lt.eu.org', $domain->suffix()->value());
     }
+
+    #[DataProvider('privateDomainWithWildcardProvider')]
+    public function testWithPrivateDomainThatHasWildcardSubdomain(string $inputDomain, string $expectedSuffix): void
+    {
+        $domain = self::$rules->getPrivateDomain($inputDomain);
+
+        self::assertSame($expectedSuffix, $domain->suffix()->value());
+        self::assertFalse($domain->suffix()->isICANN());
+        self::assertTrue($domain->suffix()->isPrivate());
+    }
+
+    /**
+     * @return iterable<string, array{inputDomain: string, expectedSuffix: string}>
+     */
+    public static function privateDomainWithWildcardProvider(): iterable
+    {
+        return [
+            'appspot subdomain' => [
+                'inputDomain' => 'test-domain.de.r.appspot.com',
+                'expectedSuffix' => 'de.r.appspot.com',
+            ],
+            'appspot root domain' => [
+                'inputDomain' => 'test-domain.appspot.com',
+                'expectedSuffix' => 'appspot.com',
+            ],
+            'qcx subdomain' => [
+                'inputDomain' => 'test-domain.de.sys.qcx.io',
+                'expectedSuffix' => 'de.sys.qcx.io',
+            ],
+            'qcx root domain' => [
+                'inputDomain' => 'test-domain.qcx.io',
+                'expectedSuffix' => 'qcx.io',
+            ],
+        ];
+    }
 }
