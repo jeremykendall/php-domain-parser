@@ -2,7 +2,7 @@
 
 All Notable changes to `PHP Domain Parser` starting from the **5.x** series will be documented in this file
 
-## [6.4.0] - 2025-04-22
+## [6.4.0] - 2025-04-24
 
 ### Added
 
@@ -412,6 +412,7 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 - `Pdp\HttpAdapter\HttpAdapterInterface` interface replaced by the `Pdp\HttpClient` interface
 - `Pdp\HttpAdapter\CurlHttpAdapter` class replaced by the `Pdp\CurlHttpClient` class
 
+[6.4.0]: https://github.com/jeremykendall/php-domain-parser/compare/6.3.0...6.4.0
 [6.3.0]: https://github.com/jeremykendall/php-domain-parser/compare/6.2.0...6.3.0
 [6.2.0]: https://github.com/jeremykendall/php-domain-parser/compare/6.1.2...6.2.0
 [6.1.2]: https://github.com/jeremykendall/php-domain-parser/compare/6.1.1...6.1.2
