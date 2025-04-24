@@ -15,6 +15,7 @@ use JsonSerializable;
  * @method bool isAbsolute() tells whether the domain is absolute or not.
  * @method static withRootLabel() returns an instance with its Root label. (see https://tools.ietf.org/html/rfc3986#section-3.2.2)
  * @method static withoutRootLabel() returns an instance without its Root label. (see https://tools.ietf.org/html/rfc3986#section-3.2.2)
+ * @method static when(callable|bool $condition, callable $onSuccess, ?callable $onFail = null) apply the callback if the given "condition" is (or resolves to) true.
  */
 interface Host extends Countable, JsonSerializable
 {

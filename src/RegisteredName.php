@@ -16,6 +16,7 @@ use function explode;
 use function filter_var;
 use function implode;
 use function in_array;
+use function is_bool;
 use function ksort;
 use function preg_match;
 use function rawurldecode;
@@ -383,5 +384,26 @@ final class RegisteredName implements DomainName
     public function isAbsolute(): bool
     {
         return '' === $this->label(0);
+    }
+
+    /**
+     * Apply the callback if the given "condition" is (or resolves to) true.
+     *
+     * @param (callable($this): bool)|bool $condition
+     * @param callable($this): (self|null) $onSuccess
+     * @param ?callable($this): (self|null) $onFail
+     *
+     */
+    public function when(callable|bool $condition, callable $onSuccess, ?callable $onFail = null): self
+    {
+        if (!is_bool($condition)) {
+            $condition = $condition($this);
+        }
+
+        return match (true) {
+            $condition => $onSuccess($this),
+            null !== $onFail => $onFail($this),
+            default => $this,
+        } ?? $this;
     }
 }

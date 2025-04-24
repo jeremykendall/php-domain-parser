@@ -7,6 +7,7 @@ namespace Pdp;
 use Stringable;
 
 use function count;
+use function is_bool;
 
 final class ResolvedDomain implements ResolvedDomainName
 {
@@ -217,7 +218,7 @@ final class ResolvedDomain implements ResolvedDomainName
         $domain = $this->domain->withoutRootLabel()->slice(count($this->suffix))->append($suffix);
 
         return new self(
-            $this->domain->isAbsolute() ? $domain->withRootLabel() : $domain,
+            $domain->when($this->domain->isAbsolute(), fn (DomainName $domainName) => $domain->withRootLabel()),
             $suffix->normalize($this->domain)
         );
     }
@@ -245,7 +246,7 @@ final class ResolvedDomain implements ResolvedDomainName
 
         $domain = $this->registrableDomain->prepend($subDomain);
 
-        return new self($this->domain->isAbsolute() ? $domain->withRootLabel() : $domain, $this->suffix);
+        return new self($domain->when($this->domain->isAbsolute(), fn (DomainName $domainName) => $domain->withRootLabel()), $this->suffix);
     }
 
     /**
@@ -275,5 +276,26 @@ final class ResolvedDomain implements ResolvedDomainName
         }
 
         return new self($newRegistrableDomain->prepend($this->subDomain), $this->suffix);
+    }
+
+    /**
+     * Apply the callback if the given "condition" is (or resolves to) true.
+     *
+     * @param (callable($this): bool)|bool $condition
+     * @param callable($this): (self|null) $onSuccess
+     * @param ?callable($this): (self|null) $onFail
+     *
+     */
+    public function when(callable|bool $condition, callable $onSuccess, ?callable $onFail = null): self
+    {
+        if (!is_bool($condition)) {
+            $condition = $condition($this);
+        }
+
+        return match (true) {
+            $condition => $onSuccess($this),
+            null !== $onFail => $onFail($this),
+            default => $this,
+        } ?? $this;
     }
 }
