@@ -8,6 +8,8 @@ All Notable changes to `PHP Domain Parser` starting from the **5.x** series will
 
 - `DomainName::withRootLabel`, `DomainName::withoutRootLabel`, `DomainName::isAbsolute` methods to handle absolute domain names.
 - `DomainName::when` to allow conditionable when building the domain.
+- `Rules` can now be serialize and unserialize.
+- `TopLevelDomains` can now be serialize and unserialize.
 
 ### Fixed
 

@@ -258,19 +258,20 @@ final class Rules implements PublicSuffixList
         foreach ($domain->toAscii() as $label) {
             //match exception rule
             if (isset($rules[$label]['!'])) {
-                break;
+                return $labelCount;
             }
 
             //match wildcard rule
             if (array_key_exists('*', $rules)) {
                 ++$labelCount;
-                break;
+
+                return $labelCount;
             }
 
             //no match found
             if (!array_key_exists($label, $rules)) {
                 if (self::PRIVATE_DOMAINS !== $section) {
-                    break;
+                    return $labelCount;
                 }
 
                 // Suffix MATCHES default domain
@@ -283,7 +284,7 @@ final class Rules implements PublicSuffixList
                     return 0;
                 }
 
-                break;
+                return $labelCount;
             }
 
             ++$labelCount;
