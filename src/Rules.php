@@ -7,6 +7,8 @@ namespace Pdp;
 use SplFileObject;
 use SplTempFileObject;
 use Stringable;
+use Uri\Rfc3986\Uri;
+use Uri\WhatWg\Url;
 
 use function array_key_exists;
 use function array_pop;
@@ -158,7 +160,7 @@ final class Rules implements PublicSuffixList
         return new self($properties['rules']);
     }
 
-    public function resolve(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
+    public function resolve(DomainNameProvider|Host|Stringable|Url|Uri|string|int|null $host): ResolvedDomainName
     {
         try {
             return $this->getCookieDomain($host);
@@ -169,7 +171,7 @@ final class Rules implements PublicSuffixList
         }
     }
 
-    public function getCookieDomain(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
+    public function getCookieDomain(DomainNameProvider|Host|Stringable|Url|Uri|string|int|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain->withoutRootLabel(), self::UNKNOWN_DOMAINS);
@@ -181,7 +183,7 @@ final class Rules implements PublicSuffixList
         };
     }
 
-    public function getICANNDomain(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
+    public function getICANNDomain(DomainNameProvider|Host|Stringable|Url|Uri|string|int|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain, self::ICANN_DOMAINS);
@@ -192,7 +194,7 @@ final class Rules implements PublicSuffixList
         return ResolvedDomain::fromICANN($domain, $suffixLength);
     }
 
-    public function getPrivateDomain(DomainNameProvider|Host|Stringable|string|int|null $host): ResolvedDomainName
+    public function getPrivateDomain(DomainNameProvider|Host|Stringable|Url|Uri|string|int|null $host): ResolvedDomainName
     {
         $domain = $this->validateDomain($host);
         [$suffixLength, $section] = $this->resolveSuffix($domain, self::PRIVATE_DOMAINS);
@@ -209,17 +211,15 @@ final class Rules implements PublicSuffixList
      * @throws SyntaxError If the domain is invalid
      * @throws UnableToResolveDomain If the domain can not be resolved
      */
-    private function validateDomain(DomainNameProvider|Host|Stringable|string|int|null $domain): DomainName
+    private function validateDomain(DomainNameProvider|Host|Stringable|Uri|Url|string|int|null $domain): DomainName
     {
-        if ($domain instanceof DomainNameProvider) {
-            $domain = $domain->domain();
-        }
-
-        if (!$domain instanceof DomainName) {
-            $domain = Domain::fromIDNA2008($domain);
-        }
-
-        return $domain;
+        return match (true) {
+            $domain instanceof DomainNameProvider => $domain->domain(),
+            $domain instanceof Uri => Domain::fromIDNA2008($domain->getRawHost()),
+            $domain instanceof Url => Domain::fromIDNA2008($domain->getAsciiHost()),
+            $domain instanceof DomainName => $domain,
+            default => Domain::fromIDNA2008($domain),
+        };
     }
 
     /**

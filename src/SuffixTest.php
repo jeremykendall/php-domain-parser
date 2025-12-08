@@ -128,12 +128,15 @@ final class SuffixTest extends TestCase
         self::assertEquals($instance->toUnicode(), $instance);
     }
 
+    /**
+     * @param list<string> $labels
+     *
+     * @throws CannotProcessHost
+     */
     #[DataProvider('countableProvider')]
-    public function testCountable(?string $domain, int $nbLabels): void
+    public function testCountable(?string $domain, int $nbLabels, array $labels = []): void
     {
-        $domain = Suffix::fromUnknown($domain);
-
-        self::assertCount($nbLabels, $domain);
+        self::assertCount($nbLabels, Suffix::fromUnknown($domain));
     }
 
     /**
