@@ -52,7 +52,7 @@ jobs:
               if: ${{ matrix.php == '8.5' }}
 
             - name: Run static analysis
-              run: composer phpstan-build
+              run: composer phpstan
               if: ${{ matrix.php == '8.4' && matrix.stability == 'prefer-stable'}}
 
             - name: Run Coding style rules
