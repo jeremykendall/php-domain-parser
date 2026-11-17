@@ -15,7 +15,7 @@ final class TopLevelDomainsStorageTest extends TestCase
     public function testIsCanReturnARootZoneDatabaseInstanceFromCache(): void
     {
         $cache = new class () implements TopLevelDomainListCache {
-            public function fetch(string $uri): ?TopLevelDomainList
+            public function fetch(string $uri): TopLevelDomainList
             {
                 return TopLevelDomains::fromPath(dirname(__DIR__, 2).'/test_data/tlds-alpha-by-domain.txt');
             }

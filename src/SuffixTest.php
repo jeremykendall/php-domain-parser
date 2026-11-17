@@ -128,8 +128,11 @@ final class SuffixTest extends TestCase
         self::assertEquals($instance->toUnicode(), $instance);
     }
 
+    /**
+     * @param array<string> $data
+     */
     #[DataProvider('countableProvider')]
-    public function testCountable(?string $domain, int $nbLabels): void
+    public function testCountable(?string $domain, int $nbLabels, array $data): void
     {
         $domain = Suffix::fromUnknown($domain);
 
