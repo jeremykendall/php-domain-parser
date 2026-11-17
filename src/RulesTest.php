@@ -566,6 +566,49 @@ final class RulesTest extends TestCase
         self::assertSame('lt.eu.org', $domain->suffix()->value());
     }
 
+    #[DataProvider('privateRulePathWithoutRuleProvider')]
+    public function testPrivateRulePathLabelsWithoutTheirOwnRuleAreNotPrivateSuffixes(string $host, string $suffix, bool $isPrivate, string $registrableDomain): void
+    {
+        $domain = self::$rules->resolve($host);
+
+        self::assertSame($suffix, $domain->suffix()->value());
+        self::assertSame($isPrivate, $domain->suffix()->isPrivate());
+        self::assertSame($registrableDomain, $domain->registrableDomain()->value());
+    }
+
+    /**
+     * @return iterable<string, array{host: string, suffix: string, isPrivate: bool, registrableDomain: string}>
+     */
+    public static function privateRulePathWithoutRuleProvider(): iterable
+    {
+        return [
+            'host on the path of ui.nabu.casa' => [
+                'host' => 'nabu.casa',
+                'suffix' => 'casa',
+                'isPrivate' => false,
+                'registrableDomain' => 'nabu.casa',
+            ],
+            'subdomain beside ui.nabu.casa' => [
+                'host' => 'www.nabu.casa',
+                'suffix' => 'casa',
+                'isPrivate' => false,
+                'registrableDomain' => 'nabu.casa',
+            ],
+            'subdomain beside cust.dev.thingdust.io' => [
+                'host' => 'www.dev.thingdust.io',
+                'suffix' => 'io',
+                'isPrivate' => false,
+                'registrableDomain' => 'thingdust.io',
+            ],
+            'host on the path of *.r.appspot.com' => [
+                'host' => 'r.appspot.com',
+                'suffix' => 'appspot.com',
+                'isPrivate' => true,
+                'registrableDomain' => 'r.appspot.com',
+            ],
+        ];
+    }
+
     #[DataProvider('privateDomainWithWildcardProvider')]
     public function testWithPrivateDomainThatHasWildcardSubdomain(string $inputDomain, string $expectedSuffix): void
     {
