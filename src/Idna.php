@@ -72,14 +72,13 @@ final class Idna
      */
     private static function supportsIdna(): void
     {
+        /** @var null|bool $idnSupport */
         static $idnSupport;
         if (null === $idnSupport) {
             $idnSupport = function_exists('\idn_to_ascii') && defined('\INTL_IDNA_VARIANT_UTS46');
         }
 
-        if (!$idnSupport) {
-            throw new UnexpectedValueException('IDN host can not be processed. Verify that ext/intl is installed for IDN support and that ICU is at least version 4.6.');
-        }
+        true === $idnSupport || throw new UnexpectedValueException('IDN host can not be processed. Verify that ext/intl is installed for IDN support and that ICU is at least version 4.6.');
     }
 
     /**

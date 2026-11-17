@@ -34,7 +34,6 @@ final class TopLevelDomains implements TopLevelDomainList
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadResource If the rules can not be loaded from the path
      * @throws UnableToLoadTopLevelDomainList If the content is invalid or can not be correctly parsed and converted
      */
     public static function fromPath(string $path, $context = null): self

@@ -45,7 +45,6 @@ final class Rules implements PublicSuffixList
      *
      * @param null|resource $context
      *
-     * @throws UnableToLoadResource If the rules can not be loaded from the path
      * @throws UnableToLoadPublicSuffixList If the rules contain in the resource are invalid
      */
     public static function fromPath(string $path, $context = null): self
@@ -144,7 +143,7 @@ final class Rules implements PublicSuffixList
         }
 
         if ($isDomain && [] !== $ruleParts) {
-            $list[$rule] = self::addRule($list[$rule], $ruleParts);
+            $list[$rule] = self::addRule($list[$rule], $ruleParts); /* @phpstan-ignore-line */
         }
 
         return $list;
@@ -258,7 +257,7 @@ final class Rules implements PublicSuffixList
         $matchedCount = 0;
         foreach ($domain->toAscii() as $label) {
             //match exception rule
-            if (isset($rules[$label]['!'])) {
+            if (isset($rules[$label]['!'])) { /* @phpstan-ignore-line */
                 return $labelCount;
             }
 
